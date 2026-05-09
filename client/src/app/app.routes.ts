@@ -17,6 +17,11 @@ export const routes: Routes = [
         title: 'Classes'
     },
     {
+        path: 'payment',
+        loadComponent: () => import('./pages/payment/payment').then(m => m.Payment),
+        title: 'Payment'
+    },
+    {
         path: 'contact',
         loadComponent: () => import('./pages/contact/contact').then(m => m.Contact),
         title: 'Contact'
