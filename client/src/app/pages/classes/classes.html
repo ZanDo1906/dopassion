@@ -1,1 +1,81 @@
-<p>classes works!</p>
+<div class="classes-container">
+  <!-- Header Banner Section -->
+  <div class="classes-header">
+    <img src="assets/images/classes/BANNER.png" alt="DoPassion Banner" class="banner-image" />
+    <div class="header-overlay">
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-group">
+      <label class="filter-label">Khóa học</label>
+      <select class="filter-select filter-select-main" (change)="filterByCourse($event)">
+        <option value="">Tất cả khóa học</option>
+        <option value="LR">TOEIC - LR</option>
+        <option value="SW">TOEIC - SW</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label class="filter-label">Ngày khai giảng</label>
+      <div class="input-group">
+        <input type="date" class="form-control" [value]="startDate" (change)="filterByDate('start', $event)" />
+        <span class="input-group-text">-</span>
+        <input type="date" class="form-control" [value]="endDate" (change)="filterByDate('end', $event)" />
+      </div>
+    </div>
+    
+    <div class="filter-group">
+      <label class="filter-label">Chi nhánh</label>
+      <select class="filter-select filter-select-main" (change)="filterByBranch($event)">
+        <option value="">Tất cả chi nhánh</option>
+        <option value="Hà Nội">Hà Nội</option>
+        <option value="TP. HCM">TP. HCM</option>
+        <option value="Đà Nẵng">Đà Nẵng</option>
+      </select>
+    </div>
+    
+    <div class="filter-group search-group">
+      <button class="search-btn" (click)="onSearch()">🔍</button>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <div class="courses-grid">
+    <div *ngFor="let course of courses" class="course-card">
+      <div class="course-image">
+        <img src="assets/images/classes/sample.png" alt="{{ course.title }}" />
+      </div>
+      <div class="course-content">
+        <h3 class="course-title">{{ course.title }}</h3>
+        
+        <div class="course-info-row">
+          <span class="info-badge">📅 {{ formatDate(course.startDate) }}</span>
+          <span class="info-badge">📍 {{ course.branch }}</span>
+        </div>
+        
+        <div class="course-rating">
+        </div>
+        
+        <div class="course-meta">
+          <div class="meta-item">
+            <span class="meta-label">Giờ học</span>
+            <span class="meta-value">{{ course.schedule }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Số buổi</span>
+            <span class="meta-value">{{ course.lessons }}</span>
+          </div>
+        </div>
+        
+        <button class="view-details-btn">Xem chi tiết</button>
+        
+        <div class="checkbox-item">
+          <span class="check-icon" [class.checked]="course.hasTest">✓</span>
+          <label>Kiểm tra đầu vào</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
