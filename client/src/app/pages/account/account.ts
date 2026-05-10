@@ -18,8 +18,40 @@ interface Holiday {
   blessing: string;
 }
 
+interface ClassDetail {
+  id: number;
+  name: string;
+  code: string;
+  instructor: string;
+  startDate: string;
+  endDate: string;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  branch: string;
+  room: string;
+  schedule: string;
+  startTime: string;
+  endTime: string;
+}
+
+// KHAI BÁO INTERFACE THANH TOÁN
+interface PaymentDetail {
+  id: number;
+  className: string;
+  paymentCode: string;
+  amountBeforeVoucher: number;
+  voucher: string;
+  amountAfterVoucher: number;
+  amountPaid: number;
+  refundAmount: number;
+  paymentMethod: string;
+  status: 'pending' | 'completed' | 'postponed';
+  paymentDate: string;
+  note: string;
+}
+
 @Component({
   selector: 'app-account',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './account.html',
   styleUrl: './account.css',
@@ -28,8 +60,13 @@ export class Account implements OnInit {
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
   fullName: string = 'Dương Trọng Nhân';
   phoneNumber: string = '0562173125';
-  // Calendar properties
-  
+  showPasswordForm: boolean = false;
+
+
+  // BIẾN QUẢN LÝ BỘ LỌC
+  classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
+  paymentFilter: 'all' | 'pending' | 'completed' | 'postponed' = 'all';
+
   // Calendar properties
   selectedYear: number = 2025;
   selectedMonth: number = 12;
@@ -40,7 +77,58 @@ export class Account implements OnInit {
   showHolidayPopup: boolean = false;
   selectedHoliday: Holiday | null = null;
   
-  // Vietnamese holidays (month, date, name, blessing)
+  // Class Detail Popup properties
+  showClassPopup: boolean = false;
+  selectedClass: ClassDetail | null = null;
+
+  // Payment Detail Popup properties
+  showPaymentPopup: boolean = false;
+  selectedPayment: PaymentDetail | null = null;
+
+  // Mock payment data
+  payments: PaymentDetail[] = [
+    {
+      id: 1,
+      className: 'LỚP HỌC TOEIC SW107',
+      paymentCode: 'DNN24925',
+      amountBeforeVoucher: 3500000,
+      voucher: 'VOUCHER50',
+      amountAfterVoucher: 3000000,
+      amountPaid: 3000000,
+      refundAmount: 500000,
+      paymentMethod: 'Chuyển khoản',
+      status: 'pending',
+      paymentDate: '23/12/2025',
+      note: 'Hoàn tiền do nghỉ học',
+    },
+    {
+      id: 2,
+      className: 'LỚP HỌC TOEIC SW108',
+      paymentCode: 'DNN24926',
+      amountBeforeVoucher: 3500000,
+      voucher: 'VOUCHER30',
+      amountAfterVoucher: 3200000,
+      amountPaid: 3200000,
+      refundAmount: 0,
+      paymentMethod: 'Tiền mặt',
+      status: 'completed',
+      paymentDate: '25/12/2025',
+      note: '',
+    }
+  ];
+
+  // HÀM XỬ LÝ LỌC DỮ LIỆU
+  get filteredClasses() {
+    if (this.classFilter === 'all') return this.classes;
+    return this.classes.filter(c => c.status === this.classFilter);
+  }
+
+  get filteredPayments() {
+    if (this.paymentFilter === 'all') return this.payments;
+    return this.payments.filter(p => p.status === this.paymentFilter);
+  }
+
+  // Vietnamese holidays
   holidays: Holiday[] = [
     { month: 1, date: 1, name: 'Tết Dương lịch', blessing: 'Chúc bạn một năm mới thành công, sức khỏe dồi dào và hạnh phúc!' },
     { month: 2, date: 10, name: 'Tết Nguyên Đán', blessing: 'Tết vui vẻ, vạn sự như ý, tiền tài tứ tung!' },
@@ -61,10 +149,42 @@ export class Account implements OnInit {
   // Available years for selection
   years: number[] = [2024, 2025, 2026, 2027, 2028];
   
-  // Month names in Vietnamese
+  // Month names
   monthNames = [
     'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
     'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+  ];
+  
+  // Mock class data
+  classes: ClassDetail[] = [
+    {
+      id: 1,
+      name: 'LỚP TOEIC LR108',
+      code: 'DNN24925',
+      instructor: 'Mr. ĐÔNG TRƯỜNG',
+      startDate: '22/12/2025',
+      endDate: '28/02/2026',
+      status: 'upcoming',
+      branch: 'Chi nhánh Quận 1',
+      room: 'Phòng 305',
+      schedule: 'Thứ 2, 4, 6',
+      startTime: '09:00',
+      endTime: '11:30'
+    },
+    {
+      id: 2,
+      name: 'LỚP TOEIC SW108',
+      code: 'DNN24926',
+      instructor: 'Mr. ĐÔNG TRƯỜNG',
+      startDate: '22/12/2025',
+      endDate: '25/02/2026',
+      status: 'ongoing',
+      branch: 'Chi nhánh Quận 3',
+      room: 'Phòng 201',
+      schedule: 'Thứ 3, 5, 7',
+      startTime: '14:00',
+      endTime: '16:30'
+    }
   ];
 
   switchView(view: 'info' | 'classes' | 'payment' | 'schedule') {
@@ -81,12 +201,10 @@ export class Account implements OnInit {
     const daysInMonth = lastDayOfMonth.getDate();
     const startingDayOfWeek = firstDayOfMonth.getDay();
     
-    // Adjust for Monday start (0 = Monday in our case)
     const adjustedStartDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
     
     this.calendarDays = [];
     
-    // Add empty days from previous month
     const prevMonthLastDay = new Date(this.selectedYear, this.selectedMonth - 1, 0).getDate();
     for (let i = adjustedStartDay; i > 0; i--) {
       this.calendarDays.push({
@@ -98,7 +216,6 @@ export class Account implements OnInit {
       });
     }
     
-    // Add days of current month
     const today = new Date();
     for (let i = 1; i <= daysInMonth; i++) {
       const isToday = today.getDate() === i && 
@@ -118,8 +235,7 @@ export class Account implements OnInit {
       });
     }
     
-    // Add empty days from next month
-    const remainingDays = 42 - this.calendarDays.length; // 6 rows * 7 days
+    const remainingDays = 42 - this.calendarDays.length;
     for (let i = 1; i <= remainingDays; i++) {
       this.calendarDays.push({
         date: i,
@@ -130,7 +246,6 @@ export class Account implements OnInit {
       });
     }
     
-    // Update calendar title
     this.calendarTitle = `${this.monthNames[this.selectedMonth - 1]}, ${this.selectedYear}`;
   }
 
@@ -167,27 +282,22 @@ export class Account implements OnInit {
   }
 
   openHolidayPopup(day: any) {
-
     const holiday = this.holidays.find(
       h => h.month === this.selectedMonth && h.date === day.date
     );
 
     if (holiday) {
-
       this.selectedHoliday = {
         month: holiday.month,
         date: holiday.date,
         name: holiday.name,
         blessing: holiday.blessing
       };
-
     } else {
-
-      // Tạo đối tượng Date thực tế từ ô lịch để lấy thông tin chính xác
       const clickedDate = new Date(this.selectedYear, this.selectedMonth - 1, 1);
       if (!day.isCurrentMonth) {
-          if (day.date > 20) clickedDate.setMonth(this.selectedMonth - 2); // Tháng trước
-          else clickedDate.setMonth(this.selectedMonth); // Tháng sau
+          if (day.date > 20) clickedDate.setMonth(this.selectedMonth - 2);
+          else clickedDate.setMonth(this.selectedMonth);
       }
       const displayMonth = clickedDate.getMonth() + 1;
       const displayYear = clickedDate.getFullYear();
@@ -199,7 +309,6 @@ export class Account implements OnInit {
         blessing: `Ngày ${day.date}/${displayMonth}/${displayYear}`
       };
     }  
-
     this.showHolidayPopup = true;
   }
 
@@ -207,4 +316,25 @@ export class Account implements OnInit {
     this.showHolidayPopup = false;
     this.selectedHoliday = null;
   }
+
+  openClassPopup(classItem: ClassDetail) {
+    this.selectedClass = classItem;
+    this.showClassPopup = true;
+  }
+
+  closeClassPopup() {
+    this.showClassPopup = false;
+    this.selectedClass = null;
+  }
+
+  openPaymentPopup(payment: PaymentDetail) {
+    this.selectedPayment = payment;
+    this.showPaymentPopup = true;
+  }
+
+  closePaymentPopup() {
+    this.showPaymentPopup = false;
+    this.selectedPayment = null;
+  }
 }
+
