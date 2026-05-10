@@ -1,2 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@import "tailwindcss";
+
+@theme {
+  --color-background: #fdfdfd;
+  --color-foreground: #334155;
+  --color-border: #e2e8f0;
+  --color-input: #f8fafc;
+  --color-primary: #3b5b94;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #eef1f8;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-brand-light: #8fa6d3;
+  --color-brand-active: #d6e0f3;
+  --color-status-red: #ef4444;
+  --color-status-green: #22c55e;
+
+  --font-body: Inter, sans-serif;
+  --font-headings: Inter, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+  }
+}
