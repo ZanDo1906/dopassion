@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrl: './header.css',
 })
 export class Header {
-
+  // Để trống cho thành viên khác pull code
 }
