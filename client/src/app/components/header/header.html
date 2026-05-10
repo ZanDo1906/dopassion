@@ -1,2 +1,34 @@
-<!-- Để trống cho thành viên khác pull code navbar -->
+<header class="header">
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="/assets/images/logo.png" alt="DoPassion Logo" class="logo-img" />
+        </div>
 
+        <!-- Navigation Menu -->
+        <nav class="nav-menu">
+            <a routerLink="" class="nav-item">Giới thiệu</a>
+            <a routerLink="/classes" class="nav-item">Lớp học</a>
+            <a routerLink="/contact" class="nav-item">Liên hệ</a>
+            <a routerLink="/reviews" class="nav-item">Đánh giá</a>
+        </nav>
+
+        <!-- Right Section -->
+        <div class="header-right">
+            <!-- Help Icon -->
+            <button class="icon-btn help-btn" title="Trợ giúp">
+                <i class="bi bi-question-circle"></i>
+            </button>
+
+            <!-- Notification Icon -->
+            <button class="icon-btn notification-btn" title="Thông báo">
+                <i class="bi bi-bell"></i>
+            </button>
+
+            <!-- Avatar -->
+            <div class="avatar" (click)="onAvatarClick()">
+                <img src="/assets/images/avatar.jpg" alt="User Avatar" class="avatar-img" />
+            </div>
+        </div>
+    </div>
+</header>
