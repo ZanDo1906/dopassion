@@ -3,7 +3,7 @@
   <div class="sidebar">
     <div class="profile-section">
         <img src="client/assets/images/avatar.jpg" alt="Profile" class="profile-avatar">
-        <h2 class="profile-name">DƯƠNG TRỌNG NHÂN</h2>
+        <h2 class="profile-name">Dương Trọng Nhân</h2>
         <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
     </div>
 
@@ -67,101 +67,122 @@
       </div>
 
       <div class="form-section">
-        <h3 class="section-title">ĐỔI MẬT KHẨU</h3>
-        <form class="password-form">
-          <div class="form-group">
-            <label for="old-password">Mật khẩu cũ <span class="required">*</span></label>
-            <input type="password" id="old-password" placeholder="••••••••">
-          </div>
-          <div class="form-group">
-            <label for="new-password">Mật khẩu mới <span class="required">*</span></label>
-            <input type="password" id="new-password" placeholder="••••••••">
-          </div>
-          <div class="form-group">
-            <label for="confirm-password">Xác minh mật khẩu mới <span class="required">*</span></label>
-            <input type="password" id="confirm-password" placeholder="••••••••">
-          </div>
-          <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
-        </form>
+
+        <div class="password-header">
+
+          <h3 class="section-title password-toggle"
+              (click)="showPasswordForm = !showPasswordForm">
+
+            ĐỔI MẬT KHẨU
+
+            <i class="bi"
+              [ngClass]="showPasswordForm ? 'bi-chevron-up' : 'bi-chevron-down'">
+            </i>
+
+          </h3>
+
+        </div>
+
+        <!-- FORM -->
+        <div *ngIf="showPasswordForm">
+          <form class="password-form">
+
+            <div class="form-group">
+
+              <label for="old-password">
+                Mật khẩu cũ <span class="required">*</span>
+              </label>
+
+              <input type="password"
+                    id="old-password"
+                    placeholder="••••••••">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="new-password">
+                Mật khẩu mới <span class="required">*</span>
+              </label>
+
+              <input type="password"
+                    id="new-password"
+                    placeholder="••••••••">
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="confirm-password">
+                Xác minh mật khẩu mới <span class="required">*</span>
+              </label>
+
+              <input type="password"
+                    id="confirm-password"
+                    placeholder="••••••••">
+
+            </div>
+
+            <button type="submit"
+                    class="btn-save">
+
+              LƯU THÔNG TIN
+
+            </button>
+
+          </form>
+        </div>  
       </div>
     </div>
 
     <!-- View 2: Danh sách lớp học -->
     <div *ngIf="currentView === 'classes'">
       <h3 class="section-title">DANH SÁCH LỚP HỌC</h3>
-      <!-- <div class="content-header">
-        <h2 class="page-title">DANH SÁCH LỚP HỌC</h2>
-      </div> -->
 
       <div class="filter-bar">
-        <button class="filter-btn active">Tất cả</button>
-        <button class="filter-btn">Sắp diễn ra</button>
-        <button class="filter-btn">Đang diễn ra</button>
-        <button class="filter-btn">Hoàn thành</button>
+      <button class="filter-btn" [class.active]="classFilter === 'all'" (click)="classFilter = 'all'">Tất cả</button>
+      <button class="filter-btn" [class.active]="classFilter === 'upcoming'" (click)="classFilter = 'upcoming'">Sắp diễn ra</button>
+      <button class="filter-btn" [class.active]="classFilter === 'ongoing'" (click)="classFilter = 'ongoing'">Đang diễn ra</button>
+      <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Hoàn thành</button>
       </div>
       <div class="classes-list">
-        <div class="class-card">
+        <div class="class-card" *ngFor="let classItem of filteredClasses">
           <div class="class-header">
-            <h3 class="class-name">LỚP TOEIC LR108</h3>
-            <span class="class-status status-upcoming">Sắp diễn ra</span>
+            <h3 class="class-name">{{ classItem.name }}</h3>
+            <span class="class-status" 
+              [ngClass]="{
+                'status-upcoming': classItem.status === 'upcoming',
+                'status-ongoing': classItem.status === 'ongoing',
+                'status-completed': classItem.status === 'completed'
+              }">
+              {{ classItem.status === 'upcoming' ? 'Sắp diễn ra' : classItem.status === 'ongoing' ? 'Đang diễn ra' : 'Hoàn thành' }}
+            </span>
           </div>
-          <div class="class-code">Mã lớp học: DNN24925</div>
+          <div class="class-code">Mã lớp học: {{ classItem.code }}</div>
           <div class="class-info">
             <div class="info-item">
               <i class="bi bi-calendar-event"></i>
               <div class="info-text">
                 <span class="label">Bắt đầu</span>
-                <span class="value">22/12/2025</span>
+                <span class="value">{{ classItem.startDate }}</span>
               </div>
             </div>
             <div class="info-item">
               <i class="bi bi-calendar-check"></i>
               <div class="info-text">
                 <span class="label">Kết thúc</span>
-                <span class="value">22/12/2025</span>
+                <span class="value">{{ classItem.endDate }}</span>
               </div>
             </div>
             <div class="info-item">
               <i class="bi bi-person-fill"></i>
               <div class="info-text">
                 <span class="label">Giảng viên</span>
-                <span class="value">Mr. ĐÔNG TRƯỜNG</span>
+                <span class="value">{{ classItem.instructor }}</span>
               </div>
             </div>
           </div>
-          <button class="btn-view">Xem lớp học</button>
-        </div>
-
-        <div class="class-card">
-          <div class="class-header">
-            <h3 class="class-name">LỚP TOEIC SW108</h3>
-            <span class="class-status status-ongoing">Đang diễn ra</span>
-          </div>
-          <div class="class-code">Mã lớp học: DNN24925</div>
-          <div class="class-info">
-            <div class="info-item">
-              <i class="bi bi-calendar-event"></i>
-              <div class="info-text">
-                <span class="label">Bắt đầu</span>
-                <span class="value">22/12/2025</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-calendar-check"></i>
-              <div class="info-text">
-                <span class="label">Kết thúc</span>
-                <span class="value">22/12/2025</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-person-fill"></i>
-              <div class="info-text">
-                <span class="label">Giảng viên</span>
-                <span class="value">Mr. ĐÔNG TRƯỜNG</span>
-              </div>
-            </div>
-          </div>
-          <button class="btn-view">Xem lớp học</button>
+          <button class="btn-view" (click)="openClassPopup(classItem)">Xem lớp học</button>
         </div>
       </div>
     </div>
@@ -170,354 +191,148 @@
     <div *ngIf="currentView === 'payment'">
       <h3 class="section-title">QUẢN LÝ THANH TOÁN</h3>
 
+
+      <!-- FILTER -->
       <div class="filter-bar">
-        <button class="filter-btn active">Tất cả</button>
-        <button class="filter-btn">Đang chờ hoàn tiền</button>
-        <button class="filter-btn">Đã thanh toán</button>
-        <button class="filter-btn">Đã thanh toán ghi danh</button>
-      </div>
 
-      <div class="payment-list">
-        <div class="payment-card">
-          <div class="payment-header">
-            <div class="payment-title">
-              <h3 class="class-name">LỚP HỌC TOEIC SW107</h3>
-              <p class="transaction-id">Mã giao dịch: DNN24925</p>
-            </div>
-            <span class="payment-status status-pending">Đang chờ hoàn tiền</span>
-          </div>
+        <button class="filter-btn"
+                [class.active]="paymentFilter === 'all'"
+                (click)="paymentFilter = 'all'">
 
-          <div class="payment-body">
-            <div class="payment-info-left">
-              <div class="info-item">
-                <i class="bi bi-calendar-event"></i>
-                <div class="info-text">
-                  <span class="label">Bắt đầu</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-calendar-check"></i>
-                <div class="info-text">
-                  <span class="label">Kết thúc</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-person-fill"></i>
-                <div class="info-text">
-                  <span class="label">Giảng viên</span>
-                  <span class="value">Mr. Đông Trường</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-collection"></i>
-                <div class="info-text">
-                  <span class="label">Số buổi học</span>
-                  <span class="value">30 buổi</span>
-                </div>
-              </div>
-            </div>
+          Tất cả
 
-            <div class="payment-info-right">
-              <div class="price-section">
-                <span class="price-label">Giá tiền</span>
-                <span class="price-value">3.500.000 VND</span>
-              </div>
-              <!-- <div class="progress-section">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: 25%"></div>
-                </div>
-                <span class="progress-text">25%</span>
-              </div> -->
-              <button class="btn-detail">Xem chi tiết</button>
-            </div>
-          </div>
-        </div>
+        </button>
 
-        <div class="payment-card">
-          <div class="payment-header">
-            <div class="payment-title">
-              <h3 class="class-name">LỚP HỌC TOEIC SW108</h3>
-              <p class="transaction-id">Mã giao dịch: DNN24925</p>
-            </div>
-            <span class="payment-status status-completed">Đã thanh toán</span>
-          </div>
+        <button class="filter-btn"
+                [class.active]="paymentFilter === 'pending'"
+                (click)="paymentFilter = 'pending'">
 
-          <div class="payment-body">
-            <div class="payment-info-left">
-              <div class="info-item">
-                <i class="bi bi-calendar-event"></i>
-                <div class="info-text">
-                  <span class="label">Bắt đầu</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-calendar-check"></i>
-                <div class="info-text">
-                  <span class="label">Kết thúc</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-person-fill"></i>
-                <div class="info-text">
-                  <span class="label">Giảng viên</span>
-                  <span class="value">Mr. Đông Trường</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-collection"></i>
-                <div class="info-text">
-                  <span class="label">Số buổi học</span>
-                  <span class="value">20 buổi</span>
-                </div>
-              </div>
-            </div>
+          Đang chờ hoàn tiền
 
-            <div class="payment-info-right">
-              <div class="price-section">
-                <span class="price-label">Giá tiền</span>
-                <span class="price-value">3.500.000 VND</span>
-              </div>
-              <div class="progress-section">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: 100%"></div>
-                </div>
-                <!-- <span class="progress-text">25%</span> -->
-              </div>
-              <button class="btn-detail">Xem chi tiết</button>
-            </div>
-          </div>
-        </div>
+        </button>
 
-        <div class="payment-card">
-          <div class="payment-header">
-            <div class="payment-title">
-              <h3 class="class-name">LỚP HỌC TOEIC SW109</h3>
-              <p class="transaction-id">Mã giao dịch: DNN24925</p>
-            </div>
-            <span class="payment-status status-postponed">Đã thanh toán ghi danh</span>
-          </div>
+        <button class="filter-btn"
+                [class.active]="paymentFilter === 'completed'"
+                (click)="paymentFilter = 'completed'">
 
-          <div class="payment-body">
-            <div class="payment-info-left">
-              <div class="info-item">
-                <i class="bi bi-calendar-event"></i>
-                <div class="info-text">
-                  <span class="label">Bắt đầu</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-calendar-check"></i>
-                <div class="info-text">
-                  <span class="label">Kết thúc</span>
-                  <span class="value">22/12/2025</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-person-fill"></i>
-                <div class="info-text">
-                  <span class="label">Giảng viên</span>
-                  <span class="value">Mr. Đông Trường</span>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-collection"></i>
-                <div class="info-text">
-                  <span class="label">Số buổi học</span>
-                  <span class="value">20 buổi</span>
-                </div>
-              </div>
-            </div>
+          Đã thanh toán
 
-            <div class="payment-info-right">
-              <div class="price-section">
-                <span class="price-label">Giá tiền</span>
-                <span class="price-value">3.500.000 VND</span>
-              </div>
-              <div class="progress-section">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width: 50%"></div>
-                </div>
-                <!-- <span class="progress-text">25%</span> -->
-              </div>
-              <button class="btn-detail">Xem chi tiết</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </button>
 
-    <!-- View 4: Lịch của tôi -->
-    <!-- View 4: Lịch của tôi -->
-<div *ngIf="currentView === 'schedule'">
+        <button class="filter-btn"
+                [class.active]="paymentFilter === 'postponed'"
+                (click)="paymentFilter = 'postponed'">
 
-  <h3 class="section-title">LỊCH CỦA TÔI</h3>
-
-  <!-- Bộ lọc -->
-  <div class="schedule-controls">
-
-    <select class="select-control"
-            [ngModel]="selectedYear"
-            (change)="onYearChange($event)">
-
-      <option *ngFor="let year of years"
-              [value]="year">
-
-        {{ year }}
-
-      </option>
-    </select>
-
-    <select class="select-control"
-            [ngModel]="selectedMonth"
-            (change)="onMonthChange($event)">
-
-      <option value="1">Tháng 1</option>
-      <option value="2">Tháng 2</option>
-      <option value="3">Tháng 3</option>
-      <option value="4">Tháng 4</option>
-      <option value="5">Tháng 5</option>
-      <option value="6">Tháng 6</option>
-      <option value="7">Tháng 7</option>
-      <option value="8">Tháng 8</option>
-      <option value="9">Tháng 9</option>
-      <option value="10">Tháng 10</option>
-      <option value="11">Tháng 11</option>
-      <option value="12">Tháng 12</option>
-
-    </select>
-
-  </div>
-
-  <!-- Calendar -->
-  <div class="calendar-section">
-
-    <!-- Header -->
-    <div class="calendar-header">
-
-      <button class="nav-btn"
-              (click)="previousMonth()">
-
-        <i class="bi bi-chevron-left"></i>
-
-      </button>
-
-      <h2 class="calendar-title">
-        {{ calendarTitle }}
-      </h2>
-
-      <button class="nav-btn"
-              (click)="nextMonth()">
-
-        <i class="bi bi-chevron-right"></i>
-
-      </button>
-
-    </div>
-
-    <!-- Weekdays -->
-    <div class="calendar-weekdays">
-
-      <div class="weekday">Th 2</div>
-      <div class="weekday">Th 3</div>
-      <div class="weekday">Th 4</div>
-      <div class="weekday">Th 5</div>
-      <div class="weekday">Th 6</div>
-      <div class="weekday">Th 7</div>
-      <div class="weekday">CN</div>
-
-    </div>
-
-    <!-- Grid -->
-    <div class="calendar-grid">
-
-      <div *ngFor="let day of calendarDays"
-           class="calendar-day"
-           [class.empty]="!day.isCurrentMonth"
-           [class.today]="day.isToday"
-           [class.holiday]="day.isHoliday"
-           [class.clickable]="day.isCurrentMonth"
-           (click)="day.isCurrentMonth && openHolidayPopup(day)"
-           [title]="day.holidayName || ''">
-
-        <span>{{ day.date }}</span>
-
-        <!-- Holiday icon -->
-        <span *ngIf="day.isHoliday"
-              class="holiday-badge">
-
-          🎉
-
-        </span>
-
-        <!-- Event dot -->
-        <span *ngIf="day.hasEvent && !day.isHoliday"
-              class="event-dot">
-
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- Popup -->
-  <div *ngIf="showHolidayPopup"
-       class="holiday-popup-overlay"
-       (click)="closeHolidayPopup()">
-
-    <div class="holiday-popup"
-         (click)="$event.stopPropagation()">
-
-      <div class="popup-header">
-
-        <h3>
-          {{ selectedHoliday?.name }}
-        </h3>
-
-        <button class="close-btn"
-                (click)="closeHolidayPopup()">
-
-          &times;
+          Đã thanh toán ghi danh
 
         </button>
 
       </div>
 
-      <div class="popup-body">
+  <!-- PAYMENT LIST -->
+  <div class="payment-list">
 
-        <div class="holiday-date">
+    <div class="payment-card"
+         *ngFor="let payment of filteredPayments">
 
-          <span class="emoji">🗓️</span>
+      <!-- HEADER -->
+      <div class="payment-header">
 
-          <span class="date-text">
+        <div class="payment-title">
 
-            {{ selectedHoliday?.date }}/{{ selectedHoliday?.month }}/{{ selectedYear }}
+          <h3 class="class-name">
+            {{ payment.className }}
+          </h3>
 
-          </span>
+          <p class="transaction-id">
+            Mã giao dịch: {{ payment.paymentCode }}
+          </p>
 
         </div>
 
-        <div class="holiday-blessing">
+        <span class="payment-status"
 
-          <span class="emoji">💌</span>
+              [ngClass]="{
+                'status-pending': payment.status === 'pending',
+                'status-completed': payment.status === 'completed',
+                'status-postponed': payment.status === 'postponed'
+              }">
 
-          <p *ngIf="selectedHoliday?.name !== 'Không có ngày lễ'">
+          {{
+            payment.status === 'pending'
+            ? 'Đang chờ hoàn tiền'
+            : payment.status === 'completed'
+              ? 'Đã thanh toán'
+              : 'Đã thanh toán ghi danh'
+          }}
 
-            {{ selectedHoliday?.blessing }}
+        </span>
 
-          </p>
+      </div>
 
-          <p *ngIf="selectedHoliday?.name === 'Không có ngày lễ'">
+      <!-- BODY -->
+      <div class="payment-body">
 
-            Không có sự kiện đặc biệt trong ngày này.
+        <div class="payment-info-left">
 
-          </p>
+          <div class="info-item">
+
+            <i class="bi bi-calendar-event"></i>
+
+            <div class="info-text">
+
+              <span class="label">
+                Ngày thanh toán
+              </span>
+
+              <span class="value">
+                {{ payment.paymentDate }}
+              </span>
+
+            </div>
+
+          </div>
+
+          <div class="info-item">
+
+            <i class="bi bi-wallet2"></i>
+
+            <div class="info-text">
+
+              <span class="label">
+                Phương thức
+              </span>
+
+              <span class="value">
+                {{ payment.paymentMethod }}
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="payment-info-right">
+
+          <div class="price-section">
+
+            <span class="price-label">
+              Giá tiền
+            </span>
+
+            <span class="price-value">
+              {{ payment.amountPaid | number }} VND
+            </span>
+
+          </div>
+
+          <button class="btn-detail"
+                  (click)="openPaymentPopup(payment)">
+
+            Xem chi tiết
+
+          </button>
 
         </div>
 
@@ -529,4 +344,249 @@
 
 </div>
 
+    <!-- View 4: Lịch của tôi -->
+    <div *ngIf="currentView === 'schedule'">
+
+      <h3 class="section-title">LỊCH CỦA TÔI</h3>
+
+      <!-- Bộ lọc -->
+      <div class="schedule-controls">
+
+        <select class="select-control"
+                [ngModel]="selectedYear"
+                (change)="onYearChange($event)">
+
+          <option *ngFor="let year of years"
+                  [value]="year">
+
+            {{ year }}
+
+          </option>
+        </select>
+
+        <select class="select-control"
+                [ngModel]="selectedMonth"
+                (change)="onMonthChange($event)">
+
+          <option value="1">Tháng 1</option>
+          <option value="2">Tháng 2</option>
+          <option value="3">Tháng 3</option>
+          <option value="4">Tháng 4</option>
+          <option value="5">Tháng 5</option>
+          <option value="6">Tháng 6</option>
+          <option value="7">Tháng 7</option>
+          <option value="8">Tháng 8</option>
+          <option value="9">Tháng 9</option>
+          <option value="10">Tháng 10</option>
+          <option value="11">Tháng 11</option>
+          <option value="12">Tháng 12</option>
+
+        </select>
+
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-section">
+
+        <!-- Header -->
+        <div class="calendar-header">
+
+          <button class="nav-btn"
+                  (click)="previousMonth()">
+
+            <i class="bi bi-chevron-left"></i>
+
+          </button>
+
+          <h2 class="calendar-title">
+            {{ calendarTitle }}
+          </h2>
+
+          <button class="nav-btn"
+                  (click)="nextMonth()">
+
+            <i class="bi bi-chevron-right"></i>
+
+          </button>
+
+        </div>
+
+        <!-- Weekdays -->
+        <div class="calendar-weekdays">
+
+          <div class="weekday">Th 2</div>
+          <div class="weekday">Th 3</div>
+          <div class="weekday">Th 4</div>
+          <div class="weekday">Th 5</div>
+          <div class="weekday">Th 6</div>
+          <div class="weekday">Th 7</div>
+          <div class="weekday">CN</div>
+
+        </div>
+
+        <!-- Grid -->
+        <div class="calendar-grid">
+
+          <div *ngFor="let day of calendarDays"
+               class="calendar-day"
+               [class.empty]="!day.isCurrentMonth"
+               [class.today]="day.isToday"
+               [class.holiday]="day.isHoliday"
+               [class.clickable]="day.isCurrentMonth"
+               (click)="day.isCurrentMonth && openHolidayPopup(day)"
+               [title]="day.holidayName || ''">
+
+            <span>{{ day.date }}</span>
+
+            <!-- Holiday icon -->
+            <span *ngIf="day.isHoliday"
+                  class="holiday-badge">
+
+              🎉
+
+            </span>
+
+            <!-- Event dot -->
+            <span *ngIf="day.hasEvent && !day.isHoliday"
+                  class="event-dot">
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Popup -->
+      <div *ngIf="showHolidayPopup"
+           class="holiday-popup-overlay"
+           (click)="closeHolidayPopup()">
+
+        <div class="holiday-popup"
+             (click)="$event.stopPropagation()">
+
+          <div class="popup-header">
+
+            <h3>
+              {{ selectedHoliday?.name }}
+            </h3>
+
+            <button class="close-btn"
+                    (click)="closeHolidayPopup()">
+
+              &times;
+
+            </button>
+
+          </div>
+
+          <div class="popup-body">
+
+            <div class="holiday-date">
+
+              <span class="emoji">📅</span>
+
+              <span class="date-text">
+
+                {{ selectedHoliday?.date }}/{{ selectedHoliday?.month }}/{{ selectedYear }}
+
+              </span>
+
+            </div>
+
+            <div class="holiday-blessing">
+
+              <span class="emoji">👌</span>
+
+              <p *ngIf="selectedHoliday?.name !== 'Không có ngày lễ'">
+
+                {{ selectedHoliday?.blessing }}
+
+              </p>
+
+              <p *ngIf="selectedHoliday?.name === 'Không có ngày lễ'">
+
+                Không có sự kiện đặc biệt trong ngày này.
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
+
+  <!-- Class Detail Popup Overlay -->
+  <div *ngIf="showClassPopup" class="class-popup-overlay" (click)="closeClassPopup()">
+    <div class="class-popup" (click)="$event.stopPropagation()">
+      <!-- Popup Header -->
+      <div class="class-popup-header">
+        <h2 class="class-popup-title">CHI TIẾT LỚP HỌC</h2>
+        <button class="class-popup-close" (click)="closeClassPopup()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Popup Content -->
+      <div class="class-popup-content" *ngIf="selectedClass">
+        <!-- Class Name -->
+        <div class="popup-section">
+          <label class="popup-label">Tên lớp học</label>
+          <p class="popup-value class-name-value">{{ selectedClass.name }}</p>
+        </div>
+
+        <!-- Instructor -->
+        <div class="popup-section">
+          <label class="popup-label">Giảng viên</label>
+          <p class="popup-value">
+            <i class="bi bi-person-circle"></i> {{ selectedClass.instructor }}
+          </p>
+        </div>
+
+        <!-- Start Date -->
+        <div class="popup-section">
+          <label class="popup-label">Ngày bắt đầu</label>
+          <p class="popup-value">
+            <i class="bi bi-calendar-event"></i> {{ selectedClass.startDate }}
+          </p>
+        </div>
+
+        <!-- Branch -->
+        <div class="popup-section">
+          <label class="popup-label">Chi nhánh</label>
+          <p class="popup-value">
+            <i class="bi bi-geo-alt"></i> {{ selectedClass.branch }}
+          </p>
+        </div>
+
+        <!-- Classroom -->
+        <div class="popup-section">
+          <label class="popup-label">Phòng học</label>
+          <p class="popup-value">
+            <i class="bi bi-door-closed"></i> {{ selectedClass.room }}
+          </p>
+        </div>
+
+        <!-- Schedule -->
+        <div class="popup-section">
+          <label class="popup-label">Lịch học</label>
+          <p class="popup-value">
+            <i class="bi bi-calendar3"></i> {{ selectedClass.schedule }}
+          </p>
+          <p class="popup-time">{{ selectedClass.startTime }} - {{ selectedClass.endTime }}</p>
+        </div>
+
+        <!-- Close Button -->
+        <button class="btn-popup-close" (click)="closeClassPopup()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+</div>
