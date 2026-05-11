@@ -1,0 +1,100 @@
+<aside class="sidebar">
+    <div class="brand">
+        <img class="brand-logo" src="/logo.png" alt="DoPassion logo" />
+        <div class="brand-text">
+            <div class="brand-name">DoPassion</div>
+            <div class="brand-subtitle">Admin Dashboard</div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-group">
+            <a class="nav-item" routerLink="/report/student-report">
+                <span class="nav-icon">
+                    <i class="bi bi-bar-chart"></i>
+                </span>
+                <span class="nav-label">Báo cáo</span>
+                <span class="nav-caret">▾</span>
+            </a>
+            <div class="nav-sub">
+                <a class="nav-sub-item" routerLink="/report/student-report">Báo cáo học viên</a>
+                <a class="nav-sub-item" routerLink="/report/debt-report">Báo cáo công nợ</a>
+                <a class="nav-sub-item" routerLink="/report/revenue-report">Báo cáo doanh thu</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <a class="nav-item" routerLink="/users/customer">
+                <span class="nav-icon">
+                    <i class="bi bi-people"></i>
+                </span>
+                <span class="nav-label">Quản lý người dùng</span>
+                <span class="nav-caret">▾</span>
+            </a>
+            <div class="nav-sub">
+                <a class="nav-sub-item" routerLink="/users/customer">Khách hàng</a>
+                <a class="nav-sub-item" routerLink="/users/registration">Đăng ký</a>
+                <a class="nav-sub-item" routerLink="/users/staff/staff">Nhân viên</a>
+                <a class="nav-sub-item" routerLink="/users/staff/role">Vai trò</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <a class="nav-item" routerLink="/courses/courses">
+                <span class="nav-icon">
+                    <i class="bi bi-journal-text"></i>
+                </span>
+                <span class="nav-label">Quản lý khóa học</span>
+                <span class="nav-caret">▾</span>
+            </a>
+            <div class="nav-sub">
+                <a class="nav-sub-item" routerLink="/courses/courses">Khóa học</a>
+                <a class="nav-sub-item" routerLink="/courses/classes">Lớp học</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <a class="nav-item" routerLink="/interactions/request">
+                <span class="nav-icon">
+                    <i class="bi bi-chat-dots"></i>
+                </span>
+                <span class="nav-label">Quản lý tương tác</span>
+                <span class="nav-caret">▾</span>
+            </a>
+            <div class="nav-sub">
+                <a class="nav-sub-item" routerLink="/interactions/request">Yêu cầu</a>
+                <a class="nav-sub-item" routerLink="/interactions/feedback">Phản hồi</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <a class="nav-item" routerLink="/accounting/payment">
+                <span class="nav-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </span>
+                <span class="nav-label">Kế toán</span>
+                <span class="nav-caret">▾</span>
+            </a>
+            <div class="nav-sub">
+                <a class="nav-sub-item" routerLink="/accounting/payment">Thanh toán</a>
+                <a class="nav-sub-item" routerLink="/accounting/refund">Hoàn tiền</a>
+                <a class="nav-sub-item" routerLink="/accounting/debt">Công nợ</a>
+                <a class="nav-sub-item" routerLink="/accounting/voucher">Voucher</a>
+            </div>
+        </div>
+
+        <a class="nav-item" routerLink="/setting">
+            <span class="nav-icon">
+                <i class="bi bi-gear"></i>
+            </span>
+            <span class="nav-label">Cấu hình</span>
+        </a>
+
+        <a class="nav-item logout-btn" (click)="logout()">
+            <span class="nav-icon">
+                <i class="bi bi-box-arrow-right"></i>
+            </span>
+            <span class="nav-label">Đăng xuất</span>
+        </a>
+    </nav>
+</aside>
