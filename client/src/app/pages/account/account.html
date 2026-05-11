@@ -2,30 +2,34 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="profile-section">
-        <img src="client/assets/images/avatar.jpg" alt="Profile" class="profile-avatar">
-        <h2 class="profile-name">Dương Trọng Nhân</h2>
-        <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
+      <img src="/avatar.jpg" alt="Profile" class="profile-avatar">
+      <h2 class="profile-name">Dương Trọng Nhân</h2>
+      <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
     </div>
 
     <nav class="menu">
       <ul>
         <li>
-          <a href="#" (click)="switchView('info'); $event.preventDefault()" [class.active]="currentView === 'info'" class="menu-item">
+          <a href="#" (click)="switchView('info'); $event.preventDefault()" [class.active]="currentView === 'info'"
+            class="menu-item">
             <i class="bi bi-person-fill"></i> Thông tin cá nhân
           </a>
         </li>
         <li>
-          <a href="#" (click)="switchView('classes'); $event.preventDefault()" [class.active]="currentView === 'classes'" class="menu-item">
+          <a href="#" (click)="switchView('classes'); $event.preventDefault()"
+            [class.active]="currentView === 'classes'" class="menu-item">
             <i class="bi bi-book-fill"></i> Danh sách lớp học
           </a>
         </li>
         <li>
-          <a href="#" (click)="switchView('payment'); $event.preventDefault()" [class.active]="currentView === 'payment'" class="menu-item">
+          <a href="#" (click)="switchView('payment'); $event.preventDefault()"
+            [class.active]="currentView === 'payment'" class="menu-item">
             <i class="bi bi-credit-card-2-back-fill"></i> Quản lý thanh toán
           </a>
         </li>
         <li>
-          <a href="#" (click)="switchView('schedule'); $event.preventDefault()" [class.active]="currentView === 'schedule'" class="menu-item">
+          <a href="#" (click)="switchView('schedule'); $event.preventDefault()"
+            [class.active]="currentView === 'schedule'" class="menu-item">
             <i class="bi bi-calendar-check-fill"></i> Lịch của tôi
           </a>
         </li>
@@ -70,13 +74,11 @@
 
         <div class="password-header">
 
-          <h3 class="section-title password-toggle"
-              (click)="showPasswordForm = !showPasswordForm">
+          <h3 class="section-title password-toggle" (click)="showPasswordForm = !showPasswordForm">
 
             ĐỔI MẬT KHẨU
 
-            <i class="bi"
-              [ngClass]="showPasswordForm ? 'bi-chevron-up' : 'bi-chevron-down'">
+            <i class="bi" [ngClass]="showPasswordForm ? 'bi-chevron-up' : 'bi-chevron-down'">
             </i>
 
           </h3>
@@ -93,9 +95,7 @@
                 Mật khẩu cũ <span class="required">*</span>
               </label>
 
-              <input type="password"
-                    id="old-password"
-                    placeholder="••••••••">
+              <input type="password" id="old-password" placeholder="••••••••">
 
             </div>
 
@@ -105,9 +105,7 @@
                 Mật khẩu mới <span class="required">*</span>
               </label>
 
-              <input type="password"
-                    id="new-password"
-                    placeholder="••••••••">
+              <input type="password" id="new-password" placeholder="••••••••">
 
             </div>
 
@@ -117,21 +115,18 @@
                 Xác minh mật khẩu mới <span class="required">*</span>
               </label>
 
-              <input type="password"
-                    id="confirm-password"
-                    placeholder="••••••••">
+              <input type="password" id="confirm-password" placeholder="••••••••">
 
             </div>
 
-            <button type="submit"
-                    class="btn-save">
+            <button type="submit" class="btn-save">
 
               LƯU THÔNG TIN
 
             </button>
 
           </form>
-        </div>  
+        </div>
       </div>
     </div>
 
@@ -140,22 +135,25 @@
       <h3 class="section-title">DANH SÁCH LỚP HỌC</h3>
 
       <div class="filter-bar">
-      <button class="filter-btn" [class.active]="classFilter === 'all'" (click)="classFilter = 'all'">Tất cả</button>
-      <button class="filter-btn" [class.active]="classFilter === 'upcoming'" (click)="classFilter = 'upcoming'">Sắp diễn ra</button>
-      <button class="filter-btn" [class.active]="classFilter === 'ongoing'" (click)="classFilter = 'ongoing'">Đang diễn ra</button>
-      <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Hoàn thành</button>
+        <button class="filter-btn" [class.active]="classFilter === 'all'" (click)="classFilter = 'all'">Tất cả</button>
+        <button class="filter-btn" [class.active]="classFilter === 'upcoming'" (click)="classFilter = 'upcoming'">Sắp
+          diễn ra</button>
+        <button class="filter-btn" [class.active]="classFilter === 'ongoing'" (click)="classFilter = 'ongoing'">Đang
+          diễn ra</button>
+        <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Hoàn
+          thành</button>
       </div>
       <div class="classes-list">
         <div class="class-card" *ngFor="let classItem of filteredClasses">
           <div class="class-header">
             <h3 class="class-name">{{ classItem.name }}</h3>
-            <span class="class-status" 
-              [ngClass]="{
+            <span class="class-status" [ngClass]="{
                 'status-upcoming': classItem.status === 'upcoming',
                 'status-ongoing': classItem.status === 'ongoing',
                 'status-completed': classItem.status === 'completed'
               }">
-              {{ classItem.status === 'upcoming' ? 'Sắp diễn ra' : classItem.status === 'ongoing' ? 'Đang diễn ra' : 'Hoàn thành' }}
+              {{ classItem.status === 'upcoming' ? 'Sắp diễn ra' : classItem.status === 'ongoing' ? 'Đang diễn ra' :
+              'Hoàn thành' }}
             </span>
           </div>
           <div class="class-code">Mã lớp học: {{ classItem.code }}</div>
@@ -195,33 +193,25 @@
       <!-- FILTER -->
       <div class="filter-bar">
 
-        <button class="filter-btn"
-                [class.active]="paymentFilter === 'all'"
-                (click)="paymentFilter = 'all'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'all'" (click)="paymentFilter = 'all'">
 
           Tất cả
 
         </button>
 
-        <button class="filter-btn"
-                [class.active]="paymentFilter === 'pending'"
-                (click)="paymentFilter = 'pending'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'pending'" (click)="paymentFilter = 'pending'">
 
           Đang chờ hoàn tiền
 
         </button>
 
-        <button class="filter-btn"
-                [class.active]="paymentFilter === 'completed'"
-                (click)="paymentFilter = 'completed'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'completed'" (click)="paymentFilter = 'completed'">
 
           Đã thanh toán
 
         </button>
 
-        <button class="filter-btn"
-                [class.active]="paymentFilter === 'postponed'"
-                (click)="paymentFilter = 'postponed'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'postponed'" (click)="paymentFilter = 'postponed'">
 
           Đã thanh toán ghi danh
 
@@ -229,120 +219,116 @@
 
       </div>
 
-  <!-- PAYMENT LIST -->
-  <div class="payment-list">
+      <!-- PAYMENT LIST -->
+      <div class="payment-list">
 
-    <div class="payment-card"
-         *ngFor="let payment of filteredPayments">
+        <div class="payment-card" *ngFor="let payment of filteredPayments">
 
-      <!-- HEADER -->
-      <div class="payment-header">
+          <!-- HEADER -->
+          <div class="payment-header">
 
-        <div class="payment-title">
+            <div class="payment-title">
 
-          <h3 class="class-name">
-            {{ payment.className }}
-          </h3>
+              <h3 class="class-name">
+                {{ payment.className }}
+              </h3>
 
-          <p class="transaction-id">
-            Mã giao dịch: {{ payment.paymentCode }}
-          </p>
+              <p class="transaction-id">
+                Mã giao dịch: {{ payment.paymentCode }}
+              </p>
 
-        </div>
+            </div>
 
-        <span class="payment-status"
-
-              [ngClass]="{
+            <span class="payment-status" [ngClass]="{
                 'status-pending': payment.status === 'pending',
                 'status-completed': payment.status === 'completed',
                 'status-postponed': payment.status === 'postponed'
               }">
 
-          {{
-            payment.status === 'pending'
-            ? 'Đang chờ hoàn tiền'
-            : payment.status === 'completed'
+              {{
+              payment.status === 'pending'
+              ? 'Đang chờ hoàn tiền'
+              : payment.status === 'completed'
               ? 'Đã thanh toán'
               : 'Đã thanh toán ghi danh'
-          }}
+              }}
 
-        </span>
-
-      </div>
-
-      <!-- BODY -->
-      <div class="payment-body">
-
-        <div class="payment-info-left">
-
-          <div class="info-item">
-
-            <i class="bi bi-calendar-event"></i>
-
-            <div class="info-text">
-
-              <span class="label">
-                Ngày thanh toán
-              </span>
-
-              <span class="value">
-                {{ payment.paymentDate }}
-              </span>
-
-            </div>
-
-          </div>
-
-          <div class="info-item">
-
-            <i class="bi bi-wallet2"></i>
-
-            <div class="info-text">
-
-              <span class="label">
-                Phương thức
-              </span>
-
-              <span class="value">
-                {{ payment.paymentMethod }}
-              </span>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="payment-info-right">
-
-          <div class="price-section">
-
-            <span class="price-label">
-              Giá tiền
-            </span>
-
-            <span class="price-value">
-              {{ payment.amountPaid | number }} VND
             </span>
 
           </div>
 
-          <button class="btn-detail"
-                  (click)="openPaymentPopup(payment)">
+          <!-- BODY -->
+          <div class="payment-body">
 
-            Xem chi tiết
+            <div class="payment-info-left">
 
-          </button>
+              <div class="info-item">
+
+                <i class="bi bi-calendar-event"></i>
+
+                <div class="info-text">
+
+                  <span class="label">
+                    Ngày thanh toán
+                  </span>
+
+                  <span class="value">
+                    {{ payment.paymentDate }}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div class="info-item">
+
+                <i class="bi bi-wallet2"></i>
+
+                <div class="info-text">
+
+                  <span class="label">
+                    Phương thức
+                  </span>
+
+                  <span class="value">
+                    {{ payment.paymentMethod }}
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="payment-info-right">
+
+              <div class="price-section">
+
+                <span class="price-label">
+                  Giá tiền
+                </span>
+
+                <span class="price-value">
+                  {{ payment.amountPaid | number }} VND
+                </span>
+
+              </div>
+
+              <button class="btn-detail" (click)="openPaymentPopup(payment)">
+
+                Xem chi tiết
+
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
 
       </div>
 
     </div>
-
-  </div>
-
-</div>
 
     <!-- View 4: Lịch của tôi -->
     <div *ngIf="currentView === 'schedule'">
@@ -352,21 +338,16 @@
       <!-- Bộ lọc -->
       <div class="schedule-controls">
 
-        <select class="select-control"
-                [ngModel]="selectedYear"
-                (change)="onYearChange($event)">
+        <select class="select-control" [ngModel]="selectedYear" (change)="onYearChange($event)">
 
-          <option *ngFor="let year of years"
-                  [value]="year">
+          <option *ngFor="let year of years" [value]="year">
 
             {{ year }}
 
           </option>
         </select>
 
-        <select class="select-control"
-                [ngModel]="selectedMonth"
-                (change)="onMonthChange($event)">
+        <select class="select-control" [ngModel]="selectedMonth" (change)="onMonthChange($event)">
 
           <option value="1">Tháng 1</option>
           <option value="2">Tháng 2</option>
@@ -391,8 +372,7 @@
         <!-- Header -->
         <div class="calendar-header">
 
-          <button class="nav-btn"
-                  (click)="previousMonth()">
+          <button class="nav-btn" (click)="previousMonth()">
 
             <i class="bi bi-chevron-left"></i>
 
@@ -402,8 +382,7 @@
             {{ calendarTitle }}
           </h2>
 
-          <button class="nav-btn"
-                  (click)="nextMonth()">
+          <button class="nav-btn" (click)="nextMonth()">
 
             <i class="bi bi-chevron-right"></i>
 
@@ -427,28 +406,21 @@
         <!-- Grid -->
         <div class="calendar-grid">
 
-          <div *ngFor="let day of calendarDays"
-               class="calendar-day"
-               [class.empty]="!day.isCurrentMonth"
-               [class.today]="day.isToday"
-               [class.holiday]="day.isHoliday"
-               [class.clickable]="day.isCurrentMonth"
-               (click)="day.isCurrentMonth && openHolidayPopup(day)"
-               [title]="day.holidayName || ''">
+          <div *ngFor="let day of calendarDays" class="calendar-day" [class.empty]="!day.isCurrentMonth"
+            [class.today]="day.isToday" [class.holiday]="day.isHoliday" [class.clickable]="day.isCurrentMonth"
+            (click)="day.isCurrentMonth && openHolidayPopup(day)" [title]="day.holidayName || ''">
 
             <span>{{ day.date }}</span>
 
             <!-- Holiday icon -->
-            <span *ngIf="day.isHoliday"
-                  class="holiday-badge">
+            <span *ngIf="day.isHoliday" class="holiday-badge">
 
               🎉
 
             </span>
 
             <!-- Event dot -->
-            <span *ngIf="day.hasEvent && !day.isHoliday"
-                  class="event-dot">
+            <span *ngIf="day.hasEvent && !day.isHoliday" class="event-dot">
 
             </span>
 
@@ -459,12 +431,9 @@
       </div>
 
       <!-- Popup -->
-      <div *ngIf="showHolidayPopup"
-           class="holiday-popup-overlay"
-           (click)="closeHolidayPopup()">
+      <div *ngIf="showHolidayPopup" class="holiday-popup-overlay" (click)="closeHolidayPopup()">
 
-        <div class="holiday-popup"
-             (click)="$event.stopPropagation()">
+        <div class="holiday-popup" (click)="$event.stopPropagation()">
 
           <div class="popup-header">
 
@@ -472,8 +441,7 @@
               {{ selectedHoliday?.name }}
             </h3>
 
-            <button class="close-btn"
-                    (click)="closeHolidayPopup()">
+            <button class="close-btn" (click)="closeHolidayPopup()">
 
               &times;
 
