@@ -1,0 +1,62 @@
+.data-section {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 16px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.data-section h2 {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2a44;
+}
+
+.data-section table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.data-section thead {
+    background: #1f3a8a;
+    color: #ffffff;
+}
+
+.data-section th,
+.data-section td {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+.data-section th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.data-section tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.data-section tbody tr:hover {
+    background: #eef2ff;
+}
+
+.data-section tbody td {
+    color: #1f2937;
+}
+
+@media (max-width: 900px) {
+    .data-section table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

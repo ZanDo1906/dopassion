@@ -1,0 +1,47 @@
+[
+    {
+        "STT": 1,
+        "Mã đăng ký": "DK-060526-002",
+        "Mã KH": "KH-050526-002",
+        "Tên KH": "Nguyễn Thành Nam",
+        "Mã lớp": "LR-02-002",
+        "Tên lớp học": "Lớp TOEIC Listening&Reading CN2-002",
+        "Khóa học": "LR",
+        "Tên khóa": "Listening&Reading",
+        "Chi nhánh": "CN2",
+        "Ngày đăng ký": "2026-05-06 00:00:00",
+        "Đã thanh toán": 3300000,
+        "Số tiền hoàn": 0,
+        "Trạng thái": "Đã hủy"
+    },
+    {
+        "STT": 2,
+        "Mã đăng ký": "DK-070526-001",
+        "Mã KH": "KH-060526-001",
+        "Tên KH": "Lý Thị Oanh",
+        "Mã lớp": "SW-03-002",
+        "Tên lớp học": "Lớp TOEIC Speaking&Writing CN3-002",
+        "Khóa học": "SW",
+        "Tên khóa": "Speaking&Writing",
+        "Chi nhánh": "CN3",
+        "Ngày đăng ký": "2026-05-07 00:00:00",
+        "Đã thanh toán": 3700000,
+        "Số tiền hoàn": 0,
+        "Trạng thái": "Chờ duyệt"
+    },
+    {
+        "STT": 3,
+        "Mã đăng ký": "DK-070526-002",
+        "Mã KH": "KH-060526-002",
+        "Tên KH": "Phan Văn Phong",
+        "Mã lớp": "LR-03-002",
+        "Tên lớp học": "Lớp TOEIC Listening&Reading CN3-002",
+        "Khóa học": "LR",
+        "Tên khóa": "Listening&Reading",
+        "Chi nhánh": "CN3",
+        "Ngày đăng ký": "2026-05-07 00:00:00",
+        "Đã thanh toán": 3000000,
+        "Số tiền hoàn": 3000000,
+        "Trạng thái": "Đã duyệt "
+    }
+]

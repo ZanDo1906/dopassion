@@ -1,0 +1,272 @@
+[
+    {
+        "STT": 1,
+        "Mã liên hệ": "LH-080526-001",
+        "Mã KH": "KH-010526-001",
+        "Tên khách hàng": "Nguyễn Minh Anh",
+        "Nội dung liên hệ": "Hỏi lịch khai giảng khóa TOEIC SW",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 2,
+        "Mã liên hệ": "LH-080526-002",
+        "Mã KH": "KH-010526-002",
+        "Tên khách hàng": "Trần Quốc Bảo",
+        "Nội dung liên hệ": "Xin tư vấn học phí khóa LR",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi bảng học phí qua email"
+    },
+    {
+        "STT": 3,
+        "Mã liên hệ": "LH-090526-001",
+        "Mã KH": "KH-020526-001",
+        "Tên khách hàng": "Lê Thị Cẩm",
+        "Nội dung liên hệ": "Muốn đổi lịch học buổi tối",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang kiểm tra lớp phù hợp"
+    },
+    {
+        "STT": 4,
+        "Mã liên hệ": "LH-090526-002",
+        "Mã KH": "KH-020526-002",
+        "Tên khách hàng": "Phạm Văn Dũng",
+        "Nội dung liên hệ": "Hỏi về chương trình ưu đãi",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã tư vấn voucher KM200K"
+    },
+    {
+        "STT": 5,
+        "Mã liên hệ": "LH-100526-001",
+        "Mã KH": "KH-030526-001",
+        "Tên khách hàng": "Hoàng Thị Em",
+        "Nội dung liên hệ": "Xin học thử 1 buổi",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 6,
+        "Mã liên hệ": "LH-100526-002",
+        "Mã KH": "KH-030526-002",
+        "Tên khách hàng": "Nguyễn Văn Phúc",
+        "Nội dung liên hệ": "Báo lỗi không đăng ký được lớp",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang chuyển bộ phận kỹ thuật"
+    },
+    {
+        "STT": 7,
+        "Mã liên hệ": "LH-110526-001",
+        "Mã KH": "KH-040526-001",
+        "Tên khách hàng": "Đỗ Thị Giang",
+        "Nội dung liên hệ": "Hỏi thời gian học mỗi tuần",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã tư vấn lịch học T2-4-6"
+    },
+    {
+        "STT": 8,
+        "Mã liên hệ": "LH-110526-002",
+        "Mã KH": "KH-040526-002",
+        "Tên khách hàng": "Bùi Quốc Huy",
+        "Nội dung liên hệ": "Xin bảo lưu khóa học",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang chờ xác nhận từ quản lý"
+    },
+    {
+        "STT": 9,
+        "Mã liên hệ": "LH-120526-001",
+        "Mã KH": "KH-050526-001",
+        "Tên khách hàng": "Trương Thị Lan",
+        "Nội dung liên hệ": "Hỏi trình độ đầu vào",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi bài test online"
+    },
+    {
+        "STT": 10,
+        "Mã liên hệ": "LH-120526-002",
+        "Mã KH": "KH-050526-002",
+        "Tên khách hàng": "Nguyễn Thành Nam",
+        "Nội dung liên hệ": "Xin chuyển chi nhánh học",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang kiểm tra số lượng lớp"
+    },
+    {
+        "STT": 11,
+        "Mã liên hệ": "LH-130526-001",
+        "Mã KH": "KH-060526-001",
+        "Tên khách hàng": "Lý Thị Oanh",
+        "Nội dung liên hệ": "Hỏi thông tin giảng viên",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi profile giảng viên"
+    },
+    {
+        "STT": 12,
+        "Mã liên hệ": "LH-130526-002",
+        "Mã KH": "KH-060526-002",
+        "Tên khách hàng": "Phan Văn Phong",
+        "Nội dung liên hệ": "Muốn học cấp tốc TOEIC",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 13,
+        "Mã liên hệ": "LH-140526-001",
+        "Mã KH": "KH-070526-001",
+        "Tên khách hàng": "Võ Thị Quỳnh",
+        "Nội dung liên hệ": "Hỏi hình thức thanh toán",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Hỗ trợ chuyển khoản ngân hàng"
+    },
+    {
+        "STT": 14,
+        "Mã liên hệ": "LH-140526-002",
+        "Mã KH": "KH-070526-002",
+        "Tên khách hàng": "Trần Minh Quân",
+        "Nội dung liên hệ": "Xin xuất hóa đơn học phí",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang xác minh thông tin"
+    },
+    {
+        "STT": 15,
+        "Mã liên hệ": "LH-150526-001",
+        "Mã KH": "KH-080526-001",
+        "Tên khách hàng": "Nguyễn Thị Hồng",
+        "Nội dung liên hệ": "Hỏi về lớp online",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi link lớp học thử"
+    },
+    {
+        "STT": 16,
+        "Mã liên hệ": "LH-150526-002",
+        "Mã KH": "KH-080526-002",
+        "Tên khách hàng": "Lê Văn Sơn",
+        "Nội dung liên hệ": "Xin hoàn học phí",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang xử lý yêu cầu"
+    },
+    {
+        "STT": 17,
+        "Mã liên hệ": "LH-160526-001",
+        "Mã KH": "KH-090526-001",
+        "Tên khách hàng": "Đặng Thị Tâm",
+        "Nội dung liên hệ": "Hỏi ưu đãi đăng ký nhóm",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã tư vấn giảm 10% nhóm 3 người"
+    },
+    {
+        "STT": 18,
+        "Mã liên hệ": "LH-160526-002",
+        "Mã KH": "KH-090526-002",
+        "Tên khách hàng": "Phạm Quốc Thắng",
+        "Nội dung liên hệ": "Hỏi lịch thi thử TOEIC",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 19,
+        "Mã liên hệ": "LH-170526-001",
+        "Mã KH": "KH-100526-001",
+        "Tên khách hàng": "Hồ Thị Trang",
+        "Nội dung liên hệ": "Xin đổi thông tin cá nhân",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã cập nhật thông tin"
+    },
+    {
+        "STT": 20,
+        "Mã liên hệ": "LH-170526-002",
+        "Mã KH": "KH-100526-002",
+        "Tên khách hàng": "Nguyễn Văn Tuấn",
+        "Nội dung liên hệ": "Hỏi thời hạn voucher",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Voucher có hạn đến 30/06/2026"
+    },
+    {
+        "STT": 21,
+        "Mã liên hệ": "LH-180526-001",
+        "Mã KH": "KH-110526-001",
+        "Tên khách hàng": "Bùi Thị Uyên",
+        "Nội dung liên hệ": "Xin tư vấn khóa nâng cao",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 22,
+        "Mã liên hệ": "LH-180526-002",
+        "Mã KH": "KH-110526-002",
+        "Tên khách hàng": "Trần Văn Vinh",
+        "Nội dung liên hệ": "Hỏi số lượng học viên/lớp",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Mỗi lớp tối đa 20 học viên"
+    },
+    {
+        "STT": 23,
+        "Mã liên hệ": "LH-190526-001",
+        "Mã KH": "KH-120526-001",
+        "Tên khách hàng": "Lê Thị Xuân",
+        "Nội dung liên hệ": "Hỏi chính sách bảo lưu",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang gửi thông tin chi tiết"
+    },
+    {
+        "STT": 24,
+        "Mã liên hệ": "LH-190526-002",
+        "Mã KH": "KH-120526-002",
+        "Tên khách hàng": "Nguyễn Quốc Y",
+        "Nội dung liên hệ": "Muốn đăng ký combo SW + LR",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã tư vấn combo tiết kiệm 15%"
+    },
+    {
+        "STT": 25,
+        "Mã liên hệ": "LH-200526-001",
+        "Mã KH": "KH-130526-001",
+        "Tên khách hàng": "Phạm Thị Ánh",
+        "Nội dung liên hệ": "Xin hỗ trợ reset tài khoản",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi mật khẩu mới"
+    },
+    {
+        "STT": 26,
+        "Mã liên hệ": "LH-200526-002",
+        "Mã KH": "KH-130526-002",
+        "Tên khách hàng": "Võ Văn Bình",
+        "Nội dung liên hệ": "Hỏi lịch nghỉ lễ của trung tâm",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Đã gửi lịch nghỉ lễ"
+    },
+    {
+        "STT": 27,
+        "Mã liên hệ": "LH-210526-001",
+        "Mã KH": "KH-140526-001",
+        "Tên khách hàng": "Trương Thị Chi",
+        "Nội dung liên hệ": "Xin chuyển sang lớp cuối tuần",
+        "Trạng thái liên hệ": "Chưa xử lý",
+        "Câu trả lời": "Đang kiểm tra lớp phù hợp"
+    },
+    {
+        "STT": 28,
+        "Mã liên hệ": "LH-210526-002",
+        "Mã KH": "KH-140526-002",
+        "Tên khách hàng": "Nguyễn Minh Đức",
+        "Nội dung liên hệ": "Hỏi chứng chỉ sau khóa học",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Có cấp chứng nhận hoàn thành"
+    },
+    {
+        "STT": 29,
+        "Mã liên hệ": "LH-220526-001",
+        "Mã KH": "KH-150526-001",
+        "Tên khách hàng": "Lê Thị Hạnh",
+        "Nội dung liên hệ": "Muốn học lại bài đã nghỉ",
+        "Trạng thái liên hệ": "Mới tạo",
+        "Câu trả lời": "Chưa phản hồi"
+    },
+    {
+        "STT": 30,
+        "Mã liên hệ": "LH-220526-002",
+        "Mã KH": "KH-150526-002",
+        "Tên khách hàng": "Phan Văn Khang",
+        "Nội dung liên hệ": "Hỏi thời gian mở lớp mới",
+        "Trạng thái liên hệ": "Đã xử lý",
+        "Câu trả lời": "Lớp mới khai giảng đầu tháng sau"
+    }
+]
