@@ -1,1 +1,334 @@
-<p>reviews works!</p>
+<!-- Header Section -->
+<section class="reviews-header">
+  <div class="container">
+    <div class="row align-items-start">
+      <div class="col-lg-8">
+        <h1 class="page-title">Đánh giá từ học viên</h1>
+        <p class="page-description">Xem những đánh giá từ các học viên đã hoàn thành khóa học của chúng tôi. Đây là những phản hồi thực từ những người đã trải nghiệm chất lượng giáo dục của chúng tôi.</p>
+        
+        <div class="rating-summary">
+          <div class="rating-score">
+            <span class="score-number">{{ averageRating }}</span>
+            <span class="score-max">/5</span>
+          </div>
+          
+          <div class="rating-stars">
+            <div *ngFor="let star of getRatingStars(Math.ceil(averageRating))" class="star filled">
+              <i class="bi bi-star-fill"></i>
+            </div>
+          </div>
+
+          <p class="review-count">{{ totalReviews }} đánh giá từ học viên</p>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Viết đánh giá
+          </button>
+          <button class="btn btn-outline-secondary">
+            <i class="bi bi-funnel"></i> Bộ lọc được lưu
+          </button>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="rating-stats-card">
+          <h3 class="stats-title">Thống kê đánh giá</h3>
+          
+          <div class="stat-item">
+            <span class="stat-label">Phần trăm tích cực</span>
+            <span class="stat-value">{{ fiveStarPercentage }}%</span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-label">Tỷ lệ phản hồi</span>
+            <span class="stat-value">{{ responseRatePercentage }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content Section -->
+<section class="reviews-content">
+  <div class="container">
+    <div class="row">
+      <!-- Left Column - Ratings & Filters -->
+      <div class="col-lg-3">
+        <!-- Rating Distribution -->
+        <div class="rating-distribution-card">
+          <h3 class="card-title">Phân bố đánh giá</h3>
+          
+          <div *ngFor="let dist of ratingDistribution" class="rating-bar-item">
+            <div class="bar-label">
+              <span class="stars-count">{{ dist.stars }} sao</span>
+              <span class="bar-percentage">{{ dist.percentage }}%</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width.%]="dist.percentage"></div>
+            </div>
+            <span class="bar-count">{{ dist.count }}</span>
+          </div>
+        </div>
+
+        <!-- Detailed Ratings -->
+        <div class="detailed-ratings-card mt-4">
+          <h3 class="card-title">Đánh giá chi tiết</h3>
+          
+          <div *ngFor="let rating of detailedRatings" class="detailed-rating-item">
+            <span class="rating-category">{{ rating.category }}</span>
+            <div class="mini-stars">
+              <i *ngFor="let i of getRatingStars(rating.rating)" class="bi bi-star-fill"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card mt-4">
+          <h3 class="card-title">Bộ lọc</h3>
+
+          <div class="filter-group">
+            <label class="filter-label">Lớp học</label>
+            <select [(ngModel)]="selectedClass" class="form-control filter-select">
+              <option value="">Tất cả</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Đánh giá</label>
+            <select [(ngModel)]="selectedRating" class="form-control filter-select">
+              <option value="">Tất cả</option>
+              <option value="5">5 sao</option>
+              <option value="4">4 sao</option>
+              <option value="3">3 sao</option>
+              <option value="2">2 sao</option>
+              <option value="1">1 sao</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Sắp xếp</label>
+            <select [(ngModel)]="selectedSort" class="form-control filter-select">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="highest">Đánh giá cao nhất</option>
+              <option value="lowest">Đánh giá thấp nhất</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column - Reviews List -->
+      <div class="col-lg-9">
+        <!-- Search Box -->
+        <div class="search-box mb-4">
+          <input 
+            type="text" 
+            class="form-control search-input" 
+            placeholder="Tìm kiếm đánh giá..."
+            [(ngModel)]="searchQuery">
+          <i class="bi bi-search search-icon"></i>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list">
+          <div *ngFor="let review of reviews" class="review-item">
+            <div class="review-header">
+              <div class="reviewer-info">
+                <img [src]="review.avatar" [alt]="review.author" class="reviewer-avatar">
+                <div class="reviewer-details">
+                  <h4 class="reviewer-name">{{ review.author }}</h4>
+                  <p class="reviewer-meta">{{ review.date }} · {{ review.course }} ({{ review.courseCode }})</p>
+                </div>
+              </div>
+              <button class="btn-more" (click)="onMoreOptions(review.id)">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+            </div>
+
+            <!-- Rating -->
+            <div class="review-rating">
+              <div class="stars">
+                <i *ngFor="let i of getRatingStars(review.rating)" class="bi bi-star-fill"></i>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <p class="review-content">{{ review.content }}</p>
+
+            <!-- Reply Section -->
+            <div *ngIf="review.hasReply" class="reply-section">
+              <div class="reply-badge">Phản hồi từ quản lý</div>
+              <div class="reply-content">
+                <strong>{{ review.replyAuthor }}:</strong> {{ review.reply }}
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="review-actions">
+              <button class="action-btn" (click)="onToggleHelpful(review.id)">
+                <i class="bi bi-hand-thumbs-up"></i> Hữu ích ({{ review.helpful }})
+              </button>
+              <button class="action-btn" (click)="onReply(review.id)">
+                <i class="bi bi-reply"></i> Trả lời
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-4">
+          <button class="btn btn-outline-primary" (click)="onLoadMoreReviews()">
+            Tải thêm đánh giá
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Write Review Section -->
+<section class="write-review-section">
+  <div class="container">
+    <h2 class="section-title">Viết đánh giá</h2>
+    
+    <div class="row">
+      <div class="col-lg-8">
+        <form [formGroup]="reviewFormGroup" (ngSubmit)="onSubmitReview()" class="review-form">
+          
+          <div class="form-group">
+            <label class="form-label">Lớp học</label>
+            <select formControlName="class" class="form-control">
+              <option value="">-- Chọn lớp học --</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Đánh giá</label>
+            <div class="star-picker">
+              <button 
+                type="button"
+                *ngFor="let i of [1, 2, 3, 4, 5]"
+                class="star-btn"
+                [class.active]="formRating >= i"
+                (click)="setRating(i)">
+                <i class="bi bi-star-fill"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mức độ hài lòng</label>
+            <div class="satisfaction-options">
+              <label class="satisfaction-option">
+                <input type="radio" formControlName="satisfaction" value="very-satisfied">
+                <span>Rất hài lòng</span>
+              </label>
+              <label class="satisfaction-option">
+                <input type="radio" formControlName="satisfaction" value="satisfied">
+                <span>Hài lòng</span>
+              </label>
+              <label class="satisfaction-option">
+                <input type="radio" formControlName="satisfaction" value="neutral">
+                <span>Bình thường</span>
+              </label>
+              <label class="satisfaction-option">
+                <input type="radio" formControlName="satisfaction" value="unsatisfied">
+                <span>Không hài lòng</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nội dung đánh giá</label>
+            <textarea 
+              formControlName="content" 
+              class="form-control review-textarea" 
+              rows="6"
+              placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."
+              required></textarea>
+            <small class="text-muted">Tối thiểu 20 ký tự</small>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="form-check">
+              <input type="checkbox" formControlName="agreeToTerms" class="form-check-input">
+              <span class="form-check-label">Tôi đồng ý với điều khoản đăng bình luận</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-submit" [disabled]="!reviewFormGroup.valid">
+            Gửi đánh giá
+          </button>
+        </form>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="review-guidelines">
+          <h4 class="guidelines-title">Hướng dẫn viết đánh giá</h4>
+          
+          <ul class="guidelines-list">
+            <li><strong>Hữu ích:</strong> Chia sẻ những điều bạn thích và có thể cải thiện</li>
+            <li><strong>Cụ thể:</strong> Nêu rõ về giảng viên, nội dung, phương pháp dạy</li>
+            <li><strong>Trung thực:</strong> Cho điểm phù hợp với trải nghiệm của bạn</li>
+            <li><strong>Lịch sự:</strong> Tránh sử dụng ngôn từ xúc phạm hoặc không phù hợp</li>
+          </ul>
+
+          <div class="guidelines-note">
+            <i class="bi bi-info-circle"></i>
+            Đánh giá của bạn sẽ được kiểm duyệt trước khi công bố.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Overall Ratings Summary -->
+<section class="overall-ratings-section">
+  <div class="container">
+    <h2 class="section-title">Đánh giá chung</h2>
+    
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="overall-stats">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">Đánh giá trung bình</p>
+              <p class="stat-value">{{ averageRating }}/5</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">Tổng số đánh giá</p>
+              <p class="stat-value">{{ totalReviews }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="overall-details">
+          <div class="detail-item">
+            <span class="detail-label">Phần trăm đánh giá 5 sao</span>
+            <span class="detail-value">{{ fiveStarPercentage }}%</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Tỷ lệ phản hồi</span>
+            <span class="detail-value">{{ responseRatePercentage }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
