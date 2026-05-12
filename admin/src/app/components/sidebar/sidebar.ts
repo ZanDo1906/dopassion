@@ -13,7 +13,7 @@ type SectionKey = 'report' | 'users' | 'courses' | 'interactions' | 'accounting'
 export class Sidebar {
   private readonly openSections = new Set<SectionKey>();
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) { }
 
   toggleSection(section: SectionKey): void {
     if (this.openSections.has(section)) {
