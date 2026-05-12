@@ -1,6 +1,9 @@
 <div class="app-shell">
   <app-sidebar class="app-sidebar"></app-sidebar>
-  <main class="app-main">
-    <router-outlet />
-  </main>
+  <div class="app-content">
+    <app-topbar class="app-topbar"></app-topbar>
+    <main class="app-main">
+      <router-outlet />
+    </main>
+  </div>
 </div>

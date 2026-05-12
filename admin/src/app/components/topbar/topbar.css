@@ -1,0 +1,157 @@
+:root {
+    --topbar-bg: #dedad6;
+    --topbar-surface: #e7e3df;
+    --topbar-stroke: #c9c4bf;
+    --topbar-text: #3a3735;
+    --topbar-muted: #6a655f;
+    --topbar-accent: #f4a13a;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 16px;
+    background: linear-gradient(90deg, #d7d2cd 0%, #e3ded8 100%);
+    border: 1px solid var(--topbar-stroke);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    color: var(--topbar-text);
+}
+
+.topbar__left {
+    min-width: 0;
+    flex: 1;
+}
+
+.crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.crumbs__home {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1f1f1f;
+}
+
+.crumbs__sep {
+    color: #2f5fbd;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+
+.crumbs__item {
+    color: #1f1f1f;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.crumbs__item--current {
+    color: #2f5fbd;
+}
+
+.topbar__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--topbar-stroke);
+    background: var(--topbar-surface);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.icon-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.icon-btn__dot {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--topbar-accent);
+    border: 2px solid #f1ede9;
+}
+
+.icon,
+.bi {
+    font-size: 18px;
+    color: #4e4a46;
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--topbar-stroke);
+    background: #ddd8d4;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.user-chip__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #c7c1bc;
+    display: grid;
+    place-items: center;
+}
+
+.user-chip__avatar .bi {
+    font-size: 16px;
+    color: #5a5551;
+}
+
+.user-chip__info {
+    display: grid;
+    gap: 2px;
+    font-size: 12px;
+    line-height: 1.1;
+}
+
+.user-chip__name {
+    font-weight: 700;
+    color: #1f1f1f;
+}
+
+.user-chip__role {
+    font-weight: 600;
+    color: #1f1f1f;
+}
+
+@media (max-width: 720px) {
+    .topbar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .crumbs {
+        white-space: normal;
+    }
+}

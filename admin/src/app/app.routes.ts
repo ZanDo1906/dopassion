@@ -7,6 +7,10 @@ export const routes: Routes = [
         pathMatch: 'full'
     },
     {
+        path: 'account',
+        loadComponent: () => import('./pages/account/account').then(m => m.Account)
+    },
+    {
         path: 'courses',
         children: [
             {

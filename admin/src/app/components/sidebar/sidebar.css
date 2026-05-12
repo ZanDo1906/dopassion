@@ -76,6 +76,13 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+.nav-item--toggle {
+    width: 100%;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+}
+
 .nav-item:hover {
     transform: translateX(4px);
     background: rgba(255, 255, 255, 0.7);
@@ -103,6 +110,11 @@
     font-size: 14px;
     color: rgba(47, 94, 168, 0.6);
     text-align: right;
+    transition: transform 0.2s ease;
+}
+
+.nav-caret--open {
+    transform: rotate(180deg);
 }
 
 .nav-sub {

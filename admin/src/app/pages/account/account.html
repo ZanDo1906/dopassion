@@ -1,0 +1,82 @@
+<div class="account-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="profile-section">
+      <img src="/avatar.jpg" alt="Profile" class="profile-avatar">
+      <h2 class="profile-name">Dương Trọng Nhân</h2>
+      <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
+    </div>
+
+    <nav class="menu">
+      <ul>
+        <li>
+          <span class="menu-item active">
+            <i class="bi bi-person-fill"></i> Thông tin cá nhân
+          </span>
+        </li>
+      </ul>
+    </nav>
+
+    <button class="logout-btn"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="form-section">
+      <h3 class="section-title">THÔNG TIN CÁ NHÂN</h3>
+      <form class="info-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fullname">Họ và tên</label>
+            <input type="text" id="fullname" [(ngModel)]="fullName" name="fullName">
+          </div>
+          <div class="form-group">
+            <label for="phone">Số điện thoại</label>
+            <input type="tel" id="phone" [(ngModel)]="phoneNumber" name="phoneNumber">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dob">Ngày sinh</label>
+            <input type="date" id="dob" value="2005-06-16">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="nhandt234@st.uel.edu.vn">
+          </div>
+        </div>
+        <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
+      </form>
+    </div>
+
+    <div class="form-section">
+      <div class="password-header">
+        <h3 class="section-title password-toggle" (click)="showPasswordForm = !showPasswordForm">
+          ĐỔI MẬT KHẨU
+          <i class="bi" [ngClass]="showPasswordForm ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+        </h3>
+      </div>
+
+      <div *ngIf="showPasswordForm">
+        <form class="password-form">
+          <div class="form-group">
+            <label for="old-password">Mật khẩu cũ <span class="required">*</span></label>
+            <input type="password" id="old-password" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label for="new-password">Mật khẩu mới <span class="required">*</span></label>
+            <input type="password" id="new-password" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Xác minh mật khẩu mới <span class="required">*</span></label>
+            <input type="password" id="confirm-password" placeholder="••••••••">
+          </div>
+
+          <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
