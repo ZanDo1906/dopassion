@@ -9,7 +9,7 @@
 
     <nav class="nav">
         <div class="nav-group">
-            <a class="nav-item">
+            <a class="nav-item" routerLink="/report" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions">
                 <span class="nav-icon">
                     <i class="bi bi-bar-chart"></i>
                 </span>
@@ -17,14 +17,14 @@
                 <span class="nav-caret">▾</span>
             </a>
             <div class="nav-sub">
-                <a class="nav-sub-item" routerLink="/report/student-report">Báo cáo học viên</a>
-                <a class="nav-sub-item" routerLink="/report/debt-report">Báo cáo công nợ</a>
-                <a class="nav-sub-item" routerLink="/report/revenue-report">Báo cáo doanh thu</a>
+                <a class="nav-sub-item" routerLink="/report/student-report" routerLinkActive="active">Báo cáo học viên</a>
+                <a class="nav-sub-item" routerLink="/report/debt-report" routerLinkActive="active">Báo cáo công nợ</a>
+                <a class="nav-sub-item" routerLink="/report/revenue-report" routerLinkActive="active">Báo cáo doanh thu</a>
             </div>
         </div>
 
         <div class="nav-group">
-            <a class="nav-item" routerLink="/users/customer">
+            <a class="nav-item" routerLink="/users" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions">
                 <span class="nav-icon">
                     <i class="bi bi-people"></i>
                 </span>
@@ -32,15 +32,15 @@
                 <span class="nav-caret">▾</span>
             </a>
             <div class="nav-sub">
-                <a class="nav-sub-item" routerLink="/users/customer">Khách hàng</a>
-                <a class="nav-sub-item" routerLink="/users/registration">Đăng ký</a>
-                <a class="nav-sub-item" routerLink="/users/staff/staff">Nhân viên</a>
-                <a class="nav-sub-item" routerLink="/users/staff/role">Vai trò</a>
+                <a class="nav-sub-item" routerLink="/users/customer" routerLinkActive="active">Khách hàng</a>
+                <a class="nav-sub-item" routerLink="/users/registration" routerLinkActive="active">Đăng ký</a>
+                <a class="nav-sub-item" routerLink="/users/staff/staff" routerLinkActive="active">Nhân viên</a>
+                <a class="nav-sub-item" routerLink="/users/staff/role" routerLinkActive="active">Vai trò</a>
             </div>
         </div>
 
         <div class="nav-group">
-            <a class="nav-item" routerLink="/courses/courses">
+            <a class="nav-item" routerLink="/courses" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions">
                 <span class="nav-icon">
                     <i class="bi bi-journal-text"></i>
                 </span>
@@ -48,13 +48,13 @@
                 <span class="nav-caret">▾</span>
             </a>
             <div class="nav-sub">
-                <a class="nav-sub-item" routerLink="/courses/courses">Khóa học</a>
-                <a class="nav-sub-item" routerLink="/courses/classes">Lớp học</a>
+                <a class="nav-sub-item" routerLink="/courses/courses" routerLinkActive="active">Khóa học</a>
+                <a class="nav-sub-item" routerLink="/courses/classes" routerLinkActive="active">Lớp học</a>
             </div>
         </div>
 
         <div class="nav-group">
-            <a class="nav-item" routerLink="/interactions/request">
+            <a class="nav-item" routerLink="/interactions" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions">
                 <span class="nav-icon">
                     <i class="bi bi-chat-dots"></i>
                 </span>
@@ -62,13 +62,13 @@
                 <span class="nav-caret">▾</span>
             </a>
             <div class="nav-sub">
-                <a class="nav-sub-item" routerLink="/interactions/request">Yêu cầu</a>
-                <a class="nav-sub-item" routerLink="/interactions/feedback">Phản hồi</a>
+                <a class="nav-sub-item" routerLink="/interactions/request" routerLinkActive="active">Yêu cầu</a>
+                <a class="nav-sub-item" routerLink="/interactions/feedback" routerLinkActive="active">Phản hồi</a>
             </div>
         </div>
 
         <div class="nav-group">
-            <a class="nav-item" routerLink="/accounting/payment">
+            <a class="nav-item" routerLink="/accounting" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions">
                 <span class="nav-icon">
                     <i class="bi bi-cash-coin"></i>
                 </span>
@@ -76,14 +76,14 @@
                 <span class="nav-caret">▾</span>
             </a>
             <div class="nav-sub">
-                <a class="nav-sub-item" routerLink="/accounting/payment">Thanh toán</a>
-                <a class="nav-sub-item" routerLink="/accounting/refund">Hoàn tiền</a>
-                <a class="nav-sub-item" routerLink="/accounting/debt">Công nợ</a>
-                <a class="nav-sub-item" routerLink="/accounting/voucher">Voucher</a>
+                <a class="nav-sub-item" routerLink="/accounting/payment" routerLinkActive="active">Thanh toán</a>
+                <a class="nav-sub-item" routerLink="/accounting/refund" routerLinkActive="active">Hoàn tiền</a>
+                <a class="nav-sub-item" routerLink="/accounting/debt" routerLinkActive="active">Công nợ</a>
+                <a class="nav-sub-item" routerLink="/accounting/voucher" routerLinkActive="active">Voucher</a>
             </div>
         </div>
 
-        <a class="nav-item" routerLink="/setting">
+        <a class="nav-item" routerLink="/setting" routerLinkActive="active">
             <span class="nav-icon">
                 <i class="bi bi-gear"></i>
             </span>

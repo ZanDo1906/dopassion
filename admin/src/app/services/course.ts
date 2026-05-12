@@ -13,3 +13,4 @@ export class Course {
     return this.http.get<iCourse[]>(this.url);
   }
 }
+

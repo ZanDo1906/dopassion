@@ -1,1 +1,257 @@
-<p>debt works!</p>
+<div class="role-page">
+    <section class="filter-card" (click)="toggleFilter()">
+        <div class="filter-header" >
+            <span class="filter-title">
+                <i class="bi" [ngClass]=" isFilterOpen 
+                ? 'bi-caret-down-fill' 
+                : 'bi-caret-right-fill'"></i>
+                Tìm kiếm
+            </span>
+        </div>
+        <div class="filter-body"
+            *ngIf="isFilterOpen"
+            (click)="$event.stopPropagation()"
+        >
+            <div class="filter-field">
+                <label for="role-code">Mã Đăng ký</label>
+                <input id="role-code" type="text" />
+            </div>
+            <div class="filter-field">
+                <label for="role-name">Mã Khách hàng</label>
+                <input id="role-name" type="text" />
+            </div>
+            <div class="filter-field">
+                <label for="role-name">Mã Khóa học</label>
+                
+
+                <select id="role-name">
+
+                    <option value="">
+                        -- Chọn mã khóa học --
+                    </option>
+
+                    <option
+                        *ngFor="let course of courses"
+                        [value]="course.maKhoaHoc"
+                    >
+                        {{ course.maKhoaHoc }}
+                    </option>
+
+                </select>
+            
+
+            </div>
+            <div class="filter-field">
+                <label for="role-name">Mã Lớp</label>
+                <input id="role-name" type="text" />
+            </div>
+            <div class="filter-field">
+                <label for="role-name">Chi nhánh</label>
+                <select id="role-name">
+                    <option value="">-- Chọn chi nhánh --</option>
+                    <option value="CN001">Chi nhánh 1</option>
+                    <option value="CN002">Chi nhánh 2</option>
+                    <option value="CN003">Chi nhánh 3</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-muted" type="button">
+                    <i class="bi bi-x-circle"></i>
+                    Xóa bộ lọc
+                </button>
+                <button class="btn btn-primary" type="button">
+                    <i class="bi bi-search"></i>
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-in-down"></i>
+            Nhập excel
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-up"></i>
+            Xuất excel
+        </button>
+    </div>
+
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã Đăng ký</th>
+                    <th>Tên Khách hàng</th>
+                    <th>Mã lớp</th>
+                    <th>Ngày đăng ký</th>
+                    <th>Học phí</th>
+                    <th>Voucher</th>
+                    <th>số tiền cần thanh toán</th>
+                    <th>Số tiền đã đóng</th>
+                    <th>Số tiền còn lại</th>
+                    <th>Trạng thái</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+
+
+
+
+            <tbody>
+                <tr *ngFor="let item of paginatedPayments; let i = index">
+
+                    <td>
+                        {{
+                            (currentPage - 1) * itemsPerPage + i + 1
+                        }}
+                    </td>
+
+                    <td>{{ item.maDangKy }}</td>
+
+                    <td>{{ item.tenKhachHang }}</td>
+
+                    <td>{{ item.maLop }}</td>
+
+                    <td>{{ item.ngayDangKy }}</td>
+
+                    <td>{{ item.hocPhi | number }}</td>
+
+                    <td>{{ item.voucher }}</td>
+
+                    <td>{{ item.soTienCanThanhToan | number }}</td>
+
+                    <td>{{ item.soTienDaDong | number }}</td>
+
+                    <td>{{ item.soTienConLai | number }}</td>
+
+                    <td>
+
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--payment-success':
+                                    item.trangThai === 'Đã thanh toán',
+
+                                'badge--payment-1-part':
+                                    item.trangThai === 'Đã thanh toán một phần',
+
+                                'badge--payment-cancel':
+                                    item.trangThai === 'Đã hủy',
+
+                                'badge--payment-plan':
+                                    item.trangThai === 'Chưa thanh toán'
+                            }"
+                        >
+                            {{ item.trangThai }}
+                        </span>
+                        
+
+                    </td>
+
+                    <td>
+                        <div class="action-group">
+
+                            <button class="icon-btn" type="button">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <button class="icon-btn" type="button">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+
+
+
+
+
+        </table>   
+    </div>
+
+    
+
+    <div class="pagination">
+        <div class="pagination">
+
+            <div class="pagination-info">
+
+                {{ (currentPage - 1) * itemsPerPage + 1 }}
+
+                -
+
+                {{
+                    currentPage * itemsPerPage >
+                    filteredPayments.length
+
+                    ? filteredPayments.length
+
+                    : currentPage * itemsPerPage
+                }}
+
+                of {{ filteredPayments.length }}
+
+            </div>
+
+            <div class="pagination-pages">
+
+                <button
+                    class="page"
+                    type="button"
+                    (click)="changePage(currentPage - 1)"
+                >
+                    <
+                </button>
+
+                <button
+                    *ngFor="let page of pages"
+                    class="page"
+                    type="button"
+                    [class.active]="page === currentPage"
+                    (click)="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+
+                <button
+                    class="page"
+                    type="button"
+                    (click)="changePage(currentPage + 1)"
+                >
+                    >
+                </button>
+
+            </div>
+
+            <div class="page-size">
+
+                <select
+                    [value]="itemsPerPage"
+                    (change)="changePageSize($event)"
+                >
+
+                    <option
+                        *ngFor="let size of pageSizeOptions"
+                        [value]="size"
+                    >
+                        {{ size }}/trang
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+    </div>
+</div>
