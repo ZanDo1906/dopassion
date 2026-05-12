@@ -15,10 +15,13 @@ export class App {
   showSidebar = true;
 
   constructor(private router: Router) {
+    this.showSidebar = !this.router.url.includes('/login');
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.showSidebar = !event.url.includes('/login');
+        const url = event.urlAfterRedirects || event.url;
+        this.showSidebar = !url.includes('/login');
       });
   }
 }

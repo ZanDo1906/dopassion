@@ -13,6 +13,11 @@
     padding: 24px;
 }
 
+.login-main {
+    min-height: 100vh;
+    padding: 0;
+}
+
 .app-main.full-width {
     grid-column: 1 / -1;
     padding: 0;

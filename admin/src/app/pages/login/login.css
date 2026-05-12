@@ -189,6 +189,10 @@ body, html {
 	color: #888;
 	text-align: center;
 }
+.admin-link .admin-portal {
+	color: #ff9800;
+	font-weight: 500;
+}
 .admin-link a {
 	color: #ff9800;
 	text-decoration: none;

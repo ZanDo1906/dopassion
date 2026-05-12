@@ -1,0 +1,58 @@
+[
+    {
+        "STT": 1,
+        "Mã voucher": "KM100K",
+        "Tên chương trình": "Khuyến mãi học viên mới",
+        "Loại giảm": "Cố định",
+        "Thông số": 100000.0
+    },
+    {
+        "STT": 2,
+        "Mã voucher": "KM200K",
+        "Tên chương trình": "Ưu đãi đăng ký sớm",
+        "Loại giảm": "Cố định",
+        "Thông số": 200000.0
+    },
+    {
+        "STT": 3,
+        "Mã voucher": "KM300K",
+        "Tên chương trình": "Ưu đãi khai giảng tháng 5",
+        "Loại giảm": "Cố định",
+        "Thông số": 300000.0
+    },
+    {
+        "STT": 4,
+        "Mã voucher": "KM500K",
+        "Tên chương trình": "Siêu ưu đãi TOEIC Combo",
+        "Loại giảm": "Cố định",
+        "Thông số": 500000.0
+    },
+    {
+        "STT": 5,
+        "Mã voucher": "KM10",
+        "Tên chương trình": "Giảm học phí mùa hè",
+        "Loại giảm": "Phần trăm",
+        "Thông số": 0.1
+    },
+    {
+        "STT": 6,
+        "Mã voucher": "KM15",
+        "Tên chương trình": "Ưu đãi sinh viên UEL",
+        "Loại giảm": "Phần trăm",
+        "Thông số": 0.15
+    },
+    {
+        "STT": 7,
+        "Mã voucher": "KM20",
+        "Tên chương trình": "Flash Sale cuối tuần",
+        "Loại giảm": "Phần trăm",
+        "Thông số": 0.2
+    },
+    {
+        "STT": 8,
+        "Mã voucher": "KM25",
+        "Tên chương trình": "Khuyến mãi nhóm bạn",
+        "Loại giảm": "Phần trăm",
+        "Thông số": 0.25
+    }
+]

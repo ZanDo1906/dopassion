@@ -1,6 +1,13 @@
-<div class="app-shell">
-  <app-sidebar class="app-sidebar" *ngIf="showSidebar"></app-sidebar>
-  <main class="app-main" [class.full-width]="!showSidebar">
+<ng-container *ngIf="showSidebar; else loginView">
+  <div class="app-shell">
+    <app-sidebar class="app-sidebar"></app-sidebar>
+    <main class="app-main">
+      <router-outlet />
+    </main>
+  </div>
+</ng-container>
+<ng-template #loginView>
+  <main class="app-main login-main">
     <router-outlet />
   </main>
-</div>
+</ng-template>

@@ -1,0 +1,300 @@
+<!-- Classes -->
+<section class="data-section">
+    <h2>Danh sách lớp</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã lớp</th>
+                <th>Tên lớp</th>
+                <th>Mã khóa</th>
+                <th>Tên khóa học</th>
+                <th>Chi nhánh</th>
+                <th>Giảng viên</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of classList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã lớp'] }}</td>
+                <td>{{ item['Tên lớp'] }}</td>
+                <td>{{ item['Mã khóa'] }}</td>
+                <td>{{ item['Tên khóa học'] }}</td>
+                <td>{{ item['Chi nhánh'] }}</td>
+                <td>{{ item['Giảng viên'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Clients -->
+<section class="data-section">
+    <h2>Danh sách khách hàng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã KH</th>
+                <th>Tên khách hàng</th>
+                <th>Giới tính</th>
+                <th>SĐT</th>
+                <th>Email</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of clientList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã KH'] }}</td>
+                <td>{{ item['Tên khách hàng'] }}</td>
+                <td>{{ item['Giới tính'] }}</td>
+                <td>{{ item['SĐT'] }}</td>
+                <td>{{ item['Email'] }}</td>
+                <td>{{ item['Trạng thái'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Contacts -->
+<section class="data-section">
+    <h2>Danh sách liên hệ</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã liên hệ</th>
+                <th>Mã KH</th>
+                <th>Tên khách hàng</th>
+                <th>Nội dung</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of contactList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã liên hệ'] }}</td>
+                <td>{{ item['Mã KH'] }}</td>
+                <td>{{ item['Tên khách hàng'] }}</td>
+                <td>{{ item['Nội dung liên hệ'] }}</td>
+                <td>{{ item['Trạng thái liên hệ'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Courses -->
+<section class="data-section">
+    <h2>Danh sách khóa học</h2>
+    <div *ngIf="courseList$ | async as courses">
+        <table *ngIf="courses && courses.length > 0">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã khóa học</th>
+                    <th>Tên khóa học</th>
+                    <th>Học phí</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of courses; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item['Mã khóa học'] }}</td>
+                    <td>{{ item['Tên khóa học'] }}</td>
+                    <td>{{ item['Học phí'] | number }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="!courses || courses.length === 0">Không có dữ liệu</div>
+    </div>
+</section>
+
+<!-- Feedback -->
+<section class="data-section">
+    <h2>Danh sách đánh giá</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã đánh giá</th>
+                <th>Tên khách hàng</th>
+                <th>Tên lớp</th>
+                <th>Nội dung</th>
+                <th>Số sao</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of feedbackList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã đánh giá'] }}</td>
+                <td>{{ item['Tên khách hàng'] }}</td>
+                <td>{{ item['Tên lớp học'] }}</td>
+                <td>{{ item['Nội dung đánh giá'] }}</td>
+                <td>{{ item['Số sao'] }}</td>
+                <td>{{ item['Trạng thái'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Payment -->
+<section class="data-section">
+    <h2>Danh sách thanh toán</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã đăng ký</th>
+                <th>Tên KH</th>
+                <th>Tên lớp</th>
+                <th>Học phí</th>
+                <th>Số tiền cần TT</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of paymentList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã đăng ký'] }}</td>
+                <td>{{ item['Tên KH'] }}</td>
+                <td>{{ item['Tên lớp học'] }}</td>
+                <td>{{ item['Học phí'] | number }}</td>
+                <td>{{ item['Số tiền cần thanh toán'] | number }}</td>
+                <td>{{ item['Trạng thái THANH TOÁN'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Refund -->
+<section class="data-section">
+    <h2>Danh sách hoàn tiền</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã đăng ký</th>
+                <th>Tên KH</th>
+                <th>Đã thanh toán</th>
+                <th>Số tiền hoàn</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of refundList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã đăng ký'] }}</td>
+                <td>{{ item['Tên KH'] }}</td>
+                <td>{{ item['Đã thanh toán'] | number }}</td>
+                <td>{{ item['Số tiền hoàn'] | number }}</td>
+                <td>{{ item['Trạng thái'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Registration -->
+<section class="data-section">
+    <h2>Danh sách đăng ký</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã đăng ký</th>
+                <th>Tên KH</th>
+                <th>Tên lớp</th>
+                <th>Chi nhánh</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of registrationList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã đăng ký'] }}</td>
+                <td>{{ item['Tên KH'] }}</td>
+                <td>{{ item['Tên lớp học'] }}</td>
+                <td>{{ item['Chi nhánh'] }}</td>
+                <td>{{ item['Trạng thái'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Roles -->
+<section class="data-section">
+    <h2>Danh sách vai trò</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã vai trò</th>
+                <th>Tên vai trò</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of roleList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['MÃ VAI TRÒ'] }}</td>
+                <td>{{ item['TÊN VAI TRÒ'] }}</td>
+                <td>{{ item['MÔ TẢ'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Staff -->
+<section class="data-section">
+    <h2>Danh sách nhân viên</h2>
+    <div *ngIf="staffList$ | async as staffs">
+        <table *ngIf="staffs && staffs.length > 0">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên nhân viên</th>
+                    <th>Giới tính</th>
+                    <th>SĐT</th>
+                    <th>Chi nhánh</th>
+                    <th>Vai trò</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of staffs">
+                    <td>{{ item['STT'] }}</td>
+                    <td>{{ item['Tên nhân viên'] }}</td>
+                    <td>{{ item['Giới tính'] }}</td>
+                    <td>{{ item['SĐT'] }}</td>
+                    <td>{{ item['Chi nhánh'] }}</td>
+                    <td>{{ item['Vai trò'] }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="!staffs || staffs.length === 0">Không có dữ liệu</div>
+    </div>
+</section>
+
+<!-- Vouchers -->
+<section class="data-section">
+    <h2>Danh sách voucher</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã voucher</th>
+                <th>Tên chương trình</th>
+                <th>Loại giảm</th>
+                <th>Thông số</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of voucherList$ | async">
+                <td>{{ item['STT'] }}</td>
+                <td>{{ item['Mã voucher'] }}</td>
+                <td>{{ item['Tên chương trình'] }}</td>
+                <td>{{ item['Loại giảm'] }}</td>
+                <td>{{ item['Thông số'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
