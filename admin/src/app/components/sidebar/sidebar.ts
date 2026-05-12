@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 type SectionKey = 'report' | 'users' | 'courses' | 'interactions' | 'accounting';
 
@@ -13,6 +13,8 @@ type SectionKey = 'report' | 'users' | 'courses' | 'interactions' | 'accounting'
 export class Sidebar {
   private readonly openSections = new Set<SectionKey>();
 
+  constructor(private readonly router: Router) {}
+
   toggleSection(section: SectionKey): void {
     if (this.openSections.has(section)) {
       this.openSections.delete(section);
@@ -23,6 +25,10 @@ export class Sidebar {
 
   isOpen(section: SectionKey): boolean {
     return this.openSections.has(section);
+  }
+
+  logout(): void {
+    this.router.navigate(['/login']);
   }
 
 }
