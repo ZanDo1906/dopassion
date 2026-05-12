@@ -6,7 +6,10 @@
 }
 
 .sidebar {
-    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
     padding: 20px 18px;
     color: #2a4c7f;
     background-image: linear-gradient(165deg, rgba(239, 231, 221, 0.92) 0%, rgba(230, 224, 216, 0.92) 35%, rgba(217, 212, 205, 0.9) 55%, rgba(207, 210, 214, 0.9) 100%),
@@ -17,6 +20,12 @@
     border-right: 1px solid rgba(42, 76, 127, 0.12);
     box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.06);
     overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 .brand {
@@ -71,7 +80,7 @@
     color: #2f5ea8;
     font-family: 'Work Sans', sans-serif;
     font-size: 14px;
-    border-radius: 12px;
+    border-radius: 5px;
     background: rgba(255, 255, 255, 0.4);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
@@ -87,6 +96,21 @@
     transform: translateX(4px);
     background: rgba(255, 255, 255, 0.7);
     box-shadow: 0 6px 14px rgba(42, 76, 127, 0.12);
+}
+
+.nav-item.active {
+    background: #ffffff;
+    color: #2f5ea8;
+    font-weight: 600;
+    box-shadow: 0 6px 14px rgba(42, 76, 127, 0.15);
+}
+
+.nav-item.active .nav-icon {
+    color: #2f5ea8;
+}
+
+.nav-item.active .nav-caret {
+    color: rgba(47, 94, 168, 1);
 }
 
 .nav-icon {
@@ -129,7 +153,7 @@
     text-decoration: none;
     color: rgba(47, 94, 168, 0.85);
     padding: 6px 8px;
-    border-radius: 10px;
+    border-radius: 5px;
     background: rgba(255, 255, 255, 0.25);
     transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -137,6 +161,27 @@
 .nav-sub-item:hover {
     background: rgba(255, 255, 255, 0.55);
     transform: translateX(4px);
+}
+
+.nav-sub-item.active {
+    background: #ffffff;
+    color: #2f5ea8;
+    font-weight: 600;
+}
+
+.logout-btn {
+    margin-top: 20px;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.logout-btn:hover {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.logout-btn .nav-icon {
+    color: #dc3545;
 }
 
 @media (max-width: 768px) {

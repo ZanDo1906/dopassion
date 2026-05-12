@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Sidebar } from './components/sidebar/sidebar';
 import { Topbar } from './components/topbar/topbar';
 
@@ -11,4 +11,16 @@ import { Topbar } from './components/topbar/topbar';
 })
 export class App {
   protected readonly title = signal('admin');
+  showSidebar = true;
+
+  constructor(private router: Router) {
+    this.showSidebar = !this.router.url.includes('/login');
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const url = event.urlAfterRedirects || event.url;
+        this.showSidebar = !url.includes('/login');
+      });
+  }
 }

@@ -1,1 +1,34 @@
-<p>login works!</p>
+<div class="login-container">
+	<div class="login-left">
+		<div class="login-logo-box">
+			<img src="/login-background.jpg" alt="background" class="login-bg" />
+			<div class="login-logo-content">
+				<img src="/logo.png" alt="Logo" class="login-logo" />
+				<h2>Hệ Thống Quản Lý Học Viên</h2>
+				<h3>Trung Tâm Anh Ngữ DoPassion</h3>
+				<p>Quản lý học viên, lớp học và theo dõi tiến độ học tập một cách hiệu quả</p>
+			</div>
+		</div>
+	</div>
+	<div class="login-right">
+		<form class="login-form" (ngSubmit)="submit()" #loginForm="ngForm">
+			<h2>Đăng nhập</h2>
+			<p class="login-welcome">Chào mừng quay trở lại! Vui lòng đăng nhập vào tài khoản của bạn.</p>
+			<div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+			<div class="form-group">
+				<label for="username">Tên đăng nhập</label>
+				<input type="text" id="username" name="username" [(ngModel)]="username" placeholder="NV01" />
+			</div>
+			<div class="form-group">
+				<label for="password">Mật khẩu</label>
+				<input type="password" id="password" name="password" [(ngModel)]="password" placeholder="Nhập mật khẩu" />
+			</div>
+			<div class="form-options">
+				<label><input type="checkbox" /> Ghi nhớ đăng nhập</label>
+				<a href="#" class="forgot-password">Quên mật khẩu?</a>
+			</div>
+			<button type="submit" class="login-btn">Đăng nhập</button>
+		<div class="admin-link">Phiên bản dành cho quản trị viên <span class="admin-portal">Admin Portal</span></div>
+		</form>
+	</div>
+</div>

@@ -9,4 +9,5 @@ export interface iStaff {
     "Vai trò": string;
     "Mã vai trò": string;
     "Ảnh CCCD": string | null;
+    password?: string;
 }

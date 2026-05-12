@@ -1,7 +1,7 @@
 [
     {
         "STT": 1,
-        "Mã NV": null,
+        "Mã NV": "DPS01020",
         "Tên nhân viên": "Nguyễn Văn An",
         "Giới tính": "Nam",
         "Ngày sinh": "1990-05-12 00:00:00",
@@ -9,11 +9,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Quản trị hệ thống",
         "Mã vai trò": "ADMIN",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 2,
-        "Mã NV": null,
+        "Mã NV": "DPS01027",
         "Tên nhân viên": "Trần Thị Bình",
         "Giới tính": "Nữ",
         "Ngày sinh": "1995-08-21 00:00:00",
@@ -21,11 +22,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 3,
-        "Mã NV": null,
+        "Mã NV": "DPS02034",
         "Tên nhân viên": "Lê Minh Cường",
         "Giới tính": "Nam",
         "Ngày sinh": "1992-11-03 00:00:00",
@@ -33,11 +35,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 4,
-        "Mã NV": null,
+        "Mã NV": "DPS02041",
         "Tên nhân viên": "Phạm Thu Dung",
         "Giới tính": "Nữ",
         "Ngày sinh": "1998-02-15 00:00:00",
@@ -45,11 +48,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 5,
-        "Mã NV": null,
+        "Mã NV": "DPS03048",
         "Tên nhân viên": "Hoàng Văn Đức",
         "Giới tính": "Nam",
         "Ngày sinh": "1989-07-30 00:00:00",
@@ -57,11 +61,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 6,
-        "Mã NV": null,
+        "Mã NV": "DPS01055",
         "Tên nhân viên": "Đỗ Thị Hạnh",
         "Giới tính": "Nữ",
         "Ngày sinh": "1996-04-18 00:00:00",
@@ -69,11 +74,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 7,
-        "Mã NV": null,
+        "Mã NV": "DPS02062",
         "Tên nhân viên": "Bùi Quốc Khánh",
         "Giới tính": "Nam",
         "Ngày sinh": "1993-09-25 00:00:00",
@@ -81,11 +87,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 8,
-        "Mã NV": null,
+        "Mã NV": "DPS03069",
         "Tên nhân viên": "Vũ Thanh Lan",
         "Giới tính": "Nữ",
         "Ngày sinh": "1997-12-10 00:00:00",
@@ -93,11 +100,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 9,
-        "Mã NV": null,
+        "Mã NV": "DPS01076",
         "Tên nhân viên": "Nguyễn Hoài Nam",
         "Giới tính": "Nam",
         "Ngày sinh": "1991-03-14 00:00:00",
@@ -105,11 +113,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 10,
-        "Mã NV": null,
+        "Mã NV": "DPS02083",
         "Tên nhân viên": "Trương Mỹ Linh",
         "Giới tính": "Nữ",
         "Ngày sinh": "1999-06-22 00:00:00",
@@ -117,11 +126,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 11,
-        "Mã NV": null,
+        "Mã NV": "DPS01090",
         "Tên nhân viên": "Phan Quốc Bảo",
         "Giới tính": "Nam",
         "Ngày sinh": "1994-01-10 00:00:00",
@@ -129,11 +139,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 12,
-        "Mã NV": null,
+        "Mã NV": "DPS03097",
         "Tên nhân viên": "Lý Thị Mai",
         "Giới tính": "Nữ",
         "Ngày sinh": "1998-09-09 00:00:00",
@@ -141,11 +152,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 13,
-        "Mã NV": null,
+        "Mã NV": "DPS02104",
         "Tên nhân viên": "Đặng Minh Tuấn",
         "Giới tính": "Nam",
         "Ngày sinh": "1990-12-01 00:00:00",
@@ -153,11 +165,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 14,
-        "Mã NV": null,
+        "Mã NV": "DPS01111",
         "Tên nhân viên": "Hồ Thị Ngọc",
         "Giới tính": "Nữ",
         "Ngày sinh": "1996-07-19 00:00:00",
@@ -165,11 +178,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 15,
-        "Mã NV": null,
+        "Mã NV": "DPS03118",
         "Tên nhân viên": "Nguyễn Thành Long",
         "Giới tính": "Nam",
         "Ngày sinh": "1988-11-11 00:00:00",
@@ -177,11 +191,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Quản trị hệ thống",
         "Mã vai trò": "ADMIN",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 16,
-        "Mã NV": null,
+        "Mã NV": "DPS02125",
         "Tên nhân viên": "Võ Thị Yến",
         "Giới tính": "Nữ",
         "Ngày sinh": "1997-03-03 00:00:00",
@@ -189,11 +204,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 17,
-        "Mã NV": null,
+        "Mã NV": "DPS01132",
         "Tên nhân viên": "Lê Văn Hùng",
         "Giới tính": "Nam",
         "Ngày sinh": "1992-06-28 00:00:00",
@@ -201,11 +217,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 18,
-        "Mã NV": null,
+        "Mã NV": "DPS03139",
         "Tên nhân viên": "Trịnh Thị Hoa",
         "Giới tính": "Nữ",
         "Ngày sinh": "1995-04-14 00:00:00",
@@ -213,11 +230,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 19,
-        "Mã NV": null,
+        "Mã NV": "DPS02146",
         "Tên nhân viên": "Nguyễn Quốc Trung",
         "Giới tính": "Nam",
         "Ngày sinh": "1993-10-05 00:00:00",
@@ -225,11 +243,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 20,
-        "Mã NV": null,
+        "Mã NV": "DPS01153",
         "Tên nhân viên": "Đinh Thị Trang",
         "Giới tính": "Nữ",
         "Ngày sinh": "1999-08-17 00:00:00",
@@ -237,11 +256,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 21,
-        "Mã NV": null,
+        "Mã NV": "DPS03160",
         "Tên nhân viên": "Phạm Văn Khoa",
         "Giới tính": "Nam",
         "Ngày sinh": "1991-02-20 00:00:00",
@@ -249,11 +269,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 22,
-        "Mã NV": null,
+        "Mã NV": "DPS02167",
         "Tên nhân viên": "Trần Ngọc Ánh",
         "Giới tính": "Nữ",
         "Ngày sinh": "1996-12-12 00:00:00",
@@ -261,11 +282,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 23,
-        "Mã NV": null,
+        "Mã NV": "DPS01174",
         "Tên nhân viên": "Bùi Minh Nhật",
         "Giới tính": "Nam",
         "Ngày sinh": "1994-05-25 00:00:00",
@@ -273,11 +295,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 24,
-        "Mã NV": null,
+        "Mã NV": "DPS03181",
         "Tên nhân viên": "Nguyễn Thị Phương",
         "Giới tính": "Nữ",
         "Ngày sinh": "1998-07-07 00:00:00",
@@ -285,11 +308,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 25,
-        "Mã NV": null,
+        "Mã NV": "DPS02188",
         "Tên nhân viên": "Lâm Văn Duy",
         "Giới tính": "Nam",
         "Ngày sinh": "1990-09-30 00:00:00",
@@ -297,11 +321,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 26,
-        "Mã NV": null,
+        "Mã NV": "DPS01195",
         "Tên nhân viên": "Võ Thị Thanh",
         "Giới tính": "Nữ",
         "Ngày sinh": "1997-11-23 00:00:00",
@@ -309,11 +334,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên hành chính",
         "Mã vai trò": "STAFF",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 27,
-        "Mã NV": null,
+        "Mã NV": "DPS03202",
         "Tên nhân viên": "Trần Văn Hải",
         "Giới tính": "Nam",
         "Ngày sinh": "1989-04-04 00:00:00",
@@ -321,11 +347,12 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Nhân viên kế toán",
         "Mã vai trò": "ACCOUNTANT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 28,
-        "Mã NV": null,
+        "Mã NV": "DPS02209",
         "Tên nhân viên": "Phan Thị Mỹ",
         "Giới tính": "Nữ",
         "Ngày sinh": "1995-06-16 00:00:00",
@@ -333,11 +360,12 @@
         "Chi nhánh": "CN2",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 29,
-        "Mã NV": null,
+        "Mã NV": "DPS01216",
         "Tên nhân viên": "Đỗ Minh Quân",
         "Giới tính": "Nam",
         "Ngày sinh": "1993-01-29 00:00:00",
@@ -345,11 +373,12 @@
         "Chi nhánh": "CN1",
         "Vai trò": "Nhân viên IT",
         "Mã vai trò": "IT_SUPPORT",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     },
     {
         "STT": 30,
-        "Mã NV": null,
+        "Mã NV": "DPS03223",
         "Tên nhân viên": "Nguyễn Thị Hồng",
         "Giới tính": "Nữ",
         "Ngày sinh": "1998-10-08 00:00:00",
@@ -357,6 +386,7 @@
         "Chi nhánh": "CN3",
         "Vai trò": "Giảng viên",
         "Mã vai trò": "INSTRUCTOR",
-        "Ảnh CCCD": null
+        "Ảnh CCCD": null,
+        "password": "123456"
     }
 ]

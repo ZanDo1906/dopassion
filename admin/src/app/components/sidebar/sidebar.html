@@ -88,11 +88,18 @@
             </div>
         </div>
 
-        <a class="nav-item" routerLink="/setting">
+        <a class="nav-item" routerLink="/setting" routerLinkActive="active">
             <span class="nav-icon">
                 <i class="bi bi-gear"></i>
             </span>
             <span class="nav-label">Cấu hình</span>
+        </a>
+
+        <a class="nav-item logout-btn" (click)="logout()">
+            <span class="nav-icon">
+                <i class="bi bi-box-arrow-right"></i>
+            </span>
+            <span class="nav-label">Đăng xuất</span>
         </a>
     </nav>
 </aside>
