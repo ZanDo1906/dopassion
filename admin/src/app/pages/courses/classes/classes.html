@@ -1,1 +1,109 @@
-<p>classes works!</p>
+<div class="role-page">
+    <section class="filter-card">
+        <div class="filter-header">
+            <span class="filter-title">
+                <i class="bi bi-caret-down-fill"></i>
+                Tìm kiếm
+            </span>
+        </div>
+        <div class="filter-body">
+            <div class="filter-field">
+                <label for="role-code">Mã Vai trò</label>
+                <input id="role-code" type="text" />
+            </div>
+            <div class="filter-field">
+                <label for="role-name">Vai trò</label>
+                <input id="role-name" type="text" />
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-muted" type="button">
+                    <i class="bi bi-x-circle"></i>
+                    Xóa bộ lọc
+                </button>
+                <button class="btn btn-primary" type="button">
+                    <i class="bi bi-search"></i>
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button" (click)="openDialog()">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-in-down"></i>
+            Nhập excel
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-up"></i>
+            Xuất excel
+        </button>
+    </div>
+
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã lớp</th>
+                    <th>Tên lớp</th>
+                    <th>Mã khóa</th>
+                    <th>Tên khóa học</th>
+                    <th>Chi nhánh</th>
+                    <th>Giảng viên</th>
+                    <th>Mã Nhân viên</th>
+                    <th>Khung giờ</th>
+                    <th>Ngày bắt đầu</th>
+                    <th>Ngày kết thúc</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of classes">
+                    <td>{{item['STT']}}</td>
+                    <td>{{item['Mã lớp']}}</td>
+                    <td>{{item['Tên lớp']}}</td>
+                    <td>{{item['Mã khóa']}}</td>
+                    <td>{{item['Tên khóa học']}}</td>
+                    <td>{{item['Chi nhánh']}}</td>
+                    <td>{{item['Giảng viên']}}</td>
+                    <td>{{item['Mã Nhân viên']}}</td>
+                    <td>{{item['Khung giờ']}}</td>
+                    <td>{{item['Ngày bắt đầu'] | date:'dd/MM/yyyy'}}</td>
+                    <td>{{item['Ngày kết thúc'] | date:'dd/MM/yyyy'}}</td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
+                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <div class="pagination-info">1-20 of 85</div>
+        <div class="pagination-pages">
+            <button class="page active" type="button">1</button>
+            <button class="page" type="button">2</button>
+            <button class="page" type="button">3</button>
+            <button class="page" type="button">4</button>
+            <button class="page" type="button">5</button>
+        </div>
+        <div class="page-size">
+            <select>
+                <option>10/trang</option>
+                <option>20/trang</option>
+                <option>50/trang</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<app-form-dialog *ngIf="isDialogOpen" title="Thêm lớp học" [sections]="dialogSections" [columns]="3"
+    (close)="closeDialog()" (submit)="onSubmitDialog($event)">
+</app-form-dialog>

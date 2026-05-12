@@ -1,0 +1,67 @@
+<div class="dialog-backdrop">
+
+    <div class="dialog-container">
+
+        <!-- HEADER -->
+        <div class="dialog-header">
+            <h2>{{ title }}</h2>
+        </div>
+
+        <!-- BODY -->
+        <div class="dialog-body">
+
+            <div class="section" *ngFor="let section of sections">
+
+                <!-- SECTION TITLE -->
+                <div class="section-title">
+                    {{ section.title }}
+                </div>
+
+                <!-- GRID -->
+                <div class="form-grid" [style.gridTemplateColumns]="'repeat(' + columns + ', 1fr)'">
+
+                    <div class="form-group" *ngFor="let field of section.fields">
+
+                        <label>
+                            <span *ngIf="field.required" class="required-star">*</span>
+                            {{ field.label }}
+                        </label>
+
+                        <!-- INPUT -->
+                        <input *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'"
+                            [type]="field.type" [(ngModel)]="formData[field.name]" />
+
+                        <!-- SELECT -->
+                        <select *ngIf="field.type === 'select'" [(ngModel)]="formData[field.name]">
+                            <option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+
+                        <!-- TEXTAREA -->
+                        <textarea *ngIf="field.type === 'textarea'" [(ngModel)]="formData[field.name]"></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="dialog-footer">
+
+            <button class="btn-cancel" (click)="close.emit()">
+                <i class="bi bi-x-circle"></i> Thoát
+            </button>
+
+            <button class="btn-submit" (click)="onSubmit()">
+                <i class="bi bi-save"></i> Xác nhận
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
