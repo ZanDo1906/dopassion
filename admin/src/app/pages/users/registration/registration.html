@@ -1,1 +1,94 @@
-<p>registration works!</p>
+<div class="role-page">
+    <!-- Filter Component -->
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"
+    ></app-filter-data-picker>
+
+    <!-- Action Bar -->
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-download"></i>
+            Nhập excel
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-upload"></i>
+            Xuất excel
+        </button>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã đăng ký</th>
+                    <th>Tên khách hàng</th>
+                    <th>Tên lớp học</th>
+                    <th>SĐT</th>
+                    <th>Trạng thái</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of paginatedData; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.studentName }}</td>
+                    <td>{{ item.className }}</td>
+                    <td>{{ item.phone }}</td>
+                    <td>
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': item.status === 'Đang hoạt động',
+                                'badge--danger': item.status === 'Ngưng hoạt động',
+                                'badge--warning': item.status === 'Chưa đăng ký khóa'
+                            }"
+                        >
+                            {{ item.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
+                                <i class="bi bi-lock"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <div class="pagination-info">
+            {{ (currentPage - 1) * itemsPerPage + 1 }}
+            -
+            {{ currentPage * itemsPerPage > filteredData.length ? filteredData.length : currentPage * itemsPerPage }}
+            of {{ filteredData.length }}
+        </div>
+        <div class="pagination-pages">
+            <button class="page" type="button" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">&lt;</button>
+            <button *ngFor="let page of pages" class="page" type="button" [class.active]="page === currentPage" (click)="changePage(page)">
+                {{ page }}
+            </button>
+            <button class="page" type="button" (click)="changePage(currentPage + 1)" [disabled]="currentPage === pages.length">&gt;</button>
+        </div>
+        <div class="page-size">
+            <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
+            </select>
+        </div>
+    </div>
+</div>
