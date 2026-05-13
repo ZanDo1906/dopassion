@@ -1,1 +1,102 @@
-<p>request works!</p>
+<div class="role-page">
+    <section class="filter-card">
+        <div class="filter-header" (click)="toggleFilter()">
+            <span class="filter-title">
+                <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+                Tìm kiếm yêu cầu
+            </span>
+        </div>
+        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
+            <div class="filter-field">
+                <label>Mã yêu cầu</label>
+                <input type="text" placeholder="Nhập mã LH..." />
+            </div>
+            <div class="filter-field">
+                <label>Loại yêu cầu</label>
+                <select>
+                    <option value="">-- Tất cả --</option>
+                    <option value="1">Tư vấn / Hỗ trợ</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label>Trạng thái</label>
+                <select>
+                    <option value="">-- Tất cả --</option>
+                    <option value="1">Mới tạo</option>
+                    <option value="2">Đã xử lý</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-muted" type="button"><i class="bi bi-x-circle"></i> Xóa bộ lọc</button>
+                <button class="btn btn-primary" type="button"><i class="bi bi-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button"><i class="bi bi-plus-circle"></i> Thêm mới</button>
+        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-in-down"></i> Nhập excel</button>
+        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-up"></i> Xuất excel</button>
+    </div>
+
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã yêu cầu</th>
+                    <th>Nội dung liên hệ</th>
+                    <th>Người gửi</th>
+                    <th>Ngày gửi</th>
+                    <th>Trạng thái</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of paginatedRequests; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td class="text-primary" style="font-weight: 500;">{{ item.maYeuCau }}</td>
+                    <td style="text-align: left; max-width: 250px;">{{ item.tieuDe }}</td>
+                    <td>{{ item.nguoiGui }}</td>
+                    <td>{{ item.ngayGui }}</td>
+                    <td><span class="badge" [ngClass]="getStatusClass(item.trangThai)">{{ item.trangThai }}</span></td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" title="Xem chi tiết" (click)="openDetailDialog(item)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="icon-btn"><i class="bi bi-pencil"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <div class="pagination-info">
+            {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ currentPage * itemsPerPage > filteredRequests.length ? filteredRequests.length : currentPage * itemsPerPage }} 
+            of {{ filteredRequests.length }}
+        </div>
+        <div class="pagination-pages">
+            <button class="page" (click)="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
+            <button *ngFor="let page of pages" class="page" [class.active]="page === currentPage" (click)="changePage(page)">{{ page }}</button>
+            <button class="page" (click)="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="page-size">
+            <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<app-form-dialog 
+    *ngIf="isDialogOpen" 
+    title="Chi tiết yêu cầu tương tác" 
+    [sections]="dialogSections" 
+    [columns]="3"
+    (close)="closeDialog()" 
+    (submit)="onSubmitDialog($event)">
+</app-form-dialog>
