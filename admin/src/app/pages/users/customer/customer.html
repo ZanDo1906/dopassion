@@ -1,1 +1,89 @@
-<p>customer works!</p>
+<div class="role-page">
+    <!-- Shared Filter Data Picker Component -->
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="onSearch($event)"
+        (onReset)="onReset()"
+    ></app-filter-data-picker>
+
+    <!-- Action Bar -->
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-download"></i>
+            Nhập excel
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-upload"></i>
+            Xuất excel
+        </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã khách hàng</th>
+                    <th>Tên khách hàng</th>
+                    <th>SĐT</th>
+                    <th>Trạng thái</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let customer of paginatedCustomers; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td>{{ customer.maKhachHang }}</td>
+                    <td>{{ customer.tenKhachHang }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>
+                        <span 
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': customer.trangThai === 'Đang học',
+                                'badge--warning': customer.trangThai === 'Chưa đăng ký khóa',
+                                'badge--info': customer.trangThai === 'Đã hoàn thành'
+                            }"
+                        >
+                            {{ customer.trangThai }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
+                                <i class="bi bi-lock"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span>{{ (currentPage - 1) * itemsPerPage + 1 }} - {{ (currentPage * itemsPerPage) > filteredCustomers.length ? filteredCustomers.length : (currentPage * itemsPerPage) }} of {{ filteredCustomers.length }}</span>
+        <ul class="pagination mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">Previous</a>
+            </li>
+            <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">Next</a>
+            </li>
+        </ul>
+        <select class="form-select w-auto" (change)="changePageSize($event)">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">{{size}}/trang</option>
+        </select>
+    </div>
+</div>

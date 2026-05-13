@@ -1,58 +1,109 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Class } from '../../services/class';
+import { iClass, ClassFilter } from '../../interfaces/class';
+import { DateRangePickerComponent, DateRange } from '../../components/date-range-picker/date-range-picker';
 
 @Component({
   selector: 'app-classes',
-  imports: [CommonModule],
+  imports: [CommonModule, DateRangePickerComponent],
+  providers: [Class],
   templateUrl: './classes.html',
   styleUrl: './classes.css',
 })
-export class Classes {
-  selectedCourse = '';
-  selectedBranch = '';
-  startDate = '2026-01-01';
-  endDate = '2026-01-31';
+export class Classes implements OnInit {
+  // Biến lưu trữ bộ lọc hiện tại
+  // Khởi tạo startDate/endDate rỗng để hiển thị Placeholder ban đầu
+  currentFilters: ClassFilter = {
+    courseCode: '',
+    branch: '',
+    startDate: '',
+    endDate: '',
+    keyword: ''
+  };
+
+  // Dữ liệu hiển thị trên UI
   courses: any[] = [];
   
-  allCourses = [
-    { id: 1, type: 'LR', branch: 'Hà Nội', startDate: '2026-01-10', title: 'LR - 01 (Listening & Reading)', schedule: '17h30 - T3, T4, T6', lessons: '24 buổi', hasTest: true },
-    { id: 2, type: 'LR', branch: 'TP. HCM', startDate: '2026-01-12', title: 'LR - 02 (Listening & Reading)', schedule: '18h00 - T2, T4, T6', lessons: '24 buổi', hasTest: true },
-    { id: 3, type: 'LR', branch: 'Đà Nẵng', startDate: '2026-01-15', title: 'LR - 03 (Listening & Reading)', schedule: '19h00 - T3, T5, T7', lessons: '24 buổi', hasTest: false },
-    { id: 4, type: 'LR', branch: 'Hà Nội', startDate: '2026-01-18', title: 'LR - 04 (Listening & Reading)', schedule: '20h00 - T2, T5', lessons: '24 buổi', hasTest: true },
-    { id: 5, type: 'LR', branch: 'TP. HCM', startDate: '2026-01-22', title: 'LR - 05 (Listening & Reading)', schedule: '17h00 - T3, T5, T7', lessons: '24 buổi', hasTest: false },
-    { id: 6, type: 'LR', branch: 'Đà Nẵng', startDate: '2026-01-25', title: 'LR - 06 (Listening & Reading)', schedule: '18h30 - T2, T4, T6', lessons: '24 buổi', hasTest: true },
-    { id: 7, type: 'SW', branch: 'Hà Nội', startDate: '2026-01-08', title: 'SW - 01 (Speaking & Writing)', schedule: '17h30 - T3, T4, T6', lessons: '20 buổi', hasTest: true },
-    { id: 8, type: 'SW', branch: 'TP. HCM', startDate: '2026-01-20', title: 'SW - 02 (Speaking & Writing)', schedule: '18h00 - T2, T4, T6', lessons: '20 buổi', hasTest: false },
-    { id: 9, type: 'SW', branch: 'Đà Nẵng', startDate: '2026-01-05', title: 'SW - 03 (Speaking & Writing)', schedule: '19h00 - T3, T5, T7', lessons: '20 buổi', hasTest: true },
-    { id: 10, type: 'SW', branch: 'Hà Nội', startDate: '2026-01-16', title: 'SW - 04 (Speaking & Writing)', schedule: '20h00 - T2, T5', lessons: '20 buổi', hasTest: true },
-    { id: 11, type: 'SW', branch: 'TP. HCM', startDate: '2026-01-19', title: 'SW - 05 (Speaking & Writing)', schedule: '17h00 - T3, T5, T7', lessons: '20 buổi', hasTest: false },
-    { id: 12, type: 'SW', branch: 'Đà Nẵng', startDate: '2026-01-28', title: 'SW - 06 (Speaking & Writing)', schedule: '18h30 - T2, T4, T6', lessons: '20 buổi', hasTest: true },
-    { id: 13, type: 'LR', branch: 'Hà Nội', startDate: '2026-02-01', title: 'LR - 07 (Listening & Reading)', schedule: '17h30 - T3, T4, T6', lessons: '24 buổi', hasTest: true },
-    { id: 14, type: 'LR', branch: 'TP. HCM', startDate: '2026-02-05', title: 'LR - 08 (Listening & Reading)', schedule: '18h00 - T2, T4, T6', lessons: '24 buổi', hasTest: false },
-    { id: 15, type: 'SW', branch: 'Đà Nẵng', startDate: '2026-02-03', title: 'SW - 07 (Speaking & Writing)', schedule: '19h00 - T3, T5, T7', lessons: '20 buổi', hasTest: true },
-    { id: 16, type: 'SW', branch: 'Hà Nội', startDate: '2026-02-08', title: 'SW - 08 (Speaking & Writing)', schedule: '20h00 - T2, T5', lessons: '20 buổi', hasTest: true }
-  ];
+  constructor(private classService: Class) {}
   
-  constructor() {
-    this.courses = this.allCourses;
+  ngOnInit() {
+    console.log('Classes component initialized');
+    this.loadClasses();
   }
   
+  /**
+   * Lấy dữ liệu lớp học từ Service với bộ lọc hiện tại
+   */
+  loadClasses() {
+    // Chuẩn bị bộ lọc để gửi tới Service
+    const filters: ClassFilter = {
+      courseCode: this.currentFilters.courseCode || undefined,
+      branch: this.currentFilters.branch || undefined,
+      startDate: this.currentFilters.startDate,
+      endDate: this.currentFilters.endDate,
+      keyword: this.currentFilters.keyword || undefined
+    };
+
+    // Gọi Service để lấy dữ liệu đã được lọc
+    this.classService.getClasses(filters).subscribe({
+      next: (data: any[]) => {
+        console.log('Filtered data received from service:', data);
+        // Gán dữ liệu, có thể là mảng rỗng nếu không khớp filter
+        this.courses = data && data.length > 0 ? data : [];
+        console.log('Total courses after filter:', this.courses.length);
+      },
+      error: (error) => {
+        console.error('Error loading classes from service:', error);
+        // Gán mảng rỗng khi có lỗi để hiển thị Empty State
+        this.courses = [];
+      }
+    });
+  }
+  
+  /**
+   * Xử lý khi người dùng thay đổi lựa chọn khóa học
+   * Cập nhật filter và gọi service để lấy dữ liệu mới
+   */
   filterByCourse(event: any) {
-    this.selectedCourse = event.target.value;
+    this.currentFilters.courseCode = event.target.value;
+    console.log('Course filter changed:', this.currentFilters.courseCode);
   }
   
+  /**
+   * Xử lý khi người dùng thay đổi lựa chọn chi nhánh
+   * Cập nhật filter và gọi service để lấy dữ liệu mới
+   */
   filterByBranch(event: any) {
-    this.selectedBranch = event.target.value;
+    const selectedBranch = event.target.value;
+    
+    // Convert từ tên chi nhánh (Hà Nội) sang code (CN1)
+    const branchCodeMap: { [key: string]: string } = {
+      'Hà Nội': 'CN1',
+      'TP. HCM': 'CN2',
+      'Đà Nẵng': 'CN3'
+    };
+    
+    this.currentFilters.branch = branchCodeMap[selectedBranch] || '';
+    console.log('Branch filter changed:', this.currentFilters.branch);
   }
   
-  filterByDate(type: 'start' | 'end', event: any) {
-    if (type === 'start') {
-      this.startDate = event.target.value;
-    } else {
-      this.endDate = event.target.value;
-    }
+  /**
+   * Xử lý khi người dùng thay đổi khoảng ngày khai giảng
+   * Cập nhật filter và gọi service để lấy dữ liệu mới
+   */
+  onDateRangeChange(dateRange: DateRange) {
+    this.currentFilters.startDate = dateRange.fromDate;
+    this.currentFilters.endDate = dateRange.toDate;
+    console.log('Date range changed:', {
+      startDate: this.currentFilters.startDate,
+      endDate: this.currentFilters.endDate
+    });
   }
 
+  /**
+   * Format ngày tháng hiển thị trên UI
+   */
   formatDate(date: string): string {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -61,15 +112,51 @@ export class Classes {
     return `${day}/${month}/${year}`;
   }
   
+  /**
+   * Thực hiện tìm kiếm với các bộ lọc hiện tại
+   * Gọi Service với ClassFilter object để lấy dữ liệu đã được lọc
+   * Logic lọc (filter) hoàn toàn được xử lý bên Service
+   */
   onSearch() {
-    this.courses = this.allCourses.filter(course => {
-      const matchCourse = !this.selectedCourse || course.type === this.selectedCourse;
-      const matchBranch = !this.selectedBranch || course.branch === this.selectedBranch;
-      const courseDate = new Date(course.startDate);
-      const start = new Date(this.startDate);
-      const end = new Date(this.endDate);
-      const matchDate = courseDate >= start && courseDate <= end;
-      return matchCourse && matchBranch && matchDate;
-    });
+    console.log('Search button clicked with filters:', this.currentFilters);
+    this.loadClasses();
+  }
+
+  /**
+   * Reset tất cả các bộ lọc về trạng thái mặc định
+   * - Reset courseCode (Khóa học)
+   * - Reset branch (Chi nhánh)
+   * - Reset startDate/endDate (Khoảng thời gian) - Về rỗng để hiển thị Placeholder
+   * - Reset keyword (Từ khóa tìm kiếm)
+   * - Load lại dữ liệu toàn bộ danh sách
+   */
+  resetFilters() {
+    console.log('Resetting all filters');
+    
+    // Reset tất cả filters về giá trị mặc định (rỗng)
+    // startDate/endDate rỗng sẽ lọc toàn bộ dữ liệu (không hạn chế ngày)
+    this.currentFilters = {
+      courseCode: '',
+      branch: '',
+      startDate: '',
+      endDate: '',
+      keyword: ''
+    };
+
+    // Reset các select elements
+    const courseSelect = document.querySelector(
+      'select[title*="Khóa"]'
+    ) as HTMLSelectElement;
+    const branchSelect = document.querySelector(
+      'select[title*="Chi"]'
+    ) as HTMLSelectElement;
+
+    if (courseSelect) courseSelect.value = '';
+    if (branchSelect) branchSelect.value = '';
+
+    console.log('All filters reset to defaults:', this.currentFilters);
+
+    // Load lại danh sách đầy đủ
+    this.loadClasses();
   }
 }

@@ -1,0 +1,62 @@
+<!-- Generic Filter Card (Tự động sinh UI từ config) -->
+<section class="filter-card" (click)="toggleFilter()">
+    <div class="filter-header">
+        <span class="filter-title">
+            <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+            Tìm kiếm
+        </span>
+    </div>
+    
+    <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
+        <!-- Tự động sinh các field input từ config -->
+        <div class="filter-row">
+            <div class="filter-field" *ngFor="let field of config">
+                <label [for]="field.key">{{ field.label }}</label>
+
+                <!-- Render đúng loại input dựa trên field.type -->
+                <ng-container [ngSwitch]="field.type">
+                    <!-- Text Input -->
+                    <input
+                        *ngSwitchCase="'text'"
+                        type="text"
+                        [id]="field.key"
+                        [placeholder]="'Nhập ' + field.label"
+                        [(ngModel)]="filterValues[field.key]"
+                    />
+
+                    <!-- Select Dropdown -->
+                    <select
+                        *ngSwitchCase="'select'"
+                        [id]="field.key"
+                        [(ngModel)]="filterValues[field.key]"
+                    >
+                        <option value="">-- Chọn {{ field.label }} --</option>
+                        <option *ngFor="let option of field.options" [value]="option.value">
+                            {{ option.label }}
+                        </option>
+                    </select>
+
+                    <!-- Date Input -->
+                    <input
+                        *ngSwitchCase="'date'"
+                        type="date"
+                        [id]="field.key"
+                        [(ngModel)]="filterValues[field.key]"
+                    />
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="filter-actions">
+            <button class="btn btn-muted" type="button" (click)="triggerReset()">
+                <i class="bi bi-x-circle"></i>
+                Xóa bộ lọc
+            </button>
+            <button class="btn btn-primary" type="button" (click)="triggerSearch()">
+                <i class="bi bi-search"></i>
+                Tìm kiếm
+            </button>
+        </div>
+    </div>
+</section>
