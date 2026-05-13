@@ -1,1 +1,116 @@
-<p>feedback works!</p>
+<div class="role-page">
+    <section class="filter-card">
+        <div class="filter-header" (click)="toggleFilter()">
+            <span class="filter-title">
+                <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+                Tìm kiếm đánh giá
+            </span>
+        </div>
+        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
+            <div class="filter-field">
+                <label>Mã đánh giá</label>
+                <input type="text" placeholder="Nhập mã ĐG..." />
+            </div>
+            <div class="filter-field">
+                <label>Lớp học</label>
+                <select>
+                    <option value="">-- Tất cả --</option>
+                    <option value="1">Lớp TOEIC Speaking&Writing</option>
+                    <option value="2">Lớp IELTS Foundation</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label>Trạng thái</label>
+                <select>
+                    <option value="">-- Tất cả --</option>
+                    <option value="choduyet">Chờ duyệt</option>
+                    <option value="daduyet">Đã duyệt</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-muted" type="button"><i class="bi bi-x-circle"></i> Xóa bộ lọc</button>
+                <button class="btn btn-primary" type="button"><i class="bi bi-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-in-down"></i> Nhập excel</button>
+        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-up"></i> Xuất excel</button>
+    </div>
+
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã đánh giá</th>
+                    <th>Học viên</th>
+                    <th>Lớp học</th>
+                    <th>Đánh giá</th>
+                    <th>Ngày đánh giá</th>
+                    <th>Trạng thái</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of paginatedFeedbacks; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td class="text-primary">{{ item.maDanhGia }}</td>
+                    <td style="font-weight: 500;">{{ item.khachHang }}</td>
+                    <td style="text-align: left; max-width: 200px;">{{ item.lopHoc }}</td>
+                    
+                    <td class="rating-stars">
+                        <i *ngFor="let isFilled of getStars(item.soSao)" 
+                           class="bi" 
+                           [ngClass]="isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'">
+                        </i>
+                    </td>
+                    
+                    <td>{{ item.ngayDanhGia }}</td>
+                    <td><span class="badge" [ngClass]="getStatusClass(item.trangThai)">{{ item.trangThai }}</span></td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" title="Xem chi tiết" (click)="openDetailDialog(item)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="icon-btn" title="Chỉnh sửa">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="paginatedFeedbacks.length === 0">
+                    <td colspan="8">Đang tải dữ liệu hoặc không có dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <div class="pagination-info">
+            {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+            {{ currentPage * itemsPerPage > filteredFeedbacks.length ? filteredFeedbacks.length : currentPage * itemsPerPage }} 
+            of {{ filteredFeedbacks.length }}
+        </div>
+        <div class="pagination-pages">
+            <button class="page" (click)="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
+            <button *ngFor="let page of pages" class="page" [class.active]="page === currentPage" (click)="changePage(page)">{{ page }}</button>
+            <button class="page" (click)="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="page-size">
+            <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<app-form-dialog 
+    *ngIf="isDialogOpen" 
+    title="Chi tiết đánh giá học viên" 
+    [sections]="dialogSections" 
+    [columns]="3"
+    (close)="closeDialog()" 
+    (submit)="onSubmitDialog($event)">
+</app-form-dialog>

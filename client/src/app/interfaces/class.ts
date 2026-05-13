@@ -11,3 +11,11 @@ export interface iClass {
     "Ngày bắt đầu": string;
     "Ngày kết thúc": string;
 }
+
+export interface ClassFilter {
+    courseCode?: string;      // Mã khóa (LR, SW)
+    branch?: string;          // Chi nhánh (CN1, CN2, CN3)
+    startDate?: string;       // Ngày bắt đầu từ
+    endDate?: string;         // Ngày bắt đầu đến
+    keyword?: string;         // Tìm kiếm theo tên lớp hoặc giảng viên
+}

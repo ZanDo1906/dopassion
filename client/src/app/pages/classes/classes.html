@@ -18,12 +18,13 @@
     </div>
 
     <div class="filter-group">
-      <label class="filter-label">Ngày khai giảng</label>
-      <div class="input-group">
-        <input type="date" class="form-control" [value]="startDate" (change)="filterByDate('start', $event)" />
-        <span class="input-group-text">-</span>
-        <input type="date" class="form-control" [value]="endDate" (change)="filterByDate('end', $event)" />
-      </div>
+      <app-date-range-picker
+        [label]="'KHOẢNG THỜI GIAN KHAI GIẢNG'"
+        [fromDate]="currentFilters.startDate || ''"
+        [toDate]="currentFilters.endDate || ''"
+        [minDate]="'2026-01-01'"
+        (dateRangeChange)="onDateRangeChange($event)"
+      ></app-date-range-picker>
     </div>
 
     <div class="filter-group">
@@ -36,13 +37,23 @@
       </select>
     </div>
 
-    <div class="filter-group search-group">
-      <button class="search-btn" (click)="onSearch()">🔍</button>
+    <div class="filter-group search-group d-flex flex-row gap-2 align-items-end">
+      <button class="search-btn" (click)="onSearch()" title="Tìm kiếm">
+        <i class="bi bi-search me-1"></i>
+      </button>
+      <button class="reset-btn" (click)="resetFilters()" title="Xóa bộ lọc">
+        <i class="bi bi-arrow-counterclockwise"></i>
+      </button>
     </div>
   </div>
 
+  <!-- Result Count -->
+  <div class="result-count-container" *ngIf="courses.length > 0">
+    <span class="text-muted fst-italic result-count">Tìm thấy {{ courses.length }} khóa học phù hợp.</span>
+  </div>
+
   <!-- Courses Grid -->
-  <div class="courses-grid">
+  <div class="courses-grid" *ngIf="courses && courses.length > 0">
     <div *ngFor="let course of courses" class="course-card">
       <div class="course-image">
         <img src="/sample.png" alt="{{ course.title }}" />
@@ -51,8 +62,8 @@
         <h3 class="course-title">{{ course.title }}</h3>
 
         <div class="course-info-row">
-          <span class="info-badge">📅 {{ formatDate(course.startDate) }}</span>
-          <span class="info-badge">📍 {{ course.branch }}</span>
+          <span class="info-badge"><i class="bi bi-calendar-event me-1"></i>{{ formatDate(course.startDate) }}</span>
+          <span class="info-badge"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ course.branch }}</span>
         </div>
 
         <div class="course-rating">
@@ -72,10 +83,22 @@
         <button class="view-details-btn">Xem chi tiết</button>
 
         <div class="checkbox-item">
-          <span class="check-icon" [class.checked]="course.hasTest">✓</span>
+          <span class="check-icon" [class.checked]="course.hasTest"><i class="bi bi-check-circle-fill text-success"></i></span>
           <label>Kiểm tra đầu vào</label>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!courses || courses.length === 0">
+    <div class="empty-state-content">
+      <i class="bi bi-search empty-state-icon"></i>
+      <h5 class="empty-state-title">Không tìm thấy khóa học nào</h5>
+      <p class="empty-state-text text-muted">Vui lòng điều chỉnh lại điều kiện lọc hoặc xóa bộ lọc.</p>
+      <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+        <i class="bi bi-arrow-counterclockwise me-2"></i>Xóa bộ lọc
+      </button>
     </div>
   </div>
 </div>

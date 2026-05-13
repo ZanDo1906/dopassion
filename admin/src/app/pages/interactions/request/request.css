@@ -1,0 +1,48 @@
+.role-page {
+    --primary: #2a4d90;
+    --primary-600: #24447d;
+    --primary-100: #eef3ff;
+    --border: #c7d6f5;
+    --surface: #ffffff;
+    --text: #1f3766;
+    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-card { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.filter-header { background: var(--primary-100); padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #dbe4fb; }
+.filter-title { font-weight: 600; font-size: 13px; color: var(--primary-600); display: flex; align-items: center; gap: 8px; }
+.filter-body { padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.filter-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.filter-field label { font-weight: 600; color: var(--primary-600); }
+.filter-field input, .filter-field select { height: 34px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; outline: none; }
+.filter-actions { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; }
+
+.table-card { background: #ffffff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.role-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.role-table thead th { background: var(--primary-100); color: var(--primary-600); padding: 10px; border-bottom: 1px solid #e2e7f4; }
+.role-table tbody td { padding: 10px; border-bottom: 1px solid #edf1fa; text-align: center; }
+.role-table tbody tr:hover { background: #f2f6ff; }
+
+.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+.badge--green { background: #e2f6e7; color: #1d7a37; }
+.badge--orange { background: #fff4e5; color: #c47d1a; }
+.badge--blue { background: #e5f4ff; color: #1a73c4; }
+
+.btn { padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; border: 1px solid transparent; transition: 0.2s; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-outline { background: white; border-color: var(--border); color: var(--primary); }
+.btn-muted { background: #cfd4df; color: #3b4a66; }
+.btn:hover { opacity: 0.8; }
+
+.icon-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; transition: 0.2s; }
+.icon-btn:hover { background: #f2f6ff; }
+.toolbar { display: flex; gap: 10px; margin: 5px 0; }
+.text-primary { color: var(--primary); }
+
+.pagination { display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 12px; margin-top: 5px; }
+.pagination-pages { display: flex; gap: 5px; }
+.page { width: 28px; height: 26px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; background: transparent; }
+.page.active { background: white; border-color: var(--border); font-weight: 600; }
