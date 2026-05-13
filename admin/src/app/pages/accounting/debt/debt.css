@@ -128,20 +128,30 @@
 }
 
 .table-card {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
     background: #ffffff;
     border-radius: 10px;
     border: 1px solid var(--border);
-    overflow: hidden;
     box-shadow: var(--shadow);
+    position: relative;
 }
 
 
 .role-table {
-    width: 100%;
+    width: max-content; /* bảng tự rộng theo content */
+    min-width: 100%;    /* nhưng tối thiểu bằng khung */
     border-collapse: collapse;
     font-size: 12px;
 }
 
+.role-table th,
+.role-table td {
+    white-space: nowrap;
+}
 .role-table thead th {
     background: var(--primary-100);
     color: var(--primary-600);
@@ -167,6 +177,7 @@
 
 .col-stt {
     width: 60px;
+    min-width: 40px;
 }
 
 .col-actions {
@@ -320,3 +331,39 @@
     box-shadow: 0 0 0 2px rgba(42, 77, 144, 0.15);
 }
 
+
+/* ghim 2 cột đầu */
+
+th.sticky-stt,
+td.sticky-stt {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: white;
+}
+
+th.sticky-code,
+td.sticky-code {
+    position: sticky;
+    left: 40px;
+    z-index: 3;
+    background: white;
+    box-shadow: 5px 0 5px rgba(0, 0, 0, 0.1);
+
+}
+
+
+th.sticky-action,
+td.sticky-action {
+    position: sticky;
+    right: 0;
+    z-index: 4;
+    background: white;
+
+    box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+thead th.sticky-action {
+    background: var(--primary-100);
+    z-index: 6;
+}

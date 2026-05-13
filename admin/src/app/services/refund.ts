@@ -4,12 +4,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class Refund {
-  url: string = 'assets/mock-data-json/refund.json';
-  constructor(private http: HttpClient) { }
-  getRefund(): Observable<iRefund[]> {
-    return this.http.get<iRefund[]>(this.url);
+export class RefundService {
+
+  constructor(private http: HttpClient) {}
+
+  getRefund() {
+    return this.http.get<iRefund[]>(
+      'assets/mock-data-json/refund.json'
+    );
   }
+
 }
