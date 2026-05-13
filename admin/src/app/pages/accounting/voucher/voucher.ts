@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgSelectComponent } from '@ng-select/ng-select';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 import {
   DecimalPipe,
@@ -21,14 +21,14 @@ import { VoucherService } from '../../../services/voucher';
     NgForOf,
     NgClass,
     DecimalPipe,
-    NgSelectComponent
+    NgSelectModule
   ],
 
   templateUrl: './voucher.html',
   styleUrls: ['./voucher.css'],
 })
 
-export class Voucher{
+export class Voucher {
 
   vouchers: any[] = [];
 
@@ -36,7 +36,7 @@ export class Voucher{
 
   isFilterOpen = true;
 
-  
+
 
   // Phân trang
   currentPage = 1;
@@ -146,9 +146,9 @@ export class Voucher{
         .toLowerCase();
 
     const branch =
-      this.filters.branch as string[]; 
-        // .trim()
-        // .toLowerCase();
+      this.filters.branch as string[];
+    // .trim()
+    // .toLowerCase();
 
     const status =
       this.filters.status
@@ -166,45 +166,45 @@ export class Voucher{
         const matchesVoucher =
           voucherCode
             ? item.maVoucher
-                .toLowerCase()
-                .includes(voucherCode)
+              .toLowerCase()
+              .includes(voucherCode)
             : true;
 
         const matchesProgram =
           programName
             ? item.tenChuongTrinh
-                .toLowerCase()
-                .includes(programName)
+              .toLowerCase()
+              .includes(programName)
             : true;
 
         const matchesClass =
           classCode
             ? item.maLop
-                .toLowerCase()
-                .includes(classCode)
+              .toLowerCase()
+              .includes(classCode)
             : true;
 
         const matchesBranch =
           branch.length > 0
             ? branch.every(
-                (cn: string) =>
-                  item.chiNhanh.includes(cn)
-              )
+              (cn: string) =>
+                item.chiNhanh.includes(cn)
+            )
             : true;
 
         const matchesCourse =
           courseCode
             ? item.khoaHoc
-                .toLowerCase()
-                .includes(courseCode)
+              .toLowerCase()
+              .includes(courseCode)
             : true;
 
         const matchesStatus =
           status
             ? item.trangThai
-                .toLowerCase()
-                .includes(status)
-            : true;    
+              .toLowerCase()
+              .includes(status)
+            : true;
         return (
 
           matchesVoucher &&
@@ -308,45 +308,45 @@ export class Voucher{
 
   }
 
-//   onBranchChange(event: Event) {
+  //   onBranchChange(event: Event) {
 
-//   const checkbox =
-//     event.target as HTMLInputElement;
+  //   const checkbox =
+  //     event.target as HTMLInputElement;
 
-//   const value = checkbox.value;
+  //   const value = checkbox.value;
 
-//   if (checkbox.checked) {
+  //   if (checkbox.checked) {
 
-//     this.filters.branch.push(value);
+  //     this.filters.branch.push(value);
 
-//   }
+  //   }
 
-//   else {
+  //   else {
 
-//     this.filters.branch =
-//       this.filters.branch.filter(
-//         (item) => item !== value
-//       );
+  //     this.filters.branch =
+  //       this.filters.branch.filter(
+  //         (item) => item !== value
+  //       );
 
-//   }
+  //   }
 
-// }
-branches = [
+  // }
+  branches = [
 
-  {
-    label: 'Chi nhánh 1',
-    value: 'CN1'
-  },
+    {
+      label: 'Chi nhánh 1',
+      value: 'CN1'
+    },
 
-  {
-    label: 'Chi nhánh 2',
-    value: 'CN2'
-  },
+    {
+      label: 'Chi nhánh 2',
+      value: 'CN2'
+    },
 
-  {
-    label: 'Chi nhánh 3',
-    value: 'CN3'
-  }
+    {
+      label: 'Chi nhánh 3',
+      value: 'CN3'
+    }
 
-];
+  ];
 }
