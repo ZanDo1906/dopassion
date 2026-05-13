@@ -24,7 +24,7 @@ export class GridFormDialog {
 
   @Output() submit = new EventEmitter<any>();
 
-  formData: any = {};
+  @Input() formData: any = {};
 
   onSubmit() {
     this.submit.emit(this.formData);

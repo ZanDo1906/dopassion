@@ -29,17 +29,19 @@
 
                         <!-- INPUT -->
                         <input *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'"
-                            [type]="field.type" [(ngModel)]="formData[field.name]" />
+                            [type]="field.type" [(ngModel)]="formData[field.name]" [disabled]="field.disabled" />
 
                         <!-- SELECT -->
-                        <select *ngIf="field.type === 'select'" [(ngModel)]="formData[field.name]">
+                        <select *ngIf="field.type === 'select'" [(ngModel)]="formData[field.name]"
+                            [disabled]="field.disabled">
                             <option *ngFor="let option of field.options" [value]="option.value">
                                 {{ option.label }}
                             </option>
                         </select>
 
                         <!-- TEXTAREA -->
-                        <textarea *ngIf="field.type === 'textarea'" [(ngModel)]="formData[field.name]"></textarea>
+                        <textarea *ngIf="field.type === 'textarea'" [(ngModel)]="formData[field.name]"
+                            [disabled]="field.disabled"></textarea>
 
                     </div>
 

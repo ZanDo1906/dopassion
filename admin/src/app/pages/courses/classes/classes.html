@@ -1,12 +1,14 @@
 <div class="role-page">
-    <section class="filter-card">
+    <section class="filter-card" (click)="toggleFilter()">
         <div class="filter-header">
             <span class="filter-title">
-                <i class="bi bi-caret-down-fill"></i>
+                <i class="bi" [ngClass]=" isFilterOpen 
+                ? 'bi-caret-down-fill' 
+                : 'bi-caret-right-fill'"></i>
                 Tìm kiếm
             </span>
         </div>
-        <div class="filter-body">
+        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
             <div class="filter-field">
                 <label for="role-code">Mã Vai trò</label>
                 <input id="role-code" type="text" />
@@ -62,8 +64,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of classes">
-                    <td>{{item['STT']}}</td>
+                <tr *ngFor="let item of paginatedClasses; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                     <td>{{item['Mã lớp']}}</td>
                     <td>{{item['Tên lớp']}}</td>
                     <td>{{item['Mã khóa']}}</td>
@@ -86,24 +88,37 @@
     </div>
 
     <div class="pagination">
-        <div class="pagination-info">1-20 of 85</div>
-        <div class="pagination-pages">
-            <button class="page active" type="button">1</button>
-            <button class="page" type="button">2</button>
-            <button class="page" type="button">3</button>
-            <button class="page" type="button">4</button>
-            <button class="page" type="button">5</button>
-        </div>
-        <div class="page-size">
-            <select>
-                <option>10/trang</option>
-                <option>20/trang</option>
-                <option>50/trang</option>
-            </select>
+        <div class="pagination">
+            <div class="pagination-info">
+                {{ (currentPage - 1) * itemsPerPage + 1 }}
+                -
+                {{ currentPage * itemsPerPage > filteredClasses.length ? filteredClasses.length : currentPage *
+                itemsPerPage }}
+                of {{ filteredClasses.length }}
+            </div>
+            <div class="pagination-pages">
+                <button class="page" type="button" (click)="changePage(currentPage - 1)">
+                    &lt;
+                </button>
+                <button *ngFor="let page of pages" class="page" type="button" [class.active]="page === currentPage"
+                    (click)="changePage(page)">
+                    {{ page }}
+                </button>
+                <button class="page" type="button" (click)="changePage(currentPage + 1)">
+                    &gt;
+                </button>
+            </div>
+            <div class="page-size">
+                <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                    <option *ngFor="let size of pageSizeOptions" [value]="size">
+                        {{ size }}/trang
+                    </option>
+                </select>
+            </div>
         </div>
     </div>
 </div>
 
-<app-form-dialog *ngIf="isDialogOpen" title="Thêm lớp học" [sections]="dialogSections" [columns]="3"
-    (close)="closeDialog()" (submit)="onSubmitDialog($event)">
+<app-form-dialog *ngIf="isDialogOpen" title="Thêm lớp học" [sections]="dialogSections" [formData]="dialogData"
+    [columns]="3" (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>
