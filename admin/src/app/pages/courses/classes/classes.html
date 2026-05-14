@@ -1,34 +1,6 @@
 <div class="role-page">
-    <section class="filter-card" (click)="toggleFilter()">
-        <div class="filter-header">
-            <span class="filter-title">
-                <i class="bi" [ngClass]=" isFilterOpen 
-                ? 'bi-caret-down-fill' 
-                : 'bi-caret-right-fill'"></i>
-                Tìm kiếm
-            </span>
-        </div>
-        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
-            <div class="filter-field">
-                <label for="role-code">Mã Vai trò</label>
-                <input id="role-code" type="text" />
-            </div>
-            <div class="filter-field">
-                <label for="role-name">Vai trò</label>
-                <input id="role-name" type="text" />
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-muted" type="button">
-                    <i class="bi bi-x-circle"></i>
-                    Xóa bộ lọc
-                </button>
-                <button class="btn btn-primary" type="button">
-                    <i class="bi bi-search"></i>
-                    Tìm kiếm
-                </button>
-            </div>
-        </div>
-    </section>
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleFilterSearch($event)"
+        (onReset)="handleFilterReset()"></app-filter-data-picker>
 
     <div class="toolbar">
         <button class="btn btn-outline" type="button" (click)="openDialog()">

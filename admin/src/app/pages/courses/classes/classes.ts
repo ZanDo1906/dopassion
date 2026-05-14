@@ -5,10 +5,11 @@ import { iClass } from '../../../interfaces/class';
 import { Staff } from '../../../services/staff';
 import { iStaff } from '../../../interfaces/staff';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 
 @Component({
   selector: 'app-classes',
-  imports: [CommonModule, GridFormDialog],
+  imports: [CommonModule, GridFormDialog, FilterDataPicker],
   templateUrl: './classes.html',
   styleUrl: './classes.css',
 })
@@ -17,7 +18,58 @@ export class Classes implements OnInit, DoCheck {
   staffs: iStaff[] = [];
   lastBranch: string = '';
 
-  isFilterOpen = false;
+  filterValues: Record<string, any> = {};
+  filterConfig: FilterConfig[] = [
+    { key: 'Mã lớp', label: 'Mã lớp', type: 'text' },
+    { key: 'Tên lớp', label: 'Tên lớp', type: 'text' },
+    {
+      key: 'Mã khóa',
+      label: 'Mã khóa',
+      type: 'select',
+      options: [
+        { value: 'SW', label: 'SW' },
+        { value: 'LR', label: 'LR' }
+      ]
+    },
+    {
+      key: 'Tên khóa học',
+      label: 'Tên khóa học',
+      type: 'select',
+      options: [
+        { value: 'Khóa học TOEIC Speaking và Writing', label: 'Khóa học TOEIC Speaking và Writing' },
+        { value: 'Khóa học TOEIC Listening và Reading', label: 'Khóa học TOEIC Listening và Reading' }
+      ]
+    },
+    {
+      key: 'Chi nhánh',
+      label: 'Chi nhánh',
+      type: 'select',
+      options: [
+        { value: 'CN1', label: 'CN1' },
+        { value: 'CN2', label: 'CN2' },
+        { value: 'CN3', label: 'CN3' }
+      ]
+    },
+    {
+      key: 'Giảng viên',
+      label: 'Giảng viên',
+      type: 'select',
+      options: []
+    },
+    {
+      key: 'Khung giờ',
+      label: 'Khung giờ',
+      type: 'select',
+      options: [
+        { value: '17h45-19h15 (T2-4-6)', label: '17h45-19h15 (T2-4-6)' },
+        { value: '19h30-21h00 (T2-4-6)', label: '19h30-21h00 (T2-4-6)' },
+        { value: '17h45-19h15 (T3-5-7)', label: '17h45-19h15 (T3-5-7)' },
+        { value: '19h30-21h00 (T3-5-7)', label: '19h30-21h00 (T3-5-7)' }
+      ]
+    },
+    { key: 'Ngày bắt đầu', label: 'Ngày bắt đầu', type: 'date' },
+    { key: 'Ngày kết thúc', label: 'Ngày kết thúc', type: 'date' }
+  ];
 
   // Pagination
   currentPage = 1;
@@ -96,6 +148,7 @@ export class Classes implements OnInit, DoCheck {
     });
     this.staffService.getStaff().subscribe((data) => {
       this.staffs = data;
+      this.updateTeacherOptions();
     });
   }
 
@@ -202,12 +255,79 @@ export class Classes implements OnInit, DoCheck {
     this.isDialogOpen = false;
   }
 
-  toggleFilter() {
-    this.isFilterOpen = !this.isFilterOpen;
+  handleFilterSearch(filters: Record<string, any>) {
+    this.filterValues = { ...filters };
+    this.currentPage = 1;
+  }
+
+  handleFilterReset() {
+    this.filterValues = {};
+    this.currentPage = 1;
+  }
+
+  private updateTeacherOptions() {
+    const teacherField = this.filterConfig.find((field) => field.key === 'Giảng viên');
+    if (!teacherField) {
+      return;
+    }
+    const teacherNames = Array.from(
+      new Set(this.staffs.filter((s) => s['Mã vai trò'] === 'INSTRUCTOR').map((s) => s['Tên nhân viên']))
+    );
+    teacherField.options = teacherNames.map((name) => ({ value: name, label: name }));
+  }
+
+  private normalizeDate(value: any): string {
+    if (!value) {
+      return '';
+    }
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.toISOString().slice(0, 10);
+    }
+    if (typeof value === 'string') {
+      return value.slice(0, 10);
+    }
+    return '';
+  }
+
+  private matchesText(value: string, query: string): boolean {
+    if (!query) {
+      return true;
+    }
+    return value.toLowerCase().includes(query.toLowerCase());
   }
 
   get filteredClasses() {
-    return this.classes; // add actual filter logic here if needed
+    const filters = this.filterValues || {};
+    return this.classes.filter((item) => {
+      if (filters['Mã lớp'] && !this.matchesText(item['Mã lớp'], filters['Mã lớp'])) {
+        return false;
+      }
+      if (filters['Tên lớp'] && !this.matchesText(item['Tên lớp'], filters['Tên lớp'])) {
+        return false;
+      }
+      if (filters['Mã khóa'] && item['Mã khóa'] !== filters['Mã khóa']) {
+        return false;
+      }
+      if (filters['Tên khóa học'] && item['Tên khóa học'] !== filters['Tên khóa học']) {
+        return false;
+      }
+      if (filters['Chi nhánh'] && item['Chi nhánh'] !== filters['Chi nhánh']) {
+        return false;
+      }
+      if (filters['Giảng viên'] && item['Giảng viên'] !== filters['Giảng viên']) {
+        return false;
+      }
+      if (filters['Khung giờ'] && item['Khung giờ'] !== filters['Khung giờ']) {
+        return false;
+      }
+      if (filters['Ngày bắt đầu'] && this.normalizeDate(item['Ngày bắt đầu']) !== filters['Ngày bắt đầu']) {
+        return false;
+      }
+      if (filters['Ngày kết thúc'] && this.normalizeDate(item['Ngày kết thúc']) !== filters['Ngày kết thúc']) {
+        return false;
+      }
+      return true;
+    });
   }
 
   get paginatedClasses() {
