@@ -8,7 +8,7 @@
 
     <!-- Action Bar -->
     <div class="toolbar">
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="openAddStaffDialog()">
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
@@ -77,3 +77,88 @@
         (pageSizeChange)="onPaginationPageSizeChange($event)"
     ></app-pagination>
 </div>
+
+<ng-template #addStaffTemplate>
+    <form [formGroup]="addStaffForm" class="staff-add-form">
+        <div class="section-title">I. Thông tin cá nhân</div>
+
+        <div class="form-grid form-grid--three">
+            <div class="form-group">
+                <label>Mã Nhân viên</label>
+                <input class="input-readonly" type="text" formControlName="employeeId" readonly />
+            </div>
+            <div class="form-group">
+                <label><span class="required-star">*</span>Tên nhân viên</label>
+                <input type="text" formControlName="fullName" />
+            </div>
+            <div class="form-group">
+                <label><span class="required-star">*</span>Giới tính</label>
+                <select formControlName="gender">
+                    <option value="">Chọn giới tính</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-grid form-grid--three">
+            <div class="form-group">
+                <label><span class="required-star">*</span>Ngày sinh</label>
+                <input type="date" formControlName="dob" />
+            </div>
+            <div class="form-group">
+                <label>Địa chỉ</label>
+                <input type="text" formControlName="address" />
+            </div>
+            <div class="form-group">
+                <label><span class="required-star">*</span>SĐT</label>
+                <input type="text" formControlName="phone" />
+            </div>
+        </div>
+
+        <div class="section-title">II. Thông tin nhân viên</div>
+
+        <div class="form-grid form-grid--three">
+            <div class="form-group">
+                <label><span class="required-star">*</span>Chi nhánh</label>
+                <select formControlName="branch">
+                    <option value="">Chọn chi nhánh</option>
+                    <option *ngFor="let item of branchOptions" [value]="item.value">{{ item.label }}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><span class="required-star">*</span>Vai trò</label>
+                <select formControlName="roleName">
+                    <option value="">Chọn vai trò</option>
+                    <option *ngFor="let item of roleOptions" [value]="item.value">{{ item.label }}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mã Vai trò</label>
+                <input class="input-readonly" type="text" formControlName="roleId" readonly />
+            </div>
+        </div>
+
+        <div class="form-group cccd-upload-group">
+            <label><span class="required-star">*</span>Ảnh CCCD</label>
+            <label class="upload-box" for="cccd-upload-input">
+                <span class="upload-box__text">+ Upload</span>
+            </label>
+            <input id="cccd-upload-input" type="file" accept="image/*" class="upload-input" (change)="onCccdFileChange($event)" />
+            <small class="upload-file-name" *ngIf="addStaffForm.get('cccdImage')?.value">{{ addStaffForm.get('cccdImage')?.value }}</small>
+        </div>
+    </form>
+</ng-template>
+
+<app-form-dialog
+    *ngIf="isAddStaffDialogOpen"
+    title="Thêm mới nhân viên"
+    [bodyTemplate]="addStaffTemplate"
+    cancelText="Thoát"
+    submitText="Lưu"
+    cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save"
+    (close)="closeAddStaffDialog()"
+    (submit)="onSubmitAddStaff()">
+</app-form-dialog>

@@ -8,7 +8,7 @@
 
     <!-- Action Bar -->
     <div class="toolbar">
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="openAddRoleDialog()">
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
@@ -77,3 +77,17 @@
         (pageSizeChange)="onPaginationPageSizeChange($event)"
     ></app-pagination>
 </div>
+
+<app-form-dialog
+    *ngIf="isDialogOpen"
+    title="Thêm mới vai trò"
+    [sections]="dialogSections"
+    [columns]="3"
+    [formGroup]="addRoleForm"
+    cancelText="Thoát"
+    submitText="Lưu"
+    cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save"
+    (close)="closeDialog()"
+    (submit)="onSubmitAddRole($event)">
+</app-form-dialog>

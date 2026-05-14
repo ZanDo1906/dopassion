@@ -1,12 +1,13 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
+import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
+import { Staff as StaffService } from '../../../../services/staff';
 @Component({
   selector: 'app-staff',
-  imports: [CommonModule, FormsModule, FilterDataPicker, PaginationComponent],
+  imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent],
   templateUrl: './staff.html',
   styleUrl: './staff.css',
 })
@@ -71,8 +72,57 @@ export class Staff implements OnInit {
   filteredData: any[] = [];
   paginatedData: any[] = [];
 
+  // Dialog + Reactive form
+  isAddStaffDialogOpen = false;
+  addStaffForm: FormGroup;
+
+  branchOptions = [
+    { value: 'CN1', label: 'Chi nhánh 1' },
+    { value: 'CN2', label: 'Chi nhánh 2' },
+    { value: 'CN3', label: 'Chi nhánh 3' }
+  ];
+
+  roleOptions = [
+    { value: 'Quản trị hệ thống', label: 'Quản trị hệ thống', code: 'ADMIN' },
+    { value: 'Nhân viên hành chính', label: 'Nhân viên hành chính', code: 'STAFF' },
+    { value: 'Nhân viên kế toán', label: 'Nhân viên kế toán', code: 'ACCOUNTANT' },
+    { value: 'Giảng viên', label: 'Giảng viên', code: 'INSTRUCTOR' },
+    { value: 'Nhân viên IT', label: 'Nhân viên IT', code: 'IT_SUPPORT' }
+  ];
+
+  private roleCodeMap: Record<string, string> = {
+    'Quản trị hệ thống': 'ADMIN',
+    'Nhân viên hành chính': 'STAFF',
+    'Nhân viên kế toán': 'ACCOUNTANT',
+    'Giảng viên': 'INSTRUCTOR',
+    'Nhân viên IT': 'IT_SUPPORT'
+  };
+
   // Inject ChangeDetectorRef để force change detection
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private staffService: StaffService,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.addStaffForm = this.formBuilder.group({
+      employeeId: [{ value: '', disabled: true }],
+      fullName: ['', [Validators.required]],
+      gender: ['', [Validators.required]],
+      dob: ['', [Validators.required]],
+      address: [''],
+      phone: ['', [Validators.required]],
+      branch: ['', [Validators.required]],
+      roleName: ['', [Validators.required]],
+      roleId: [{ value: '', disabled: true }],
+      cccdImage: ['', [Validators.required]],
+      // TODO: Chốt thêm quy tắc Regex/Độ dài với team sau
+    });
+
+    this.addStaffForm.get('roleName')?.valueChanges.subscribe((roleName) => {
+      const mappedRoleId = this.roleCodeMap[roleName] || '';
+      this.addStaffForm.patchValue({ roleId: mappedRoleId }, { emitEvent: false });
+    });
+  }
 
   ngOnInit(): void {
     // Initialize pagination state before loading data
@@ -86,15 +136,20 @@ export class Staff implements OnInit {
   }
 
   loadData(): void {
-    this.http.get<any[]>('assets/mock-data-json/staff.json').subscribe({
+    this.staffService.getStaff().subscribe({
       next: (data) => {
         // Normalize data: map Vietnamese keys to normalized keys
         this.allStaffs = data.map(staff => ({
           maNhanVien: staff['Mã NV'] || '',
           tenNhanVien: staff['Tên nhân viên'] || '',
           gioiTinh: staff['Giới tính'] || '',
+          ngaySinh: this.normalizeDateForInput(staff['Ngày sinh']),
+          diaChi: (staff as any)['Địa chỉ'] || '',
+          soDienThoai: `${staff['SĐT'] || ''}`,
           chiNhanh: staff['Chi nhánh'] || '',
           vaiTro: staff['Vai trò'] || '',
+          maVaiTro: staff['Mã vai trò'] || this.roleCodeMap[staff['Vai trò']] || '',
+          cccdImage: staff['Ảnh CCCD'] || '',
           trangThai: 'Đang hoạt động' // Default status
         }));
         this.filteredData = [...this.allStaffs];
@@ -151,6 +206,91 @@ export class Staff implements OnInit {
     this.filteredData = [...this.allStaffs];
     this.currentPage = 1;
     this.updatePagination();
+  }
+
+  openAddStaffDialog(): void {
+    const nextEmployeeId = this.generateNextEmployeeId();
+    this.addStaffForm.reset({
+      employeeId: nextEmployeeId,
+      fullName: '',
+      gender: '',
+      dob: '',
+      address: '',
+      phone: '',
+      branch: '',
+      roleName: '',
+      roleId: '',
+      cccdImage: ''
+    });
+    this.isAddStaffDialogOpen = true;
+  }
+
+  closeAddStaffDialog(): void {
+    this.isAddStaffDialogOpen = false;
+  }
+
+  onCccdFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    this.addStaffForm.patchValue({ cccdImage: file ? file.name : '' });
+    this.addStaffForm.get('cccdImage')?.markAsTouched();
+  }
+
+  onSubmitAddStaff(): void {
+    if (this.addStaffForm.invalid) {
+      this.addStaffForm.markAllAsTouched();
+      return;
+    }
+
+    const rawValue = this.addStaffForm.getRawValue();
+    const newStaff = {
+      maNhanVien: rawValue.employeeId,
+      tenNhanVien: rawValue.fullName,
+      gioiTinh: rawValue.gender,
+      ngaySinh: rawValue.dob,
+      diaChi: rawValue.address,
+      soDienThoai: rawValue.phone,
+      chiNhanh: rawValue.branch,
+      vaiTro: rawValue.roleName,
+      maVaiTro: rawValue.roleId,
+      cccdImage: rawValue.cccdImage,
+      trangThai: 'Đang hoạt động'
+    };
+
+    this.staffService.addStaff(newStaff).subscribe({
+      next: () => {
+        this.allStaffs.unshift(newStaff);
+        this.filteredData = [...this.allStaffs];
+        this.currentPage = 1;
+        this.updatePagination();
+        this.closeAddStaffDialog();
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Không thể thêm nhân viên:', error);
+      }
+    });
+  }
+
+  private normalizeDateForInput(value: string): string {
+    if (!value) {
+      return '';
+    }
+    return value.split(' ')[0];
+  }
+
+  private generateNextEmployeeId(): string {
+    const maxNumericPart = this.allStaffs.reduce((max, staff) => {
+      const id = `${staff.maNhanVien || ''}`;
+      const numericPart = Number(id.replace(/\D/g, ''));
+      if (Number.isNaN(numericPart)) {
+        return max;
+      }
+      return Math.max(max, numericPart);
+    }, 0);
+
+    const nextNumericPart = maxNumericPart + 1;
+    return `DPS${nextNumericPart.toString().padStart(5, '0')}`;
   }
 
   onPaginationPageChange(page: number): void {
