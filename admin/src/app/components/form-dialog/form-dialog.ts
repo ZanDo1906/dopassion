@@ -37,7 +37,7 @@ export class FormDialogComponent implements OnChanges {
 
   @Output() submit = new EventEmitter<any>();
 
-  formData: any = {};
+  @Input() formData: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sections'] && !this.formGroup) {

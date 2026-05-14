@@ -99,9 +99,12 @@
 }
 
 .form-group input:disabled,
-.form-group input[readonly] {
+.form-group input[readonly],
+.form-group select:disabled,
+.form-group textarea:disabled {
     background: #eef3fa;
     color: #666;
+    cursor: not-allowed;
 }
 
 .form-group textarea {

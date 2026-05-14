@@ -61,7 +61,6 @@
         </div>
 
         <ng-template #templateDrivenBody>
-            <ng-container *ngIf="!bodyTemplate">
             <div class="dialog-body">
 
                 <div class="section" *ngFor="let section of sections">
@@ -80,7 +79,8 @@
                             </label>
 
                             <ng-container *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'">
-                                <input [type]="field.type"
+                                <input
+                                    [type]="field.type"
                                     [disabled]="field.disabled"
                                     [attr.placeholder]="field.placeholder || null"
                                     [(ngModel)]="formData[field.name]"
@@ -88,7 +88,8 @@
                             </ng-container>
 
                             <ng-container *ngIf="field.type === 'select'">
-                                <select [disabled]="field.disabled"
+                                <select
+                                    [disabled]="field.disabled"
                                     [(ngModel)]="formData[field.name]"
                                     [ngModelOptions]="{ standalone: true }">
                                     <option *ngIf="field.placeholder" [value]="''" disabled>
@@ -101,7 +102,8 @@
                             </ng-container>
 
                             <ng-container *ngIf="field.type === 'textarea'">
-                                <textarea [disabled]="field.disabled"
+                                <textarea
+                                    [disabled]="field.disabled"
                                     [attr.placeholder]="field.placeholder || null"
                                     [(ngModel)]="formData[field.name]"
                                     [ngModelOptions]="{ standalone: true }"></textarea>
@@ -114,7 +116,6 @@
                 </div>
 
             </div>
-            </ng-container>
         </ng-template>
 
         <!-- FOOTER -->

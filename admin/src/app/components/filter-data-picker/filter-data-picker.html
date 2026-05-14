@@ -36,6 +36,54 @@
                         </option>
                     </select>
 
+                    <!-- Multi Select Dropdown -->
+                    <div *ngSwitchCase="'multi-select'" class="multi-select-wrapper">
+                        <button
+                            type="button"
+                            class="multi-select-trigger"
+                            (click)="toggleMultiSelectDropdown(field.key)"
+                            [attr.aria-expanded]="openDropdownKey === field.key"
+                            [attr.aria-controls]="field.key + '-panel'"
+                        >
+                            <span class="multi-select-text">{{ getMultiSelectDisplay(field) }}</span>
+                            <i class="bi" [ngClass]="openDropdownKey === field.key ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+                        </button>
+
+                        <div
+                            class="multi-select-panel"
+                            [id]="field.key + '-panel'"
+                            *ngIf="openDropdownKey === field.key"
+                            (click)="$event.stopPropagation()"
+                        >
+                            <label
+                                class="multi-select-option"
+                                *ngFor="let option of field.options; let index = index"
+                                [for]="field.key + '-' + index"
+                            >
+                                <input
+                                    type="checkbox"
+                                    [id]="field.key + '-' + index"
+                                    [checked]="isMultiSelectChecked(field.key, option.value)"
+                                    (change)="onMultiSelectChange(field.key, option.value, $any($event.target).checked)"
+                                />
+                                <span>{{ option.label }}</span>
+                            </label>
+
+                            <div class="multi-select-empty" *ngIf="!field.options || field.options.length === 0">
+                                Không có dữ liệu
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Number Input -->
+                    <input
+                        *ngSwitchCase="'number'"
+                        type="number"
+                        [id]="field.key"
+                        [placeholder]="'Nhập ' + field.label"
+                        [(ngModel)]="filterValues[field.key]"
+                    />
+
                     <!-- Date Input -->
                     <input
                         *ngSwitchCase="'date'"
