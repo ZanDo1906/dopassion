@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-
 import { HttpClient } from '@angular/common/http';
-
-import { iVoucher } from '../interfaces/voucher';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,17 +8,27 @@ import { iVoucher } from '../interfaces/voucher';
 
 export class VoucherService {
 
-  constructor(
-    private http: HttpClient
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  getVoucher() {
+  getVoucher(): Observable<any[]> {
 
-    return this.http.get<iVoucher[]>(
-
+    return this.http.get<any[]>(
       'assets/mock-data-json/voucher.json'
-
     );
+
+  }
+
+  addItem(data: any): Observable<any> {
+
+    console.log(
+      'Sending data to server:',
+      data
+    );
+
+    return of({
+      success: true,
+      timestamp: new Date()
+    });
 
   }
 
