@@ -5,11 +5,8 @@
         class="filter-card"
         (click)="toggleFilter()"
     >
-
         <div class="filter-header">
-
             <span class="filter-title">
-
                 <i
                     class="bi"
                     [ngClass]="
@@ -18,126 +15,87 @@
                             : 'bi-caret-right-fill'
                     "
                 ></i>
-
                 Tìm kiếm
-
             </span>
-
         </div>
-
         <div
             class="filter-body"
             *ngIf="isFilterOpen"
             (click)="$event.stopPropagation()"
         >
-
             <!-- Mã Voucher -->
             <div class="filter-field">
-
                 <label>Mã Voucher</label>
-
                 <input
                     type="text"
                     [(ngModel)]="filters.voucherCode"
                 />
-
             </div>
-
             <!-- Tên chương trình -->
             <div class="filter-field">
-
                 <label>Tên Chương Trình</label>
-
                 <input
                     type="text"
                     [(ngModel)]="filters.programName"
                 />
-
             </div>
-
             <!-- Mã khóa học -->
             <div class="filter-field">
-
                 <label>Mã Khóa học</label>
-
                 <select
                     [(ngModel)]="filters.courseCode"
                 >
-
                     <option value="">
                         -- Chọn mã khóa học --
                     </option>
-
                     <option
                         *ngFor="let course of courses"
                         [value]="course.maKhoaHoc"
                     >
                         {{ course.maKhoaHoc }}
                     </option>
-
                 </select>
-
             </div>
-
             <!-- Mã lớp -->
             <div class="filter-field">
-
                 <label>Mã Lớp</label>
-
                 <input
                     type="text"
                     [(ngModel)]="filters.classCode"
                 />
-
             </div>
-
             <!-- Chi nhánh -->
             <div class="filter-field">
-
                 <label>Chi nhánh</label>
-
                 <ng-select
                     [items]="branches"
                     bindLabel="label"
                     bindValue="value"
                     [multiple]="true"
                     [closeOnSelect]="false"
-                    [clearable]="true"
-                   
+                    [clearable]="true"                
                     [(ngModel)]="filters.branch"
                 >
                 </ng-select>
-                
-
             </div>
 
             <!-- TRẠNG THÁI -->
             <div class="filter-field">
-
                 <label>Trạng thái</label>
-
-                <select
-                    [(ngModel)]="filters.status"
-                >
-
+                <select [(ngModel)]="filters.status" >
                     <option value="">
                         -- Chọn trạng thái --
                     </option>
-
                     <option value="Đã duyệt">
                         Đã duyệt
                     </option>
-
                     <option value="Chờ duyệt">
                         Chờ duyệt
                     </option>
-
                     <option value="Đã hủy">
                         Đã hủy
                     </option>
-
                 </select>
-
             </div>
 
             <!-- BUTTON -->
@@ -148,67 +106,64 @@
                     type="button"
                     (click)="clearFilters()"
                 >
-
                     <i class="bi bi-x-circle"></i>
-
                     Xóa bộ lọc
-
                 </button>
-
                 <button
                     class="btn btn-primary"
                     type="button"
                     (click)="applyFilter()"
                 >
-
                     <i class="bi bi-search"></i>
 
                     Tìm kiếm
-
                 </button>
-
             </div>
-
         </div>
-
     </section>
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-
+        <button 
+            class="btn btn-primary" 
+            type="button" 
+            (click)="openAddDialog()"
+        >
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
         <button
             class="btn btn-outline"
             type="button"
         >
-
             <i class="bi bi-box-arrow-in-down"></i>
-
             Nhập excel
-
         </button>
-
         <button
             class="btn btn-outline"
             type="button"
         >
-
             <i class="bi bi-box-arrow-up"></i>
-
             Xuất excel
-
         </button>
-
     </div>
+
+    <app-form-dialog
+        *ngIf="showAddDialog"
+        [title]="'THÊM MỚI VOUCHER'"
+        [sections]="voucherFormSections"
+        [formGroup]="voucherForm"
+        [columns]="3" 
+        (close)="closeDialog()"
+        (submit)="onSaveVoucher()"
+    >
+    </app-form-dialog>
 
     <!-- TABLE -->
     <div class="table-card">
-
         <table class="role-table">
-
             <thead>
-
                 <tr>
-
                     <th>STT</th>
                     <th>Mã voucher</th>
                     <th>Tên chương trình</th>
@@ -216,23 +171,17 @@
                     <th>Thông số giảm</th>
                     <th>Chi nhánh áp dụng</th>
                     <th>Tác vụ</th>
-
                 </tr>
-
             </thead>
-
             <tbody>
-
                 <tr
                     *ngFor="
                         let item of paginatedVouchers;
                         let i = index
                     "
                 >
-
                     <!-- STT -->
                     <td class="sticky-col sticky-stt">
-
                         {{
                             (currentPage - 1)
                             * itemsPerPage
@@ -241,132 +190,86 @@
                         }}
 
                     </td>
-
                     <td>{{ item.maVoucher }}</td>
                     <td>{{ item.tenChuongTrinh }}</td>  
                     <td>{{ item.donViGiam }}</td>
                     <td>{{ item.thongSoGiam }}</td>
-                    <td>{{ item.chiNhanh.join(', ') }}</td>
-
+                    <td>{{ item.chiNhanh?.join(', ') }}</td>
                     <!-- ACTION -->
                     <td class="sticky-action">
-
                         <div class="action-group">
-
                             <button
                                 class="icon-btn"
                                 type="button"
                             >
-
                                 <i class="bi bi-eye"></i>
-
                             </button>
-
                             <button
                                 class="icon-btn"
                                 type="button"
                             >
-
                                 <i class="bi bi-pencil"></i>
-
                             </button>
-
                         </div>
-
                     </td>
-
                 </tr>
-
             </tbody>
-
         </table>
-
     </div>
-
     <!-- PAGINATION -->
     <div class="pagination">
-
-        <div class="pagination">
-
-            <div class="pagination-info">
-
-                {{
-                    (currentPage - 1)
-                    * itemsPerPage
-                    + 1
-                }}
-
-                -
-
-                {{
-
-                    currentPage * itemsPerPage >
-                    filteredVouchers.length
-
-                    ? filteredVouchers.length
-
-                    : currentPage * itemsPerPage
-
-                }}
-
-                of {{ filteredVouchers.length }}
-
-            </div>
-
-            <div class="pagination-pages">
-
-                <button
-                    class="page"
-                    type="button"
-                    (click)="changePage(currentPage - 1)"
-                >
-                    <
-                </button>
-
-                <button
-                    *ngFor="let page of pages"
-                    class="page"
-                    type="button"
-                    [class.active]="page === currentPage"
-                    (click)="changePage(page)"
-                >
-
-                    {{ page }}
-
-                </button>
-
-                <button
-                    class="page"
-                    type="button"
-                    (click)="changePage(currentPage + 1)"
-                >
-                    >
-                </button>
-
-            </div>
-
-            <div class="page-size">
-
-                <select
-                    [value]="itemsPerPage"
-                    (change)="changePageSize($event)"
-                >
-
-                    <option
-                        *ngFor="let size of pageSizeOptions"
-                        [value]="size"
-                    >
-
-                        {{ size }}/trang
-
-                    </option>
-
-                </select>
-
-            </div>
-
+        <div class="pagination-info">
+            {{
+                (currentPage - 1)
+                * itemsPerPage
+                + 1
+            }}
+            -
+            {{
+                currentPage * itemsPerPage >
+                filteredVouchers.length
+                ? filteredVouchers.length
+                : currentPage * itemsPerPage
+            }}
+            of {{ filteredVouchers.length }}
         </div>
-
+        <div class="pagination-pages">
+            <button
+                class="page"
+                type="button"
+                (click)="changePage(currentPage - 1)"
+            >
+                <
+            </button>
+            <button
+                *ngFor="let page of pages"
+                class="page"
+                type="button"
+                [class.active]="page === currentPage"
+                (click)="changePage(page)"
+            >
+                {{ page }}
+            </button>
+            <button
+                class="page"
+                type="button"
+                (click)="changePage(currentPage + 1)"
+            >
+                >
+            </button>
+        </div>
+        <div class="page-size">
+            <select
+                [value]="itemsPerPage"
+                (change)="changePageSize($event)"
+            >
+                <option
+                    *ngFor="let size of pageSizeOptions"
+                    [value]="size"
+                >
+                    {{ size }}/trang
+                </option>
+            </select>
+        </div>
     </div>
-
 </div>
