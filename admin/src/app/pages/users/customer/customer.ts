@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
+import { PaginationComponent } from '../../../components/pagination/pagination';
 
 @Component({
   selector: 'app-customer',
-  imports: [CommonModule, FormsModule, FilterDataPicker],
+  imports: [CommonModule, FormsModule, FilterDataPicker, PaginationComponent],
   templateUrl: './customer.html',
   styleUrl: './customer.css',
 })
@@ -34,17 +35,22 @@ export class Customer implements OnInit {
   // Pagination properties
   currentPage = 1;
   itemsPerPage = 10;
-  pageSizeOptions = [5, 10, 20];
-  pages: number[] = [];
-  totalPages = 1;
+  pageSizeOptions = [10, 20, 50];
 
   // Filter properties
   filteredCustomers: any[] = [];
   paginatedCustomers: any[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+    // Initialize pagination state before loading data
+    this.currentPage = 1;
+    this.itemsPerPage = 10; // Explicitly set default
+    this.filteredCustomers = [];
+    this.paginatedCustomers = [];
+    
+    // Load data
     this.loadData();
   }
 
@@ -118,40 +124,41 @@ export class Customer implements OnInit {
     this.updatePagination();
   }
 
-  changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
+  onPaginationPageChange(page: number): void {
+    console.log('[Customer] onPaginationPageChange:', { newPage: page, currentPage: this.currentPage, itemsPerPage: this.itemsPerPage });
     this.currentPage = page;
+    this.cdr.markForCheck(); // Force change detection
     this.updatePagination();
   }
 
-  changePageSize(event: any): void {
-    this.itemsPerPage = Number(event.target.value);
+  onPaginationPageSizeChange(size: number): void {
+    console.log('[Customer] onPaginationPageSizeChange:', { newSize: size, oldSize: this.itemsPerPage });
+    this.itemsPerPage = size;
     this.currentPage = 1;
+    this.cdr.markForCheck(); // Force change detection
     this.updatePagination();
   }
 
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredCustomers.length / this.itemsPerPage);
+    console.log('[Customer] updatePagination:', {
+      currentPage: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      filteredLength: this.filteredCustomers.length
+    });
+
+    // Safety check: validate itemsPerPage
+    if (this.itemsPerPage <= 0) {
+      console.error('[Customer] itemsPerPage is invalid:', this.itemsPerPage);
+      this.itemsPerPage = 10; // Fallback to default
+    }
+
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
+    
+    console.log('[Customer] Slice parameters:', { start, end, arrayLength: this.filteredCustomers.length });
+    
     this.paginatedCustomers = this.filteredCustomers.slice(start, end);
-    this.generatePages();
-  }
-
-  generatePages(): void {
-    this.pages = [];
-    const maxPagesToShow = 5;
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
-    }
+    
+    console.log('[Customer] Paginated data count:', this.paginatedCustomers.length);
   }
 }

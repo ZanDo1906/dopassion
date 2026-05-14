@@ -177,18 +177,31 @@
     font-weight: 600;
     display: inline-block;
     border: 1px solid transparent;
+    white-space: nowrap;
 }
 
-.badge--active {
+.badge--success {
     background: #e2f6e7;
     color: #1d7a37;
     border-color: #bfe8c9;
 }
 
-.badge--inactive {
+.badge--danger {
     background: #fde5e5;
     color: #c03d3d;
     border-color: #f2bcbc;
+}
+
+.badge--warning {
+    background: #fff4e5;
+    color: #c47d1a;
+    border-color: #f2d0a9;
+}
+
+.badge--info {
+    background: #e5f4ff;
+    color: #1a73c4;
+    border-color: #b8e0ff;
 }
 
 .action-group {

@@ -156,6 +156,10 @@
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.25);
     transition: background 0.2s ease, transform 0.2s ease;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nav-sub-item:hover {
@@ -167,6 +171,43 @@
     background: #ffffff;
     color: #2f5ea8;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(42, 76, 127, 0.12);
+}
+
+.nav-sub-toggle {
+    width: 100%;
+    border: none;
+    background: rgba(255, 255, 255, 0.25);
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.nav-sub-toggle:hover {
+    background: rgba(255, 255, 255, 0.55);
+    transform: translateX(4px);
+}
+
+.nav-sub-toggle span:first-child {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-sub-nested {
+    display: grid;
+    gap: 6px;
+    padding: 0 0 0 1.5em;
+}
+
+.nav-sub-nested .nav-sub-item {
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 0.95em;
 }
 
 .logout-btn {

@@ -1,33 +1,12 @@
 <div class="role-page">
-    <section class="filter-card">
-        <div class="filter-header">
-            <span class="filter-title">
-                <i class="bi bi-caret-down-fill"></i>
-                Tìm kiếm
-            </span>
-        </div>
-        <div class="filter-body">
-            <div class="filter-field">
-                <label for="role-code">Mã Vai trò</label>
-                <input id="role-code" type="text" />
-            </div>
-            <div class="filter-field">
-                <label for="role-name">Vai trò</label>
-                <input id="role-name" type="text" />
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-muted" type="button">
-                    <i class="bi bi-x-circle"></i>
-                    Xóa bộ lọc
-                </button>
-                <button class="btn btn-primary" type="button">
-                    <i class="bi bi-search"></i>
-                    Tìm kiếm
-                </button>
-            </div>
-        </div>
-    </section>
+    <!-- Shared Filter Data Picker Component -->
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"
+    ></app-filter-data-picker>
 
+    <!-- Action Bar -->
     <div class="toolbar">
         <button class="btn btn-outline" type="button">
             <i class="bi bi-plus-circle"></i>
@@ -43,94 +22,44 @@
         </button>
     </div>
 
+    <!-- Data Table -->
     <div class="table-card">
         <table class="role-table">
             <thead>
                 <tr>
                     <th class="col-stt">STT</th>
-                    <th>Mã Vai trò</th>
-                    <th>Tên Vai trò</th>
-                    <th>Mô tả</th>
+                    <th>Mã nhân viên</th>
+                    <th>Tên nhân viên</th>
+                    <th>Vai trò</th>
                     <th>Trạng thái</th>
                     <th class="col-actions">Tác vụ</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>ADMIN</td>
-                    <td>Admin</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--active">Đang hoạt động</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
-                        </div>
+                <tr *ngFor="let staff of paginatedData; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td>{{ staff.maNhanVien }}</td>
+                    <td>{{ staff.tenNhanVien }}</td>
+                    <td>{{ staff.vaiTro }}</td>
+                    <td class="text-center">
+                        <span 
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': staff.trangThai === 'Đang hoạt động',
+                                'badge--danger': staff.trangThai === 'Ngưng hoạt động'
+                            }"
+                        >
+                            {{ staff.trangThai }}
+                        </span>
                     </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>KETOAN</td>
-                    <td>Kế toán</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--active">Đang hoạt động</span></td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>HANHCHINH</td>
-                    <td>Nhân viên hành chính</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--active">Đang hoạt động</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>GIANGVIEN</td>
-                    <td>Giảng viên</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--active">Đang hoạt động</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>IT</td>
-                    <td>Nhân viên IT</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--active">Đang hoạt động</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td>QUANTRIVIEN</td>
-                    <td>Quản trị viên</td>
-                    <td>&nbsp;</td>
-                    <td><span class="badge badge--inactive">Ngưng hoạt động</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil"></i></button>
+                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
+                                <i class="bi bi-slash-circle"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -138,21 +67,13 @@
         </table>
     </div>
 
-    <div class="pagination">
-        <div class="pagination-info">1-20 of 85</div>
-        <div class="pagination-pages">
-            <button class="page active" type="button">1</button>
-            <button class="page" type="button">2</button>
-            <button class="page" type="button">3</button>
-            <button class="page" type="button">4</button>
-            <button class="page" type="button">5</button>
-        </div>
-        <div class="page-size">
-            <select>
-                <option>10/trang</option>
-                <option>20/trang</option>
-                <option>50/trang</option>
-            </select>
-        </div>
-    </div>
+    <!-- Pagination -->
+    <app-pagination
+        [totalItems]="filteredData.length"
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPaginationPageChange($event)"
+        (pageSizeChange)="onPaginationPageSizeChange($event)"
+    ></app-pagination>
 </div>

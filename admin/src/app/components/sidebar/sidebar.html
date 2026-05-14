@@ -34,10 +34,17 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('users')">▾</span>
             </button>
             <div class="nav-sub" id="nav-users" *ngIf="isOpen('users')">
-                <a class="nav-sub-item" routerLink="/users/customer">Khách hàng</a>
-                <a class="nav-sub-item" routerLink="/users/registration">Đăng ký</a>
-                <a class="nav-sub-item" routerLink="/users/staff/staff">Nhân viên</a>
-                <a class="nav-sub-item" routerLink="/users/staff/role">Vai trò</a>
+                <button class="nav-sub-item nav-sub-toggle" type="button" (click)="toggleSection('users.staff')"
+                    [attr.aria-expanded]="isOpen('users.staff')" aria-controls="nav-users-staff">
+                    <span>Danh sách nhân viên</span>
+                    <span class="nav-caret" [class.nav-caret--open]="isOpen('users.staff')">▾</span>
+                </button>
+                <div class="nav-sub-nested" id="nav-users-staff" *ngIf="isOpen('users.staff')">
+                    <a class="nav-sub-item" routerLink="/users/staff/role" routerLinkActive="active">Vai trò</a>
+                    <a class="nav-sub-item" routerLink="/users/staff/staff" routerLinkActive="active">Nhân viên</a>
+                </div>
+                <a class="nav-sub-item" routerLink="/users/customer" routerLinkActive="active">Danh sách khách hàng</a>
+                <a class="nav-sub-item" routerLink="/users/registration" routerLinkActive="active">Danh sách đăng ký</a>
             </div>
         </div>
 
