@@ -113,12 +113,8 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'payment',
+                redirectTo: 'debt',
                 pathMatch: 'full'
-            },
-            {
-                path: 'payment',
-                loadComponent: () => import('./pages/accounting/payment/payment').then(m => m.Payment)
             },
             {
                 path: 'refund',

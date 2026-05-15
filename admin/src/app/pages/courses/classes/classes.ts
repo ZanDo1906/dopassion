@@ -20,25 +20,10 @@ export class Classes implements OnInit, DoCheck {
 
   filterValues: Record<string, any> = {};
   filterConfig: FilterConfig[] = [
-    { key: 'Mã lớp', label: 'Mã lớp', type: 'text' },
-    { key: 'Tên lớp', label: 'Tên lớp', type: 'text' },
     {
-      key: 'Mã khóa',
-      label: 'Mã khóa',
-      type: 'select',
-      options: [
-        { value: 'SW', label: 'SW' },
-        { value: 'LR', label: 'LR' }
-      ]
-    },
-    {
-      key: 'Tên khóa học',
-      label: 'Tên khóa học',
-      type: 'select',
-      options: [
-        { value: 'Khóa học TOEIC Speaking và Writing', label: 'Khóa học TOEIC Speaking và Writing' },
-        { value: 'Khóa học TOEIC Listening và Reading', label: 'Khóa học TOEIC Listening và Reading' }
-      ]
+      key: 'classCourseSearch',
+      label: 'Mã lớp / Tên lớp / Mã khóa / Tên khóa học',
+      type: 'text'
     },
     {
       key: 'Chi nhánh',
@@ -298,17 +283,17 @@ export class Classes implements OnInit, DoCheck {
 
   get filteredClasses() {
     const filters = this.filterValues || {};
+    const classCourseSearch = `${filters['classCourseSearch'] || ''}`.trim().toLowerCase();
     return this.classes.filter((item) => {
-      if (filters['Mã lớp'] && !this.matchesText(item['Mã lớp'], filters['Mã lớp'])) {
-        return false;
-      }
-      if (filters['Tên lớp'] && !this.matchesText(item['Tên lớp'], filters['Tên lớp'])) {
-        return false;
-      }
-      if (filters['Mã khóa'] && item['Mã khóa'] !== filters['Mã khóa']) {
-        return false;
-      }
-      if (filters['Tên khóa học'] && item['Tên khóa học'] !== filters['Tên khóa học']) {
+      if (
+        classCourseSearch &&
+        ![
+          item['Mã lớp'],
+          item['Tên lớp'],
+          item['Mã khóa'],
+          item['Tên khóa học']
+        ].some((value) => this.matchesText(`${value ?? ''}`, classCourseSearch))
+      ) {
         return false;
       }
       if (filters['Chi nhánh'] && item['Chi nhánh'] !== filters['Chi nhánh']) {

@@ -21,7 +21,6 @@ export class Topbar {
     account: 'Tài khoản',
     accounting: 'Kế toán',
     debt: 'Công nợ',
-    payment: 'Thanh toán',
     refund: 'Hoàn tiền',
     voucher: 'Voucher',
     courses: 'Quản lý khóa học',
