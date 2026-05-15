@@ -1,10 +1,25 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
 import { Staff as StaffService } from '../../../../services/staff';
+
+type StaffDetailFormGroup = {
+  'Mã nhân viên': FormControl<string>;
+  'Tên nhân viên': FormControl<string>;
+  'Giới tính': FormControl<string>;
+  'Ngày sinh': FormControl<string>;
+  'SĐT': FormControl<string>;
+  'Địa chỉ': FormControl<string>;
+  'Chi nhánh': FormControl<string>;
+  'Vai trò': FormControl<string>;
+  'Mã vai trò': FormControl<string>;
+  'Ảnh CCCD': FormControl<string>;
+  'Trạng thái': FormControl<string>;
+};
+
 @Component({
   selector: 'app-staff',
   imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent],
@@ -12,6 +27,11 @@ import { Staff as StaffService } from '../../../../services/staff';
   styleUrl: './staff.css',
 })
 export class Staff implements OnInit {
+  readonly viewDialogConfig = {
+    cancelText: 'Đóng',
+    hideSubmitButton: true
+  };
+
   /**
    * Cấu hình bộ lọc - Truyền vào FilterDataPickerComponent
    * Định nghĩa các trường có thể filter
@@ -74,7 +94,9 @@ export class Staff implements OnInit {
 
   // Dialog + Reactive form
   isAddStaffDialogOpen = false;
+  isViewStaffDialogOpen = false;
   addStaffForm: FormGroup;
+  detailForm: FormGroup<StaffDetailFormGroup>;
 
   branchOptions = [
     { value: 'CN1', label: 'Chi nhánh 1' },
@@ -121,6 +143,20 @@ export class Staff implements OnInit {
     this.addStaffForm.get('roleName')?.valueChanges.subscribe((roleName) => {
       const mappedRoleId = this.roleCodeMap[roleName] || '';
       this.addStaffForm.patchValue({ roleId: mappedRoleId }, { emitEvent: false });
+    });
+
+    this.detailForm = this.formBuilder.group<StaffDetailFormGroup>({
+      'Mã nhân viên': this.formBuilder.control('', { nonNullable: true }),
+      'Tên nhân viên': this.formBuilder.control('', { nonNullable: true }),
+      'Giới tính': this.formBuilder.control('', { nonNullable: true }),
+      'Ngày sinh': this.formBuilder.control('', { nonNullable: true }),
+      'SĐT': this.formBuilder.control('', { nonNullable: true }),
+      'Địa chỉ': this.formBuilder.control('', { nonNullable: true }),
+      'Chi nhánh': this.formBuilder.control('', { nonNullable: true }),
+      'Vai trò': this.formBuilder.control('', { nonNullable: true }),
+      'Mã vai trò': this.formBuilder.control('', { nonNullable: true }),
+      'Ảnh CCCD': this.formBuilder.control('', { nonNullable: true }),
+      'Trạng thái': this.formBuilder.control('', { nonNullable: true })
     });
   }
 
@@ -209,6 +245,8 @@ export class Staff implements OnInit {
   }
 
   openAddStaffDialog(): void {
+    this.closeViewStaffDialog();
+
     const nextEmployeeId = this.generateNextEmployeeId();
     this.addStaffForm.reset({
       employeeId: nextEmployeeId,
@@ -227,6 +265,45 @@ export class Staff implements OnInit {
 
   closeAddStaffDialog(): void {
     this.isAddStaffDialogOpen = false;
+  }
+
+  viewStaffDetail(item: any): void {
+    this.closeAddStaffDialog();
+
+    this.detailForm.patchValue({
+      'Mã nhân viên': `${item?.maNhanVien ?? ''}`,
+      'Tên nhân viên': `${item?.tenNhanVien ?? ''}`,
+      'Giới tính': `${item?.gioiTinh ?? ''}`,
+      'Ngày sinh': `${item?.ngaySinh ?? ''}`,
+      'SĐT': `${item?.soDienThoai ?? ''}`,
+      'Địa chỉ': `${item?.diaChi ?? ''}`,
+      'Chi nhánh': `${item?.chiNhanh ?? ''}`,
+      'Vai trò': `${item?.vaiTro ?? ''}`,
+      'Mã vai trò': `${item?.maVaiTro ?? ''}`,
+      'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
+      'Trạng thái': `${item?.trangThai ?? ''}`
+    });
+
+    this.detailForm.disable();
+    this.isViewStaffDialogOpen = true;
+  }
+
+  closeViewStaffDialog(): void {
+    this.isViewStaffDialogOpen = false;
+    this.detailForm.enable();
+    this.detailForm.reset({
+      'Mã nhân viên': '',
+      'Tên nhân viên': '',
+      'Giới tính': '',
+      'Ngày sinh': '',
+      'SĐT': '',
+      'Địa chỉ': '',
+      'Chi nhánh': '',
+      'Vai trò': '',
+      'Mã vai trò': '',
+      'Ảnh CCCD': '',
+      'Trạng thái': ''
+    });
   }
 
   onCccdFileChange(event: Event): void {

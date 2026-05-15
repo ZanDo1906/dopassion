@@ -36,25 +36,25 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let role of paginatedData; let i = index">
+                <tr *ngFor="let item of paginatedData; let i = index">
                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td>{{ role['MÃ VAI TRÒ'] }}</td>
-                    <td>{{ role['TÊN VAI TRÒ'] }}</td>
-                    <td>{{ role['MÔ TẢ'] }}</td>
+                    <td>{{ item['MÃ VAI TRÒ'] }}</td>
+                    <td>{{ item['TÊN VAI TRÒ'] }}</td>
+                    <td>{{ item['MÔ TẢ'] }}</td>
                     <td>
                         <span 
                             class="badge"
                             [ngClass]="{
-                                'badge--success': role['TRẠNG THÁI'] === 'Đang hoạt động',
-                                'badge--danger': role['TRẠNG THÁI'] === 'Ngưng hoạt động'
+                                'badge--success': item['TRẠNG THÁI'] === 'Đang hoạt động',
+                                'badge--danger': item['TRẠNG THÁI'] === 'Ngưng hoạt động'
                             }"
                         >
-                            {{ role['TRẠNG THÁI'] }}
+                            {{ item['TRẠNG THÁI'] }}
                         </span>
                     </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewRoleDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
                             <button class="icon-btn" type="button" title="Khóa/Mở khóa">
@@ -78,16 +78,66 @@
     ></app-pagination>
 </div>
 
+<ng-template #viewRoleTemplate>
+    <form class="view-role-form" [formGroup]="detailForm">
+        <div class="section">
+            <div class="section-title">I. Thông tin vai trò</div>
+
+            <div class="row role-view-row">
+                <div class="col-md-6 role-view-col">
+                    <div class="form-group">
+                        <label>Mã vai trò</label>
+                        <input class="form-control view-role-input" type="text" formControlName="MÃ VAI TRÒ" readonly />
+                    </div>
+                </div>
+
+                <div class="col-md-6 role-view-col">
+                    <div class="form-group">
+                        <label>Tên vai trò</label>
+                        <input class="form-control view-role-input" type="text" formControlName="TÊN VAI TRÒ" readonly />
+                    </div>
+                </div>
+
+                <div class="col-md-12 role-view-col">
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea class="form-control view-role-textarea" rows="3" formControlName="MÔ TẢ" readonly></textarea>
+                    </div>
+                </div>
+
+                <div class="col-md-6 role-view-col">
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <div class="role-view-status-wrap">
+                            <span
+                                class="badge"
+                                [ngClass]="{
+                                    'badge--success': detailForm.get('TRẠNG THÁI')?.value === 'Đang hoạt động',
+                                    'badge--danger': detailForm.get('TRẠNG THÁI')?.value === 'Ngưng hoạt động'
+                                }"
+                            >
+                                {{ detailForm.get('TRẠNG THÁI')?.value }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
 <app-form-dialog
     *ngIf="isDialogOpen"
-    title="Thêm mới vai trò"
-    [sections]="dialogSections"
+    [title]="isViewMode ? 'Chi tiết vai trò' : 'Thêm mới vai trò'"
+    [sections]="isViewMode ? [] : dialogSections"
     [columns]="3"
-    [formGroup]="addRoleForm"
-    cancelText="Thoát"
+    [formGroup]="isViewMode ? detailForm : addRoleForm"
+    [bodyTemplate]="isViewMode ? viewRoleTemplate : null"
+    [cancelText]="isViewMode ? viewDialogConfig.cancelText : 'Thoát'"
     submitText="Lưu"
     cancelIcon="bi bi-x-circle"
     submitIcon="bi bi-save"
+    [class.view-only-dialog]="isViewMode && viewDialogConfig.hideSubmitButton"
     (close)="closeDialog()"
     (submit)="onSubmitAddRole($event)">
 </app-form-dialog>
