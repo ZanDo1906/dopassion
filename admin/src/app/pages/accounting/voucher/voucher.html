@@ -1,46 +1,26 @@
 <div class="role-page">
 
-    <app-filter-data-picker
-        [config]="filterConfig"
-        (onSearch)="handleSearch($event)"
-        (onReset)="handleReset()"
-    ></app-filter-data-picker>
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"></app-filter-data-picker>
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-        <button 
-            class="btn btn-primary" 
-            type="button" 
-            (click)="openAddDialog()"
-        >
+        <button class="btn btn-primary" type="button" (click)="openAddDialog()">
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
-        <button
-            class="btn btn-outline"
-            type="button"
-        >
+        <button class="btn btn-outline" type="button">
             <i class="bi bi-box-arrow-in-down"></i>
             Nhập excel
         </button>
-        <button
-            class="btn btn-outline"
-            type="button"
-        >
+        <button class="btn btn-outline" type="button">
             <i class="bi bi-box-arrow-up"></i>
             Xuất excel
         </button>
     </div>
 
-    <app-form-dialog
-        *ngIf="showAddDialog"
-        [title]="'THÊM MỚI VOUCHER'"
-        [sections]="voucherFormSections"
-        [formGroup]="voucherForm"
-        [columns]="3" 
-        (close)="closeDialog()"
-        (submit)="onSaveVoucher()"
-    >
+    <app-form-dialog *ngIf="showAddDialog" [title]="'THÊM MỚI VOUCHER'" [sections]="voucherFormSections"
+        [formGroup]="voucherForm" [columns]="3" (close)="closeDialog()" (submit)="onSaveVoucher()">
     </app-form-dialog>
 
     <!-- TABLE -->
@@ -58,40 +38,32 @@
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    *ngFor="
+                <tr *ngFor="
                         let item of paginatedVouchers;
                         let i = index
-                    "
-                >
+                    ">
                     <!-- STT -->
                     <td class="sticky-col sticky-stt">
                         {{
-                            (currentPage - 1)
-                            * itemsPerPage
-                            + i
-                            + 1
+                        (currentPage - 1)
+                        * itemsPerPage
+                        + i
+                        + 1
                         }}
 
                     </td>
                     <td>{{ item.maVoucher }}</td>
-                    <td>{{ item.tenChuongTrinh }}</td>  
+                    <td>{{ item.tenChuongTrinh }}</td>
                     <td>{{ item.donViGiam }}</td>
                     <td>{{ item.thongSoGiam }}</td>
                     <td>{{ item.chiNhanh?.join(', ') }}</td>
                     <!-- ACTION -->
                     <td class="sticky-action">
                         <div class="action-group">
-                            <button
-                                class="icon-btn"
-                                type="button"
-                            >
+                            <button class="icon-btn" type="button">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button
-                                class="icon-btn"
-                                type="button"
-                            >
+                            <button class="icon-btn" type="button">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </div>
@@ -104,53 +76,33 @@
     <div class="pagination">
         <div class="pagination-info">
             {{
-                (currentPage - 1)
-                * itemsPerPage
-                + 1
+            (currentPage - 1)
+            * itemsPerPage
+            + 1
             }}
             -
             {{
-                currentPage * itemsPerPage >
-                filteredData.length
-                ? filteredData.length
-                : currentPage * itemsPerPage
+            currentPage * itemsPerPage >
+            filteredData.length
+            ? filteredData.length
+            : currentPage * itemsPerPage
             }}
             of {{ filteredData.length }}
         </div>
         <div class="pagination-pages">
-            <button
-                class="page"
-                type="button"
-                (click)="changePage(currentPage - 1)"
-            >
-                <
-            </button>
-            <button
-                *ngFor="let page of pages"
-                class="page"
-                type="button"
-                [class.active]="page === currentPage"
-                (click)="changePage(page)"
-            >
-                {{ page }}
-            </button>
-            <button
-                class="page"
-                type="button"
-                (click)="changePage(currentPage + 1)"
-            >
-                >
-            </button>
+            <button class="page" type="button" (click)="changePage(currentPage - 1)">
+                < </button>
+                    <button *ngFor="let page of pages" class="page" type="button" [class.active]="page === currentPage"
+                        (click)="changePage(page)">
+                        {{ page }}
+                    </button>
+                    <button class="page" type="button" (click)="changePage(currentPage + 1)">
+                        >
+                    </button>
         </div>
         <div class="page-size">
-            <select
-                [value]="itemsPerPage"
-                (change)="changePageSize($event)"
-            >
-                <option
-                    *ngFor="let size of pageSizeOptions"
-                    [value]="size"
-                >
+            <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">
                     {{ size }}/trang
                 </option>
             </select>
