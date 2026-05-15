@@ -65,19 +65,16 @@
                 />
             </div>
             <!-- Chi nhánh -->
-            <div class="filter-field">
-                <label>Chi nhánh</label>
-                <ng-select
-                    [items]="branches"
-                    bindLabel="label"
-                    bindValue="value"
-                    [multiple]="true"
-                    [closeOnSelect]="false"
-                    [clearable]="true"                
-                    [(ngModel)]="filters.branch"
-                >
-                </ng-select>
-            </div>
+            <ng-select
+                [items]="branches"
+                bindLabel="label"
+                bindValue="value"
+                [multiple]="true"
+                [closeOnSelect]="false"
+                [clearable]="true"                
+                [(ngModel)]="filters.branch"
+            >
+            </ng-select>
 
             <!-- TRẠNG THÁI -->
             <div class="filter-field">
