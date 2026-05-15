@@ -1,11 +1,18 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
 import { RoleService } from '../../../../services/role';
 import { iRole } from '../../../../interfaces/role';
+
+type RoleViewFormGroup = {
+  'MÃ VAI TRÒ': FormControl<string>;
+  'TÊN VAI TRÒ': FormControl<string>;
+  'MÔ TẢ': FormControl<string>;
+  'TRẠNG THÁI': FormControl<string>;
+};
 
 @Component({
   selector: 'app-role',
@@ -15,6 +22,11 @@ import { iRole } from '../../../../interfaces/role';
   styleUrl: './role.css',
 })
 export class Role implements OnInit {
+  readonly viewDialogConfig = {
+    cancelText: 'Đóng',
+    hideSubmitButton: true
+  };
+
   /**
    * Cấu hình bộ lọc - Truyền vào FilterDataPickerComponent
    * Sử dụng các key tiếng Việt từ JSON
@@ -45,8 +57,9 @@ export class Role implements OnInit {
   paginatedData: iRole[] = [];
 
   // Dialog + Reactive form
-  isDialogOpen = false;
+  dialogMode: 'add' | 'view' | null = null;
   addRoleForm: FormGroup;
+  detailForm: FormGroup<RoleViewFormGroup>;
   dialogSections = [
     {
       title: 'I. Thông tin vai trò',
@@ -68,6 +81,21 @@ export class Role implements OnInit {
       tenVaiTro: ['', [Validators.required]], // TODO: Chốt quy tắc ràng buộc/Validators sau
       moTa: ['', [Validators.required]], // TODO: Chốt quy tắc ràng buộc/Validators sau
     });
+
+    this.detailForm = this.formBuilder.group<RoleViewFormGroup>({
+      'MÃ VAI TRÒ': this.formBuilder.control('', { nonNullable: true }),
+      'TÊN VAI TRÒ': this.formBuilder.control('', { nonNullable: true }),
+      'MÔ TẢ': this.formBuilder.control('', { nonNullable: true }),
+      'TRẠNG THÁI': this.formBuilder.control('', { nonNullable: true }),
+    });
+  }
+
+  get isDialogOpen(): boolean {
+    return this.dialogMode !== null;
+  }
+
+  get isViewMode(): boolean {
+    return this.dialogMode === 'view';
   }
 
   ngOnInit(): void {
@@ -120,14 +148,37 @@ export class Role implements OnInit {
       tenVaiTro: '',
       moTa: ''
     });
-    this.isDialogOpen = true;
+    this.dialogMode = 'add';
+  }
+
+  viewRoleDetail(item: iRole): void {
+    this.detailForm.patchValue({
+      'MÃ VAI TRÒ': `${item['MÃ VAI TRÒ'] ?? ''}`,
+      'TÊN VAI TRÒ': `${item['TÊN VAI TRÒ'] ?? ''}`,
+      'MÔ TẢ': `${item['MÔ TẢ'] ?? ''}`,
+      'TRẠNG THÁI': `${item['TRẠNG THÁI'] ?? ''}`,
+    });
+    this.detailForm.disable();
+    this.dialogMode = 'view';
   }
 
   closeDialog(): void {
-    this.isDialogOpen = false;
+    this.addRoleForm.reset({ maVaiTro: '', tenVaiTro: '', moTa: '' });
+    this.detailForm.enable();
+    this.detailForm.reset({
+      'MÃ VAI TRÒ': '',
+      'TÊN VAI TRÒ': '',
+      'MÔ TẢ': '',
+      'TRẠNG THÁI': '',
+    });
+    this.dialogMode = null;
   }
 
   onSubmitAddRole(formValue: any): void {
+    if (this.isViewMode) {
+      return;
+    }
+
     if (this.addRoleForm.invalid) {
       this.addRoleForm.markAllAsTouched();
       return;
@@ -155,8 +206,7 @@ export class Role implements OnInit {
         this.filteredData = [...this.roles];
         this.currentPage = 1;
         this.updatePagination();
-        this.isDialogOpen = false;
-        this.addRoleForm.reset({ maVaiTro: '', tenVaiTro: '', moTa: '' });
+        this.closeDialog();
         this.cdr.markForCheck();
       },
       error: (error) => {

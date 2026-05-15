@@ -360,6 +360,46 @@
     font-size: 0.8125rem;
 }
 
+.hide-arrow {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none !important;
+}
+
+.staff-view-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.staff-view-row .col-md-4,
+.staff-view-row .col-md-12 {
+    min-width: 0;
+}
+
+.staff-view-row .col-md-12 {
+    grid-column: 1 / -1;
+}
+
+.staff-view-status-wrap {
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.staff-view-image-box {
+    cursor: default;
+}
+
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-footer {
+    justify-content: center;
+}
+
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-footer .btn-submit {
+    display: none;
+}
+
 @media (max-width: 860px) {
     .filter-body {
         grid-template-columns: 1fr;
