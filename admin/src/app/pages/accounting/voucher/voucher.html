@@ -1,123 +1,10 @@
 <div class="role-page">
 
-    <!-- FILTER -->
-    <section
-        class="filter-card"
-        (click)="toggleFilter()"
-    >
-        <div class="filter-header">
-            <span class="filter-title">
-                <i
-                    class="bi"
-                    [ngClass]="
-                        isFilterOpen
-                            ? 'bi-caret-down-fill'
-                            : 'bi-caret-right-fill'
-                    "
-                ></i>
-                Tìm kiếm
-            </span>
-        </div>
-        <div
-            class="filter-body"
-            *ngIf="isFilterOpen"
-            (click)="$event.stopPropagation()"
-        >
-            <!-- Mã Voucher -->
-            <div class="filter-field">
-                <label>Mã Voucher</label>
-                <input
-                    type="text"
-                    [(ngModel)]="filters.voucherCode"
-                />
-            </div>
-            <!-- Tên chương trình -->
-            <div class="filter-field">
-                <label>Tên Chương Trình</label>
-                <input
-                    type="text"
-                    [(ngModel)]="filters.programName"
-                />
-            </div>
-            <!-- Mã khóa học -->
-            <div class="filter-field">
-                <label>Mã Khóa học</label>
-                <select
-                    [(ngModel)]="filters.courseCode"
-                >
-                    <option value="">
-                        -- Chọn mã khóa học --
-                    </option>
-                    <option
-                        *ngFor="let course of courses"
-                        [value]="course.maKhoaHoc"
-                    >
-                        {{ course.maKhoaHoc }}
-                    </option>
-                </select>
-            </div>
-            <!-- Mã lớp -->
-            <div class="filter-field">
-                <label>Mã Lớp</label>
-                <input
-                    type="text"
-                    [(ngModel)]="filters.classCode"
-                />
-            </div>
-            <!-- Chi nhánh -->
-            <ng-select
-                [items]="branches"
-                bindLabel="label"
-                bindValue="value"
-                [multiple]="true"
-                [closeOnSelect]="false"
-                [clearable]="true"                
-                [(ngModel)]="filters.branch"
-            >
-            </ng-select>
-
-            <!-- TRẠNG THÁI -->
-            <div class="filter-field">
-                <label>Trạng thái</label>
-                <select [(ngModel)]="filters.status" >
-                    <option value="">
-                        -- Chọn trạng thái --
-                    </option>
-                    <option value="Đã duyệt">
-                        Đã duyệt
-                    </option>
-                    <option value="Chờ duyệt">
-                        Chờ duyệt
-                    </option>
-                    <option value="Đã hủy">
-                        Đã hủy
-                    </option>
-                </select>
-            </div>
-
-            <!-- BUTTON -->
-            <div class="filter-actions">
-
-                <button
-                    class="btn btn-muted"
-                    type="button"
-                    (click)="clearFilters()"
-                >
-                    <i class="bi bi-x-circle"></i>
-                    Xóa bộ lọc
-                </button>
-                <button
-                    class="btn btn-primary"
-                    type="button"
-                    (click)="applyFilter()"
-                >
-                    <i class="bi bi-search"></i>
-
-                    Tìm kiếm
-                </button>
-            </div>
-        </div>
-    </section>
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"
+    ></app-filter-data-picker>
 
     <!-- TOOLBAR -->
     <div class="toolbar">
@@ -224,11 +111,11 @@
             -
             {{
                 currentPage * itemsPerPage >
-                filteredVouchers.length
-                ? filteredVouchers.length
+                filteredData.length
+                ? filteredData.length
                 : currentPage * itemsPerPage
             }}
-            of {{ filteredVouchers.length }}
+            of {{ filteredData.length }}
         </div>
         <div class="pagination-pages">
             <button

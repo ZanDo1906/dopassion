@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
+import { PaginationComponent } from '../../../components/pagination/pagination';
 import { RegistrationService } from '../../../services/registration';
 
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, FormsModule, FilterDataPicker],
+  imports: [CommonModule, FormsModule, FilterDataPicker, PaginationComponent],
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })
@@ -54,13 +55,18 @@ export class Registration implements OnInit {
    */
   currentPage = 1;
   itemsPerPage = 10;
-  pageSizeOptions = [5, 10, 20];
-  pages: number[] = [];
-  totalPages = 1;
+  pageSizeOptions = [10, 20, 50];
 
-  constructor(private registrationService: RegistrationService) {}
+  constructor(private registrationService: RegistrationService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+    // Initialize pagination state before loading data
+    this.currentPage = 1;
+    this.itemsPerPage = 10; // Explicitly set default
+    this.filteredData = [];
+    this.paginatedData = [];
+    
+    // Load data
     this.loadData();
   }
 
@@ -154,54 +160,53 @@ export class Registration implements OnInit {
   }
 
   /**
-   * Cập nhật phân trang
-   * Tính tổng số trang và cắt dữ liệu
+   * Xử lý sự kiện thay đổi trang từ PaginationComponent
+   * Cập nhật currentPage và cắt lại dữ liệu
+   * @param page Số trang mới
+   */
+  onPaginationPageChange(page: number): void {
+    console.log('[Registration] onPaginationPageChange:', { newPage: page, currentPage: this.currentPage });
+    this.currentPage = page;
+    this.cdr.markForCheck(); // Force change detection
+    this.updatePagination();
+  }
+
+  /**
+   * Xử lý sự kiện thay đổi kích thước trang từ PaginationComponent
+   * Cập nhật itemsPerPage, reset currentPage về 1, và cắt lại dữ liệu
+   * @param size Số lượng item mỗi trang
+   */
+  onPaginationPageSizeChange(size: number): void {
+    console.log('[Registration] onPaginationPageSizeChange:', { newSize: size, oldSize: this.itemsPerPage });
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.cdr.markForCheck(); // Force change detection
+    this.updatePagination();
+  }
+
+  /**
+   * Cập nhật phân trang: cắt mảng dữ liệu theo currentPage và itemsPerPage
    */
   updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredData.length / this.itemsPerPage);
+    console.log('[Registration] updatePagination:', {
+      currentPage: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      filteredLength: this.filteredData.length
+    });
+
+    // Safety check: validate itemsPerPage
+    if (this.itemsPerPage <= 0) {
+      console.error('[Registration] itemsPerPage is invalid:', this.itemsPerPage);
+      this.itemsPerPage = 10; // Fallback to default
+    }
+
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
+    
+    console.log('[Registration] Slice parameters:', { start, end, arrayLength: this.filteredData.length });
+    
     this.paginatedData = this.filteredData.slice(start, end);
-    this.generatePages();
-  }
-
-  /**
-   * Tạo danh sách số trang hiển thị (tối đa 5 trang)
-   */
-  generatePages(): void {
-    this.pages = [];
-    const maxPagesToShow = 5;
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
-    }
-  }
-
-  /**
-   * Chuyển trang
-   * @param page Số trang cần chuyển
-   */
-  changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
-    this.currentPage = page;
-    this.updatePagination();
-  }
-
-  /**
-   * Thay đổi số lượng item mỗi trang
-   * @param event Change event từ select dropdown
-   */
-  changePageSize(event: any): void {
-    this.itemsPerPage = Number(event.target.value);
-    this.currentPage = 1;
-    this.updatePagination();
+    
+    console.log('[Registration] Paginated data count:', this.paginatedData.length);
   }
 }

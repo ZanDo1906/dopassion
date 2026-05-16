@@ -1,27 +1,67 @@
 import { Component, OnInit } from '@angular/core';
-import { DecimalPipe, NgClass, NgForOf, NgIf } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule,  } from '@angular/forms';
-import { NgSelectModule,  } from '@ng-select/ng-select';
-import { VoucherService,  } from '../../../services/voucher';
+import { NgForOf, NgIf } from '@angular/common';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { VoucherService } from '../../../services/voucher';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
 
 @Component({
   selector: 'app-voucher',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgClass, DecimalPipe, NgSelectModule, GridFormDialog],
+  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgSelectModule, GridFormDialog, FilterDataPicker],
   templateUrl: './voucher.html',
   styleUrls: ['./voucher.css'],
 })
 
 export class Voucher implements OnInit {
 
-  vouchers: any[] = [];
-  filteredVouchers: any[] = [];
+  filterConfig: FilterConfig[] = [
+    {
+      key: 'maVoucher',
+      label: 'Mã Voucher',
+      type: 'text'
+    },
+    {
+      key: 'tenChuongTrinh',
+      label: 'Tên Chương Trình',
+      type: 'text'
+    },
+    {
+      key: 'maKhoaHoc',
+      label: 'Mã Khóa học',
+      type: 'select',
+      options: []
+    },
+    {
+      key: 'maLop',
+      label: 'Mã Lớp',
+      type: 'text'
+    },
+    {
+      key: 'chiNhanh',
+      label: 'Chi nhánh',
+      type: 'multi-select',
+      options: []
+    },
+    {
+      key: 'trangThai',
+      label: 'Trạng thái',
+      type: 'multi-select',
+      options: [
+        { label: 'Đang hoạt động', value: 'Đang hoạt động' },
+        { label: 'Ngưng hoạt động', value: 'Ngưng hoạt động' }
+      ]
+    }
+  ];
+
+  allData: any[] = [];
+  filteredData: any[] = [];
+  paginatedData: any[] = [];
 
   loading = true;
   errorMessage = '';
 
-  isFilterOpen = true;
   showAddDialog = false;
 
   currentPage = 1;
@@ -30,24 +70,16 @@ export class Voucher implements OnInit {
 
   voucherForm!: FormGroup;
 
-  filters = {
-    voucherCode: '',
-    programName: '',
-    classCode: '',
-    branch: [] as string[],
-    courseCode: '',
-    status: ''
-  };
-
-  courses = [
-    { maKhoaHoc: 'LR' },
-    { maKhoaHoc: 'SW' }
-  ];
-
   branches = [
     { label: 'Chi nhánh 1', value: 'CN1' },
     { label: 'Chi nhánh 2', value: 'CN2' },
     { label: 'Chi nhánh 3', value: 'CN3' }
+  ];
+
+  courseOptions = [
+    { label: 'LR', value: 'LR' },
+    { label: 'SW', value: 'SW' },
+    { label: 'TOEIC', value: 'TOEIC' }
   ];
 
   voucherFormSections = [
@@ -103,29 +135,31 @@ export class Voucher implements OnInit {
     });
   }
 
-  toggleFilter(): void {
-    this.isFilterOpen = !this.isFilterOpen;
-  }
-
   loadVouchers(): void {
     this.voucherService.getVoucher().subscribe({
       next: (items: any[]) => {
         // Chuyển đổi từ Key của JSON (có dấu/khoảng trắng) sang biến Code (camelCase)
-        this.vouchers = (items || []).map((item) => ({
+        this.allData = (items || []).map((item) => ({
           stt: item['STT'],
           // Đảm bảo các chuỗi trong ngoặc vuông khớp 100% với file JSON của bạn
           maVoucher: item['Mã voucher'], 
           tenChuongTrinh: item['Tên chương trình'],
           donViGiam: item['Đơn vị giảm'],
           thongSoGiam: item['Thông số'] || item['Thông số giảm'], // Phòng hờ trường hợp sai tên key
+          maKhoaHoc: item['Mã Khóa học'] || item['Mã khóa học'] || '',
+          maLop: item['Mã Lớp'] || item['Mã lớp'] || '',
           chiNhanh: Array.isArray(item['Chi nhánh']) 
             ? item['Chi nhánh'] 
-            : (item['Chi nhánh'] ? String(item['Chi nhánh']).split(', ') : [])
+            : (item['Chi nhánh'] ? String(item['Chi nhánh']).split(', ') : []),
+          trangThai: item['Trạng thái'] || 'Đang hoạt động'
         }));
 
-        this.filteredVouchers = [...this.vouchers];
+        this.filteredData = [...this.allData];
+        this.syncFilterOptions();
+        this.currentPage = 1;
+        this.updatePagination();
         this.loading = false;
-        console.log('Dữ liệu đã được chuyển đổi thành công:', this.vouchers);
+        console.log('Dữ liệu đã được chuyển đổi thành công:', this.allData);
       },
       error: (error) => {
         console.error('Lỗi khi tải hoặc chuyển đổi dữ liệu:', error);
@@ -135,59 +169,68 @@ export class Voucher implements OnInit {
     });
   }
 
-  applyFilter(): void {
-    this.currentPage = 1;
+  handleSearch(filterValues: any): void {
+    this.filteredData = this.allData.filter((item) => {
+      return Object.keys(filterValues || {}).every((key) => {
+        const filterValue = filterValues[key];
+        const itemValue = item[key];
 
-    // Đảm bảo không bị lỗi Cannot read properties of undefined (reading 'trim')
-    const voucherCode = (this.filters.voucherCode || '').trim().toLowerCase();
-    const programName = (this.filters.programName || '').trim().toLowerCase();
-    const classCode = (this.filters.classCode || '').trim().toLowerCase();
-    const status = (this.filters.status || '').trim().toLowerCase();
-    const courseCode = (this.filters.courseCode || '').trim().toLowerCase();
-    
-    // Đảm bảo branch luôn luôn là một mảng dù ng-select có trả về null
-    const branch = this.filters.branch || [];
+        if (Array.isArray(filterValue) && filterValue.length === 0) {
+          return true;
+        }
 
-    this.filteredVouchers = this.vouchers.filter((item) => {
-      const matchesVoucher = voucherCode ? item.maVoucher?.toLowerCase().includes(voucherCode) : true;
-      const matchesProgram = programName ? item.tenChuongTrinh?.toLowerCase().includes(programName) : true;
-      
-      // Nếu branch là mảng rỗng thì bỏ qua điều kiện lọc này
-      const matchesBranch = branch.length > 0 
-        ? branch.every((cn: string) => item.chiNhanh?.includes(cn)) 
-        : true;
+        if (!Array.isArray(filterValue) && (`${filterValue ?? ''}`.trim() === '')) {
+          return true;
+        }
 
-      return matchesVoucher && matchesProgram && matchesBranch;
+        // Nếu filterValues[key] là một mảng (multi-select) và có dữ liệu
+        if (Array.isArray(filterValue) && filterValue.length > 0) {
+          const normalizedSelected = filterValue
+            .map((value) => `${value ?? ''}`.trim().toLowerCase())
+            .filter(Boolean);
+
+          // Giữ lại bản ghi nếu giá trị của nó nằm trong mảng được chọn
+          if (Array.isArray(itemValue)) {
+            const normalizedItemValues = itemValue
+              .map((value) => `${value ?? ''}`.trim().toLowerCase())
+              .filter(Boolean);
+            return normalizedSelected.some((selected) => normalizedItemValues.includes(selected));
+          }
+
+          const normalizedItemValue = `${itemValue ?? ''}`.trim().toLowerCase();
+          return normalizedSelected.includes(normalizedItemValue);
+        }
+
+        const normalizedFilterText = `${filterValue ?? ''}`.trim().toLowerCase();
+        if (Array.isArray(itemValue)) {
+          const normalizedItemText = itemValue
+            .map((value) => `${value ?? ''}`.trim().toLowerCase())
+            .join(' ');
+          return normalizedItemText.includes(normalizedFilterText);
+        }
+
+        // TODO: Chốt quy tắc lọc theo nghiệp vụ sau
+        const normalizedItemValue = `${itemValue ?? ''}`.trim().toLowerCase();
+        return normalizedItemValue.includes(normalizedFilterText);
+      });
     });
+
+    this.currentPage = 1;
+    this.updatePagination();
   }
 
-  clearFilters(): void {
-
-    this.filters = {
-      voucherCode: '',
-      programName: '',
-      classCode: '',
-      branch: [],
-      courseCode: '',
-      status: ''
-    };
-
-    this.filteredVouchers = [...this.vouchers];
+  handleReset(): void {
+    this.filteredData = [...this.allData];
     this.currentPage = 1;
-
+    this.updatePagination();
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredVouchers.length / this.itemsPerPage));
+    return Math.max(1, Math.ceil(this.filteredData.length / this.itemsPerPage));
   }
 
   get paginatedVouchers(): any[] {
-
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-
-    return this.filteredVouchers.slice(start, end);
-
+    return this.paginatedData;
   }
 
   get pages(): number[] {
@@ -201,6 +244,7 @@ export class Voucher implements OnInit {
     }
 
     this.currentPage = page;
+    this.updatePagination();
 
   }
 
@@ -210,7 +254,37 @@ export class Voucher implements OnInit {
 
     this.itemsPerPage = Number(value);
     this.currentPage = 1;
+    this.updatePagination();
 
+  }
+
+  updatePagination(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedData = this.filteredData.slice(start, end);
+  }
+
+  private syncFilterOptions(): void {
+    const courseOptions = Array.from(new Set(this.allData.map((item) => `${item.maKhoaHoc ?? ''}`.trim()).filter(Boolean)))
+      .map((value) => ({ label: value, value }));
+
+    const branchOptions = Array.from(new Set(
+      this.allData.flatMap((item) => Array.isArray(item.chiNhanh) ? item.chiNhanh : [])
+    ))
+      .filter(Boolean)
+      .map((value) => ({ label: value, value }));
+
+    this.filterConfig = this.filterConfig.map((field) => {
+      if (field.key === 'maKhoaHoc') {
+        return { ...field, options: courseOptions.length > 0 ? courseOptions : this.courseOptions };
+      }
+
+      if (field.key === 'chiNhanh') {
+        return { ...field, options: branchOptions.length > 0 ? branchOptions : this.branches };
+      }
+
+      return field;
+    });
   }
 
   openAddDialog(): void {
@@ -230,37 +304,27 @@ export class Voucher implements OnInit {
   }
 
   onSaveVoucher(): void {
+    if (this.voucherForm.valid) {
+      const formValue = this.voucherForm.value;
 
-  if (this.voucherForm.valid) {
+      const newData = {
+        stt: this.allData.length + 1,
+        maVoucher: formValue.maVoucher,
+        tenChuongTrinh: formValue.tenChuongTrinh,
+        donViGiam: formValue.donViGiam,
+        thongSoGiam: formValue.thongSoGiam,
+        chiNhanh: [formValue.chiNhanh]
+      };
 
-    const formValue = this.voucherForm.value;
+      this.allData.unshift(newData);
+      this.filteredData = [...this.allData];
+      this.currentPage = 1;
+      this.updatePagination();
 
-    const newData = {
+      this.showAddDialog = false;
 
-      stt: this.vouchers.length + 1,
-
-      maVoucher: formValue.maVoucher,
-
-      tenChuongTrinh: formValue.tenChuongTrinh,
-
-      donViGiam: formValue.donViGiam,
-
-      thongSoGiam: formValue.thongSoGiam,
-
-      chiNhanh: [formValue.chiNhanh]
-
-    };
-
-    this.vouchers.unshift(newData);
-
-    this.filteredVouchers = [...this.vouchers];
-
-    this.showAddDialog = false;
-
-    console.log('Voucher mới:', newData);
-
+      console.log('Voucher mới:', newData);
+    }
   }
-
-}
 
 }

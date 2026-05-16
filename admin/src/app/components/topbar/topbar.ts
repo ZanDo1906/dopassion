@@ -35,10 +35,16 @@ export class Topbar {
     'student-report': 'Báo cáo học viên',
     setting: 'Cấu hình',
     users: 'Quản lý người dùng',
-    customer: 'Khách hàng',
-    registration: 'Đăng ký',
-    staff: 'Nhân viên',
+    customer: 'Danh sách khách hàng',
+    registration: 'Danh sách đăng ký',
+    staff: 'Danh sách nhân viên',
     role: 'Vai trò',
+  };
+
+  // Hierarchy map for 3-level breadcrumbs: maps child routes to their parent labels
+  private readonly hierarchyMap: Record<string, string[]> = {
+    '/users/staff/role': ['Quản lý người dùng', 'Danh sách nhân viên', 'Vai trò'],
+    '/users/staff/staff': ['Quản lý người dùng', 'Danh sách nhân viên', 'Nhân viên'],
   };
 
   constructor(private readonly router: Router) {
@@ -53,20 +59,32 @@ export class Topbar {
   }
 
   private updateBreadcrumbs(url: string): void {
-    const segments = url
-      .split('?')[0]
-      .split('#')[0]
-      .split('/')
-      .filter(Boolean);
-
+    const cleanUrl = url.split('?')[0].split('#')[0];
     const crumbs: Breadcrumb[] = [];
-    let currentUrl = '';
 
-    segments.forEach((segment) => {
-      currentUrl += `/${segment}`;
-      const label = this.labelMap[segment] ?? this.toTitleCase(segment);
-      crumbs.push({ label, url: currentUrl });
-    });
+    // Check if it's a 3-level route in hierarchy map
+    if (this.hierarchyMap[cleanUrl]) {
+      const labels = this.hierarchyMap[cleanUrl];
+      let buildUrl = '';
+      labels.forEach((label, index) => {
+        if (index === 0) buildUrl = '/users';
+        else if (index === 1) buildUrl = '/users/staff';
+        else if (index === 2) buildUrl = cleanUrl;
+        crumbs.push({ label, url: buildUrl });
+      });
+    } else {
+      // Standard breadcrumb logic for non-hierarchical routes
+      const segments = cleanUrl
+        .split('/')
+        .filter(Boolean);
+
+      let currentUrl = '';
+      segments.forEach((segment) => {
+        currentUrl += `/${segment}`;
+        const label = this.labelMap[segment] ?? this.toTitleCase(segment);
+        crumbs.push({ label, url: currentUrl });
+      });
+    }
 
     this.breadcrumbs = crumbs;
   }

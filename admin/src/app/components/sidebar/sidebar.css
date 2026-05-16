@@ -12,11 +12,10 @@
     height: 100vh;
     padding: 20px 18px;
     color: #2a4c7f;
-    background-image: linear-gradient(165deg, rgba(239, 231, 221, 0.92) 0%, rgba(230, 224, 216, 0.92) 35%, rgba(217, 212, 205, 0.9) 55%, rgba(207, 210, 214, 0.9) 100%),
-        url('/side-bar.png');
+    background-image: url('/side-bar.png');
     background-position: center;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 100% 100%;
     border-right: 1px solid rgba(42, 76, 127, 0.12);
     box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.06);
     overflow-y: auto;
@@ -156,6 +155,10 @@
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.25);
     transition: background 0.2s ease, transform 0.2s ease;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nav-sub-item:hover {
@@ -167,6 +170,43 @@
     background: #ffffff;
     color: #2f5ea8;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(42, 76, 127, 0.12);
+}
+
+.nav-sub-toggle {
+    width: 100%;
+    border: none;
+    background: rgba(255, 255, 255, 0.25);
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.nav-sub-toggle:hover {
+    background: rgba(255, 255, 255, 0.55);
+    transform: translateX(4px);
+}
+
+.nav-sub-toggle span:first-child {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-sub-nested {
+    display: grid;
+    gap: 6px;
+    padding: 0 0 0 1.5em;
+}
+
+.nav-sub-nested .nav-sub-item {
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 0.95em;
 }
 
 .logout-btn {

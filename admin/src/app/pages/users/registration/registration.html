@@ -71,24 +71,12 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pagination">
-        <div class="pagination-info">
-            {{ (currentPage - 1) * itemsPerPage + 1 }}
-            -
-            {{ currentPage * itemsPerPage > filteredData.length ? filteredData.length : currentPage * itemsPerPage }}
-            of {{ filteredData.length }}
-        </div>
-        <div class="pagination-pages">
-            <button class="page" type="button" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">&lt;</button>
-            <button *ngFor="let page of pages" class="page" type="button" [class.active]="page === currentPage" (click)="changePage(page)">
-                {{ page }}
-            </button>
-            <button class="page" type="button" (click)="changePage(currentPage + 1)" [disabled]="currentPage === pages.length">&gt;</button>
-        </div>
-        <div class="page-size">
-            <select [value]="itemsPerPage" (change)="changePageSize($event)">
-                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
-            </select>
-        </div>
-    </div>
+    <app-pagination
+        [totalItems]="filteredData.length"
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPaginationPageChange($event)"
+        (pageSizeChange)="onPaginationPageSizeChange($event)"
+    ></app-pagination>
 </div>

@@ -1,24 +1,26 @@
-<div class="dialog-backdrop">
+<div class="dialog-backdrop" (click)="close.emit()">
 
-    <div class="dialog-container">
+    <div class="dialog-container" (click)="$event.stopPropagation()">
 
         <!-- HEADER -->
         <div class="dialog-header">
             <h2>{{ title }}</h2>
         </div>
 
+        <div class="dialog-body" *ngIf="bodyTemplate">
+            <ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
+        </div>
+
         <!-- BODY -->
-        <div class="dialog-body">
+        <div class="dialog-body" *ngIf="!bodyTemplate && formGroup; else templateDrivenBody" [formGroup]="formGroup">
 
             <div class="section" *ngFor="let section of sections">
 
-                <!-- SECTION TITLE -->
                 <div class="section-title">
                     {{ section.title }}
                 </div>
 
-                <!-- GRID -->
-                <div class="form-grid" [style.gridTemplateColumns]="'repeat(' + columns + ', 1fr)'">
+                <div class="form-grid" [style.gridTemplateColumns]="'repeat(' + columns + ', minmax(0, 1fr))'">
 
                     <div class="form-group" *ngFor="let field of section.fields">
 
@@ -27,19 +29,28 @@
                             {{ field.label }}
                         </label>
 
-                        <!-- INPUT -->
-                        <input *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'"
-                            [type]="field.type" [(ngModel)]="formData[field.name]" />
+                        <ng-container *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'">
+                            <input
+                                [type]="field.type"
+                                [disabled]="field.disabled"
+                                [attr.placeholder]="field.placeholder || null"
+                                [formControlName]="field.name" />
+                        </ng-container>
 
-                        <!-- SELECT -->
-                        <select *ngIf="field.type === 'select'" [(ngModel)]="formData[field.name]">
-                            <option *ngFor="let option of field.options" [value]="option.value">
-                                {{ option.label }}
-                            </option>
-                        </select>
+                        <ng-container *ngIf="field.type === 'select'">
+                            <select [disabled]="field.disabled" [formControlName]="field.name">
+                                <option *ngFor="let option of field.options" [value]="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
+                        </ng-container>
 
-                        <!-- TEXTAREA -->
-                        <textarea *ngIf="field.type === 'textarea'" [(ngModel)]="formData[field.name]"></textarea>
+                        <ng-container *ngIf="field.type === 'textarea'">
+                            <textarea
+                                [disabled]="field.disabled"
+                                [attr.placeholder]="field.placeholder || null"
+                                [formControlName]="field.name"></textarea>
+                        </ng-container>
 
                     </div>
 
@@ -49,15 +60,73 @@
 
         </div>
 
+        <ng-template #templateDrivenBody>
+            <div class="dialog-body">
+
+                <div class="section" *ngFor="let section of sections">
+
+                    <div class="section-title">
+                        {{ section.title }}
+                    </div>
+
+                    <div class="form-grid" [style.gridTemplateColumns]="'repeat(' + columns + ', minmax(0, 1fr))'">
+
+                        <div class="form-group" *ngFor="let field of section.fields">
+
+                            <label>
+                                <span *ngIf="field.required" class="required-star">*</span>
+                                {{ field.label }}
+                            </label>
+
+                            <ng-container *ngIf="field.type === 'text' || field.type === 'number' || field.type === 'date'">
+                                <input
+                                    [type]="field.type"
+                                    [disabled]="field.disabled"
+                                    [attr.placeholder]="field.placeholder || null"
+                                    [(ngModel)]="formData[field.name]"
+                                    [ngModelOptions]="{ standalone: true }" />
+                            </ng-container>
+
+                            <ng-container *ngIf="field.type === 'select'">
+                                <select
+                                    [disabled]="field.disabled"
+                                    [(ngModel)]="formData[field.name]"
+                                    [ngModelOptions]="{ standalone: true }">
+                                    <option *ngIf="field.placeholder" [value]="''" disabled>
+                                        {{ field.placeholder }}
+                                    </option>
+                                    <option *ngFor="let option of field.options" [value]="option.value">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                            </ng-container>
+
+                            <ng-container *ngIf="field.type === 'textarea'">
+                                <textarea
+                                    [disabled]="field.disabled"
+                                    [attr.placeholder]="field.placeholder || null"
+                                    [(ngModel)]="formData[field.name]"
+                                    [ngModelOptions]="{ standalone: true }"></textarea>
+                            </ng-container>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </ng-template>
+
         <!-- FOOTER -->
         <div class="dialog-footer">
 
-            <button class="btn-cancel" (click)="close.emit()">
-                <i class="bi bi-x-circle"></i> Thoát
+            <button class="btn-cancel" type="button" (click)="close.emit()">
+                <i [class]="cancelIcon"></i> {{ cancelText }}
             </button>
 
-            <button class="btn-submit" (click)="onSubmit()">
-                <i class="bi bi-save"></i> Xác nhận
+            <button class="btn-submit" type="button" (click)="onSubmit()">
+                <i [class]="submitIcon"></i> {{ submitText }}
             </button>
 
         </div>

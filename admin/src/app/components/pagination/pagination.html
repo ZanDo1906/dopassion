@@ -1,0 +1,49 @@
+<!-- Pagination -->
+<div class="pagination">
+    <div class="pagination-info">
+        {{ getStartItem() }}
+        -
+        {{ getEndItem() }}
+        of {{ totalItems }}
+    </div>
+    <div class="pagination-pages">
+        <!-- Nút Previous: Click để chuyển trang trước -->
+        <button 
+            class="page" 
+            type="button" 
+            (click)="onPageChange(getPreviousPageNumber())" 
+            [disabled]="isPreviousDisabled()"
+        >
+            &lt;
+        </button>
+        
+        <!-- Danh sách các nút trang (1, 2, 3...) -->
+        <button 
+            *ngFor="let page of pages" 
+            class="page" 
+            type="button" 
+            [class.active]="page === currentPage" 
+            (click)="onPageChange(page)"
+        >
+            {{ page }}
+        </button>
+        
+        <!-- Nút Next: Click để chuyển trang tiếp theo -->
+        <button 
+            class="page" 
+            type="button" 
+            (click)="onPageChange(getNextPageNumber())" 
+            [disabled]="isNextDisabled()"
+        >
+            &gt;
+        </button>
+    </div>
+    <div class="page-size">
+        <!-- Select box: Chọn số lượng item hiển thị mỗi trang -->
+        <select [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange($event)" class="form-select" style="max-width: 120px;">
+            <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+                {{ size }}/trang
+            </option>
+        </select>
+    </div>
+</div>
