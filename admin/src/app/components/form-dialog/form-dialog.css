@@ -9,7 +9,7 @@
 }
 
 .dialog-container {
-    width: 1000px;
+    width: min(1200px, calc(100vw - 48px));
     max-height: 90vh;
     background: #fff;
     border-radius: 8px;
@@ -56,7 +56,14 @@
 /* GRID */
 .form-grid {
     display: grid;
+    grid-template-columns: repeat(var(--dialog-columns, 3), minmax(0, 1fr));
     gap: 40px 32px;
+}
+
+@media (max-width: 860px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* FIELD */
@@ -89,6 +96,7 @@
     color: #333;
     transition: all 0.2s ease;
     box-sizing: border-box;
+    font-family: inherit;
 }
 
 .form-group input:focus,
@@ -100,8 +108,10 @@
 
 .form-group input:disabled,
 .form-group input[readonly],
+.form-group input.input-readonly,
 .form-group select:disabled,
-.form-group textarea:disabled {
+.form-group textarea:disabled,
+.form-group textarea.input-readonly {
     background: #eef3fa;
     color: #666;
     cursor: not-allowed;
@@ -110,6 +120,77 @@
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
+}
+
+/* CHECKBOX & RADIO */
+.checkbox-wrapper,
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.checkbox-wrapper {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-wrapper input[type="checkbox"],
+.radio-group input[type="radio"] {
+    width: auto;
+    cursor: pointer;
+    padding: 0;
+    border: none;
+    accent-color: #436da5;
+}
+
+.checkbox-label,
+.radio-group label {
+    font-weight: 400;
+    color: #333;
+    cursor: pointer;
+    margin: 0;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radio-item input[type="radio"] {
+    margin: 0;
+}
+
+/* ERROR STATES */
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-group.has-error textarea {
+    border-color: #ff4d4f;
+    background-color: #fff1f0;
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error select:focus,
+.form-group.has-error textarea:focus {
+    border-color: #ff4d4f;
+    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+.error-message {
+    font-size: 12px;
+    color: #ff4d4f;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.field-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #436da5;
+    display: block;
 }
 
 /* FOOTER */

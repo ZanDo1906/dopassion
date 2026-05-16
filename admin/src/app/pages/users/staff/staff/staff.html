@@ -54,7 +54,7 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewStaffDetail(staff)">
                                 <i class="bi bi-eye"></i>
                             </button>
                             <button class="icon-btn" type="button" title="Khóa/Mở khóa">
@@ -108,10 +108,6 @@
                 <input type="date" formControlName="dob" />
             </div>
             <div class="form-group">
-                <label>Địa chỉ</label>
-                <input type="text" formControlName="address" />
-            </div>
-            <div class="form-group">
                 <label><span class="required-star">*</span>SĐT</label>
                 <input type="text" formControlName="phone" />
             </div>
@@ -151,6 +147,121 @@
     </form>
 </ng-template>
 
+<ng-template #viewStaffTemplate>
+    <form [formGroup]="detailForm" class="staff-add-form">
+        <div class="section-title">I. Thông tin cá nhân</div>
+
+        <div class="row staff-view-row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Mã Nhân viên</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã nhân viên" readonly />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Tên nhân viên</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Tên nhân viên" readonly />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <select class="form-control input-readonly hide-arrow" formControlName="Giới tính">
+                        <option value="">-- Chưa cập nhật --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Ngày sinh</label>
+                    <input class="form-control input-readonly" type="date" formControlName="Ngày sinh" readonly />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>SĐT</label>
+                    <input class="form-control input-readonly" type="text" formControlName="SĐT" readonly />
+                </div>
+            </div>
+
+        </div>
+
+        <div class="section-title">II. Thông tin công việc</div>
+
+        <div class="row staff-view-row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Chi nhánh</label>
+                    <select class="form-control input-readonly hide-arrow" formControlName="Chi nhánh">
+                        <option value="">-- Chưa cập nhật --</option>
+                        <option *ngFor="let item of branchOptions" [value]="item.value">{{ item.label }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Vai trò</label>
+                    <select class="form-control input-readonly hide-arrow" formControlName="Vai trò">
+                        <option value="">-- Chưa cập nhật --</option>
+                        <option *ngFor="let item of roleOptions" [value]="item.value">{{ item.label }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Mã vai trò</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã vai trò" readonly />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <div class="staff-view-status-wrap">
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': detailForm.get('Trạng thái')?.value === 'Đang hoạt động',
+                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động'
+                            }"
+                        >
+                            {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group cccd-upload-group">
+                    <label>Ảnh CCCD</label>
+                    <div class="upload-box staff-view-image-box" style="overflow: hidden; cursor: default;">
+                        <ng-container *ngIf="detailForm.get('Ảnh CCCD')?.value; else noCccdImage">
+                            <img
+                                [src]="detailForm.get('Ảnh CCCD')?.value"
+                                alt="Ảnh CCCD"
+                                style="width: 100%; height: 100%; object-fit: cover;"
+                            />
+                        </ng-container>
+                        <ng-template #noCccdImage>
+                            <span class="upload-box__text">Chưa có ảnh</span>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
 <app-form-dialog
     *ngIf="isAddStaffDialogOpen"
     title="Thêm mới nhân viên"
@@ -161,4 +272,16 @@
     submitIcon="bi bi-save"
     (close)="closeAddStaffDialog()"
     (submit)="onSubmitAddStaff()">
+</app-form-dialog>
+
+<app-form-dialog
+    *ngIf="isViewStaffDialogOpen"
+    title="Chi tiết nhân viên"
+    [bodyTemplate]="viewStaffTemplate"
+    [cancelText]="viewDialogConfig.cancelText"
+    submitText="Lưu"
+    cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save"
+    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
+    (close)="closeViewStaffDialog()">
 </app-form-dialog>

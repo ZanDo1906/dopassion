@@ -6,30 +6,21 @@
             Tìm kiếm
         </span>
     </div>
-    
+
     <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
         <!-- Tự động sinh các field input từ config -->
         <div class="filter-row">
             <div class="filter-field" *ngFor="let field of config">
-                <label [for]="field.key">{{ field.label }}</label>
+                <label *ngIf="field.type !== 'date-range'" [for]="field.key">{{ field.label }}</label>
 
                 <!-- Render đúng loại input dựa trên field.type -->
                 <ng-container [ngSwitch]="field.type">
                     <!-- Text Input -->
-                    <input
-                        *ngSwitchCase="'text'"
-                        type="text"
-                        [id]="field.key"
-                        [placeholder]="'Nhập ' + field.label"
-                        [(ngModel)]="filterValues[field.key]"
-                    />
+                    <input *ngSwitchCase="'text'" type="text" [id]="field.key" [placeholder]="'Nhập ' + field.label"
+                        [(ngModel)]="filterValues[field.key]" />
 
                     <!-- Select Dropdown -->
-                    <select
-                        *ngSwitchCase="'select'"
-                        [id]="field.key"
-                        [(ngModel)]="filterValues[field.key]"
-                    >
+                    <select *ngSwitchCase="'select'" [id]="field.key" [(ngModel)]="filterValues[field.key]">
                         <option value="">-- Chọn {{ field.label }} --</option>
                         <option *ngFor="let option of field.options" [value]="option.value">
                             {{ option.label }}
@@ -38,34 +29,22 @@
 
                     <!-- Multi Select Dropdown -->
                     <div *ngSwitchCase="'multi-select'" class="multi-select-wrapper">
-                        <button
-                            type="button"
-                            class="multi-select-trigger"
+                        <button type="button" class="multi-select-trigger"
                             (click)="toggleMultiSelectDropdown(field.key)"
                             [attr.aria-expanded]="openDropdownKey === field.key"
-                            [attr.aria-controls]="field.key + '-panel'"
-                        >
+                            [attr.aria-controls]="field.key + '-panel'">
                             <span class="multi-select-text">{{ getMultiSelectDisplay(field) }}</span>
-                            <i class="bi" [ngClass]="openDropdownKey === field.key ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
+                            <i class="bi"
+                                [ngClass]="openDropdownKey === field.key ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"></i>
                         </button>
 
-                        <div
-                            class="multi-select-panel"
-                            [id]="field.key + '-panel'"
-                            *ngIf="openDropdownKey === field.key"
-                            (click)="$event.stopPropagation()"
-                        >
-                            <label
-                                class="multi-select-option"
-                                *ngFor="let option of field.options; let index = index"
-                                [for]="field.key + '-' + index"
-                            >
-                                <input
-                                    type="checkbox"
-                                    [id]="field.key + '-' + index"
+                        <div class="multi-select-panel" [id]="field.key + '-panel'"
+                            *ngIf="openDropdownKey === field.key" (click)="$event.stopPropagation()">
+                            <label class="multi-select-option" *ngFor="let option of field.options; let index = index"
+                                [for]="field.key + '-' + index">
+                                <input type="checkbox" [id]="field.key + '-' + index"
                                     [checked]="isMultiSelectChecked(field.key, option.value)"
-                                    (change)="onMultiSelectChange(field.key, option.value, $any($event.target).checked)"
-                                />
+                                    (change)="onMultiSelectChange(field.key, option.value, $any($event.target).checked)" />
                                 <span>{{ option.label }}</span>
                             </label>
 
@@ -76,21 +55,18 @@
                     </div>
 
                     <!-- Number Input -->
-                    <input
-                        *ngSwitchCase="'number'"
-                        type="number"
-                        [id]="field.key"
-                        [placeholder]="'Nhập ' + field.label"
-                        [(ngModel)]="filterValues[field.key]"
-                    />
+                    <input *ngSwitchCase="'number'" type="number" [id]="field.key" [placeholder]="'Nhập ' + field.label"
+                        [(ngModel)]="filterValues[field.key]" />
 
                     <!-- Date Input -->
-                    <input
-                        *ngSwitchCase="'date'"
-                        type="date"
-                        [id]="field.key"
-                        [(ngModel)]="filterValues[field.key]"
-                    />
+                    <input *ngSwitchCase="'date'" type="date" [id]="field.key" [(ngModel)]="filterValues[field.key]" />
+
+                    <!-- Date Range Picker -->
+                    <app-date-range-picker *ngSwitchCase="'date-range'" [label]="field.label"
+                        [fromDate]="getDateRangeValue(field.key).fromDate"
+                        [toDate]="getDateRangeValue(field.key).toDate"
+                        (dateRangeChange)="onDateRangeChange(field.key, $event)">
+                    </app-date-range-picker>
                 </ng-container>
             </div>
         </div>

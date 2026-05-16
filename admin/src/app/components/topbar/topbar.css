@@ -8,18 +8,26 @@
 }
 
 .topbar {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 16px;
-    background: linear-gradient(90deg, #dfc9b4 0%, #d2c8bf 50%, #c1c6d0 100%);
-    border: 1px solid var(--topbar-stroke);
-    border-radius: 8px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    font-family: "Montserrat", "Segoe UI", sans-serif;
-    color: var(--topbar-text);
+    height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    padding: 0 24px !important;
+    background: linear-gradient(
+        90deg,
+        #dfc9b4 0%,
+        #d2c8bf 50%,
+        #c1c6d0 100%
+    ) !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+
 }
 
 .topbar__left {
@@ -148,6 +156,7 @@
     color: #1f1f1f;
 }
 
+
 @media (max-width: 720px) {
     .topbar {
         flex-wrap: wrap;
@@ -158,3 +167,4 @@
         white-space: normal;
     }
 }
+

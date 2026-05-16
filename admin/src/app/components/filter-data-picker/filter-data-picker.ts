@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DateRange, DateRangePickerComponent } from '../date-range-picker/date-range-picker';
 
 /**
  * Generic Filter Configuration Interface
@@ -9,13 +10,13 @@ import { FormsModule } from '@angular/forms';
 export interface FilterConfig {
   key: string;                           // Tên trường dữ liệu (key để gửi API)
   label: string;                         // Nhãn hiển thị
-  type: 'text' | 'select' | 'multi-select' | 'date' | 'number'; // Loại input
+  type: 'text' | 'select' | 'multi-select' | 'date' | 'date-range' | 'number'; // Loại input
   options?: Array<{ value: any; label: string }>; // Dùng cho select
 }
 
 @Component({
   selector: 'app-filter-data-picker',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DateRangePickerComponent],
   templateUrl: './filter-data-picker.html',
   styleUrl: './filter-data-picker.css',
 })
@@ -54,7 +55,7 @@ export class FilterDataPicker {
   /**
    * Toggle mở/đóng filter card
    */
-  constructor(private elementRef: ElementRef<HTMLElement>) {}
+  constructor(private elementRef: ElementRef<HTMLElement>) { }
 
   toggleFilter(): void {
     this.isFilterOpen = !this.isFilterOpen;
@@ -105,6 +106,25 @@ export class FilterDataPicker {
     return selectedLabels.join(', ');
   }
 
+  getDateRangeValue(fieldKey: string): DateRange {
+    const value = this.filterValues[fieldKey];
+    if (value && typeof value === 'object') {
+      return {
+        fromDate: `${value.fromDate || ''}`,
+        toDate: `${value.toDate || ''}`,
+      };
+    }
+
+    return {
+      fromDate: '',
+      toDate: '',
+    };
+  }
+
+  onDateRangeChange(fieldKey: string, range: DateRange): void {
+    this.filterValues[fieldKey] = range;
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as Node | null;
@@ -127,12 +147,21 @@ export class FilterDataPicker {
 
     for (const field of this.config) {
       if (field.type !== 'multi-select') {
-        continue;
+        if (field.type !== 'date-range') {
+          continue;
+        }
       }
 
       const rawValue = normalizedValues[field.key];
       if (Array.isArray(rawValue)) {
         normalizedValues[field.key] = rawValue;
+      } else if (field.type === 'date-range') {
+        normalizedValues[field.key] = rawValue && typeof rawValue === 'object'
+          ? {
+            fromDate: `${rawValue.fromDate || ''}`,
+            toDate: `${rawValue.toDate || ''}`,
+          }
+          : { fromDate: '', toDate: '' };
       } else if (rawValue === null || rawValue === undefined || rawValue === '') {
         normalizedValues[field.key] = [];
       } else {

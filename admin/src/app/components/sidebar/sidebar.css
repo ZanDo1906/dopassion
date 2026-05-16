@@ -6,21 +6,27 @@
 }
 
 .sidebar {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
+    width: 300px;
     height: 100vh;
     padding: 20px 18px;
+    box-sizing: border-box;
     color: #2a4c7f;
-    background-image: url('/side-bar.png');
+    background:
+    linear-gradient(
+        180deg,
+        rgba(223, 201, 180, 0.82) 0%,
+        rgba(210, 200, 191, 0.78) 45%,
+        rgba(193, 198, 208, 0.82) 100%
+    ), url('/side-bar.png');
+    /* background-image: url('/side-bar.png'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
     border-right: 1px solid rgba(42, 76, 127, 0.12);
-    box-shadow: inset -10px 0 30px rgba(0, 0, 0, 0.06);
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: none;
 }
 
 .sidebar::-webkit-scrollbar {

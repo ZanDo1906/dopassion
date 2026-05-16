@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-form-dialog',
@@ -16,33 +16,50 @@ import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 export class FormDialogComponent implements OnChanges {
 
   @Input() title: string = '';
-
   @Input() sections: any[] = [];
-
   @Input() bodyTemplate: TemplateRef<any> | null = null;
-
   @Input() columns: number = 3;
-
   @Input() formGroup: FormGroup | null = null;
-
   @Input() cancelText: string = 'Thoát';
-
   @Input() submitText: string = 'Xác nhận';
-
   @Input() cancelIcon: string = 'bi bi-x-circle';
-
   @Input() submitIcon: string = 'bi bi-save';
+  @Input() formData: any = {};
+  @Input() isReadOnly: boolean = false;
+  @Input() showErrors: boolean = true;
+  @Input() submitBtnClass: string = '';
+  @Input() cancelBtnClass: string = '';
+  @Input() autoCreateFormGroup: boolean = true;
 
   @Output() close = new EventEmitter<void>();
-
   @Output() submit = new EventEmitter<any>();
-
-  @Input() formData: any = {};
+  @Output() fieldChange = new EventEmitter<{ fieldName: string; value: any }>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sections'] && !this.formGroup) {
-      this.syncFormDataFromSections();
+      if (this.autoCreateFormGroup) {
+        this.createFormGroupFromSections();
+      } else {
+        this.syncFormDataFromSections();
+      }
     }
+  }
+
+  private createFormGroupFromSections(): void {
+    const formControls: any = {};
+
+    for (const section of this.sections ?? []) {
+      for (const field of section.fields ?? []) {
+        const value = field.value ?? this.formData[field.name] ?? null;
+        const validators = field.validators || [];
+        formControls[field.name] = new FormControl(
+          { value, disabled: field.disabled || false },
+          validators
+        );
+      }
+    }
+
+    this.formGroup = new FormGroup(formControls);
   }
 
   private syncFormDataFromSections(): void {
@@ -50,15 +67,90 @@ export class FormDialogComponent implements OnChanges {
 
     for (const section of this.sections ?? []) {
       for (const field of section.fields ?? []) {
-        nextFormData[field.name] = field.value ?? this.formData[field.name] ?? '';
+        nextFormData[field.name] = field.value ?? this.formData[field.name] ?? this.getDefaultValue(field.type);
       }
     }
 
     this.formData = nextFormData;
   }
 
-  onSubmit() {
+  private getDefaultValue(fieldType: string): any {
+    switch (fieldType) {
+      case 'checkbox':
+      case 'radio':
+        return false;
+      case 'number':
+        return 0;
+      case 'date':
+      case 'datetime-local':
+      case 'time':
+        return '';
+      default:
+        return '';
+    }
+  }
+
+  onFieldChange(fieldName: string, value: any): void {
+    this.formData[fieldName] = value;
+    this.fieldChange.emit({ fieldName, value });
+  }
+
+  onSubmit(): void {
+    if (this.formGroup && this.formGroup.invalid) {
+      Object.keys(this.formGroup.controls).forEach(key => {
+        this.formGroup?.get(key)?.markAsTouched();
+      });
+      return;
+    }
     this.submit.emit(this.formGroup ? this.formGroup.getRawValue() : this.formData);
+  }
+
+  getFieldError(fieldName: string): string | null {
+    if (!this.formGroup || !this.showErrors) return null;
+
+    const control = this.formGroup.get(fieldName);
+    if (control && control.invalid && (control.dirty || control.touched)) {
+      if (control.errors?.['required']) return 'Trường này là bắt buộc';
+      if (control.errors?.['email']) return 'Email không hợp lệ';
+      if (control.errors?.['min']) return `Giá trị tối thiểu là ${control.errors['min'].min}`;
+      if (control.errors?.['max']) return `Giá trị tối đa là ${control.errors['max'].max}`;
+      if (control.errors?.['minlength']) return `Tối thiểu ${control.errors['minlength'].requiredLength} ký tự`;
+      if (control.errors?.['maxlength']) return `Tối đa ${control.errors['maxlength'].requiredLength} ký tự`;
+      if (control.errors?.['pattern']) return 'Định dạng không hợp lệ';
+      return 'Dữ liệu không hợp lệ';
+    }
+    return null;
+  }
+
+  hasError(fieldName: string): boolean {
+    if (!this.formGroup) return false;
+    const control = this.formGroup.get(fieldName);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  // Helper methods to safely extract values from events
+  getInputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value ?? '';
+  }
+
+  getCheckboxChecked(event: Event): boolean {
+    return (event.target as HTMLInputElement).checked ?? false;
+  }
+
+  getRadioValue(event: Event): string {
+    return (event.target as HTMLInputElement).value ?? '';
+  }
+
+  getSelectValue(event: Event): string {
+    return (event.target as HTMLSelectElement).value ?? '';
+  }
+
+  getTextareaValue(event: Event): string {
+    return (event.target as HTMLTextAreaElement).value ?? '';
+  }
+
+  getFileList(event: Event): FileList | null {
+    return (event.target as HTMLInputElement).files ?? null;
   }
 
 }

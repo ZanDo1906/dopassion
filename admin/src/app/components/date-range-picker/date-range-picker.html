@@ -1,0 +1,93 @@
+<div class="date-range-picker-wrapper">
+  <!-- Label -->
+  <label class="filter-label">{{ label }}</label>
+
+  <!-- Input Display (Click để mở picker) -->
+  <div class="date-range-input-group" (click)="togglePicker()">
+    <input
+      type="text"
+      class="date-range-display"
+      [value]="displayValue"
+      placeholder="DD/MM/YYYY - DD/MM/YYYY"
+      readonly
+    />
+    <span class="input-group-text">
+      <i class="bi bi-calendar-event"></i>
+    </span>
+  </div>
+
+  <!-- Date Picker Panel -->
+  <div class="date-range-picker-panel" *ngIf="showPicker">
+    <div class="date-picker-header">
+      <h6>{{ label }}</h6>
+      <button type="button" class="btn-close" (click)="closePicker()" aria-label="Close"></button>
+    </div>
+
+    <div class="date-picker-body">
+      <!-- From Date Input -->
+      <div class="date-input-block">
+        <label class="date-input-label">Từ ngày</label>
+        <div class="date-input-wrapper">
+          <input
+            type="date"
+            class="date-input-field"
+            [value]="fromDate"
+            [min]="formattedMinDate"
+            [max]="formattedMaxFromDate"
+            (change)="onFromDateChange($event)"
+          />
+          <button
+            *ngIf="fromDate"
+            type="button"
+            class="btn-clear-date"
+            (click)="clearFromDate()"
+            title="Xóa ngày bắt đầu"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Separator -->
+      <div class="date-separator">
+        <span>-</span>
+      </div>
+
+      <!-- To Date Input -->
+      <div class="date-input-block">
+        <label class="date-input-label">Đến ngày</label>
+        <div class="date-input-wrapper">
+          <input
+            type="date"
+            class="date-input-field"
+            [value]="toDate"
+            [min]="formattedMinToDate"
+            (change)="onToDateChange($event)"
+          />
+          <button
+            *ngIf="toDate"
+            type="button"
+            class="btn-clear-date"
+            (click)="clearToDate()"
+            title="Xóa ngày kết thúc"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Buttons -->
+    <div class="date-picker-footer">
+      <button type="button" class="btn btn-secondary btn-sm" (click)="resetDates()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại
+      </button>
+      <button type="button" class="btn btn-primary btn-sm" (click)="closePicker()">
+        <i class="bi bi-check me-1"></i>Xác nhận
+      </button>
+    </div>
+  </div>
+
+  <!-- Overlay để đóng picker khi click ngoài -->
+  <div class="date-picker-overlay" *ngIf="showPicker" (click)="closePicker()"></div>
+</div>
