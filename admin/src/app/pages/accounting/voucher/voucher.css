@@ -457,3 +457,7 @@ thead th.sticky-action {
 ::ng-deep .ng-dropdown-panel {
     z-index: 9999 !important;
 }
+
+:host ::ng-deep app-form-dialog.hide-submit .btn-submit {
+    display: none !important;
+}

@@ -5,6 +5,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { VoucherService } from '../../../services/voucher';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
+import { iVoucher } from '../../../interfaces/voucher'
+
 
 @Component({
   selector: 'app-voucher',
@@ -29,7 +31,7 @@ export class Voucher implements OnInit {
     },
     {
       key: 'maKhoaHoc',
-      label: 'Mã Khóa học',
+      label: 'Khóa học áp dụng',
       type: 'select',
       options: []
     },
@@ -55,6 +57,9 @@ export class Voucher implements OnInit {
     }
   ];
 
+  // All role data from JSON (không normalize)
+  roles: iVoucher[] = [];
+
   allData: any[] = [];
   filteredData: any[] = [];
   paginatedData: any[] = [];
@@ -63,12 +68,15 @@ export class Voucher implements OnInit {
   errorMessage = '';
 
   showAddDialog = false;
+  dialogMode: 'add' | 'view' = 'add';
+
 
   currentPage = 1;
   itemsPerPage = 10;
   pageSizeOptions = [10, 20, 50];
 
   voucherForm!: FormGroup;
+  detailForm!: FormGroup;
 
   branches = [
     { label: 'Chi nhánh 1', value: 'CN1' },
@@ -91,14 +99,10 @@ export class Voucher implements OnInit {
         {
           name: 'chiNhanh',
           label: 'Chi nhánh áp dụng',
-          type: 'select',
-          options: [
-            { label: 'Chi nhánh 1', value: 'CN1' },
-            { label: 'Chi nhánh 2', value: 'CN2' },
-            { label: 'Chi nhánh 3', value: 'CN3' },
-            { label: 'Toàn hệ thống', value: 'ALL' }
-          ]
-        }
+          type: 'text',
+          options: this.branches
+        },
+        { name: 'maKhoaHoc', label: 'Khóa học áp dụng', type: 'text', options: this.courseOptions },
       ]
     },
     {
@@ -109,8 +113,8 @@ export class Voucher implements OnInit {
           label: 'Đơn vị giảm',
           type: 'select',
           options: [
-            { label: 'Phần trăm (%)', value: '%' },
-            { label: 'Số tiền (VND)', value: 'VND' }
+            { label: 'Phần trăm (%)', value: 'Phần trăm' },
+            { label: 'Số tiền (VNĐ)', value: 'VNĐ' }
           ]
         },
         { name: 'thongSoGiam', label: 'Thông số giảm', type: 'number', required: true }
@@ -131,7 +135,17 @@ export class Voucher implements OnInit {
       tenChuongTrinh: [''],
       donViGiam: ['VND'],
       thongSoGiam: [0],
-      chiNhanh: ['ALL']
+      chiNhanh: ['ALL'],
+      maKhoaHoc:['']
+    });
+
+    this.detailForm = this.fb.group({
+      maVoucher: [''],
+      tenChuongTrinh: [''],
+      chiNhanh:[''],
+      maKhoaHoc:[''],
+      donViGiam: [''],
+      thongSoGiam: ['']
     });
   }
 
@@ -146,11 +160,11 @@ export class Voucher implements OnInit {
           tenChuongTrinh: item['Tên chương trình'],
           donViGiam: item['Đơn vị giảm'],
           thongSoGiam: item['Thông số'] || item['Thông số giảm'], // Phòng hờ trường hợp sai tên key
-          maKhoaHoc: item['Mã Khóa học'] || item['Mã khóa học'] || '',
           maLop: item['Mã Lớp'] || item['Mã lớp'] || '',
           chiNhanh: Array.isArray(item['Chi nhánh']) 
             ? item['Chi nhánh'] 
             : (item['Chi nhánh'] ? String(item['Chi nhánh']).split(', ') : []),
+          maKhoaHoc: item['Khóa học áp dụng'] || [],
           trangThai: item['Trạng thái'] || 'Đang hoạt động'
         }));
 
@@ -289,15 +303,44 @@ export class Voucher implements OnInit {
 
   openAddDialog(): void {
 
+    this.dialogMode = 'add';
+
+    this.voucherForm.enable();
+
     this.voucherForm.reset({
       chiNhanh: 'ALL',
       donViGiam: 'VND',
-      thongSoGiam: 0
+      thongSoGiam: 0,
+      maKhoaHoc: ''
     });
 
     this.showAddDialog = true;
-
   }
+
+  viewVoucherDetail(item: any): void {
+
+  this.detailForm.enable();
+
+  this.detailForm.patchValue({
+    maVoucher: item.maVoucher,
+    tenChuongTrinh: item.tenChuongTrinh,
+    donViGiam: item.donViGiam,
+    thongSoGiam: item.thongSoGiam,
+    chiNhanh: Array.isArray(item.chiNhanh)
+      ? item.chiNhanh.join(', ')
+      : item.chiNhanh,
+
+    maKhoaHoc: Array.isArray(item.maKhoaHoc)
+      ? item.maKhoaHoc.join(', ')
+      : item.maKhoaHoc
+  });
+
+  this.detailForm.disable();
+
+  this.dialogMode = 'view';
+
+  this.showAddDialog = true;
+}
 
   closeDialog(): void {
     this.showAddDialog = false;

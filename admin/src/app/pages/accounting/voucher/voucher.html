@@ -5,7 +5,7 @@
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-        <button class="btn btn-primary" type="button" (click)="openAddDialog()">
+        <button class="btn btn-outline" type="button" (click)="openAddDialog()">
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
@@ -19,8 +19,20 @@
         </button>
     </div>
 
-    <app-form-dialog *ngIf="showAddDialog" [title]="'THÊM MỚI VOUCHER'" [sections]="voucherFormSections"
-        [formGroup]="voucherForm" [columns]="3" (close)="closeDialog()" (submit)="onSaveVoucher()">
+    <app-form-dialog
+    *ngIf="showAddDialog"
+    [class.hide-submit]="dialogMode === 'view'"
+    [title]="dialogMode === 'view'
+        ? 'XEM CHI TIẾT VOUCHER'
+        : 'THÊM MỚI VOUCHER'"
+    [sections]="voucherFormSections"
+    [columns]="3"
+    [formGroup]="dialogMode === 'view'
+        ? detailForm
+        : voucherForm"
+    [isReadOnly]="dialogMode === 'view'"
+    (close)="closeDialog()"
+    (submit)="onSaveVoucher()">
     </app-form-dialog>
 
     <!-- TABLE -->
@@ -31,6 +43,7 @@
                     <th>STT</th>
                     <th>Mã voucher</th>
                     <th>Tên chương trình</th>
+                    <th>Khóa học áp dụng</th>
                     <th>Đơn vị giảm</th>
                     <th>Thông số giảm</th>
                     <th>Chi nhánh áp dụng</th>
@@ -54,13 +67,14 @@
                     </td>
                     <td>{{ item.maVoucher }}</td>
                     <td>{{ item.tenChuongTrinh }}</td>
+                    <td>{{ item.maKhoaHoc?.join(', ') }}</td>
                     <td>{{ item.donViGiam }}</td>
                     <td>{{ item.thongSoGiam }}</td>
                     <td>{{ item.chiNhanh?.join(', ') }}</td>
                     <!-- ACTION -->
                     <td class="sticky-action">
                         <div class="action-group">
-                            <button class="icon-btn" type="button">
+                            <button class="icon-btn" type="button" (click)="viewVoucherDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
                             <button class="icon-btn" type="button">

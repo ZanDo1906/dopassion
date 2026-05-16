@@ -61,7 +61,7 @@
                         </ng-container>
 
                         <!-- SELECT -->
-                        <ng-container *ngIf="field.type === 'select'">
+                        <ng-container *ngIf="field.type === 'select' ">
                             <select [id]="field.name" [disabled]="field.disabled || isReadOnly"
                                 [formControlName]="field.name"
                                 (change)="onFieldChange(field.name, getSelectValue($event))">

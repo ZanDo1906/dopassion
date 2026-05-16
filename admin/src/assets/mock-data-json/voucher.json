@@ -5,7 +5,9 @@
         "Tên chương trình": "Khuyến mãi học viên mới",
         "Đơn vị giảm": "VNĐ",
         "Thông số": 100000.0 ,
-        "Chi nhánh": ["CN1", "CN2", "CN3"]
+        "Chi nhánh": ["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
+        
     },
     {
         "STT": 2,
@@ -13,7 +15,8 @@
         "Tên chương trình": "Ưu đãi đăng ký sớm",
         "Đơn vị giảm": "VNĐ",
         "Thông số": 200000.0,
-        "Chi nhánh":["CN1"]
+        "Chi nhánh":["CN1"],
+        "Khóa học áp dụng": ["SW"]
     },
     {
         "STT": 3,
@@ -21,7 +24,8 @@
         "Tên chương trình": "Ưu đãi khai giảng tháng 5",
         "Đơn vị giảm": "VNĐ",
         "Thông số": 300000.0, 
-        "Chi nhánh":["CN2"]
+        "Chi nhánh":["CN2"],
+        "Khóa học áp dụng": ["LR"]
     },
     {
         "STT": 4,
@@ -29,7 +33,8 @@
         "Tên chương trình": "Siêu ưu đãi TOEIC Combo",
         "Đơn vị giảm": "VNĐ",
         "Thông số": 500000.0,
-        "Chi nhánh":["CN1", "CN3"]
+        "Chi nhánh":["CN1", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 5,
@@ -37,7 +42,8 @@
         "Tên chương trình": "Giảm học phí mùa hè",
         "Đơn vị giảm": "Phần trăm",
         "Thông số": 0.1,
-        "Chi nhánh":["CN1", "CN2", "CN3"]
+        "Chi nhánh":["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 6,
@@ -45,7 +51,8 @@
         "Tên chương trình": "Ưu đãi sinh viên UEL",
         "Đơn vị giảm": "Phần trăm",
         "Thông số": 0.15,
-        "Chi nhánh":["CN1", "CN2", "CN3"]
+        "Chi nhánh":["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 7,
@@ -53,7 +60,8 @@
         "Tên chương trình": "Flash Sale cuối tuần",
         "Đơn vị giảm": "Phần trăm",
         "Thông số": 0.2,
-        "Chi nhánh":["CN2", "CN3"]
+        "Chi nhánh":["CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 8,
@@ -61,6 +69,7 @@
         "Tên chương trình": "Khuyến mãi nhóm bạn",
         "Đơn vị giảm": "Phần trăm",
         "Thông số": 0.25,
-        "Chi nhánh":["CN1", "CN3"]
+        "Chi nhánh":["CN1", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     }
 ]
