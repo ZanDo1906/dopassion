@@ -15,6 +15,15 @@ export class Login {
   username = '';
   password = '';
   errorMessage = '';
+  showForgotModal = false;
+  forgotStep = 1;
+  forgotValue = '';
+  forgotError = '';
+  generatedOtp = '';
+  otpInput = '';
+  newPassword = '';
+  confirmPassword = '';
+  forgotUser: any = null;
 
   constructor(private router: Router, private staffService: Staff) {}
 
@@ -43,9 +52,26 @@ export class Login {
           return;
         }
 
-        if (user.password !== passwordTrim) {
-          console.log('Wrong password for', userId, 'expected', user.password);
+        // Lấy password mới nếu đã đổi
+        const savedPassword = localStorage.getItem(
+          `password_${user['Mã NV']}`
+        );
+
+        // Nếu chưa đổi thì dùng password gốc trong JSON
+        const currentPassword =
+          savedPassword || user.password;
+
+        if (currentPassword !== passwordTrim) {
+
+          console.log(
+            'Wrong password for',
+            userId,
+            'expected',
+            currentPassword
+          );
+
           this.errorMessage = 'Sai mật khẩu.';
+
           return;
         }
 
@@ -67,5 +93,146 @@ export class Login {
     const digits = normalized.replace(/\D/g, '');
     return digits.length === 5 ? `DPS${digits}` : normalized;
   }
+
+
+  openForgotPassword(): void {
+
+  this.showForgotModal = true;
+
+  this.forgotStep = 1;
+
+  this.forgotError = '';
+
+  this.forgotValue = '';
+
+  this.otpInput = '';
+
+  this.newPassword = '';
+
+  this.confirmPassword = '';
+}
+
+  closeForgotPassword(): void {
+
+    this.showForgotModal = false;
+  }
+
+sendOtp(): void {
+
+  this.forgotError = '';
+
+  const value = this.forgotValue.trim();
+
+  if (!value) {
+
+    this.forgotError = 'Vui lòng nhập email hoặc SĐT';
+
+    return;
+  }
+
+  this.staffService.getStaff().subscribe({
+
+    next: (staffList: iStaff[]) => {
+
+      const user = staffList.find((staff: any) => {
+
+        const phone =
+          String(staff['SĐT'] || '').trim();
+
+        const email =
+          String(staff['Email'] || '').trim().toLowerCase();
+
+        return (
+          phone === value ||
+          email === value.toLowerCase()
+        );
+      });
+
+      if (!user) {
+
+        this.forgotError =
+          'Không tìm thấy tài khoản';
+
+        return;
+      }
+
+      this.forgotUser = user;
+
+      // RANDOM OTP
+      this.generatedOtp =
+        Math.floor(
+          100000 + Math.random() * 900000
+        ).toString();
+
+      this.forgotStep = 2;
+    },
+
+    error: () => {
+
+      this.forgotError =
+        'Không thể kiểm tra dữ liệu';
+    }
+  });
+}
+
+verifyOtp(): void {
+
+  this.forgotError = '';
+
+  if (this.otpInput !== this.generatedOtp) {
+
+    this.forgotError =
+      'OTP không chính xác';
+
+    return;
+  }
+
+  this.forgotStep = 3;
+}
+
+resetPassword(): void {
+
+  this.forgotError = '';
+
+  if (
+    !this.newPassword ||
+    !this.confirmPassword
+  ) {
+
+    this.forgotError =
+      'Vui lòng nhập đầy đủ mật khẩu';
+
+    return;
+  }
+
+  if (this.newPassword.length < 6) {
+
+    this.forgotError =
+      'Mật khẩu phải từ 6 ký tự';
+
+    return;
+  }
+
+  if (
+    this.newPassword !==
+    this.confirmPassword
+  ) {
+
+    this.forgotError =
+      'Xác nhận mật khẩu không khớp';
+
+    return;
+  }
+
+  // LƯU PASSWORD MỚI
+  localStorage.setItem(
+    `password_${this.forgotUser['Mã NV']}`,
+    this.newPassword
+  );
+
+  alert('Đổi mật khẩu thành công');
+
+  this.closeForgotPassword();
+}
 }
 

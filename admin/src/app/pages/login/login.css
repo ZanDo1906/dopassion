@@ -232,3 +232,120 @@ body, html {
 		padding: 36px 24px;
 	}
 }
+
+/* OVERLAY */
+
+.forgot-overlay{
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,0.5);
+
+	display:flex;
+	align-items:center;
+	justify-content:center;
+
+	z-index:9999;
+}
+
+/* MODAL */
+
+.forgot-modal{
+
+	width:420px;
+	background:white;
+
+	border-radius:20px;
+
+	padding:28px;
+
+	animation: popupShow .25s ease;
+}
+
+@keyframes popupShow{
+
+	from{
+		transform:scale(.9);
+		opacity:0;
+	}
+
+	to{
+		transform:scale(1);
+		opacity:1;
+	}
+}
+
+/* HEADER */
+
+.forgot-header{
+
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+
+	margin-bottom:20px;
+}
+
+.close-btn{
+
+	border:none;
+	background:none;
+	font-size:28px;
+	cursor:pointer;
+}
+
+/* INPUT */
+
+.forgot-input{
+	width:100%;
+	padding:14px;
+	border-radius:12px;
+	border:1px solid #ddd;
+	margin-top:12px;
+	margin-bottom:12px;
+	font-size:15px;
+}
+
+/* BUTTON */
+
+.forgot-btn{
+	width:100%;
+	padding:14px;
+	border:none;
+	border-radius:12px;
+	background:#2563eb;
+	color:white;
+	font-weight:600;
+	cursor:pointer;
+	margin-top:10px;
+}
+
+.forgot-btn:hover{
+	background:#1d4ed8;
+}
+
+/* ERROR */
+
+.forgot-error{
+
+	color:red;
+	font-size:14px;
+	margin-top:8px;
+}
+/* DESC */
+
+.forgot-desc{
+	color:#666;
+	font-size:14px;
+	margin-bottom:10px;
+}
+/* OTP */
+
+.otp-demo{
+
+	background:#eff6ff;
+	color:#1d4ed8;
+	padding:12px;
+	border-radius:10px;
+	margin-bottom:15px;
+	font-size:15px;
+}

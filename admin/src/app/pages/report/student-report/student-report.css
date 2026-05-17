@@ -1,0 +1,24 @@
+@import '../../accounting/voucher/voucher.css';
+/* CHART */
+
+.chart-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-600);
+    margin-bottom: 16px;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 420px;
+}

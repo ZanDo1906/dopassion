@@ -4,16 +4,16 @@
 			<img src="/login-background.jpg" alt="background" class="login-bg" />
 			<div class="login-logo-content">
 				<img src="/logo.png" alt="Logo" class="login-logo" />
-				<h2>Hệ Thống Quản Lý Học Viên</h2>
+				<h2>Hệ Thống Quản Lý Đăng Ký Lớp Học</h2>
 				<h3>Trung Tâm Anh Ngữ DoPassion</h3>
-				<p>Quản lý học viên, lớp học và theo dõi tiến độ học tập một cách hiệu quả</p>
+				<p>Quản lý học viên, lớp học, thanh toán và theo dõi tiến độ học tập một cách hiệu quả</p>
 			</div>
 		</div>
 	</div>
 	<div class="login-right">
 		<form class="login-form" (ngSubmit)="submit()" #loginForm="ngForm">
 			<h2>Đăng nhập</h2>
-			<p class="login-welcome">Chào mừng quay trở lại! Vui lòng đăng nhập vào tài khoản của bạn.</p>
+			<p class="login-welcome">Chào mừng quay trở lại! Vui lòng đăng nhập vào tài khoản của bạn để bắt đầu phiên làm việc.</p>
 			<div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
 			<div class="form-group">
 				<label for="username">Tên đăng nhập</label>
@@ -25,10 +25,123 @@
 			</div>
 			<div class="form-options">
 				<label><input type="checkbox" /> Ghi nhớ đăng nhập</label>
-				<a href="#" class="forgot-password">Quên mật khẩu?</a>
+				<a href="javascript:void(0)" class="forgot-password" (click)="openForgotPassword()">Quên mật khẩu?</a>
 			</div>
 			<button type="submit" class="login-btn">Đăng nhập</button>
 		<div class="admin-link">Phiên bản dành cho quản trị viên <span class="admin-portal">Admin Portal</span></div>
 		</form>
 	</div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="forgot-overlay" *ngIf="showForgotModal">
+
+	<div class="forgot-modal">
+
+		<!-- HEADER -->
+		<div class="forgot-header">
+			<h2>Khôi phục mật khẩu</h2>
+
+			<button
+				type="button"
+				class="close-btn"
+				(click)="closeForgotPassword()">
+				×
+			</button>
+		</div>
+
+		<!-- STEP 1 -->
+		<div *ngIf="forgotStep === 1">
+
+			<p class="forgot-desc">
+				Nhập email hoặc số điện thoại để nhận mã OTP
+			</p>
+
+			<input
+				type="text"
+				class="forgot-input"
+				[(ngModel)]="forgotValue"
+				placeholder="Nhập email hoặc SĐT" />
+
+			<div class="forgot-error" *ngIf="forgotError">
+				{{ forgotError }}
+			</div>
+
+			<button
+				type="button"
+				class="forgot-btn"
+				(click)="sendOtp()">
+
+				Gửi OTP
+			</button>
+
+		</div>
+
+		<!-- STEP 2 -->
+		<div *ngIf="forgotStep === 2">
+
+			<div class="otp-demo">
+				OTP DEMO:
+				<b>{{ generatedOtp }}</b>
+			</div>
+
+			<p class="forgot-desc">
+				Vui lòng nhập mã OTP
+			</p>
+
+			<input
+				type="text"
+				class="forgot-input"
+				[(ngModel)]="otpInput"
+				placeholder="Nhập OTP" />
+
+			<div class="forgot-error" *ngIf="forgotError">
+				{{ forgotError }}
+			</div>
+
+			<button
+				type="button"
+				class="forgot-btn"
+				(click)="verifyOtp()">
+
+				Xác nhận OTP
+			</button>
+
+		</div>
+
+		<!-- STEP 3 -->
+		<div *ngIf="forgotStep === 3">
+
+			<p class="forgot-desc">
+				Đặt mật khẩu mới
+			</p>
+
+			<input
+				type="password"
+				class="forgot-input"
+				[(ngModel)]="newPassword"
+				placeholder="Mật khẩu mới" />
+
+			<input
+				type="password"
+				class="forgot-input"
+				[(ngModel)]="confirmPassword"
+				placeholder="Xác nhận mật khẩu" />
+
+			<div class="forgot-error" *ngIf="forgotError">
+				{{ forgotError }}
+			</div>
+
+			<button
+				type="button"
+				class="forgot-btn"
+				(click)="resetPassword()">
+
+				Đổi mật khẩu
+			</button>
+
+		</div>
+
+	</div>
+
 </div>

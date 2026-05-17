@@ -74,11 +74,14 @@
                     <!-- ACTION -->
                     <td class="sticky-action">
                         <div class="action-group">
-                            <button class="icon-btn" type="button" (click)="viewVoucherDetail(item)">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewVoucherDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button">
+                            <button class="icon-btn" type="button" title="Chỉnh sửa">
                                 <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="icon-btn" type="button" title="Ngưng hoạt động" style="color: red;">
+                                <i class="bi bi-ban"></i>
                             </button>
                         </div>
                     </td>

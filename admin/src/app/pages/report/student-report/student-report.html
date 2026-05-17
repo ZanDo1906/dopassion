@@ -1,1 +1,193 @@
-<p>student-report works!</p>
+<div class="role-page">
+
+    <!-- FILTER -->
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()">
+    </app-filter-data-picker>
+ 
+    <!-- CHART -->
+    <div class="chart-card">
+
+        <div class="chart-title">
+            Biểu đồ thống kê học viên
+        </div>
+
+        <div class="chart-container">
+            <canvas id="studentChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-up"></i>
+            Xuất excel
+        </button>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+
+        <table class="role-table">
+
+            <thead>
+
+                <tr>
+
+                    <th class="sticky-stt">
+                        STT
+                    </th>
+
+                    <th>Ngày</th>
+
+                    <th>Chi nhánh</th>
+
+                    <th>Khóa học</th>
+
+                    <th>Lớp học</th>
+
+                    <th>Số học viên đăng ký</th>
+
+                    <th>Số học viên hủy đăng ký</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr
+                    *ngFor="
+                        let item of paginatedData;
+                        let i = index
+                    "
+                >
+
+                    <!-- STT -->
+                    <td class="sticky-stt">
+
+                        {{
+                            (currentPage - 1)
+                            * itemsPerPage
+                            + i
+                            + 1
+                        }}
+
+                    </td>
+
+                    <td>
+                        {{ item.ngay }}
+                    </td>
+
+                    <td>
+                        {{ item.chiNhanh }}
+                    </td>
+
+                    <td>
+                        {{ item.khoaHoc }}
+                    </td>
+
+                    <td>
+                        {{ item.lopHoc }}
+                    </td>
+
+                    <td>
+                        {{ item.soHocVienDangKy }}
+                    </td>
+
+                    <td>
+                        {{ item.soHocVienHuy }}
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+
+        <div class="pagination-info">
+
+            {{
+                (currentPage - 1)
+                * itemsPerPage
+                + 1
+            }}
+
+            -
+
+            {{
+                currentPage * itemsPerPage >
+                filteredData.length
+                ? filteredData.length
+                : currentPage * itemsPerPage
+            }}
+
+            of {{ filteredData.length }}
+
+        </div>
+
+        <div class="pagination-pages">
+
+            <button
+                class="page"
+                type="button"
+                (click)="changePage(currentPage - 1)"
+            >
+                <
+            </button>
+
+            <button
+                *ngFor="let page of pages"
+                class="page"
+                type="button"
+                [class.active]="page === currentPage"
+                (click)="changePage(page)"
+            >
+
+                {{ page }}
+
+            </button>
+
+            <button
+                class="page"
+                type="button"
+                (click)="changePage(currentPage + 1)"
+            >
+                >
+            </button>
+
+        </div>
+
+        <div class="page-size">
+
+            <select
+                [value]="itemsPerPage"
+                (change)="changePageSize($event)"
+            >
+
+                <option
+                    *ngFor="let size of pageSizeOptions"
+                    [value]="size"
+                >
+
+                    {{ size }}/trang
+
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
