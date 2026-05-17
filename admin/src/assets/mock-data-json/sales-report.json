@@ -1,0 +1,272 @@
+[
+    {
+        "Ngày": "2026-05-02 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-001",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-02 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-001",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-03 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-001",
+        "Doanh thu": 3700000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3700000
+    },
+    {
+        "Ngày": "2026-05-03 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-001",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-04 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-001",
+        "Doanh thu": 3600000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3600000
+    },
+    {
+        "Ngày": "2026-05-04 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-001",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-05 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-002",
+        "Doanh thu": 3200000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3200000
+    },
+    {
+        "Ngày": "2026-05-05 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-002",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-06 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-002",
+        "Doanh thu": 780000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 780000
+    },
+    {
+        "Ngày": "2026-05-06 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-002",
+        "Doanh thu": 3300000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3300000
+    },
+    {
+        "Ngày": "2026-05-07 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-002",
+        "Doanh thu": 3700000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3700000
+    },
+    {
+        "Ngày": "2026-05-07 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-002",
+        "Doanh thu": 3000000,
+        "Hoàn tiền": 3000000,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-08 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-003",
+        "Doanh thu": 720000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 720000
+    },
+    {
+        "Ngày": "2026-05-08 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-003",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-09 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-003",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-09 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-003",
+        "Doanh thu": 2625000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 2625000
+    },
+    {
+        "Ngày": "2026-05-10 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-003",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-10 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-003",
+        "Doanh thu": 3300000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3300000
+    },
+    {
+        "Ngày": "2026-05-11 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-004",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-11 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-004",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-12 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-004",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-12 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-004",
+        "Doanh thu": 2975000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 2975000
+    },
+    {
+        "Ngày": "2026-05-13 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-004",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-13 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-004",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-14 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-005",
+        "Doanh thu": 3900000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3900000
+    },
+    {
+        "Ngày": "2026-05-14 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-005",
+        "Doanh thu": 3300000,
+        "Hoàn tiền": 0,
+        "Tổng thu": 3300000
+    },
+    {
+        "Ngày": "2026-05-15 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-005",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-15 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-005",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-16 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-005",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    },
+    {
+        "Ngày": "2026-05-16 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-005",
+        "Doanh thu": 0,
+        "Hoàn tiền": 0,
+        "Tổng thu": 0
+    }
+]

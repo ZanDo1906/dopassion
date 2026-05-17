@@ -1,0 +1,402 @@
+[
+    {
+        "Ngày": "2026-01-03 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-101",
+        "Số học viên đăng ký": 25,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-03 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-102",
+        "Số học viên đăng ký": 18,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-04 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-103",
+        "Số học viên đăng ký": 22,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-04 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-104",
+        "Số học viên đăng ký": 20,
+        "Số học viên hủy đăng ký": 3
+    },
+    {
+        "Ngày": "2026-01-05 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-105",
+        "Số học viên đăng ký": 28,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-05 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-106",
+        "Số học viên đăng ký": 17,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-06 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-107",
+        "Số học viên đăng ký": 24,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-06 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-108",
+        "Số học viên đăng ký": 19,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-07 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-109",
+        "Số học viên đăng ký": 26,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-07 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-110",
+        "Số học viên đăng ký": 15,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-08 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-111",
+        "Số học viên đăng ký": 30,
+        "Số học viên hủy đăng ký": 3
+    },
+    {
+        "Ngày": "2026-01-08 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-112",
+        "Số học viên đăng ký": 21,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-09 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-113",
+        "Số học viên đăng ký": 23,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-09 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-114",
+        "Số học viên đăng ký": 16,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-10 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-115",
+        "Số học viên đăng ký": 27,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-10 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-116",
+        "Số học viên đăng ký": 18,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-11 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-117",
+        "Số học viên đăng ký": 29,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-11 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-118",
+        "Số học viên đăng ký": 20,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-12 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-119",
+        "Số học viên đăng ký": 31,
+        "Số học viên hủy đăng ký": 4
+    },
+    {
+        "Ngày": "2026-01-12 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-120",
+        "Số học viên đăng ký": 14,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-13 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-121",
+        "Số học viên đăng ký": 22,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-13 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-122",
+        "Số học viên đăng ký": 19,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-14 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-123",
+        "Số học viên đăng ký": 26,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-14 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-124",
+        "Số học viên đăng ký": 17,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-15 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-125",
+        "Số học viên đăng ký": 24,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-15 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-126",
+        "Số học viên đăng ký": 21,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-16 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-127",
+        "Số học viên đăng ký": 28,
+        "Số học viên hủy đăng ký": 3
+    },
+    {
+        "Ngày": "2026-01-16 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-128",
+        "Số học viên đăng ký": 15,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-17 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-129",
+        "Số học viên đăng ký": 27,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-17 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-130",
+        "Số học viên đăng ký": 18,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-18 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-131",
+        "Số học viên đăng ký": 32,
+        "Số học viên hủy đăng ký": 5
+    },
+    {
+        "Ngày": "2026-01-18 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-132",
+        "Số học viên đăng ký": 20,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-19 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-133",
+        "Số học viên đăng ký": 23,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-19 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-134",
+        "Số học viên đăng ký": 16,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-20 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-135",
+        "Số học viên đăng ký": 25,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-20 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-136",
+        "Số học viên đăng ký": 19,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-21 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-137",
+        "Số học viên đăng ký": 30,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-21 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-138",
+        "Số học viên đăng ký": 17,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-22 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-139",
+        "Số học viên đăng ký": 21,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-22 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-140",
+        "Số học viên đăng ký": 18,
+        "Số học viên hủy đăng ký": 3
+    },
+    {
+        "Ngày": "2026-01-23 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-141",
+        "Số học viên đăng ký": 29,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-23 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-142",
+        "Số học viên đăng ký": 20,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-24 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-143",
+        "Số học viên đăng ký": 26,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-24 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-144",
+        "Số học viên đăng ký": 15,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-25 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "SW",
+        "Lớp học": "SW-03-145",
+        "Số học viên đăng ký": 24,
+        "Số học viên hủy đăng ký": 0
+    },
+    {
+        "Ngày": "2026-01-25 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "LR",
+        "Lớp học": "LR-01-146",
+        "Số học viên đăng ký": 22,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-26 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "SW",
+        "Lớp học": "SW-02-147",
+        "Số học viên đăng ký": 31,
+        "Số học viên hủy đăng ký": 4
+    },
+    {
+        "Ngày": "2026-01-26 00:00:00",
+        "Chi nhánh": "CN3",
+        "Khóa học": "LR",
+        "Lớp học": "LR-03-148",
+        "Số học viên đăng ký": 18,
+        "Số học viên hủy đăng ký": 1
+    },
+    {
+        "Ngày": "2026-01-27 00:00:00",
+        "Chi nhánh": "CN1",
+        "Khóa học": "SW",
+        "Lớp học": "SW-01-149",
+        "Số học viên đăng ký": 27,
+        "Số học viên hủy đăng ký": 2
+    },
+    {
+        "Ngày": "2026-01-27 00:00:00",
+        "Chi nhánh": "CN2",
+        "Khóa học": "LR",
+        "Lớp học": "LR-02-150",
+        "Số học viên đăng ký": 19,
+        "Số học viên hủy đăng ký": 0
+    }
+]
