@@ -51,7 +51,8 @@
                     <td>
                         <div class="action-group">
                             <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button"><i class="bi bi-pencil-square"></i></button>
+                            <button class="icon-btn" type="button" (click)="openEdit(item)"><i
+                                    class="bi bi-pencil-square"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -91,6 +92,6 @@
     </div>
 </div>
 
-<app-form-dialog *ngIf="isDialogOpen" title="Thêm lớp học" [sections]="dialogSections" [formData]="dialogData"
+<app-form-dialog *ngIf="isDialogOpen" [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData"
     [columns]="3" (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>

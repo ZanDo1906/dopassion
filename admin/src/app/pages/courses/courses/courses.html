@@ -1,1 +1,85 @@
-<p>courses works!</p>
+<div class="role-page">
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleFilterSearch($event)"
+        (onReset)="handleFilterReset()"></app-filter-data-picker>
+
+    <div class="toolbar">
+        <button class="btn btn-outline" type="button" (click)="openDialog()">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-download"></i>
+            Nhập excel
+        </button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-upload"></i>
+            Xuất excel
+        </button>
+    </div>
+
+    <div class="table-card">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th>Mã khóa học</th>
+                    <th>Tên khóa học</th>
+                    <th>Học phí</th>
+                    <th>Mô tả</th>
+                    <th class="col-actions">Tác vụ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of paginatedCourses; let i = index">
+                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+                    <td>{{item['Mã khóa học']}}</td>
+                    <td>{{item['Tên khóa học']}}</td>
+                    <td>{{ item['Học phí'] | number:'0,0-0' }}</td>
+                    <td>{{item['Mô tả'] || '--'}}</td>
+                    <td>
+                        <div class="action-group">
+                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
+                            <button class="icon-btn" type="button" (click)="openEdit(item)"><i
+                                    class="bi bi-pencil-square"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <div class="pagination">
+            <div class="pagination-info">
+                {{ (currentPage - 1) * itemsPerPage + 1 }}
+                -
+                {{ currentPage * itemsPerPage > filteredCourses.length ? filteredCourses.length : currentPage *
+                itemsPerPage }}
+                of {{ filteredCourses.length }}
+            </div>
+            <div class="pagination-pages">
+                <button class="page" type="button" (click)="changePage(currentPage - 1)">
+                    &lt;
+                </button>
+                <button *ngFor="let page of pages" class="page" type="button" [class.active]="page === currentPage"
+                    (click)="changePage(page)">
+                    {{ page }}
+                </button>
+                <button class="page" type="button" (click)="changePage(currentPage + 1)">
+                    &gt;
+                </button>
+            </div>
+            <div class="page-size">
+                <select [value]="itemsPerPage" (change)="changePageSize($event)">
+                    <option *ngFor="let size of pageSizeOptions" [value]="size">
+                        {{ size }}/trang
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-form-dialog *ngIf="isDialogOpen" title="Thêm khóa học" [sections]="dialogSections" [formData]="dialogData"
+    [columns]="2" (close)="closeDialog()" (submit)="onSubmitDialog($event)">
+</app-form-dialog>

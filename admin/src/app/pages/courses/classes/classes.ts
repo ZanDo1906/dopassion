@@ -63,6 +63,7 @@ export class Classes implements OnInit, DoCheck {
 
   isDialogOpen = false;
   dialogData: any = {};
+  dialogTitle: string = 'Thêm lớp học';
   dialogSections = [
     {
       title: 'I. Thông tin Khóa học',
@@ -227,7 +228,18 @@ export class Classes implements OnInit, DoCheck {
   openDialog() {
     // Tự động tính thứ tự STT tiếp theo
     const nextStt = this.classes.length > 0 ? Math.max(...this.classes.map(c => c.STT)) + 1 : 1;
-    this.dialogData = { STT: nextStt, 'Tên khóa học': '' };
+    // Ensure dialogData contains all fields defined in sections with defaults
+    const data: any = { STT: nextStt };
+    for (const section of this.dialogSections) {
+      for (const field of section.fields) {
+        if (!(field.name in data)) {
+          const val = (field as any).value;
+          data[field.name] = val !== undefined ? val : this.getDefaultForType(field.type);
+        }
+      }
+    }
+    this.dialogTitle = 'Thêm lớp học';
+    this.dialogData = data;
     this.isDialogOpen = true;
   }
 
@@ -236,8 +248,42 @@ export class Classes implements OnInit, DoCheck {
   }
 
   onSubmitDialog(data: any) {
-    console.log('Dữ liệu lớp học được thêm:', data);
+    // Update existing class if Mã lớp matches, otherwise add new
+    const maLop = data && data['Mã lớp'];
+    if (maLop) {
+      const idx = this.classes.findIndex(c => c['Mã lớp'] === maLop);
+      if (idx !== -1) {
+        this.classes[idx] = { ...this.classes[idx], ...data } as iClass;
+      } else {
+        this.classes.push(data as iClass);
+      }
+    }
     this.isDialogOpen = false;
+  }
+
+  openEdit(item: iClass) {
+    // Prefill dialog with the selected class data and ensure all fields exist
+    const data: any = { ...item };
+    for (const section of this.dialogSections) {
+      for (const field of section.fields) {
+        if (!(field.name in data)) {
+          const val = (field as any).value;
+          data[field.name] = val !== undefined ? val : this.getDefaultForType(field.type);
+        }
+      }
+    }
+    this.dialogTitle = 'Sửa lớp học';
+    this.dialogData = data;
+    this.isDialogOpen = true;
+  }
+
+  private getDefaultForType(fieldType: string): any {
+    switch (fieldType) {
+      case 'number': return 0;
+      case 'date': return '';
+      case 'select': return '';
+      default: return '';
+    }
   }
 
   handleFilterSearch(filters: Record<string, any>) {
