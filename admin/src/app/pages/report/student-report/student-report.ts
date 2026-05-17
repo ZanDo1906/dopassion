@@ -1,23 +1,9 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-    FilterConfig,
-    FilterDataPicker
-}
-from '../../../components/filter-data-picker/filter-data-picker';
-
-import {
-    Chart,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    BarController
-}
-from 'chart.js';
-
+import {FilterConfig,FilterDataPicker} from '../../../components/filter-data-picker/filter-data-picker';
+import {Chart,CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,BarController}from 'chart.js';
+import { StudentReportService }from '../../../services/student-report';
+import { iStudentReport }from '../../../interfaces/student-report';
 @Component({
     selector: 'app-student-report',
     standalone: true,
@@ -28,11 +14,8 @@ from 'chart.js';
     templateUrl: './student-report.html',
     styleUrls: ['./student-report.css']
 })
-
-export class StudentReport implements OnInit, AfterViewInit {
-
-    constructor() {
-
+export class StudentReport implements OnInit {
+    constructor(private studentReportService: StudentReportService) {
         Chart.register(
             CategoryScale,
             LinearScale,
@@ -43,15 +26,12 @@ export class StudentReport implements OnInit, AfterViewInit {
             BarController
         );
     }
-
     filterConfig: FilterConfig[] = [
-
         {
             key: 'ngay',
             label: 'Ngày',
-            type: 'text'
+            type: 'date-range'
         },
-
         {
             key: 'chiNhanh',
             label: 'Chi nhánh',
@@ -90,7 +70,7 @@ export class StudentReport implements OnInit, AfterViewInit {
 
     ];
 
-    allData: any[] = [];
+    allData: iStudentReport[] = [];
 
     filteredData: any[] = [];
 
@@ -104,24 +84,132 @@ export class StudentReport implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
 
-        // CHƯA CÓ DATA
-        this.allData = [];
+    this.studentReportService
+        .getStudentReport()
+        .subscribe({
 
-        this.filteredData = [];
+            next: (data: any) => {
+                console.log('DATA REPORT', data);
 
-        this.updatePagination();
+                console.log('DATA REPORT', data);
 
-    }
-    ngAfterViewInit(): void {
-      console.log('Chart loaded');
+                this.allData = data.map((item:any)=> ({
+                    ngay: item['Ngày'],
+                    chiNhanh: item['Chi nhánh'],
+                    khoaHoc: item['Khóa học'],
+                    lopHoc: item['Lớp học'],
+                    soHocVienDangKy: item['Số học viên đăng ký'],
+                    soHocVienHuy: item['Số học viên hủy đăng ký']
 
-    this.renderChart();
-    }
+                }));
+
+                this.filteredData = [...this.allData];
+
+                this.updatePagination();
+
+                this.renderChart();
+            },
+
+            error: (err) => {
+
+                console.error(err);
+            }
+        });
+}
 
     handleSearch(filterValues: any): void {
 
-        console.log(filterValues);
-    }
+    this.filteredData = this.allData.filter((item: any) => {
+
+        // ======================
+        // FILTER NGÀY
+        // ======================
+
+        let matchDate = true;
+
+        if (
+            filterValues.ngay &&
+            (
+                filterValues.ngay.fromDate ||
+                filterValues.ngay.toDate
+            )
+        ) {
+
+            const itemDate =
+                new Date(item.ngay);
+
+            const fromDate =
+                filterValues.ngay.fromDate
+                    ? new Date(filterValues.ngay.fromDate)
+                    : null;
+
+            const toDate =
+                filterValues.ngay.toDate
+                    ? new Date(filterValues.ngay.toDate)
+                    : null;
+
+            if (
+                fromDate &&
+                itemDate < fromDate
+            ) {
+                matchDate = false;
+            }
+
+            if (
+                toDate &&
+                itemDate > toDate
+            ) {
+                matchDate = false;
+            }
+        }
+
+        // ======================
+        // FILTER CHI NHÁNH
+        // ======================
+
+        let matchChiNhanh = true;
+
+        if (
+            filterValues.chiNhanh &&
+            filterValues.chiNhanh.length > 0
+        ) {
+
+            matchChiNhanh =
+                filterValues.chiNhanh.includes(
+                    item.chiNhanh
+                );
+        }
+
+        // ======================
+        // FILTER KHÓA HỌC
+        // ======================
+
+        let matchKhoaHoc = true;
+
+        if (
+            filterValues.khoaHoc &&
+            filterValues.khoaHoc.length > 0
+        ) {
+
+            matchKhoaHoc =
+                filterValues.khoaHoc.includes(
+                    item.khoaHoc
+                );
+        }
+
+        return (
+            matchDate &&
+            matchChiNhanh &&
+            matchKhoaHoc
+        );
+    });
+
+    this.currentPage = 1;
+
+    this.updatePagination();
+
+    this.renderChart();
+}
 
     handleReset(): void {
 
@@ -192,121 +280,145 @@ export class StudentReport implements OnInit, AfterViewInit {
             this.filteredData.slice(start, end);
     }
 
+
     renderChart(): void {
 
-        const canvas =
-        document.getElementById(
-            'studentChart'
-        ) as HTMLCanvasElement;
+    const canvas =
+    document.getElementById(
+        'studentChart'
+    ) as HTMLCanvasElement;
 
-        if (!canvas) {
-          console.log('KHÔNG TÌM THẤY CANVAS');
-          return;
-        }
+    if (!canvas) {
+        return;
+    }
 
-console.log('ĐÃ TÌM THẤY CANVAS', canvas);
+    const ctx = canvas.getContext('2d');
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            console.log('KHÔNG LẤY ĐƯỢC CTX');
+    if (!ctx) {
+        return;
+    }
+
+    Chart.getChart(canvas)?.destroy();
+
+    // LABEL CHI NHÁNH
+    const labels = [
+        'CN1',
+        'CN2',
+        'CN3'
+    ];
+
+    // SW
+    const swDangKy = [0, 0, 0];
+    const swHuy = [0, 0, 0];
+
+    // LR
+    const lrDangKy = [0, 0, 0];
+    const lrHuy = [0, 0, 0];
+
+    this.filteredData.forEach((item:any) => {
+
+        const index =
+            labels.indexOf(item.chiNhanh);
+
+        if (index === -1) {
             return;
         }
 
-        new Chart(ctx, {
+        // SW
+        if (item.khoaHoc === 'SW') {
 
-            type: 'bar',
+            swDangKy[index] +=
+                item.soHocVienDangKy;
 
-            data: {
+            swHuy[index] +=
+                item.soHocVienHuy;
+        }
 
-                labels: [
+        // LR
+        if (item.khoaHoc === 'LR') {
 
-                    'CN1 - SW',
-                    'CN1 - LR',
+            lrDangKy[index] +=
+                item.soHocVienDangKy;
 
-                    'CN2 - SW',
-                    'CN2 - LR',
+            lrHuy[index] +=
+                item.soHocVienHuy;
+        }
+    });
 
-                    'CN3 - SW',
-                    'CN3 - LR'
-                ],
+    new Chart(ctx, {
 
-                datasets: [
+        type: 'bar',
 
-                    {
-                        label: 'Đăng ký',
+        data: {
 
-                        data: [
-                            120,
-                            90,
+            labels: labels,
 
-                            150,
-                            110,
+            datasets: [
 
-                            130,
-                            95
-                        ],
+                {
+                    label: 'SW - Đăng ký',
 
-                        backgroundColor: '#2a4d90',
+                    data: swDangKy,
 
-                        borderRadius: 6
-                    },
-
-                    {
-                        label: 'Hủy đăng ký',
-
-                        data: [
-                            12,
-                            8,
-
-                            15,
-                            9,
-
-                            10,
-                            7
-                        ],
-
-                        backgroundColor: '#d9534f',
-
-                        borderRadius: 6
-                    }
-
-                ]
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                plugins: {
-
-                    legend: {
-
-                        position: 'top'
-                    },
-
-                    title: {
-
-                        display: true,
-
-                        text: 'Thống kê học viên đăng ký và hủy'
-                    }
+                    backgroundColor: '#4C70AD'
                 },
 
-                scales: {
+                {
+                    label: 'SW - Hủy',
 
-                    y: {
+                    data: swHuy,
 
-                        beginAtZero: true,
+                    backgroundColor: '#6f98e1'
+                },
 
-                        ticks: {
+                {
+                    label: 'LR - Đăng ký',
 
-                            stepSize: 20
-                        }
-                    }
+                    data: lrDangKy,
+
+                    backgroundColor: '#EC7E16'
+                },
+
+                {
+                    label: 'LR - Hủy',
+
+                    data: lrHuy,
+
+                    backgroundColor: '#e5a568'
+                }
+            ]
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+
+                    position: 'top'
+                },
+
+                title: {
+
+                    display: true,
+
+                    text:
+                    'Thống kê học viên đăng ký và hủy'
+                }
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true
                 }
             }
-        });
-    }
+        }
+    });
+}
 }

@@ -1,4 +1,4 @@
-import { iSalesReport } from './../interfaces/sales-report';
+import { iRevenueReport } from './../interfaces/sales-report';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -6,10 +6,10 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class SalesReport {
+export class RevenueReportService {
   url: string = 'assets/mock-data-json/sales-report.json';
   constructor(private http: HttpClient) { }
-  getSalesReport(): Observable<iSalesReport[]> {
-    return this.http.get<iSalesReport[]>(this.url);
+  getRevenueReport(): Observable<iRevenueReport[]> {
+    return this.http.get<iRevenueReport[]>(this.url);
   }
 }

@@ -1,4 +1,4 @@
-export interface iSalesReport {
+export interface iRevenueReport {
     "Ngày": string;
     "Chi nhánh": string;
     "Khóa học": string;
