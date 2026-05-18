@@ -39,6 +39,16 @@ export class Customer implements OnInit {
       key: 'tenKhachHang',
       label: 'Tên khách hàng',
       type: 'text'
+    },
+    {
+      key: 'trangThai',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' },
+        { value: 'Đã khóa', label: 'Đã khóa' },
+        { value: 'Đang hoạt động', label: 'Đang hoạt động' }
+      ]
     }
   ];
 
@@ -283,7 +293,7 @@ export class Customer implements OnInit {
     // Nếu đã khóa rồi thì mở khóa, ngược lại thì khóa
     const isCurrentlyLocked = currentStatus === 'Đã khóa';
     const action = isCurrentlyLocked ? 'mở khóa' : 'khóa';
-    const newStatus = isCurrentlyLocked ? 'Đang hoạt động' : 'Đã khóa';
+    const newStatus = isCurrentlyLocked ? 'Chưa đăng ký khóa' : 'Đã khóa';
     
     this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} khách hàng "${item?.tenKhachHang}" và đổi trạng thái thành "${newStatus}"?`;
     this.isConfirmLockDialogOpen = true;

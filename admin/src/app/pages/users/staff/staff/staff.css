@@ -305,6 +305,11 @@
     color: #436da5;
 }
 
+.required-star {
+    color: #ff3333;
+    margin-right: 2px;
+}
+
 .staff-add-form .form-group input,
 .staff-add-form .form-group select {
     width: 100%;
@@ -318,10 +323,25 @@
     box-sizing: border-box;
 }
 
+.staff-add-form .form-group input.ng-invalid.ng-touched,
+.staff-add-form .form-group select.ng-invalid.ng-touched,
+.staff-add-form .form-group textarea.ng-invalid.ng-touched {
+    border-color: #ff4d4f;
+    background-color: #fff1f0;
+    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.08);
+}
+
 .staff-add-form .form-group input:focus,
 .staff-add-form .form-group select:focus {
     border-color: #436da5;
     box-shadow: 0 0 0 2px rgba(67, 109, 165, 0.2);
+}
+
+.staff-add-form .form-group input.ng-invalid.ng-touched:focus,
+.staff-add-form .form-group select.ng-invalid.ng-touched:focus,
+.staff-add-form .form-group textarea.ng-invalid.ng-touched:focus {
+    border-color: #ff4d4f;
+    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
 }
 
 .staff-add-form .input-readonly {
@@ -358,6 +378,13 @@
 .upload-file-name {
     color: #5e6f8f;
     font-size: 0.8125rem;
+}
+
+.error-message {
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #ff4d4f;
 }
 
 .hide-arrow {

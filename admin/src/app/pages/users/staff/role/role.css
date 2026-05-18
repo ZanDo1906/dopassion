@@ -302,6 +302,15 @@
     width: 100%;
 }
 
+.view-role-form .section-title {
+    background: #dde4f0;
+    color: #436da5;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 16px 0;
+}
+
 .role-view-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

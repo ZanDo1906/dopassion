@@ -42,6 +42,15 @@ export class Role implements OnInit {
       key: 'TÊN VAI TRÒ',
       label: 'Vai trò',
       type: 'text'
+    },
+    {
+      key: 'TRẠNG THÁI',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Đang hoạt động', label: 'Đang hoạt động' },
+        { value: 'Đã khóa', label: 'Đã khóa' }
+      ]
     }
   ];
 

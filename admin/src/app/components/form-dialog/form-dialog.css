@@ -117,6 +117,28 @@
     cursor: not-allowed;
 }
 
+/* Make leading '*' in labels red for required fields */
+.form-group label::first-letter {
+    color: #ff3333;
+}
+
+/* Style invalid controls (Angular adds ng-invalid and ng-touched) */
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched {
+    border-color: #ff4d4f;
+    background-color: #fff1f0;
+    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.08);
+}
+
+/* Ensure error label color when control is invalid and touched - use .has-error fallback if present */
+.form-group.has-error label,
+.form-group input.ng-invalid.ng-touched + label,
+.form-group select.ng-invalid.ng-touched + label,
+.form-group textarea.ng-invalid.ng-touched + label {
+    color: #ff4d4f;
+}
+
 .form-group textarea {
     resize: vertical;
     min-height: 80px;

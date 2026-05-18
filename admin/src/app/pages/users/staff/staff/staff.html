@@ -94,6 +94,9 @@
             <div class="form-group">
                 <label><span class="required-star">*</span>Tên nhân viên</label>
                 <input type="text" formControlName="fullName" />
+                <div class="error-message" *ngIf="addStaffForm.get('fullName')?.invalid && addStaffForm.get('fullName')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
             <div class="form-group">
                 <label><span class="required-star">*</span>Giới tính</label>
@@ -103,6 +106,9 @@
                     <option value="Nữ">Nữ</option>
                     <option value="Khác">Khác</option>
                 </select>
+                <div class="error-message" *ngIf="addStaffForm.get('gender')?.invalid && addStaffForm.get('gender')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
         </div>
 
@@ -110,10 +116,16 @@
             <div class="form-group">
                 <label><span class="required-star">*</span>Ngày sinh</label>
                 <input type="date" formControlName="dob" />
+                <div class="error-message" *ngIf="addStaffForm.get('dob')?.invalid && addStaffForm.get('dob')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
             <div class="form-group">
                 <label><span class="required-star">*</span>SĐT</label>
                 <input type="text" formControlName="phone" />
+                <div class="error-message" *ngIf="addStaffForm.get('phone')?.invalid && addStaffForm.get('phone')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
         </div>
 
@@ -126,6 +138,9 @@
                     <option value="">Chọn chi nhánh</option>
                     <option *ngFor="let item of branchOptions" [value]="item.value">{{ item.label }}</option>
                 </select>
+                <div class="error-message" *ngIf="addStaffForm.get('branch')?.invalid && addStaffForm.get('branch')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
             <div class="form-group">
                 <label><span class="required-star">*</span>Vai trò</label>
@@ -133,6 +148,9 @@
                     <option value="">Chọn vai trò</option>
                     <option *ngFor="let item of roleOptions" [value]="item.value">{{ item.label }}</option>
                 </select>
+                <div class="error-message" *ngIf="addStaffForm.get('roleName')?.invalid && addStaffForm.get('roleName')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
             <div class="form-group">
                 <label>Mã Vai trò</label>
@@ -147,6 +165,9 @@
             </label>
             <input id="cccd-upload-input" type="file" accept="image/*" class="upload-input" (change)="onCccdFileChange($event)" />
             <small class="upload-file-name" *ngIf="addStaffForm.get('cccdImage')?.value">{{ addStaffForm.get('cccdImage')?.value }}</small>
+            <div class="error-message" *ngIf="addStaffForm.get('cccdImage')?.invalid && addStaffForm.get('cccdImage')?.touched">
+                Trường này là bắt buộc
+            </div>
         </div>
     </form>
 </ng-template>
@@ -270,6 +291,7 @@
     *ngIf="isAddStaffDialogOpen"
     title="Thêm mới nhân viên"
     [bodyTemplate]="addStaffTemplate"
+    [formGroup]="addStaffForm"
     cancelText="Thoát"
     submitText="Lưu"
     cancelIcon="bi bi-x-circle"
@@ -282,6 +304,7 @@
     *ngIf="isViewStaffDialogOpen"
     title="Chi tiết nhân viên"
     [bodyTemplate]="viewStaffTemplate"
+    [formGroup]="detailForm"
     [cancelText]="viewDialogConfig.cancelText"
     submitText="Lưu"
     cancelIcon="bi bi-x-circle"
