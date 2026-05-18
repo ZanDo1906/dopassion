@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class StudentReport {
+export class StudentReportService {
   url: string = 'assets/mock-data-json/student-report.json';
   constructor(private http: HttpClient) { }
   getStudentReport(): Observable<iStudentReport[]> {

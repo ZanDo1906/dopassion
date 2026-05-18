@@ -1,0 +1,25 @@
+@import url(../student-report/student-report.css);
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+    margin:20px 0;
+}
+.summary-card{
+    background:#fff;
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+.summary-title{
+    font-size:13px;
+    font-weight:600;
+    color:#64748b;
+    margin-bottom:10px;
+}
+.summary-value{
+    font-size:22px;
+    font-weight:700;
+    color:#1e3a8a;
+}
+

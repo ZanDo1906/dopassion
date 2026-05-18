@@ -1,4 +1,4 @@
-export interface iARReport {
+export interface iDebtReport {
     "Ngày": string;
     "Chi nhánh": string;
     "Khóa học": string;

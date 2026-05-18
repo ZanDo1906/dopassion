@@ -1,289 +1,231 @@
-.date-range-picker-wrapper {
-  position: relative;
-  width: 100%;
+:host{
+--primary:#2a4d90;
+--primary-600:#24447d;
+--primary-100:#eef3ff;
+--border:#c7d6f5;
+--surface:#ffffff;
+--surface-muted:#f8faff;
+--text:#1f3766;
+--shadow:0 8px 20px rgba(22,44,84,0.08);
+display:block;
+font-family:'Work Sans',sans-serif;
+color:var(--text);
 }
-
-.filter-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 11px;
-  color: #0066cc;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.date-range-picker-wrapper{
+position:relative;
+width:100%;
 }
-
-/* Input Display - Đồng bộ với .filter-select */
-.date-range-input-group {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #fff;
-  height: 36px;
-  transition: all 0.2s ease;
-  font-family: inherit;
+.filter-label{
+display:block;
+margin-bottom:6px;
+font-size:12px;
+font-weight:600;
+color:var(--primary-600);
 }
-
-.date-range-input-group:hover {
-  border-color: #0066cc;
+.date-range-input-group{
+display:flex;
+align-items:center;
+height:34px;
+border:1px solid var(--border);
+border-radius:6px;
+padding:0 10px;
+background:var(--surface-muted);
+transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+cursor:pointer;
 }
-
-.date-range-input-group:focus-within {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+.date-range-input-group:hover{
+background:#ffffff;
 }
-
-.date-range-display {
-  border: none;
-  padding: 0;
-  flex: 1;
-  cursor: pointer;
-  background-color: transparent;
-  font-size: 13px;
-  color: #333;
-  height: 100%;
-  font-family: inherit;
+.date-range-input-group:focus-within{
+border-color:var(--primary);
+background:#ffffff;
+box-shadow:0 0 0 2px rgba(42,77,144,.15);
 }
-
-.date-range-display:focus {
-  outline: none;
-  box-shadow: none;
+.date-range-display{
+flex:1;
+border:none;
+background:transparent;
+font-size:12px;
+color:var(--text);
+outline:none;
+cursor:pointer;
+font-family:inherit;
 }
-
-.date-range-display::placeholder {
-  color: #999;
+.date-range-display::placeholder{
+color:#6b7b9f;
 }
-
-.date-range-input-group .input-group-text {
-  border: none;
-  background-color: transparent;
-  padding: 0 8px;
-  color: #666;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.input-group-text{
+display:flex;
+align-items:center;
+justify-content:center;
+color:var(--primary-600);
+font-size:14px;
 }
-
-/* Date Picker Panel */
-.date-range-picker-panel {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1050;
-  margin-top: 4px;
-  min-width: 420px;
+.date-range-picker-panel{
+position:absolute;
+top:calc(100% + 6px);
+left:0;
+z-index:9999;
+min-width:420px;
+background:#ffffff;
+border:1px solid var(--border);
+border-radius:8px;
+box-shadow:0 10px 24px rgba(22,44,84,.16);
+overflow:hidden;
 }
-
-@media (max-width: 768px) {
-  .date-range-picker-panel {
-    min-width: 100%;
-    width: 100vw;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+.date-picker-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 16px;
+background:var(--primary-100);
+border-bottom:1px solid #dbe4fb;
 }
-
-.date-picker-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #ddd;
-  background-color: #f9f9f9;
+.date-picker-header h6{
+margin:0;
+font-size:12px;
+font-weight:600;
+color:var(--primary-600);
 }
-
-.date-picker-header h6 {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  color: #0066cc;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+.date-picker-header .btn-close{
+padding:.25rem;
+opacity:.7;
 }
-
-.date-picker-header .btn-close {
-  padding: 0.25rem;
-  opacity: 0.6;
+.date-picker-header .btn-close:hover{
+opacity:1;
 }
-
-.date-picker-header .btn-close:hover {
-  opacity: 1;
+.date-picker-body{
+display:flex;
+align-items:flex-end;
+gap:12px;
+padding:16px;
 }
-
-/* Date Picker Body */
-.date-picker-body {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  padding: 16px;
+.date-input-block{
+flex:1;
 }
-
-.date-input-block {
-  flex: 1;
+.date-input-label{
+display:block;
+margin-bottom:6px;
+font-size:12px;
+font-weight:600;
+color:var(--primary-600);
 }
-
-.date-input-label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 11px;
-  color: #0066cc;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.date-input-wrapper{
+position:relative;
+display:flex;
+align-items:center;
 }
-
-.date-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.date-input-field{
+width:100%;
+height:34px;
+border:1px solid var(--border);
+border-radius:6px;
+padding:0 10px;
+background:var(--surface-muted);
+font-size:12px;
+color:var(--text);
+font-family:inherit;
+transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
 }
-
-.date-input-field {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #333;
-  height: 36px;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  accent-color: #0066cc;
+.date-input-field:focus{
+outline:none;
+border-color:var(--primary);
+background:#ffffff;
+box-shadow:0 0 0 2px rgba(42,77,144,.15);
 }
-
-.date-input-field:focus {
-  outline: none;
-  border-color: #0066cc;
-  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+.date-input-field:hover{
+background:#ffffff;
 }
-
-.date-input-field:hover {
-  border-color: #0066cc;
+.date-input-field:disabled{
+background:#f0f0f0;
+cursor:not-allowed;
+color:#999;
+border-color:#ddd;
 }
-
-.date-input-field:disabled {
-  background-color: #f0f0f0;
-  cursor: not-allowed;
-  color: #999;
-  border-color: #ddd;
+.btn-clear-date{
+position:absolute;
+right:6px;
+top:50%;
+transform:translateY(-50%);
+width:22px;
+height:22px;
+border:none;
+border-radius:50%;
+background:transparent;
+color:#6b7b9f;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:all .2s ease;
 }
-
-/**
- * Button để xóa individual date
- * Chỉ hiển thị khi có giá trị date
- */
-.btn-clear-date {
-  padding: 4px 8px;
-  background: transparent;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  color: #666;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  height: 32px;
-  width: 32px;
-  flex-shrink: 0;
+.btn-clear-date:hover{
+background:var(--primary-100);
+color:var(--primary);
 }
-
-.btn-clear-date:hover {
-  background-color: #f0f0f0;
-  border-color: #0066cc;
-  color: #0066cc;
+.date-separator{
+display:flex;
+align-items:center;
+justify-content:center;
+color:#b7c4df;
+font-weight:bold;
+min-width:20px;
+margin-bottom:6px;
 }
-
-.btn-clear-date:active {
-  background-color: #e9ecef;
+.date-picker-footer{
+display:flex;
+justify-content:flex-end;
+gap:10px;
+padding:12px 16px;
+border-top:1px solid #dbe4fb;
+background:#fafcff;
 }
-
-.date-separator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ddd;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  min-width: 20px;
+.date-picker-footer .btn{
+border-radius:8px;
+padding:6px 12px;
+font-size:12px;
+cursor:pointer;
+border:1px solid transparent;
+font-weight:500;
+transition:all .2s ease;
 }
-
-/* Date Picker Footer */
-.date-picker-footer {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  padding: 12px 16px;
-  border-top: 1px solid #ddd;
-  background-color: #f9f9f9;
+.date-picker-footer .btn-secondary{
+background:#cfd4df;
+border-color:#c2c9d6;
+color:#3b4a66;
 }
-
-.date-picker-footer .btn {
-  font-size: 13px;
-  padding: 5px 12px;
-  font-weight: 500;
-  border-radius: 4px;
+.date-picker-footer .btn-secondary:hover{
+background:#c2c9d6;
 }
-
-.date-picker-footer .btn-secondary {
-  color: #333;
-  border: 1px solid #ddd;
-  background-color: #fff;
+.date-picker-footer .btn-primary{
+background:var(--primary);
+border-color:var(--primary);
+color:#ffffff;
 }
-
-.date-picker-footer .btn-secondary:hover {
-  background-color: #f9f9f9;
-  border-color: #0066cc;
-  color: #0066cc;
+.date-picker-footer .btn-primary:hover{
+background:var(--primary-600);
+border-color:var(--primary-600);
 }
-
-.date-picker-footer .btn-primary {
-  background-color: #0066cc;
-  border-color: #0066cc;
-  color: white;
+.date-picker-overlay{
+position:fixed;
+inset:0;
+z-index:1040;
 }
-
-.date-picker-footer .btn-primary:hover {
-  background-color: #004fa3;
-  border-color: #004fa3;
+@media(max-width:768px){
+.date-range-picker-panel{
+min-width:100%;
+width:100%;
+left:0;
+transform:none;
 }
-
-/* Overlay để đóng picker */
-.date-picker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1040;
 }
-
-/* Responsive adjustments */
-@media (max-width: 576px) {
-  .date-range-picker-panel {
-    min-width: calc(100vw - 1rem);
-  }
-
-  .date-picker-body {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .date-separator {
-    transform: rotate(90deg);
-    order: 2;
-  }
+@media(max-width:576px){
+.date-picker-body{
+flex-direction:column;
+gap:1rem;
+}
+.date-separator{
+transform:rotate(90deg);
+order:2;
+}
 }

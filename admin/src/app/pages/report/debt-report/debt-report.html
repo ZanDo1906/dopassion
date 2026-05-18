@@ -1,1 +1,226 @@
-<p>debt-report works!</p>
+<div class="role-page">
+
+    <app-filter-data-picker
+        [config]="filterConfig"
+        (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()">
+    </app-filter-data-picker>
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Tổng học phí
+            </div>
+            <div class="summary-value">
+                {{ tongHocPhi | number }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Tổng giảm giá
+            </div>
+            <div class="summary-value">
+                {{ tongGiamGia | number }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Tổng đã thu
+            </div>
+            <div class="summary-value">
+                {{ tongDaThu | number }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Tổng chưa thu
+            </div>
+            <div class="summary-value">
+                {{ tongChuaThu | number }}
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Tổng hoàn
+            </div>
+            <div class="summary-value">
+                {{ tongHoan | number }}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="toolbar">
+
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-box-arrow-up"></i>
+            Xuất excel
+        </button>
+
+    </div>
+
+    <div class="table-card">
+
+        <table class="role-table">
+
+            <thead>
+
+                <tr>
+
+                    <th class="sticky-stt">
+                        STT
+                    </th>
+
+                    <th>Ngày</th>
+
+                    <th>Chi nhánh</th>
+
+                    <th>Khóa học</th>
+
+                    <th>Lớp học</th>
+
+                    <th>Số tiền học phí</th>
+
+                    <th>Số tiền giảm giá</th>
+
+                    <th>Số tiền đã thu</th>
+
+                    <th>Số tiền chưa thu</th>
+
+                    <th>Số tiền hoàn</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr
+                    *ngFor="
+                        let item of paginatedData;
+                        let i = index
+                    "
+                >
+
+                    <td class="sticky-stt">
+
+                        {{
+                            (currentPage - 1)
+                            * itemsPerPage
+                            + i
+                            + 1
+                        }}
+
+                    </td>
+
+                    <td>{{ item.ngay }}</td>
+
+                    <td>{{ item.chiNhanh }}</td>
+
+                    <td>{{ item.khoaHoc }}</td>
+
+                    <td>{{ item.lopHoc }}</td>
+
+                    <td>{{ item.soTienHocPhi | number }}</td>
+
+                    <td>{{ item.soTienGiamGia | number }}</td>
+
+                    <td>{{ item.soTienDaThu | number }}</td>
+
+                    <td>{{ item.soTienChuaThu | number }}</td>
+
+                    <td>{{ item.soTienHoan | number }}</td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="pagination">
+
+
+    <div class="pagination-info">
+
+        {{
+            (currentPage - 1)
+            * itemsPerPage
+            + 1
+        }}
+
+
+        {{
+            currentPage * itemsPerPage >
+            filteredData.length
+            ? filteredData.length
+            : currentPage * itemsPerPage
+        }}
+
+        of {{ filteredData.length }}
+
+    </div>
+
+    <div class="pagination-pages">
+
+        <button
+            class="page"
+            type="button"
+            (click)="changePage(currentPage - 1)"
+        >
+            <
+        </button>
+
+        <button
+            *ngFor="let page of pages"
+            class="page"
+            type="button"
+            [class.active]="page === currentPage"
+            (click)="changePage(page)"
+        >
+
+            {{ page }}
+
+        </button>
+
+        <button
+            class="page"
+            type="button"
+            (click)="changePage(currentPage + 1)"
+        >
+            >
+        </button>
+
+    </div>
+
+    <div class="page-size">
+
+        <select
+            [value]="itemsPerPage"
+            (change)="changePageSize($event)"
+        >
+
+            <option
+                *ngFor="let size of pageSizeOptions"
+                [value]="size"
+            >
+
+                {{ size }}/trang
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+</div>
+
+
+
