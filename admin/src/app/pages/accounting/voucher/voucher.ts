@@ -68,8 +68,8 @@ export class Voucher implements OnInit {
   errorMessage = '';
 
   showAddDialog = false;
-  dialogMode: 'add' | 'view' = 'add';
-
+  dialogMode: 'add' | 'view' | 'edit' = 'add';
+  editingIndex:number|null=null;
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -342,32 +342,130 @@ export class Voucher implements OnInit {
   this.showAddDialog = true;
 }
 
+  editVoucher(item:any):void{
+
+    this.dialogMode='edit';
+
+    this.editingIndex=
+        this.allData.findIndex(
+            x=>x.maVoucher===item.maVoucher
+        );
+
+    this.voucherForm.enable();
+
+    this.voucherForm.patchValue({
+
+        maVoucher:item.maVoucher,
+
+        tenChuongTrinh:item.tenChuongTrinh,
+
+        donViGiam:item.donViGiam,
+
+        thongSoGiam:item.thongSoGiam,
+
+        chiNhanh:Array.isArray(item.chiNhanh)
+            ? item.chiNhanh[0]
+            : item.chiNhanh,
+
+        maKhoaHoc:Array.isArray(item.maKhoaHoc)
+            ? item.maKhoaHoc[0]
+            : item.maKhoaHoc
+    });
+
+    this.showAddDialog=true;
+}
+
   closeDialog(): void {
     this.showAddDialog = false;
   }
 
-  onSaveVoucher(): void {
-    if (this.voucherForm.valid) {
-      const formValue = this.voucherForm.value;
+  onSaveVoucher():void{
 
-      const newData = {
-        stt: this.allData.length + 1,
-        maVoucher: formValue.maVoucher,
-        tenChuongTrinh: formValue.tenChuongTrinh,
-        donViGiam: formValue.donViGiam,
-        thongSoGiam: formValue.thongSoGiam,
-        chiNhanh: [formValue.chiNhanh]
-      };
+    if(this.voucherForm.valid){
 
-      this.allData.unshift(newData);
-      this.filteredData = [...this.allData];
-      this.currentPage = 1;
-      this.updatePagination();
+        const formValue=
+            this.voucherForm.value;
 
-      this.showAddDialog = false;
+        // EDIT
+        if(
+            this.dialogMode==='edit' &&
+            this.editingIndex!==null
+        ){
 
-      console.log('Voucher mới:', newData);
+            this.allData[this.editingIndex]={
+
+                ...this.allData[this.editingIndex],
+
+                maVoucher:formValue.maVoucher,
+
+                tenChuongTrinh:
+                    formValue.tenChuongTrinh,
+
+                donViGiam:
+                    formValue.donViGiam,
+
+                thongSoGiam:
+                    formValue.thongSoGiam,
+
+                chiNhanh:[
+                    formValue.chiNhanh
+                ],
+
+                maKhoaHoc:[
+                    formValue.maKhoaHoc
+                ]
+            };
+
+            this.filteredData=[
+                ...this.allData
+            ];
+
+            this.updatePagination();
+
+            this.showAddDialog=false;
+
+            this.editingIndex=null;
+
+            return;
+        }
+
+        // ADD
+        const newData={
+
+            stt:this.allData.length+1,
+
+            maVoucher:formValue.maVoucher,
+
+            tenChuongTrinh:
+                formValue.tenChuongTrinh,
+
+            donViGiam:
+                formValue.donViGiam,
+
+            thongSoGiam:
+                formValue.thongSoGiam,
+
+            chiNhanh:[
+                formValue.chiNhanh
+            ],
+
+            maKhoaHoc:[
+                formValue.maKhoaHoc
+            ]
+        };
+
+        this.allData.unshift(newData);
+
+        this.filteredData=[
+            ...this.allData
+        ];
+
+        this.currentPage=1;
+
+        this.updatePagination();
+
+        this.showAddDialog=false;
     }
-  }
+}
 
 }

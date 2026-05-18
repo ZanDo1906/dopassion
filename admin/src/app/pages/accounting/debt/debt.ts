@@ -4,17 +4,13 @@ import { DecimalPipe, NgForOf, NgIf, NgClass } from '@angular/common';
 
 import { Payment } from '../../../services/payment';
 import { Course } from '../../../services/course';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 
 @Component({
   selector: 'app-debt',
   standalone: true,
-  imports: [
-    FormsModule,
-    NgIf,
-    NgForOf,
-    NgClass,
-    DecimalPipe
-  ],
+  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgClass, DecimalPipe,GridFormDialog],
   templateUrl: './debt.html',
   styleUrls: ['./debt.css'],
 })
@@ -32,6 +28,130 @@ export class Debt {
 
   loading = true;
   errorMessage = '';
+  showDetailDialog = false;
+  dialogMode: 'view' | 'payment' = 'view';
+  detailForm!: FormGroup;
+
+  paymentDetailSections = [
+
+  {
+    title: 'THÔNG TIN ĐĂNG KÝ',
+
+    fields: [
+
+      {
+        name: 'maDangKy',
+        label: 'Mã đăng ký',
+        type: 'text'
+      },
+
+      {
+        name: 'maKH',
+        label: 'Mã khách hàng',
+        type: 'text'
+      },
+
+      {
+        name: 'tenKhachHang',
+        label: 'Tên khách hàng',
+        type: 'text'
+      },
+
+      {
+        name: 'maLop',
+        label: 'Mã lớp',
+        type: 'text'
+      },
+
+      {
+        name: 'khoaHoc',
+        label: 'Khóa học',
+        type: 'text'
+      },
+
+      {
+        name: 'chiNhanh',
+        label: 'Chi nhánh',
+        type: 'text'
+      },
+
+      {
+        name: 'ngayDangKy',
+        label: 'Ngày đăng ký',
+        type: 'text'
+      }
+
+    ]
+  },
+
+  {
+    title: 'THÔNG TIN CÔNG NỢ',
+
+    fields: [
+
+      {
+        name: 'hocPhi',
+        label: 'Học phí',
+        type: 'number'
+      },
+
+      {
+        name: 'voucher',
+        label: 'Voucher',
+        type: 'text'
+      },
+
+      {
+        name: 'soTienCanThanhToan',
+        label: 'Số tiền cần thanh toán',
+        type: 'number'
+      },
+
+      {
+        name: 'soTienDaDong',
+        label: 'Số tiền đã đóng',
+        type: 'number'
+      },
+
+      {
+        name: 'soTienConLai',
+        label: 'Số tiền còn lại',
+        type: 'number'
+      },
+
+      {
+        name: 'trangThai',
+        label: 'Trạng thái',
+        type: 'text'
+      }
+
+    ]
+  }
+
+];
+
+initForm() {
+
+  this.detailForm = this.fb.group({
+
+    maDangKy: [''],
+    maKH: [''],
+    tenKhachHang: [''],
+    maLop: [''],
+    khoaHoc: [''],
+    chiNhanh: [''],
+    ngayDangKy: [''],
+
+    hocPhi: [''],
+    voucher: [''],
+    soTienCanThanhToan: [''],
+    soTienDaDong: [''],
+    soTienConLai: [''],
+    trangThai: ['']
+
+  });
+
+}
 
   filters = {
     registrationCode: '',
@@ -41,11 +161,15 @@ export class Debt {
     courseCode: '',
   };
 
-  constructor(private paymentService: Payment,
-    private courseService: Course) {
-    this.loadPayments();
-    this.loadCourses();
-  }
+  constructor(
+  private paymentService: Payment,
+  private courseService: Course,
+  private fb: FormBuilder
+) {
+  this.loadPayments();
+  this.loadCourses();
+  this.initForm();
+}
 
   toggleFilter() {
 
@@ -305,6 +429,127 @@ changePageSize(event: Event) {
 
 }
 
+viewPaymentDetail(item: any): void {
+
+  this.detailForm.patchValue({
+
+    maDangKy: item.maDangKy,
+    maKH: item.maKH,
+    tenKhachHang: item.tenKhachHang,
+    maLop: item.maLop,
+    khoaHoc: item.khoaHoc,
+    chiNhanh: item.chiNhanh,
+    ngayDangKy: item.ngayDangKy,
+
+    hocPhi: item.hocPhi,
+    voucher: item.voucher,
+    soTienCanThanhToan: item.soTienCanThanhToan,
+    soTienDaDong: item.soTienDaDong,
+    soTienConLai: item.soTienConLai,
+    trangThai: item.trangThai
+
+  });
+
+  this.detailForm.disable();
+
+  this.showDetailDialog = true;
+
+}
+
+paymentDebt(item: any): void {
+
+  this.dialogMode = 'payment';
+
+  this.detailForm.patchValue({
+
+    maDangKy: item.maDangKy,
+    maKH: item.maKH,
+    tenKhachHang: item.tenKhachHang,
+    maLop: item.maLop,
+    khoaHoc: item.khoaHoc,
+    chiNhanh: item.chiNhanh,
+    ngayDangKy: item.ngayDangKy,
+
+    hocPhi: item.hocPhi,
+    voucher: item.voucher,
+    soTienCanThanhToan: item.soTienCanThanhToan,
+    soTienDaDong: item.soTienDaDong,
+    soTienConLai: item.soTienConLai,
+    trangThai: item.trangThai
+
+  });
+
+  // khóa toàn bộ
+  this.detailForm.disable();
+
+  // mở edit
+  this.detailForm.get('voucher')?.enable();
+
+  this.detailForm.get('soTienDaDong')?.enable();
+
+  this.showDetailDialog = true;
+
+}
+
+closeDialog(): void {
+
+  this.showDetailDialog = false;
+
+}
+savePayment(): void {
+
+  const formValue =
+    this.detailForm.getRawValue();
+
+  const index =
+    this.payments.findIndex(
+      x => x.maDangKy === formValue.maDangKy
+    );
+
+  if(index !== -1){
+
+    this.payments[index].voucher =
+      formValue.voucher;
+
+    this.payments[index].soTienDaDong =
+      Number(formValue.soTienDaDong);
+
+    // tính lại
+    this.payments[index].soTienConLai =
+      this.payments[index].soTienCanThanhToan
+      - this.payments[index].soTienDaDong;
+
+    // cập nhật trạng thái
+    if(this.payments[index].soTienConLai <= 0){
+
+      this.payments[index].trangThai =
+        'Đã thanh toán';
+
+    }
+    else if(
+      this.payments[index].soTienDaDong > 0
+    ){
+
+      this.payments[index].trangThai =
+        'Đã thanh toán một phần';
+
+    }
+    else{
+
+      this.payments[index].trangThai =
+        'Chưa thanh toán';
+
+    }
+
+    this.filteredPayments = [
+      ...this.payments
+    ];
+
+  }
+
+  this.showDetailDialog = false;
+
+}
   
 
 }

@@ -315,7 +315,7 @@
 
                     <!-- Lý do -->
                     <!-- <td>
-                        {{ item.lyDo }}
+                        {{ item.lyDoYeuCau }}
                     </td> -->
 
                     <!-- Trạng thái -->
@@ -348,35 +348,48 @@
 
                         <div class="action-group">
 
+                            <!-- XEM CHI TIẾT -->
                             <button
                                 class="icon-btn"
                                 type="button"
                                 title="Xem chi tiết"
+                                (click)="viewRefundDetail(item)"
                             >
 
                                 <i class="bi bi-eye"></i>
 
                             </button>
 
-                            <button
-                                class="icon-btn"
-                                type="button"
-                                title="Duyệt hoàn tiền"
+                            <!-- CHỈ HIỆN KHI CHỜ DUYỆT -->
+                            <ng-container
+                                *ngIf="item.trangThai === 'Chờ duyệt'"
                             >
 
-                                <i class="bi bi-check2-square"></i>
+                                <!-- DUYỆT -->
+                                <button
+                                    class="icon-btn"
+                                    type="button"
+                                    title="Duyệt hoàn tiền"
+                                    (click)="approveRefund(item)"
+                                >
 
-                            </button>
-                            <button
-                                class="icon-btn"
-                                type="button"
-                                title="Từ chối hoàn tiền"
-                                style="color: red;"
-                            >
+                                    <i class="bi bi-check2-square"></i>
 
-                                <i class="bi bi-x-circle"></i>
+                                </button>
 
-                            </button>
+                                <!-- TỪ CHỐI -->
+                                <button
+                                    class="icon-btn"
+                                    type="button"
+                                    title="Từ chối hoàn tiền"
+                                    style="color:red;"
+                                >
+
+                                    <i class="bi bi-x-circle"></i>
+
+                                </button>
+
+                            </ng-container>
 
                         </div>
 
@@ -477,3 +490,18 @@
     </div>
 
 </div>
+
+<app-form-dialog
+    *ngIf="showDetailDialog"
+    class="hide-submit"
+    [title]="
+        dialogMode === 'view'
+            ? 'CHI TIẾT HOÀN TIỀN'
+            : 'DUYỆT HOÀN TIỀN'
+    "
+    [sections]="refundDetailSections"
+    [columns]="3"
+    [formGroup]="detailForm"
+    [isReadOnly]="dialogMode === 'view'"
+    (close)="closeDialog()">
+</app-form-dialog>
