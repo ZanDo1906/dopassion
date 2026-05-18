@@ -31,7 +31,6 @@
                     <th>Mã đăng ký</th>
                     <th>Tên khách hàng</th>
                     <th>Tên lớp học</th>
-                    <th>SĐT</th>
                     <th>Trạng thái</th>
                     <th class="col-actions">Tác vụ</th>
                 </tr>
@@ -42,13 +41,12 @@
                     <td>{{ item.id }}</td>
                     <td>{{ item.studentName }}</td>
                     <td>{{ item.className }}</td>
-                    <td>{{ item.phone }}</td>
                     <td>
                         <span
                             class="badge"
                             [ngClass]="{
                                 'badge--success': item.status === 'Đang hoạt động',
-                                'badge--danger': item.status === 'Ngưng hoạt động',
+                                'badge--danger': item.status === 'Đã khóa' || item.status === 'Ngưng hoạt động',
                                 'badge--warning': item.status === 'Chưa đăng ký khóa'
                             }"
                         >
@@ -57,11 +55,15 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewRegistrationDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
-                                <i class="bi bi-lock"></i>
+                            <button 
+                                class="icon-btn" 
+                                type="button" 
+                                [title]="isLocked(item) ? 'Mở khóa' : 'Khóa'"
+                                (click)="toggleLockStatus(item)">
+                                <i [class]="isLocked(item) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
                             </button>
                         </div>
                     </td>
@@ -80,3 +82,116 @@
         (pageSizeChange)="onPaginationPageSizeChange($event)"
     ></app-pagination>
 </div>
+
+<ng-template #viewRegistrationTemplate>
+    <form [formGroup]="detailForm" class="registration-view-form">
+        <div class="section-title">I. Thông tin đăng ký</div>
+
+        <div class="registration-view-row">
+            <div>
+                <div class="form-group">
+                    <label>Mã đăng ký</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã đăng ký" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Mã KH</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã KH" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Tên KH</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Tên KH" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Mã lớp</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã lớp" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Tên lớp học</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Tên lớp học" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Khóa học</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Khóa học" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Tên khóa</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Tên khóa" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Chi nhánh</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Chi nhánh" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Ngày đăng ký</label>
+                    <input class="form-control input-readonly" type="date" formControlName="Ngày đăng ký" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <div class="registration-view-status-wrap">
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': detailForm.get('Trạng thái')?.value === 'Đang hoạt động',
+                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động',
+                                'badge--warning': detailForm.get('Trạng thái')?.value === 'Chưa đăng ký khóa'
+                            }"
+                        >
+                            {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<app-form-dialog
+    *ngIf="isViewRegistrationDialogOpen"
+    title="Chi tiết đăng ký"
+    [bodyTemplate]="viewRegistrationTemplate"
+    [cancelText]="viewDialogConfig.cancelText"
+    submitText="Lưu"
+    cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save"
+    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
+    (close)="closeViewRegistrationDialog()">
+</app-form-dialog>
+
+<app-confirm-dialog
+    [isOpen]="isConfirmLockDialogOpen"
+    [title]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa đăng ký' : 'Khóa đăng ký'"
+    [message]="confirmLockMessage"
+    [confirmText]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    cancelText="Hủy"
+    [confirmIcon]="confirmLockItem && isLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="onConfirmLock()"
+    (cancel)="onCancelLock()">
+</app-confirm-dialog>

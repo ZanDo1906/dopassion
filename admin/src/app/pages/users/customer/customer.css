@@ -358,6 +358,86 @@
     background: #ffffff;
 }
 
+.customer-view-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.customer-view-form .section-title {
+    background: #dde4f0;
+    color: #436da5;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+}
+
+.customer-view-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.customer-view-row > div {
+    min-width: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #436da5;
+}
+
+.form-control {
+    width: 100%;
+    min-height: 2.25rem;
+    border: 1px solid #aebfd6;
+    border-radius: 0.375rem;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    color: #333;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: #436da5;
+    box-shadow: 0 0 0 2px rgba(67, 109, 165, 0.2);
+}
+
+.input-readonly {
+    background: #eef3fa;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.input-readonly:focus {
+    border-color: #aebfd6;
+    box-shadow: none;
+}
+
+.hide-arrow {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none !important;
+    padding-right: 0.75rem;
+}
+
+.customer-view-status-wrap {
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+}
+
 @media (max-width: 860px) {
     .filter-row {
         grid-template-columns: 1fr;
@@ -366,4 +446,16 @@
     .toolbar {
         flex-wrap: wrap;
     }
+
+    .customer-view-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-footer {
+    justify-content: center;
+}
+
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-footer .btn-submit {
+    display: none;
 }

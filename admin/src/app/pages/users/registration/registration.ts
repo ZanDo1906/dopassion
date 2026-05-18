@@ -1,14 +1,29 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../components/pagination/pagination';
+import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
+import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { RegistrationService } from '../../../services/registration';
+
+type RegistrationDetailFormGroup = {
+  'Mã đăng ký': FormControl<string>;
+  'Mã KH': FormControl<string>;
+  'Tên KH': FormControl<string>;
+  'Mã lớp': FormControl<string>;
+  'Tên lớp học': FormControl<string>;
+  'Khóa học': FormControl<string>;
+  'Tên khóa': FormControl<string>;
+  'Chi nhánh': FormControl<string>;
+  'Ngày đăng ký': FormControl<string>;
+  'Trạng thái': FormControl<string>;
+};
 
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, FormsModule, FilterDataPicker, PaginationComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent, ConfirmDialog],
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })
@@ -57,7 +72,35 @@ export class Registration implements OnInit {
   itemsPerPage = 10;
   pageSizeOptions = [10, 20, 50];
 
-  constructor(private registrationService: RegistrationService, private cdr: ChangeDetectorRef) {}
+  // View dialog configuration
+  readonly viewDialogConfig = {
+    cancelText: 'Đóng',
+    hideSubmitButton: true
+  };
+
+  // Dialog + Reactive form
+  isViewRegistrationDialogOpen = false;
+  detailForm: FormGroup<RegistrationDetailFormGroup>;
+
+  // Lock/Unlock confirmation dialog
+  isConfirmLockDialogOpen = false;
+  confirmLockItem: any = null;
+  confirmLockMessage = '';
+
+  constructor(private registrationService: RegistrationService, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
+    this.detailForm = this.formBuilder.group<RegistrationDetailFormGroup>({
+      'Mã đăng ký': this.formBuilder.control('', { nonNullable: true }),
+      'Mã KH': this.formBuilder.control('', { nonNullable: true }),
+      'Tên KH': this.formBuilder.control('', { nonNullable: true }),
+      'Mã lớp': this.formBuilder.control('', { nonNullable: true }),
+      'Tên lớp học': this.formBuilder.control('', { nonNullable: true }),
+      'Khóa học': this.formBuilder.control('', { nonNullable: true }),
+      'Tên khóa': this.formBuilder.control('', { nonNullable: true }),
+      'Chi nhánh': this.formBuilder.control('', { nonNullable: true }),
+      'Ngày đăng ký': this.formBuilder.control('', { nonNullable: true }),
+      'Trạng thái': this.formBuilder.control('', { nonNullable: true })
+    });
+  }
 
   ngOnInit(): void {
     // Initialize pagination state before loading data
@@ -84,8 +127,14 @@ export class Registration implements OnInit {
           studentName: item['Tên KH'] || '',
           className: item['Tên lớp học'] || '',
           phone: '',
-          registrationDate: item['Ngày đăng ký'] || '',
-          status: item['Trạng thái'] || 'Đang hoạt động'
+          registrationDate: this.normalizeDateForInput(item['Ngày đăng ký']),
+          status: item['Trạng thái'] || 'Đang hoạt động',
+          // Full data for view
+          maLop: item['Mã lớp'] || '',
+          khoaHoc: item['Khóa học'] || '',
+          tenKhoa: item['Tên khóa'] || '',
+          chiNhanh: item['Chi nhánh'] || '',
+          rawData: item
         }));
         this.filteredData = [...this.registrations];
         this.updatePagination();
@@ -160,6 +209,60 @@ export class Registration implements OnInit {
   }
 
   /**
+   * Xem chi tiết đăng ký
+   * @param item Dữ liệu đăng ký từ table
+   */
+  viewRegistrationDetail(item: any): void {
+    this.closeViewRegistrationDialog();
+
+    this.detailForm.patchValue({
+      'Mã đăng ký': `${item?.id ?? ''}`,
+      'Mã KH': `${item?.customerCode ?? ''}`,
+      'Tên KH': `${item?.studentName ?? ''}`,
+      'Mã lớp': `${item?.maLop ?? ''}`,
+      'Tên lớp học': `${item?.className ?? ''}`,
+      'Khóa học': `${item?.khoaHoc ?? ''}`,
+      'Tên khóa': `${item?.tenKhoa ?? ''}`,
+      'Chi nhánh': `${item?.chiNhanh ?? ''}`,
+      'Ngày đăng ký': `${item?.registrationDate ?? ''}`,
+      'Trạng thái': `${item?.status ?? ''}`
+    });
+
+    this.detailForm.disable();
+    this.isViewRegistrationDialogOpen = true;
+  }
+
+  /**
+   * Đóng dialog xem chi tiết
+   */
+  closeViewRegistrationDialog(): void {
+    this.isViewRegistrationDialogOpen = false;
+    this.detailForm.enable();
+    this.detailForm.reset({
+      'Mã đăng ký': '',
+      'Mã KH': '',
+      'Tên KH': '',
+      'Mã lớp': '',
+      'Tên lớp học': '',
+      'Khóa học': '',
+      'Tên khóa': '',
+      'Chi nhánh': '',
+      'Ngày đăng ký': '',
+      'Trạng thái': ''
+    });
+  }
+
+  /**
+   * Normalize ngày từ định dạng "YYYY-MM-DD HH:MM:SS" thành "YYYY-MM-DD"
+   */
+  private normalizeDateForInput(value: string): string {
+    if (!value) {
+      return '';
+    }
+    return value.split(' ')[0];
+  }
+
+  /**
    * Xử lý sự kiện thay đổi trang từ PaginationComponent
    * Cập nhật currentPage và cắt lại dữ liệu
    * @param page Số trang mới
@@ -208,5 +311,58 @@ export class Registration implements OnInit {
     this.paginatedData = this.filteredData.slice(start, end);
     
     console.log('[Registration] Paginated data count:', this.paginatedData.length);
+  }
+
+  /**
+   * Khởi tạo dialog xác nhận khóa/mở khóa đăng ký
+   * @param item Đăng ký cần khóa/mở khóa
+   */
+  toggleLockStatus(item: any): void {
+    this.confirmLockItem = item;
+    const currentStatus = item?.status;
+    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
+    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+    
+    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} đăng ký "${item?.studentName}" và đổi trạng thái thành "${newStatus}"?`;
+    this.isConfirmLockDialogOpen = true;
+  }
+
+  /**
+   * Xác nhận khóa/mở khóa và cập nhật dữ liệu
+   */
+  onConfirmLock(): void {
+    if (!this.confirmLockItem) {
+      return;
+    }
+
+    const currentStatus = this.confirmLockItem?.status;
+    const registrationId = this.confirmLockItem?.id;
+
+    // Cập nhật trạng thái trong local data (mock, sau này gọi API)
+    const registrationToUpdate = this.registrations.find(r => r.id === registrationId);
+    if (registrationToUpdate) {
+      registrationToUpdate.status = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+      // Cập nhật filtered và paginated data
+      this.filteredData = [...this.registrations];
+      this.updatePagination();
+      this.cdr.markForCheck();
+    }
+    this.isConfirmLockDialogOpen = false;
+    this.confirmLockItem = null;
+  }
+
+  /**
+   * Hủy khóa/mở khóa
+   */
+  onCancelLock(): void {
+    this.isConfirmLockDialogOpen = false;
+    this.confirmLockItem = null;
+  }
+
+  /**
+   * Kiểm tra xem đăng ký có bị khóa hay không
+   */
+  isLocked(item: any): boolean {
+    return item?.status === 'Đã khóa';
   }
 }
