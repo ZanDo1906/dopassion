@@ -46,7 +46,7 @@
                             class="badge"
                             [ngClass]="{
                                 'badge--success': staff.trangThai === 'Đang hoạt động',
-                                'badge--danger': staff.trangThai === 'Ngưng hoạt động'
+                                'badge--danger': staff.trangThai === 'Đã khóa' || staff.trangThai === 'Ngưng hoạt động'
                             }"
                         >
                             {{ staff.trangThai }}
@@ -57,8 +57,12 @@
                             <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewStaffDetail(staff)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
-                                <i class="bi bi-slash-circle"></i>
+                            <button 
+                                class="icon-btn" 
+                                type="button" 
+                                [title]="isLocked(staff) ? 'Mở khóa' : 'Khóa'"
+                                (click)="toggleLockStatus(staff)">
+                                <i [class]="isLocked(staff) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
                             </button>
                         </div>
                     </td>
@@ -232,7 +236,7 @@
                             class="badge"
                             [ngClass]="{
                                 'badge--success': detailForm.get('Trạng thái')?.value === 'Đang hoạt động',
-                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động'
+                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Đã khóa' || detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động'
                             }"
                         >
                             {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
@@ -285,3 +289,15 @@
     [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
     (close)="closeViewStaffDialog()">
 </app-form-dialog>
+
+<app-confirm-dialog
+    [isOpen]="isConfirmLockDialogOpen"
+    [title]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa nhân viên' : 'Khóa nhân viên'"
+    [message]="confirmLockMessage"
+    [confirmText]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    cancelText="Hủy"
+    [confirmIcon]="confirmLockItem && isLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="onConfirmLock()"
+    (cancel)="onCancelLock()">
+</app-confirm-dialog>

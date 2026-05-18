@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } 
 import { FilterDataPicker, FilterConfig } from '../../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
+import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dialog';
 import { Staff as StaffService } from '../../../../services/staff';
 
 type StaffDetailFormGroup = {
@@ -22,7 +23,7 @@ type StaffDetailFormGroup = {
 
 @Component({
   selector: 'app-staff',
-  imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent, ConfirmDialog],
   templateUrl: './staff.html',
   styleUrl: './staff.css',
 })
@@ -97,6 +98,11 @@ export class Staff implements OnInit {
   isViewStaffDialogOpen = false;
   addStaffForm: FormGroup;
   detailForm: FormGroup<StaffDetailFormGroup>;
+
+  // Lock/Unlock confirmation dialog
+  isConfirmLockDialogOpen = false;
+  confirmLockItem: any = null;
+  confirmLockMessage = '';
 
   branchOptions = [
     { value: 'CN1', label: 'Chi nhánh 1' },
@@ -406,5 +412,58 @@ export class Staff implements OnInit {
     this.paginatedData = this.filteredData.slice(start, end);
     
     console.log('[Staff] Paginated data count:', this.paginatedData.length);
+  }
+
+  /**
+   * Khởi tạo dialog xác nhận khóa/mở khóa nhân viên
+   * @param item Nhân viên cần khóa/mở khóa
+   */
+  toggleLockStatus(item: any): void {
+    this.confirmLockItem = item;
+    const currentStatus = item?.trangThai;
+    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
+    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+    
+    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} nhân viên "${item?.tenNhanVien}" và đổi trạng thái thành "${newStatus}"?`;
+    this.isConfirmLockDialogOpen = true;
+  }
+
+  /**
+   * Xác nhận khóa/mở khóa và cập nhật dữ liệu
+   */
+  onConfirmLock(): void {
+    if (!this.confirmLockItem) {
+      return;
+    }
+
+    const currentStatus = this.confirmLockItem?.trangThai;
+    const staffId = this.confirmLockItem?.id;
+
+    // Cập nhật trạng thái trong local data (mock, sau này gọi API)
+    const staffToUpdate = this.allStaffs.find(s => s.id === staffId);
+    if (staffToUpdate) {
+      staffToUpdate.trangThai = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+      // Cập nhật filtered và paginated data
+      this.filteredData = [...this.allStaffs];
+      this.updatePagination();
+      this.cdr.markForCheck();
+    }
+    this.isConfirmLockDialogOpen = false;
+    this.confirmLockItem = null;
+  }
+
+  /**
+   * Hủy khóa/mở khóa
+   */
+  onCancelLock(): void {
+    this.isConfirmLockDialogOpen = false;
+    this.confirmLockItem = null;
+  }
+
+  /**
+   * Kiểm tra xem nhân viên có bị khóa hay không
+   */
+  isLocked(item: any): boolean {
+    return item?.trangThai === 'Đã khóa';
   }
 }

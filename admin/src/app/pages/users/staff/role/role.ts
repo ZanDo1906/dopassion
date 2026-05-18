@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } 
 import { FilterDataPicker, FilterConfig } from '../../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
+import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dialog';
 import { RoleService } from '../../../../services/role';
 import { iRole } from '../../../../interfaces/role';
 
@@ -17,7 +18,7 @@ type RoleViewFormGroup = {
 @Component({
   selector: 'app-role',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent, ConfirmDialog],
   templateUrl: './role.html',
   styleUrl: './role.css',
 })
@@ -70,6 +71,11 @@ export class Role implements OnInit {
       ]
     }
   ];
+
+  // Lock/Unlock confirmation dialog
+  isConfirmLockDialogOpen = false;
+  confirmLockItem: iRole | null = null;
+  confirmLockMessage = '';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -290,5 +296,76 @@ export class Role implements OnInit {
     this.currentPage = 1;
     this.cdr.markForCheck(); // Force change detection
     this.updatePagination();
+  }
+
+  /**
+   * Khởi tạo dialog xác nhận khóa/mở khóa vai trò
+   * @param item Vai trò cần khóa/mở khóa
+   */
+  toggleLockStatus(item: iRole): void {
+    this.confirmLockItem = item;
+    const currentStatus = item['TRẠNG THÁI'];
+    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
+    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+    
+    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} vai trò "${item['TÊN VAI TRÒ']}" và đổi trạng thái thành "${newStatus}"?`;
+    this.isConfirmLockDialogOpen = true;
+  }
+
+  /**
+   * Xác nhận khóa/mở khóa và cập nhật dữ liệu
+   */
+  onConfirmLock(): void {
+    if (!this.confirmLockItem) {
+      return;
+    }
+
+    const currentStatus = (this.confirmLockItem['TRẠNG THÁI'] || '') as string;
+    const roleId = (this.confirmLockItem['MÃ VAI TRÒ'] || '') as string;
+
+    if (!currentStatus || !roleId) {
+      console.error('Invalid role data for lock/unlock');
+      return;
+    }
+
+    // Gọi service để cập nhật trạng thái
+    // endpoint: để trống sẽ mock, sau này thêm API endpoint
+    this.roleService.toggleLockStatus(roleId, currentStatus, '').subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Cập nhật trạng thái trong local data
+          const roleToUpdate = this.roles.find(r => r['MÃ VAI TRÒ'] === roleId);
+          if (roleToUpdate) {
+            roleToUpdate['TRẠNG THÁI'] = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+            // Cập nhật filtered và paginated data
+            this.filteredData = [...this.roles];
+            this.updatePagination();
+            this.cdr.markForCheck();
+          }
+          this.isConfirmLockDialogOpen = false;
+          this.confirmLockItem = null;
+        }
+      },
+      error: (error) => {
+        console.error('Không thể cập nhật trạng thái:', error);
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
+      }
+    });
+  }
+
+  /**
+   * Hủy khóa/mở khóa
+   */
+  onCancelLock(): void {
+    this.isConfirmLockDialogOpen = false;
+    this.confirmLockItem = null;
+  }
+
+  /**
+   * Kiểm tra xem vai trò có bị khóa hay không
+   */
+  isRoleLocked(item: iRole): boolean {
+    return item['TRẠNG THÁI'] === 'Đã khóa';
   }
 }

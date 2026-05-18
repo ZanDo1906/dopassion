@@ -1,1 +1,22 @@
-<p>confirm-dialog works!</p>
+<div class="confirm-dialog-overlay" *ngIf="isOpen" (click)="onCancel()">
+    <div class="confirm-dialog-box" (click)="$event.stopPropagation()">
+        <div class="dialog-header">
+            <h2 class="dialog-title">{{ title }}</h2>
+        </div>
+
+        <div class="dialog-body">
+            <p class="confirm-message">{{ message }}</p>
+        </div>
+
+        <div class="dialog-footer">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">
+                <i *ngIf="cancelIcon" [class]="cancelIcon"></i>
+                {{ cancelText }}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="onConfirm()">
+                <i *ngIf="confirmIcon" [class]="confirmIcon"></i>
+                {{ confirmText }}
+            </button>
+        </div>
+    </div>
+</div>
