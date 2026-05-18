@@ -161,11 +161,11 @@
                     <td class="sticky-action">
                         <div class="action-group">
 
-                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewPaymentDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
 
-                            <button class="icon-btn" type="button" title="Thanh toán">
+                            <button *ngIf="item.trangThai !== 'Đã thanh toán'" class="icon-btn" type="button" title="Thanh toán" (click)="paymentDebt(item)">
                                 <i class="bi bi-coin"></i>
                             </button>
 
@@ -253,3 +253,24 @@
         </div>
     </div>
 </div>
+
+<app-form-dialog
+    *ngIf="showDetailDialog"
+    [class.hide-submit]="dialogMode === 'view'"
+    title="CHI TIẾT CÔNG NỢ"
+    [sections]="paymentDetailSections"
+    [columns]="3"
+    [formGroup]="detailForm"
+    [isReadOnly]="dialogMode === 'view'"
+
+    [submitText]="
+        dialogMode === 'payment'
+            ? 'Lưu thanh toán'
+            : 'Lưu'
+    "
+
+    (submit)="savePayment()"
+
+    (close)="closeDialog()">
+
+</app-form-dialog>

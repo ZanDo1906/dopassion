@@ -12,7 +12,9 @@
         "Ngày đăng ký": "2026-05-06 00:00:00",
         "Đã thanh toán": 3300000,
         "Số tiền hoàn": 0,
-        "Lý do hoàn tiền": "Học viên có việc bận đột xuất, không thể tham gia lớp học",
+        "Lý do yêu cầu hoàn tiền": "Học viên có việc bận đột xuất, không thể tham gia lớp học",
+        "Lý do chấp nhận hoàn tiền": null,
+        "Lý do từ chối" : "Không đủ yêu cầu",
         "Trạng thái": "Đã hủy"
     },
     {
@@ -28,7 +30,9 @@
         "Ngày đăng ký": "2026-05-07 00:00:00",
         "Đã thanh toán": 3700000,
         "Số tiền hoàn": 0,
-        "Lý do hoàn tiền": "không muốn tham gia lớp học nữa",
+        "Lý do yêu cầu hoàn tiền": "không muốn tham gia lớp học nữa",
+        "Lý do chấp nhận hoàn tiền": null,
+        "Lý do từ chối" : null,
         "Trạng thái": "Chờ duyệt"
     },
     {
@@ -44,7 +48,9 @@
         "Ngày đăng ký": "2026-05-07 00:00:00",
         "Đã thanh toán": 3000000,
         "Số tiền hoàn": 3000000,
-        "Lý do hoàn tiền": "Có việc bận",
+        "Lý do yêu cầu hoàn tiền": "Có việc bận",
+        "Lý do chấp nhận hoàn tiền": "Chấp nhận",
+        "Lý do từ chối" : null,
         "Trạng thái": "Đã duyệt"
     }
 ]
