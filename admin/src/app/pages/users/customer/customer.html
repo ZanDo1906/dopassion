@@ -46,6 +46,7 @@
                             class="badge"
                             [ngClass]="{
                                 'badge--success': customer.trangThai === 'Đang học',
+                                'badge--danger': customer.trangThai === 'Đã khóa',
                                 'badge--warning': customer.trangThai === 'Chưa đăng ký khóa',
                                 'badge--info': customer.trangThai === 'Đã hoàn thành'
                             }"
@@ -55,11 +56,15 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewCustomerDetail(customer)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
-                                <i class="bi bi-lock"></i>
+                            <button 
+                                class="icon-btn" 
+                                type="button" 
+                                [title]="isLocked(customer) ? 'Mở khóa' : 'Khóa'"
+                                (click)="toggleLockStatus(customer)">
+                                <i [class]="isLocked(customer) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
                             </button>
                         </div>
                     </td>
@@ -78,3 +83,106 @@
         (pageSizeChange)="onPaginationPageSizeChange($event)"
     ></app-pagination>
 </div>
+
+<ng-template #viewCustomerTemplate>
+    <form [formGroup]="detailForm" class="customer-view-form">
+        <div class="section-title">I. Thông tin cá nhân</div>
+
+        <div class="customer-view-row">
+            <div>
+                <div class="form-group">
+                    <label>Mã KH</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Mã KH" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Tên khách hàng</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Tên khách hàng" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <select class="form-control input-readonly hide-arrow" formControlName="Giới tính">
+                        <option value="">-- Chưa cập nhật --</option>
+                        <option *ngFor="let item of genderOptions" [value]="item.value">{{ item.label }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Ngày sinh</label>
+                    <input class="form-control input-readonly" type="date" formControlName="Ngày sinh" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>SĐT</label>
+                    <input class="form-control input-readonly" type="text" formControlName="SĐT" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input class="form-control input-readonly" type="text" formControlName="Email" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Ngày đăng ký</label>
+                    <input class="form-control input-readonly" type="date" formControlName="Ngày đăng ký" readonly />
+                </div>
+            </div>
+
+            <div>
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <div class="customer-view-status-wrap">
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success': detailForm.get('Trạng thái')?.value === 'Đang học',
+                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Đã khóa',
+                                'badge--warning': detailForm.get('Trạng thái')?.value === 'Chưa đăng ký khóa',
+                                'badge--info': detailForm.get('Trạng thái')?.value === 'Đã hoàn thành'
+                            }"
+                        >
+                            {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</ng-template>
+
+<app-form-dialog
+    *ngIf="isViewCustomerDialogOpen"
+    title="Chi tiết khách hàng"
+    [bodyTemplate]="viewCustomerTemplate"
+    [cancelText]="viewDialogConfig.cancelText"
+    submitText="Lưu"
+    cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save"
+    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
+    (close)="closeViewCustomerDialog()">
+</app-form-dialog>
+
+<app-confirm-dialog
+    [isOpen]="isConfirmLockDialogOpen"
+    [title]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa khách hàng' : 'Khóa khách hàng'"
+    [message]="confirmLockMessage"
+    [confirmText]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    cancelText="Hủy"
+    [confirmIcon]="confirmLockItem && isLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="onConfirmLock()"
+    (cancel)="onCancelLock()">
+</app-confirm-dialog>

@@ -46,7 +46,7 @@
                             class="badge"
                             [ngClass]="{
                                 'badge--success': item['TRẠNG THÁI'] === 'Đang hoạt động',
-                                'badge--danger': item['TRẠNG THÁI'] === 'Ngưng hoạt động'
+                                'badge--danger': item['TRẠNG THÁI'] === 'Đã khóa' || item['TRẠNG THÁI'] === 'Ngưng hoạt động'
                             }"
                         >
                             {{ item['TRẠNG THÁI'] }}
@@ -57,8 +57,12 @@
                             <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewRoleDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Khóa/Mở khóa">
-                                <i class="bi bi-slash-circle"></i>
+                            <button 
+                                class="icon-btn" 
+                                type="button" 
+                                [title]="isRoleLocked(item) ? 'Mở khóa' : 'Khóa'"
+                                (click)="toggleLockStatus(item)">
+                                <i [class]="isRoleLocked(item) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
                             </button>
                         </div>
                     </td>
@@ -113,7 +117,7 @@
                                 class="badge"
                                 [ngClass]="{
                                     'badge--success': detailForm.get('TRẠNG THÁI')?.value === 'Đang hoạt động',
-                                    'badge--danger': detailForm.get('TRẠNG THÁI')?.value === 'Ngưng hoạt động'
+                                    'badge--danger': detailForm.get('TRẠNG THÁI')?.value === 'Đã khóa' || detailForm.get('TRẠNG THÁI')?.value === 'Ngưng hoạt động'
                                 }"
                             >
                                 {{ detailForm.get('TRẠNG THÁI')?.value }}
@@ -141,3 +145,15 @@
     (close)="closeDialog()"
     (submit)="onSubmitAddRole($event)">
 </app-form-dialog>
+
+<app-confirm-dialog
+    [isOpen]="isConfirmLockDialogOpen"
+    [title]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa vai trò' : 'Khóa vai trò'"
+    [message]="confirmLockMessage"
+    [confirmText]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    cancelText="Hủy"
+    [confirmIcon]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="onConfirmLock()"
+    (cancel)="onCancelLock()">
+</app-confirm-dialog>
