@@ -39,6 +39,16 @@ export class Customer implements OnInit {
       key: 'tenKhachHang',
       label: 'Tên khách hàng',
       type: 'text'
+    },
+    {
+      key: 'trangThai',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' },
+        { value: 'Đã khóa', label: 'Đã khóa' },
+        { value: 'Đang hoạt động', label: 'Đang hoạt động' }
+      ]
     }
   ];
 

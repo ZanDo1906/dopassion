@@ -78,6 +78,15 @@ export class Staff implements OnInit {
         { value: 'Nhân viên kế toán', label: 'Kế toán' },
         { value: 'Nhân viên hành chính', label: 'Nhân viên hành chính' }
       ]
+    },
+    {
+      key: 'trangThai',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Đang hoạt động', label: 'Đang hoạt động' },
+        { value: 'Đã khóa', label: 'Đã khóa' }
+      ]
     }
   ];
 
@@ -437,10 +446,10 @@ export class Staff implements OnInit {
     }
 
     const currentStatus = this.confirmLockItem?.trangThai;
-    const staffId = this.confirmLockItem?.id;
+    const staffCode = this.confirmLockItem?.maNhanVien;
 
-    // Cập nhật trạng thái trong local data (mock, sau này gọi API)
-    const staffToUpdate = this.allStaffs.find(s => s.id === staffId);
+    // Cập nhật trạng thái theo mã nhân viên để tránh khóa sai dòng.
+    const staffToUpdate = this.allStaffs.find((staff) => staff.maNhanVien === staffCode);
     if (staffToUpdate) {
       staffToUpdate.trangThai = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
       // Cập nhật filtered và paginated data

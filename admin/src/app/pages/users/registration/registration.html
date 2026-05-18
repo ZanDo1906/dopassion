@@ -9,10 +9,6 @@
     <!-- Action Bar -->
     <div class="toolbar">
         <button class="btn btn-outline" type="button">
-            <i class="bi bi-plus-circle"></i>
-            Thêm mới
-        </button>
-        <button class="btn btn-outline" type="button">
             <i class="bi bi-download"></i>
             Nhập excel
         </button>
@@ -159,7 +155,7 @@
                             class="badge"
                             [ngClass]="{
                                 'badge--success': detailForm.get('Trạng thái')?.value === 'Đang hoạt động',
-                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động',
+                                'badge--danger': detailForm.get('Trạng thái')?.value === 'Đã khóa' || detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động',
                                 'badge--warning': detailForm.get('Trạng thái')?.value === 'Chưa đăng ký khóa'
                             }"
                         >

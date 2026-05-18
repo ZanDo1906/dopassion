@@ -20,8 +20,9 @@
                         [(ngModel)]="filterValues[field.key]" />
 
                     <!-- Select Dropdown -->
-                    <select *ngSwitchCase="'select'" [id]="field.key" [(ngModel)]="filterValues[field.key]">
-                        <option value="">-- Chọn {{ field.label }} --</option>
+                    <select *ngSwitchCase="'select'" [id]="field.key" [(ngModel)]="filterValues[field.key]"
+                        [ngClass]="{'select-empty': filterValues[field.key] === ''}">
+                        <option value="" disabled hidden>-- Chọn {{ field.label }} --</option>
                         <option *ngFor="let option of field.options" [value]="option.value">
                             {{ option.label }}
                         </option>
