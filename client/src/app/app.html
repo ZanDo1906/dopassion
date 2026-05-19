@@ -1,7 +1,39 @@
-<div class="app-wrapper">
+<!-- <div class="app-wrapper">
     <app-header></app-header>
     <main class="app-main">
         <router-outlet></router-outlet>
     </main>
     <app-footer></app-footer>
+</div> -->
+
+
+<!-- <div *ngIf="router.url === '/'">
+    <router-outlet></router-outlet>
+</div>
+<div *ngIf="router.url !== '/'" class="app-wrapper">
+    <app-header></app-header>
+
+    <main class="app-main">
+        <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+</div> -->
+
+<!-- LOGIN PAGE -->
+<div *ngIf="isLoginPage">
+    <router-outlet></router-outlet>
+</div>
+
+<!-- OTHER PAGES -->
+<div *ngIf="!isLoginPage" class="app-wrapper">
+
+    <app-header></app-header>
+
+    <main class="app-main">
+        <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+
 </div>

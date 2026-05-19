@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 interface CalendarDay {
   date: number;
@@ -57,6 +58,7 @@ interface PaymentDetail {
   styleUrl: './account.css',
 })
 export class Account implements OnInit {
+  constructor(private router: Router) {}
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
   fullName: string = 'Dương Trọng Nhân';
   phoneNumber: string = '0562173125';
@@ -388,6 +390,9 @@ onAvatarChange(event: any) {
   };
 
   reader.readAsDataURL(file);
+}
+logout(){
+  this.router.navigate(['/login']);
 }
 
 }
