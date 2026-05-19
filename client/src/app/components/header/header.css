@@ -26,7 +26,7 @@
 }
 
 .logo-img {
-    height: 50px;
+    height: 70px;
     width: auto;
     object-fit: contain;
 }
@@ -44,12 +44,30 @@
     text-decoration: none;
     font-size: 16px;
     font-weight: 700;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
 }
 
-.nav-item:hover {
-    color: #2a4070;
+.nav-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 3px;
+    background-color: #3B5B94;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.nav-item:hover::after {
+    width: 100%;
+}
+
+.nav-item.active::after {
+    width: 100%;
 }
 
 /* Right Section */

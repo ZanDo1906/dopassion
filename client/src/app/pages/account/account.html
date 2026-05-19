@@ -2,7 +2,38 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="profile-section">
-      <img src="/avatar.jpg" alt="Profile" class="profile-avatar">
+      <div class="avatar-wrapper">
+
+        <!-- Có avatar -->
+        <img
+          *ngIf="avatarPreview"
+          [src]="avatarPreview"
+          alt="Profile"
+          class="profile-avatar"
+        >
+
+        <!-- Avatar mặc định -->
+        <div *ngIf="!avatarPreview" class="default-avatar">
+
+          <i class="bi bi-person-fill"></i>
+
+        </div>
+
+        <!-- Upload button -->
+        <label class="avatar-upload-btn" *ngIf="currentView === 'info'">
+
+          <i class="bi bi-plus-lg"></i>
+
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="onAvatarChange($event)"
+          >
+
+        </label>
+
+      </div>
       <h2 class="profile-name">Dương Trọng Nhân</h2>
       <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
     </div>
@@ -27,12 +58,12 @@
             <i class="bi bi-credit-card-2-back-fill"></i> Quản lý thanh toán
           </a>
         </li>
-        <li>
+        <!-- <li>
           <a href="#" (click)="switchView('schedule'); $event.preventDefault()"
             [class.active]="currentView === 'schedule'" class="menu-item">
             <i class="bi bi-calendar-check-fill"></i> Lịch của tôi
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
 
@@ -49,24 +80,48 @@
           <div class="form-row">
             <div class="form-group">
               <label for="fullname">Họ và tên</label>
-              <input type="text" id="fullname" [(ngModel)]="fullName" name="fullName">
+              <input type="text" id="fullname" [(ngModel)]="fullName" name="fullName" [readonly]="!isEditingProfile">
             </div>
             <div class="form-group">
               <label for="phone">Số điện thoại</label>
-              <input type="tel" id="phone" [(ngModel)]="phoneNumber" name="phoneNumber">
+              <input
+                type="tel"
+                id="phone"
+                [(ngModel)]="phoneNumber"
+                name="phoneNumber"
+                [readonly]="!isEditingProfile"
+              >
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="dob">Ngày sinh</label>
-              <input type="date" id="dob" value="2005-06-16">
+              <input
+                type="date"
+                id="dob"
+                value="2005-06-16"
+                [disabled]="!isEditingProfile"
+              >
             </div>
             <div class="form-group">
               <label for="email">Email</label>
-              <input type="email" id="email" placeholder="nhandt234@st.uel.edu.vn">
+              <input
+                type="email"
+                id="email"
+                placeholder="nhandt234@st.uel.edu.vn"
+                [readonly]="!isEditingProfile"
+              >
             </div>
           </div>
-          <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
+          <button
+            type="button"
+            class="btn-save"
+            (click)="toggleEditProfile()"
+          >
+
+            {{ isEditingProfile ? 'LƯU THÔNG TIN' : 'CHỈNH SỬA THÔNG TIN' }}
+
+          </button>
         </form>
       </div>
 
@@ -95,7 +150,12 @@
                 Mật khẩu cũ <span class="required">*</span>
               </label>
 
-              <input type="password" id="old-password" placeholder="••••••••">
+              <input
+                type="password"
+                id="old-password"
+                placeholder="••••••••"
+                [disabled]="!isChangingPassword"
+              >
 
             </div>
 
@@ -105,7 +165,12 @@
                 Mật khẩu mới <span class="required">*</span>
               </label>
 
-              <input type="password" id="new-password" placeholder="••••••••">
+              <input
+                type="password"
+                id="new-password"
+                placeholder="••••••••"
+                [disabled]="!isChangingPassword"
+              >
 
             </div>
 
@@ -115,13 +180,22 @@
                 Xác minh mật khẩu mới <span class="required">*</span>
               </label>
 
-              <input type="password" id="confirm-password" placeholder="••••••••">
+              <input
+                type="password"
+                id="confirm-password"
+                placeholder="••••••••"
+                [disabled]="!isChangingPassword"
+              >
 
             </div>
 
-            <button type="submit" class="btn-save">
+            <button
+              type="button"
+              class="btn-save"
+              (click)="toggleChangePassword()"
+            >
 
-              LƯU THÔNG TIN
+              {{ isChangingPassword ? 'LƯU THÔNG TIN' : 'ĐỔI MẬT KHẨU' }}
 
             </button>
 
@@ -331,12 +405,12 @@
     </div>
 
     <!-- View 4: Lịch của tôi -->
-    <div *ngIf="currentView === 'schedule'">
+    <!-- <div *ngIf="currentView === 'schedule'">
 
-      <h3 class="section-title">LỊCH CỦA TÔI</h3>
+      <h3 class="section-title">LỊCH CỦA TÔI</h3> -->
 
       <!-- Bộ lọc -->
-      <div class="schedule-controls">
+      <!-- <div class="schedule-controls">
 
         <select class="select-control" [ngModel]="selectedYear" (change)="onYearChange($event)">
 
@@ -364,13 +438,13 @@
 
         </select>
 
-      </div>
+      </div> -->
 
       <!-- Calendar -->
-      <div class="calendar-section">
+      <!-- <div class="calendar-section"> -->
 
         <!-- Header -->
-        <div class="calendar-header">
+        <!-- <div class="calendar-header">
 
           <button class="nav-btn" (click)="previousMonth()">
 
@@ -388,10 +462,10 @@
 
           </button>
 
-        </div>
+        </div> -->
 
         <!-- Weekdays -->
-        <div class="calendar-weekdays">
+        <!-- <div class="calendar-weekdays">
 
           <div class="weekday">Th 2</div>
           <div class="weekday">Th 3</div>
@@ -401,26 +475,26 @@
           <div class="weekday">Th 7</div>
           <div class="weekday">CN</div>
 
-        </div>
+        </div> -->
 
         <!-- Grid -->
-        <div class="calendar-grid">
+        <!-- <div class="calendar-grid">
 
           <div *ngFor="let day of calendarDays" class="calendar-day" [class.empty]="!day.isCurrentMonth"
             [class.today]="day.isToday" [class.holiday]="day.isHoliday" [class.clickable]="day.isCurrentMonth"
             (click)="day.isCurrentMonth && openHolidayPopup(day)" [title]="day.holidayName || ''">
 
-            <span>{{ day.date }}</span>
+            <span>{{ day.date }}</span> -->
 
             <!-- Holiday icon -->
-            <span *ngIf="day.isHoliday" class="holiday-badge">
+            <!-- <span *ngIf="day.isHoliday" class="holiday-badge">
 
               🎉
 
-            </span>
+            </span> -->
 
             <!-- Event dot -->
-            <span *ngIf="day.hasEvent && !day.isHoliday" class="event-dot">
+            <!-- <span *ngIf="day.hasEvent && !day.isHoliday" class="event-dot">
 
             </span>
 
@@ -428,10 +502,10 @@
 
         </div>
 
-      </div>
+      </div> -->
 
       <!-- Popup -->
-      <div *ngIf="showHolidayPopup" class="holiday-popup-overlay" (click)="closeHolidayPopup()">
+      <!-- <div *ngIf="showHolidayPopup" class="holiday-popup-overlay" (click)="closeHolidayPopup()">
 
         <div class="holiday-popup" (click)="$event.stopPropagation()">
 
@@ -487,7 +561,7 @@
 
       </div>
 
-    </div>
+    </div> -->
 
   </div>
 

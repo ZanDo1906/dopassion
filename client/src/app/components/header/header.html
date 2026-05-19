@@ -7,10 +7,40 @@
 
         <!-- Navigation Menu -->
         <nav class="nav-menu">
-            <a routerLink="" class="nav-item">Giới thiệu</a>
-            <a routerLink="/classes" class="nav-item">Lớp học</a>
-            <a routerLink="/contact" class="nav-item">Liên hệ</a>
-            <a routerLink="/reviews" class="nav-item">Đánh giá</a>
+
+            <a
+                routerLink=""
+                class="nav-item"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+            >
+                Giới thiệu
+            </a>
+
+            <a
+                routerLink="/classes"
+                class="nav-item"
+                routerLinkActive="active"
+            >
+                Lớp học
+            </a>
+
+            <a
+                routerLink="/contact"
+                class="nav-item"
+                routerLinkActive="active"
+            >
+                Liên hệ
+            </a>
+
+            <a
+                routerLink="/reviews"
+                class="nav-item"
+                routerLinkActive="active"
+            >
+                Đánh giá
+            </a>
+
         </nav>
 
         <!-- Right Section -->

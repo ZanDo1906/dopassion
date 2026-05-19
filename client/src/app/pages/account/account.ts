@@ -62,6 +62,11 @@ export class Account implements OnInit {
   phoneNumber: string = '0562173125';
   showPasswordForm: boolean = false;
 
+  // PROFILE EDIT
+isEditingProfile: boolean = false;
+isChangingPassword: boolean = false;
+
+avatarPreview: string | null = null;
 
   // BIẾN QUẢN LÝ BỘ LỌC
   classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
@@ -336,5 +341,54 @@ export class Account implements OnInit {
     this.showPaymentPopup = false;
     this.selectedPayment = null;
   }
+  toggleEditProfile() {
+
+  if (this.isEditingProfile) {
+
+    // SAVE API
+    console.log('Đã lưu thông tin');
+
+  }
+
+  this.isEditingProfile = !this.isEditingProfile;
+}
+  toggleChangePassword() {
+
+  if (this.isChangingPassword) {
+
+    // SAVE PASSWORD API
+    console.log('Đã đổi mật khẩu');
+
+  }
+
+  this.isChangingPassword = !this.isChangingPassword;
+}
+
+onAvatarChange(event: any) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  // check file ảnh
+  if (!file.type.startsWith('image/')) {
+
+    alert('Vui lòng chọn file ảnh');
+
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+
+    this.avatarPreview = reader.result as string;
+    this.isEditingProfile = true;
+
+  };
+
+  reader.readAsDataURL(file);
+}
+
 }
 
