@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,6 +17,8 @@ export class PaginationComponent implements OnChanges, OnInit {
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
+
+  @ViewChild('paginationRef') paginationElement!: ElementRef;
 
   pages: number[] = [];
   totalPages: number = 1;
@@ -96,8 +98,9 @@ export class PaginationComponent implements OnChanges, OnInit {
     }
     console.log('[Pagination] onPageChange emitting:', { newPage: page, currentPage: this.currentPage });
     // Emit chính xác con số trang mà người dùng click
-    this.pageChange.emit(page);
-  }
+    this.pageChange.emit(page);    
+    // Tự động scroll tới pagination sau khi chuyển trang
+    this.scrollToPagination();  }
 
   onPageSizeChange(newSize: number): void {
     const numericSize = Number(newSize);
@@ -106,9 +109,23 @@ export class PaginationComponent implements OnChanges, OnInit {
     if (numericSize && numericSize > 0 && numericSize !== this.itemsPerPage) {
       console.log('[Pagination] Emitting pageSizeChange:', numericSize);
       this.pageSizeChange.emit(numericSize);
+      
+      // Tự động scroll tới pagination sau khi thay đổi số item per page
+      this.scrollToPagination();
     } else {
       console.warn('[Pagination] Invalid newSize or same as current:', { newSize: numericSize, current: this.itemsPerPage });
     }
+  }
+
+  /**
+   * Tự động scroll tới pagination element
+   */
+  private scrollToPagination(): void {
+    setTimeout(() => {
+      if (this.paginationElement) {
+        this.paginationElement.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 0);
   }
 
   /**

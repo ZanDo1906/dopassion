@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 
@@ -14,6 +14,8 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angul
   styleUrls: ['./form-dialog.css']
 })
 export class FormDialogComponent implements OnChanges {
+
+  constructor(private elementRef: ElementRef<HTMLElement>) {}
 
   @Input() title: string = '';
   @Input() sections: any[] = [];
@@ -100,9 +102,37 @@ export class FormDialogComponent implements OnChanges {
       Object.keys(this.formGroup.controls).forEach(key => {
         this.formGroup?.get(key)?.markAsTouched();
       });
+      // Apply visual error classes to .form-group elements so template-based dialogs show errors
+      this.applyHasErrorClasses();
       return;
     }
     this.submit.emit(this.formGroup ? this.formGroup.getRawValue() : this.formData);
+  }
+
+  /**
+   * Add/remove `has-error` class on .form-group elements that contain the form control
+   * This ensures templates that provide their own form HTML still get the same error styling
+   */
+  private applyHasErrorClasses(): void {
+    if (!this.formGroup || !this.elementRef) return;
+
+    Object.keys(this.formGroup.controls).forEach((name) => {
+      const control = this.formGroup!.get(name);
+      // Query for element with formControlName (DOM attribute lowercased)
+      const selector = `[formcontrolname="${name}"]`;
+      const el = this.elementRef.nativeElement.querySelector(selector) as HTMLElement | null;
+      if (!el) return;
+
+      const formGroupEl = el.closest('.form-group') as HTMLElement | null;
+      if (!formGroupEl) return;
+
+      const shouldHaveError = !!(control && control.invalid && (control.touched || control.dirty));
+      if (shouldHaveError) {
+        formGroupEl.classList.add('has-error');
+      } else {
+        formGroupEl.classList.remove('has-error');
+      }
+    });
   }
 
   getFieldError(fieldName: string): string | null {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateRange, DateRangePickerComponent } from '../date-range-picker/date-range-picker';
@@ -20,7 +20,7 @@ export interface FilterConfig {
   templateUrl: './filter-data-picker.html',
   styleUrl: './filter-data-picker.css',
 })
-export class FilterDataPicker {
+export class FilterDataPicker implements OnInit, OnChanges {
   /**
    * Input: Nhận cấu hình bộ lọc từ Component cha
    * Giúp component có thể tái sử dụng cho nhiều trang khác nhau
@@ -56,6 +56,35 @@ export class FilterDataPicker {
    * Toggle mở/đóng filter card
    */
   constructor(private elementRef: ElementRef<HTMLElement>) { }
+
+  ngOnInit(): void {
+    this.initializeFilterValues();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['config'] && !changes['config'].firstChange) {
+      this.initializeFilterValues();
+    }
+  }
+
+  /**
+   * Khởi tạo filterValues với giá trị mặc định
+   * - Select fields: "" (chuỗi rỗng)
+   * - Text fields: ""
+   * - Date fields: ""
+   * - Multi-select: [] (mảng rỗng)
+   */
+  private initializeFilterValues(): void {
+    for (const field of this.config) {
+      if (!this.filterValues.hasOwnProperty(field.key)) {
+        if (field.type === 'multi-select') {
+          this.filterValues[field.key] = [];
+        } else {
+          this.filterValues[field.key] = '';
+        }
+      }
+    }
+  }
 
   toggleFilter(): void {
     this.isFilterOpen = !this.isFilterOpen;
@@ -174,11 +203,18 @@ export class FilterDataPicker {
 
   /**
    * Xử lý sự kiện xóa bộ lọc
-   * Reset filterValues về {}
+   * Reset filterValues về giá trị mặc định (select = "", multi-select = [])
    * Phát ra event onReset để Component cha xử lý
    */
   triggerReset(): void {
-    this.filterValues = {};
+    // Ghi đè tất cả giá trị filterValues về mặc định
+    for (const field of this.config) {
+      if (field.type === 'multi-select') {
+        this.filterValues[field.key] = [];
+      } else {
+        this.filterValues[field.key] = '';
+      }
+    }
     this.openDropdownKey = null;
     this.onReset.emit();
   }

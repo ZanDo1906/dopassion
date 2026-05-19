@@ -47,6 +47,17 @@ export class Registration implements OnInit {
       key: 'className',
       label: 'Lớp học',
       type: 'text'
+    },
+    {
+      key: 'status',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Đang hoạt động', label: 'Đang hoạt động' },
+        { value: 'Đã khóa', label: 'Đã khóa' },
+        { value: 'Ngưng hoạt động', label: 'Ngưng hoạt động' },
+        { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' }
+      ]
     }
   ];
 
