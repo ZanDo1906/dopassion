@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormBuilder,FormGroup,ReactiveFormsModule } from '@angular/forms';
-import {DecimalPipe, NgForOf,NgIf,NgClass} from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { DecimalPipe, NgForOf, NgIf, NgClass } from '@angular/common';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { RefundService } from '../../../services/refund';
 
@@ -9,7 +9,7 @@ import { RefundService } from '../../../services/refund';
   selector: 'app-refund',
   standalone: true,
 
-  imports: [FormsModule, ReactiveFormsModule,NgIf,NgForOf,NgClass,DecimalPipe,GridFormDialog],
+  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgClass, DecimalPipe, GridFormDialog],
   templateUrl: './refund.html',
   styleUrls: ['./refund.css'],
 })
@@ -22,7 +22,7 @@ export class Refund {
 
   isFilterOpen = true;
 
-  
+
 
   // Phân trang
   currentPage = 1;
@@ -35,9 +35,9 @@ export class Refund {
 
   errorMessage = '';
 
-  showDetailDialog=false;
-  dialogMode:'view'|'approve'='view';
-  detailForm!:FormGroup;
+  showDetailDialog = false;
+  dialogMode: 'view' | 'approve' = 'view';
+  detailForm!: FormGroup;
 
   filters = {
     registrationCode: '',
@@ -63,159 +63,159 @@ export class Refund {
 
   registrationSection = {
 
-  title:'THÔNG TIN ĐĂNG KÝ',
+    title: 'THÔNG TIN ĐĂNG KÝ',
 
-  fields:[
+    fields: [
 
-    {
-      name:'maDangKy',
-      label:'Mã đăng ký',
-      type:'text'
-    },
+      {
+        name: 'maDangKy',
+        label: 'Mã đăng ký',
+        type: 'text'
+      },
 
-    {
-      name:'maKH',
-      label:'Mã khách hàng',
-      type:'text'
-    },
+      {
+        name: 'maKH',
+        label: 'Mã khách hàng',
+        type: 'text'
+      },
 
-    {
-      name:'tenKhachHang',
-      label:'Tên khách hàng',
-      type:'text'
-    },
+      {
+        name: 'tenKhachHang',
+        label: 'Tên khách hàng',
+        type: 'text'
+      },
 
-    {
-      name:'maLop',
-      label:'Mã lớp',
-      type:'text'
-    },
+      {
+        name: 'maLop',
+        label: 'Mã lớp',
+        type: 'text'
+      },
 
-    {
-      name:'khoaHoc',
-      label:'Khóa học',
-      type:'text'
-    },
+      {
+        name: 'khoaHoc',
+        label: 'Khóa học',
+        type: 'text'
+      },
 
-    {
-      name:'chiNhanh',
-      label:'Chi nhánh',
-      type:'text'
-    },
+      {
+        name: 'chiNhanh',
+        label: 'Chi nhánh',
+        type: 'text'
+      },
 
-    {
-      name:'ngayDangKy',
-      label:'Ngày đăng ký',
-      type:'text'
-    }
+      {
+        name: 'ngayDangKy',
+        label: 'Ngày đăng ký',
+        type: 'text'
+      }
 
-  ]
-};
+    ]
+  };
 
-approvedRefundSection = {
+  approvedRefundSection = {
 
-  title:'THÔNG TIN HOÀN TIỀN',
+    title: 'THÔNG TIN HOÀN TIỀN',
 
-  fields:[
+    fields: [
 
-    {
-      name:'lyDoYeuCau',
-      label:'Lý do yêu cầu hoàn tiền',
-      type:'textarea'
-    },
+      {
+        name: 'lyDoYeuCau',
+        label: 'Lý do yêu cầu hoàn tiền',
+        type: 'textarea'
+      },
 
-    {
-      name:'daThanhToan',
-      label:'Đã thanh toán',
-      type:'number'
-    },
+      {
+        name: 'daThanhToan',
+        label: 'Đã thanh toán',
+        type: 'number'
+      },
 
-    {
-      name:'soTienHoan',
-      label:'Số tiền hoàn',
-      type:'number'
-    },
+      {
+        name: 'soTienHoan',
+        label: 'Số tiền hoàn',
+        type: 'number'
+      },
 
-    {
-      name:'lyDoChapNhan',
-      label:'Lý do chấp nhận hoàn tiền',
-      type:'textarea'
-    },
+      {
+        name: 'lyDoChapNhan',
+        label: 'Lý do chấp nhận hoàn tiền',
+        type: 'textarea'
+      },
 
-    {
-      name:'trangThai',
-      label:'Trạng thái',
-      type:'text'
-    }
+      {
+        name: 'trangThai',
+        label: 'Trạng thái',
+        type: 'text'
+      }
 
-  ]
-};
+    ]
+  };
 
-rejectedRefundSection = {
+  rejectedRefundSection = {
 
-  title:'THÔNG TIN TỪ CHỐI',
+    title: 'THÔNG TIN TỪ CHỐI',
 
-  fields:[
+    fields: [
 
-    {
-      name:'lyDoYeuCau',
-      label:'Lý do yêu cầu hoàn tiền',
-      type:'textarea'
-    },
+      {
+        name: 'lyDoYeuCau',
+        label: 'Lý do yêu cầu hoàn tiền',
+        type: 'textarea'
+      },
 
-    {
-      name:'daThanhToan',
-      label:'Đã thanh toán',
-      type:'number'
-    },
+      {
+        name: 'daThanhToan',
+        label: 'Đã thanh toán',
+        type: 'number'
+      },
 
-    {
-      name:'lyDoTuChoi',
-      label:'Lý do từ chối',
-      type:'textarea'
-    },
+      {
+        name: 'lyDoTuChoi',
+        label: 'Lý do từ chối',
+        type: 'textarea'
+      },
 
-    {
-      name:'trangThai',
-      label:'Trạng thái',
-      type:'text'
-    }
+      {
+        name: 'trangThai',
+        label: 'Trạng thái',
+        type: 'text'
+      }
 
-  ]
-};
+    ]
+  };
 
-refundDetailSections:any[]=[];
+  refundDetailSections: any[] = [];
 
   constructor(
     private refundService: RefundService,
-    private fb:FormBuilder
+    private fb: FormBuilder
   ) {
 
     this.loadRefunds();
     this.initForm();
   }
 
-  initForm(){
+  initForm() {
 
-  this.detailForm=this.fb.group({
+    this.detailForm = this.fb.group({
 
-    maDangKy:[''],
-    maKH:[''],
-    tenKhachHang:[''],
-    maLop:[''],
-    khoaHoc:[''],
-    chiNhanh:[''],
-    ngayDangKy:[''],
-    daThanhToan:[''],
-    soTienHoan:[''],
-    lyDoYeuCau:[''],
-    lyDoChapNhan:[''],
-    lyDoTuChoi:[''],
-    trangThai:['']
+      maDangKy: [''],
+      maKH: [''],
+      tenKhachHang: [''],
+      maLop: [''],
+      khoaHoc: [''],
+      chiNhanh: [''],
+      ngayDangKy: [''],
+      daThanhToan: [''],
+      soTienHoan: [''],
+      lyDoYeuCau: [''],
+      lyDoChapNhan: [''],
+      lyDoTuChoi: [''],
+      trangThai: ['']
 
-  });
+    });
 
-}
+  }
 
   toggleFilter() {
 
@@ -231,22 +231,22 @@ refundDetailSections:any[]=[];
 
         this.refunds = items.map((item) => ({
 
-          stt: item['STT'],
-          maDangKy: item['Mã đăng ký'],
-          maKH: item['Mã KH'],
-          tenKhachHang: item['Tên KH'],
-          maLop: item['Mã lớp'],
-          tenLopHoc: item['Tên lớp học'],
-          khoaHoc: item['Khóa học'],
-          tenKhoa: item['Tên khóa'],
-          chiNhanh: item['Chi nhánh'],
-          ngayDangKy: item['Ngày đăng ký'],
-          daThanhToan: item['Đã thanh toán'],
-          soTienHoan: item['Số tiền hoàn'],
-          lyDoYeuCau: item['Lý do yêu cầu hoàn tiền'] || '',
-          lyDoChapNhan: item['Lý do chấp nhận hoàn tiền'] || '',
-          lyDoTuChoi: item['Lý do từ chối'],
-          trangThai: item['Trạng thái']
+          stt: item.stt,
+          maDangKy: item.maDangKy,
+          maKH: item.maKh,
+          tenKhachHang: item.tenKh,
+          maLop: item.maLop,
+          tenLopHoc: item.tenLopHoc,
+          khoaHoc: item.khoaHoc,
+          tenKhoa: item.tenKhoa,
+          chiNhanh: item.chiNhanh,
+          ngayDangKy: item.ngayDangKy,
+          daThanhToan: item.daThanhToan,
+          soTienHoan: item.soTienHoan,
+          lyDoYeuCau: item.lyDoYeuCauHoanTien || '',
+          lyDoChapNhan: item.lyDoChapNhanHoanTien || '',
+          lyDoTuChoi: item.lyDoTuChoi,
+          trangThai: item.trangThai
 
         }));
 
@@ -314,44 +314,44 @@ refundDetailSections:any[]=[];
         const matchesRegistration =
           registration
             ? item.maDangKy
-                .toLowerCase()
-                .includes(registration)
+              .toLowerCase()
+              .includes(registration)
             : true;
 
         const matchesCustomer =
           customer
             ? item.maKH
-                .toLowerCase()
-                .includes(customer)
+              .toLowerCase()
+              .includes(customer)
             : true;
 
         const matchesClass =
           classCode
             ? item.maLop
-                .toLowerCase()
-                .includes(classCode)
+              .toLowerCase()
+              .includes(classCode)
             : true;
 
         const matchesBranch =
           branch
             ? item.chiNhanh
-                .toLowerCase()
-                .includes(branch)
+              .toLowerCase()
+              .includes(branch)
             : true;
 
         const matchesCourse =
           courseCode
             ? item.khoaHoc
-                .toLowerCase()
-                .includes(courseCode)
+              .toLowerCase()
+              .includes(courseCode)
             : true;
 
         const matchesStatus =
           status
             ? item.trangThai
-                .toLowerCase()
-                .includes(status)
-            : true;    
+              .toLowerCase()
+              .includes(status)
+            : true;
         return (
 
           matchesRegistration &&
@@ -455,115 +455,115 @@ refundDetailSections:any[]=[];
 
   }
 
-  viewRefundDetail(item:any):void{
-  this.dialogMode='view';
-    if(item.trangThai === 'Đã hủy'){
+  viewRefundDetail(item: any): void {
+    this.dialogMode = 'view';
+    if (item.trangThai === 'Đã hủy') {
 
-  this.refundDetailSections = [
+      this.refundDetailSections = [
 
-    this.registrationSection,
-    this.rejectedRefundSection
+        this.registrationSection,
+        this.rejectedRefundSection
 
-  ];
+      ];
 
-}else{
+    } else {
 
-  this.refundDetailSections = [
+      this.refundDetailSections = [
 
-    this.registrationSection,
-    this.approvedRefundSection
+        this.registrationSection,
+        this.approvedRefundSection
 
-  ];
+      ];
 
-}
-  this.detailForm.patchValue({
+    }
+    this.detailForm.patchValue({
 
-    maDangKy:item.maDangKy,
-    maKH:item.maKH,
-    tenKhachHang:item.tenKhachHang,
-    maLop:item.maLop,
-    khoaHoc:item.khoaHoc,
-    chiNhanh:item.chiNhanh,
-    ngayDangKy:item.ngayDangKy,
-    daThanhToan:item.daThanhToan,
-    soTienHoan:item.soTienHoan,
-    lyDoYeuCau:item.lyDoYeuCau,
-    lyDoChapNhan:item.lyDoChapNhan,
-    lyDoTuChoi:item.lyDoTuChoi,
-    trangThai:item.trangThai
+      maDangKy: item.maDangKy,
+      maKH: item.maKH,
+      tenKhachHang: item.tenKhachHang,
+      maLop: item.maLop,
+      khoaHoc: item.khoaHoc,
+      chiNhanh: item.chiNhanh,
+      ngayDangKy: item.ngayDangKy,
+      daThanhToan: item.daThanhToan,
+      soTienHoan: item.soTienHoan,
+      lyDoYeuCau: item.lyDoYeuCau,
+      lyDoChapNhan: item.lyDoChapNhan,
+      lyDoTuChoi: item.lyDoTuChoi,
+      trangThai: item.trangThai
 
-  });
+    });
 
-  this.detailForm.disable();
+    this.detailForm.disable();
 
-  this.showDetailDialog=true;
+    this.showDetailDialog = true;
 
-}
-approveRefund(item:any):void{
+  }
+  approveRefund(item: any): void {
 
-  this.dialogMode='approve';
+    this.dialogMode = 'approve';
 
-  this.detailForm.patchValue({
+    this.detailForm.patchValue({
 
-    maDangKy:item.maDangKy,
-    maKH:item.maKH,
-    tenKhachHang:item.tenKhachHang,
-    maLop:item.maLop,
-    khoaHoc:item.khoaHoc,
-    chiNhanh:item.chiNhanh,
-    ngayDangKy:item.ngayDangKy,
-    daThanhToan:item.daThanhToan,
-    soTienHoan:item.soTienHoan,
-    lyDoYeuCau:item.lyDoYeuCau,
-    lyDoChapNhan:item.lyDoChapNhan,
-    trangThai:item.trangThai
+      maDangKy: item.maDangKy,
+      maKH: item.maKH,
+      tenKhachHang: item.tenKhachHang,
+      maLop: item.maLop,
+      khoaHoc: item.khoaHoc,
+      chiNhanh: item.chiNhanh,
+      ngayDangKy: item.ngayDangKy,
+      daThanhToan: item.daThanhToan,
+      soTienHoan: item.soTienHoan,
+      lyDoYeuCau: item.lyDoYeuCau,
+      lyDoChapNhan: item.lyDoChapNhan,
+      trangThai: item.trangThai
 
-  });
+    });
 
-  // disable toàn bộ trước
-  this.detailForm.disable();
+    // disable toàn bộ trước
+    this.detailForm.disable();
 
-  // mở edit 2 field
-  this.detailForm.get('soTienHoan')?.enable();
+    // mở edit 2 field
+    this.detailForm.get('soTienHoan')?.enable();
 
-  this.detailForm.get('lyDoChapNhan')?.enable();
+    this.detailForm.get('lyDoChapNhan')?.enable();
 
-  this.showDetailDialog=true;
+    this.showDetailDialog = true;
 
-}
-closeDialog():void{
+  }
+  closeDialog(): void {
 
-  this.showDetailDialog=false;
+    this.showDetailDialog = false;
 
-}
-
-saveApproveRefund():void{
-
-  const formValue=
-    this.detailForm.getRawValue();
-
-  const index=
-    this.refunds.findIndex(
-      x=>x.maDangKy===formValue.maDangKy
-    );
-
-  if(index!==-1){
-
-    this.refunds[index].soTienHoan=
-      formValue.soTienHoan;
-
-    this.refunds[index].lyDoChapNhan=
-      formValue.lyDoChapNhan;
-
-    this.refunds[index].trangThai=
-      'Đã duyệt';
-
-    this.filteredRefunds=[
-      ...this.refunds
-    ];
   }
 
-  this.showDetailDialog=false;
+  saveApproveRefund(): void {
 
-}
+    const formValue =
+      this.detailForm.getRawValue();
+
+    const index =
+      this.refunds.findIndex(
+        x => x.maDangKy === formValue.maDangKy
+      );
+
+    if (index !== -1) {
+
+      this.refunds[index].soTienHoan =
+        formValue.soTienHoan;
+
+      this.refunds[index].lyDoChapNhan =
+        formValue.lyDoChapNhan;
+
+      this.refunds[index].trangThai =
+        'Đã duyệt';
+
+      this.filteredRefunds = [
+        ...this.refunds
+      ];
+    }
+
+    this.showDetailDialog = false;
+
+  }
 }

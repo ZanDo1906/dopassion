@@ -38,16 +38,16 @@
             <tbody>
                 <tr *ngFor="let item of paginatedClasses; let i = index">
                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td>{{item['Mã lớp']}}</td>
-                    <td>{{item['Tên lớp']}}</td>
-                    <td>{{item['Mã khóa']}}</td>
-                    <td>{{item['Tên khóa học']}}</td>
-                    <td>{{item['Chi nhánh']}}</td>
-                    <td>{{item['Giảng viên']}}</td>
-                    <td>{{item['Mã Nhân viên']}}</td>
-                    <td>{{item['Khung giờ']}}</td>
-                    <td>{{item['Ngày bắt đầu'] | date:'dd/MM/yyyy'}}</td>
-                    <td>{{item['Ngày kết thúc'] | date:'dd/MM/yyyy'}}</td>
+                    <td>{{item.maLop}}</td>
+                    <td>{{item.tenLop}}</td>
+                    <td>{{item.maKhoa}}</td>
+                    <td>{{item.tenKhoaHoc}}</td>
+                    <td>{{item.chiNhanh}}</td>
+                    <td>{{item.giangVien}}</td>
+                    <td>{{item.maNhanVien}}</td>
+                    <td>{{item.khungGio}}</td>
+                    <td>{{item.ngayBatDau | date:'dd/MM/yyyy'}}</td>
+                    <td>{{item.ngayKetThuc | date:'dd/MM/yyyy'}}</td>
                     <td>
                         <div class="action-group">
                             <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>

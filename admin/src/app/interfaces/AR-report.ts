@@ -1,11 +1,15 @@
 export interface iDebtReport {
-    "Ngày": string;
-    "Chi nhánh": string;
-    "Khóa học": string;
-    "Lớp học": string;
-    "Số tiền học phí": number;
-    "Số tiền giảm giá": number;
-    "Số tiền đã thu": number;
-    "Số tiền chưa thu": number;
-    "Số tiền hoàn": number;
+    _id?: string;
+    ngay: string;
+    chiNhanh: string;
+    khoaHoc: string;
+    lopHoc: string;
+    soTienHocPhi: number;
+    soTienGiamGia: number;
+    soTienDaThu: number;
+    soTienChuaThu: number;
+    soTienHoan: number;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

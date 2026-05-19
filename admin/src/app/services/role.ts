@@ -2,26 +2,38 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { iRole } from '../interfaces/role';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleService {
-  readonly resourceUrl = 'assets/mock-data-json/role.json';
-  apiUrl = '';
+  private apiUrl = `${environment.apiUrl}/role`;
 
   constructor(private http: HttpClient) { }
 
-  getRole(): Observable<iRole[]> {
-    return this.http.get<iRole[]>(this.resourceUrl);
+  getRoles(): Observable<iRole[]> {
+    return this.http.get<iRole[]>(this.apiUrl);
   }
 
-  addRole(newRole: any, endpoint: string = this.apiUrl): Observable<any> {
+  addRole(newRole: iRole, endpoint: string = this.apiUrl): Observable<iRole> {
     if (!endpoint) {
-      return of(newRole);
+      return of(newRole as iRole);
     }
 
-    return this.http.post<any>(endpoint, newRole);
+    return this.http.post<iRole>(endpoint, newRole);
+  }
+
+  updateRole(id: string, data: Partial<iRole>): Observable<iRole> {
+    return this.http.put<iRole>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteRole(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  getRole(): Observable<iRole[]> {
+    return this.getRoles();
   }
 
   /**
@@ -52,11 +64,15 @@ export class RoleService {
       return this.http.put<any>(endpoint, payload);
     }
 
+    if (this.apiUrl) {
+      return this.http.put<any>(`${this.apiUrl}/${roleId}`, payload);
+    }
+
     // Mock response cho development
     return of({
       success: true,
       message: `Cập nhật trạng thái thành: ${newStatus}`,
-      role: { 'TRẠNG THÁI': newStatus } as any
+      role: { trangThai: newStatus } as any
     });
   }
 }

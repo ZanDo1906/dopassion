@@ -26,7 +26,7 @@ export class Request implements OnInit {
   isDialogOpen = false;
   dialogSections: any[] = [];
 
-  constructor(private contactService: Contact) {}
+  constructor(private contactService: Contact) { }
 
   ngOnInit() {
     this.loadRequests();
@@ -38,7 +38,7 @@ export class Request implements OnInit {
         this.requests = data.map((item, index) => {
           // Trích xuất ngày từ Mã liên hệ (LH-080526-001 -> 08/05/2026)
           let dateStr = 'N/A';
-          const maLH = item['Mã liên hệ'] || '';
+          const maLH = item.maLienHe || '';
           if (maLH.length >= 11) {
             const d = maLH.substring(3, 5);
             const m = maLH.substring(5, 7);
@@ -47,13 +47,13 @@ export class Request implements OnInit {
           }
 
           return {
-            stt: item['STT'] || index + 1,
+            stt: item.stt || index + 1,
             maYeuCau: maLH,
-            tieuDe: item['Nội dung liên hệ'],
-            nguoiGui: item['Tên khách hàng'],
+            tieuDe: item.noiDungLienHe,
+            nguoiGui: item.tenKhachHang,
             ngayGui: dateStr,
-            trangThai: item['Trạng thái liên hệ'],
-            cauTraLoi: item['Câu trả lời']
+            trangThai: item.trangThaiLienHe,
+            cauTraLoi: ''
           };
         });
         this.filteredRequests = [...this.requests];
@@ -69,7 +69,7 @@ export class Request implements OnInit {
   // Hàm mở Popup và nạp dữ liệu từ row tương ứng vào các field
   openDetailDialog(item: any) {
     this.isDialogOpen = true;
-    
+
     // Cấu hình các mục hiển thị trong Popup dựa trên dữ liệu của 'item'
     this.dialogSections = [
       {

@@ -10,7 +10,7 @@ import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 @Component({
   selector: 'app-debt',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgClass, DecimalPipe,GridFormDialog],
+  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgClass, DecimalPipe, GridFormDialog],
   templateUrl: './debt.html',
   styleUrls: ['./debt.css'],
 })
@@ -34,124 +34,124 @@ export class Debt {
 
   paymentDetailSections = [
 
-  {
-    title: 'THÔNG TIN ĐĂNG KÝ',
+    {
+      title: 'THÔNG TIN ĐĂNG KÝ',
 
-    fields: [
+      fields: [
 
-      {
-        name: 'maDangKy',
-        label: 'Mã đăng ký',
-        type: 'text'
-      },
+        {
+          name: 'maDangKy',
+          label: 'Mã đăng ký',
+          type: 'text'
+        },
 
-      {
-        name: 'maKH',
-        label: 'Mã khách hàng',
-        type: 'text'
-      },
+        {
+          name: 'maKH',
+          label: 'Mã khách hàng',
+          type: 'text'
+        },
 
-      {
-        name: 'tenKhachHang',
-        label: 'Tên khách hàng',
-        type: 'text'
-      },
+        {
+          name: 'tenKhachHang',
+          label: 'Tên khách hàng',
+          type: 'text'
+        },
 
-      {
-        name: 'maLop',
-        label: 'Mã lớp',
-        type: 'text'
-      },
+        {
+          name: 'maLop',
+          label: 'Mã lớp',
+          type: 'text'
+        },
 
-      {
-        name: 'khoaHoc',
-        label: 'Khóa học',
-        type: 'text'
-      },
+        {
+          name: 'khoaHoc',
+          label: 'Khóa học',
+          type: 'text'
+        },
 
-      {
-        name: 'chiNhanh',
-        label: 'Chi nhánh',
-        type: 'text'
-      },
+        {
+          name: 'chiNhanh',
+          label: 'Chi nhánh',
+          type: 'text'
+        },
 
-      {
-        name: 'ngayDangKy',
-        label: 'Ngày đăng ký',
-        type: 'text'
-      }
+        {
+          name: 'ngayDangKy',
+          label: 'Ngày đăng ký',
+          type: 'text'
+        }
 
-    ]
-  },
+      ]
+    },
 
-  {
-    title: 'THÔNG TIN CÔNG NỢ',
+    {
+      title: 'THÔNG TIN CÔNG NỢ',
 
-    fields: [
+      fields: [
 
-      {
-        name: 'hocPhi',
-        label: 'Học phí',
-        type: 'number'
-      },
+        {
+          name: 'hocPhi',
+          label: 'Học phí',
+          type: 'number'
+        },
 
-      {
-        name: 'voucher',
-        label: 'Voucher',
-        type: 'text'
-      },
+        {
+          name: 'voucher',
+          label: 'Voucher',
+          type: 'text'
+        },
 
-      {
-        name: 'soTienCanThanhToan',
-        label: 'Số tiền cần thanh toán',
-        type: 'number'
-      },
+        {
+          name: 'soTienCanThanhToan',
+          label: 'Số tiền cần thanh toán',
+          type: 'number'
+        },
 
-      {
-        name: 'soTienDaDong',
-        label: 'Số tiền đã đóng',
-        type: 'number'
-      },
+        {
+          name: 'soTienDaDong',
+          label: 'Số tiền đã đóng',
+          type: 'number'
+        },
 
-      {
-        name: 'soTienConLai',
-        label: 'Số tiền còn lại',
-        type: 'number'
-      },
+        {
+          name: 'soTienConLai',
+          label: 'Số tiền còn lại',
+          type: 'number'
+        },
 
-      {
-        name: 'trangThai',
-        label: 'Trạng thái',
-        type: 'text'
-      }
+        {
+          name: 'trangThai',
+          label: 'Trạng thái',
+          type: 'text'
+        }
 
-    ]
+      ]
+    }
+
+  ];
+
+  initForm() {
+
+    this.detailForm = this.fb.group({
+
+      maDangKy: [''],
+      maKH: [''],
+      tenKhachHang: [''],
+      maLop: [''],
+      khoaHoc: [''],
+      chiNhanh: [''],
+      ngayDangKy: [''],
+
+      hocPhi: [''],
+      voucher: [''],
+      soTienCanThanhToan: [''],
+      soTienDaDong: [''],
+      soTienConLai: [''],
+      trangThai: ['']
+
+    });
+
   }
-
-];
-
-initForm() {
-
-  this.detailForm = this.fb.group({
-
-    maDangKy: [''],
-    maKH: [''],
-    tenKhachHang: [''],
-    maLop: [''],
-    khoaHoc: [''],
-    chiNhanh: [''],
-    ngayDangKy: [''],
-
-    hocPhi: [''],
-    voucher: [''],
-    soTienCanThanhToan: [''],
-    soTienDaDong: [''],
-    soTienConLai: [''],
-    trangThai: ['']
-
-  });
-
-}
 
   filters = {
     registrationCode: '',
@@ -162,14 +162,14 @@ initForm() {
   };
 
   constructor(
-  private paymentService: Payment,
-  private courseService: Course,
-  private fb: FormBuilder
-) {
-  this.loadPayments();
-  this.loadCourses();
-  this.initForm();
-}
+    private paymentService: Payment,
+    private courseService: Course,
+    private fb: FormBuilder
+  ) {
+    this.loadPayments();
+    this.loadCourses();
+    this.initForm();
+  }
 
   toggleFilter() {
 
@@ -185,45 +185,45 @@ initForm() {
 
         this.payments = items.map((item) => ({
 
-          stt: item['STT'],
+          stt: item.stt,
 
-          maDangKy: item['Mã đăng ký'],
+          maDangKy: item.maDangKy,
 
-          maKH: item['Mã KH'],
+          maKH: item.maKh,
 
-          tenKhachHang: item['Tên KH'],
+          tenKhachHang: item.tenKh,
 
-          maLop: item['Mã lớp'],
+          maLop: item.maLop,
 
-          tenLopHoc: item['Tên lớp học'],
+          tenLopHoc: item.tenLopHoc,
 
-          khoaHoc: item['Khóa học'],
+          khoaHoc: item.khoaHoc,
 
-          tenKhoa: item['Tên khóa'],
+          tenKhoa: item.tenKhoa,
 
-          chiNhanh: item['Chi nhánh'],
+          chiNhanh: item.chiNhanh,
 
-          ngayDangKy: item['Ngày đăng ký'],
+          ngayDangKy: item.ngayDangKy,
 
-          hocPhi: item['Học phí'],
+          hocPhi: item.hocPhi,
 
-          voucher: item['Voucher'],
+          voucher: item.voucher,
 
-          thongSoGiam: item['Thông số giảm'],
+          thongSoGiam: item.thongSoGiam,
 
-          soTienCanThanhToan: item['Số tiền cần thanh toán'],
+          soTienCanThanhToan: item.soTienCanThanhToan,
 
           soTienDaDong:
-            item['Số tiền cần thanh toán'] - item['Số tiền còn lại'],
+            item.soTienCanThanhToan - item.soTienConLai,
 
-          soTienConLai: item['Số tiền còn lại'],
+          soTienConLai: item.soTienConLai,
 
-          trangThai: item['Trạng thái THANH TOÁN']
+          trangThai: item.trangThaiThanhToan
 
         }));
 
         this.filteredPayments = [...this.payments];
-        
+
 
         this.loading = false;
       },
@@ -274,9 +274,9 @@ initForm() {
     });
 
   }
-  
+
   applyFilter() {
-    
+
     this.currentPage = 1;
 
     const registration =
@@ -309,36 +309,36 @@ initForm() {
       const matchesRegistration =
         registration
           ? item.maDangKy
-              .toLowerCase()
-              .includes(registration)
+            .toLowerCase()
+            .includes(registration)
           : true;
 
       const matchesCustomer =
         customer
           ? item.maKH
-              .toLowerCase()
-              .includes(customer)
+            .toLowerCase()
+            .includes(customer)
           : true;
 
       const matchesClass =
         classCode
           ? item.maLop
-              .toLowerCase()
-              .includes(classCode)
+            .toLowerCase()
+            .includes(classCode)
           : true;
 
       const matchesBranch =
         branch
           ? item.chiNhanh
-              .toLowerCase()
-              .includes(branch)
+            .toLowerCase()
+            .includes(branch)
           : true;
 
       const matchesCourse =
         courseCode
           ? item.khoaHoc
-              .toLowerCase()
-              .includes(courseCode)
+            .toLowerCase()
+            .includes(courseCode)
           : true;
 
       return (
@@ -373,184 +373,184 @@ initForm() {
     this.currentPage = 1;
 
   }
-get totalPages(): number {
+  get totalPages(): number {
 
-  return Math.max(
-    1,
-    Math.ceil(
-      this.filteredPayments.length / this.itemsPerPage
-    )
-  );
-
-}
-
-get paginatedPayments(): any[] {
-
-  const start =
-    (this.currentPage - 1) * this.itemsPerPage;
-
-  const end =
-    start + this.itemsPerPage;
-
-  return this.filteredPayments.slice(start, end);
-
-}
-
-get pages(): number[] {
-
-  return Array.from(
-    { length: this.totalPages },
-    (_, i) => i + 1
-  );
-
-}
-
-changePage(page: number) {
-
-  if (
-    page < 1 ||
-    page > this.totalPages
-  ) {
-    return;
-  }
-
-  this.currentPage = page;
-
-}
-
-changePageSize(event: Event) {
-
-  const value =
-    (event.target as HTMLSelectElement).value;
-
-  this.itemsPerPage = Number(value);
-
-  this.currentPage = 1;
-
-}
-
-viewPaymentDetail(item: any): void {
-
-  this.detailForm.patchValue({
-
-    maDangKy: item.maDangKy,
-    maKH: item.maKH,
-    tenKhachHang: item.tenKhachHang,
-    maLop: item.maLop,
-    khoaHoc: item.khoaHoc,
-    chiNhanh: item.chiNhanh,
-    ngayDangKy: item.ngayDangKy,
-
-    hocPhi: item.hocPhi,
-    voucher: item.voucher,
-    soTienCanThanhToan: item.soTienCanThanhToan,
-    soTienDaDong: item.soTienDaDong,
-    soTienConLai: item.soTienConLai,
-    trangThai: item.trangThai
-
-  });
-
-  this.detailForm.disable();
-
-  this.showDetailDialog = true;
-
-}
-
-paymentDebt(item: any): void {
-
-  this.dialogMode = 'payment';
-
-  this.detailForm.patchValue({
-
-    maDangKy: item.maDangKy,
-    maKH: item.maKH,
-    tenKhachHang: item.tenKhachHang,
-    maLop: item.maLop,
-    khoaHoc: item.khoaHoc,
-    chiNhanh: item.chiNhanh,
-    ngayDangKy: item.ngayDangKy,
-
-    hocPhi: item.hocPhi,
-    voucher: item.voucher,
-    soTienCanThanhToan: item.soTienCanThanhToan,
-    soTienDaDong: item.soTienDaDong,
-    soTienConLai: item.soTienConLai,
-    trangThai: item.trangThai
-
-  });
-
-  // khóa toàn bộ
-  this.detailForm.disable();
-
-  // mở edit
-  this.detailForm.get('voucher')?.enable();
-
-  this.detailForm.get('soTienDaDong')?.enable();
-
-  this.showDetailDialog = true;
-
-}
-
-closeDialog(): void {
-
-  this.showDetailDialog = false;
-
-}
-savePayment(): void {
-
-  const formValue =
-    this.detailForm.getRawValue();
-
-  const index =
-    this.payments.findIndex(
-      x => x.maDangKy === formValue.maDangKy
+    return Math.max(
+      1,
+      Math.ceil(
+        this.filteredPayments.length / this.itemsPerPage
+      )
     );
 
-  if(index !== -1){
+  }
 
-    this.payments[index].voucher =
-      formValue.voucher;
+  get paginatedPayments(): any[] {
 
-    this.payments[index].soTienDaDong =
-      Number(formValue.soTienDaDong);
+    const start =
+      (this.currentPage - 1) * this.itemsPerPage;
 
-    // tính lại
-    this.payments[index].soTienConLai =
-      this.payments[index].soTienCanThanhToan
-      - this.payments[index].soTienDaDong;
+    const end =
+      start + this.itemsPerPage;
 
-    // cập nhật trạng thái
-    if(this.payments[index].soTienConLai <= 0){
-
-      this.payments[index].trangThai =
-        'Đã thanh toán';
-
-    }
-    else if(
-      this.payments[index].soTienDaDong > 0
-    ){
-
-      this.payments[index].trangThai =
-        'Đã thanh toán một phần';
-
-    }
-    else{
-
-      this.payments[index].trangThai =
-        'Chưa thanh toán';
-
-    }
-
-    this.filteredPayments = [
-      ...this.payments
-    ];
+    return this.filteredPayments.slice(start, end);
 
   }
 
-  this.showDetailDialog = false;
+  get pages(): number[] {
 
-}
-  
+    return Array.from(
+      { length: this.totalPages },
+      (_, i) => i + 1
+    );
+
+  }
+
+  changePage(page: number) {
+
+    if (
+      page < 1 ||
+      page > this.totalPages
+    ) {
+      return;
+    }
+
+    this.currentPage = page;
+
+  }
+
+  changePageSize(event: Event) {
+
+    const value =
+      (event.target as HTMLSelectElement).value;
+
+    this.itemsPerPage = Number(value);
+
+    this.currentPage = 1;
+
+  }
+
+  viewPaymentDetail(item: any): void {
+
+    this.detailForm.patchValue({
+
+      maDangKy: item.maDangKy,
+      maKH: item.maKH,
+      tenKhachHang: item.tenKhachHang,
+      maLop: item.maLop,
+      khoaHoc: item.khoaHoc,
+      chiNhanh: item.chiNhanh,
+      ngayDangKy: item.ngayDangKy,
+
+      hocPhi: item.hocPhi,
+      voucher: item.voucher,
+      soTienCanThanhToan: item.soTienCanThanhToan,
+      soTienDaDong: item.soTienDaDong,
+      soTienConLai: item.soTienConLai,
+      trangThai: item.trangThai
+
+    });
+
+    this.detailForm.disable();
+
+    this.showDetailDialog = true;
+
+  }
+
+  paymentDebt(item: any): void {
+
+    this.dialogMode = 'payment';
+
+    this.detailForm.patchValue({
+
+      maDangKy: item.maDangKy,
+      maKH: item.maKH,
+      tenKhachHang: item.tenKhachHang,
+      maLop: item.maLop,
+      khoaHoc: item.khoaHoc,
+      chiNhanh: item.chiNhanh,
+      ngayDangKy: item.ngayDangKy,
+
+      hocPhi: item.hocPhi,
+      voucher: item.voucher,
+      soTienCanThanhToan: item.soTienCanThanhToan,
+      soTienDaDong: item.soTienDaDong,
+      soTienConLai: item.soTienConLai,
+      trangThai: item.trangThai
+
+    });
+
+    // khóa toàn bộ
+    this.detailForm.disable();
+
+    // mở edit
+    this.detailForm.get('voucher')?.enable();
+
+    this.detailForm.get('soTienDaDong')?.enable();
+
+    this.showDetailDialog = true;
+
+  }
+
+  closeDialog(): void {
+
+    this.showDetailDialog = false;
+
+  }
+  savePayment(): void {
+
+    const formValue =
+      this.detailForm.getRawValue();
+
+    const index =
+      this.payments.findIndex(
+        x => x.maDangKy === formValue.maDangKy
+      );
+
+    if (index !== -1) {
+
+      this.payments[index].voucher =
+        formValue.voucher;
+
+      this.payments[index].soTienDaDong =
+        Number(formValue.soTienDaDong);
+
+      // tính lại
+      this.payments[index].soTienConLai =
+        this.payments[index].soTienCanThanhToan
+        - this.payments[index].soTienDaDong;
+
+      // cập nhật trạng thái
+      if (this.payments[index].soTienConLai <= 0) {
+
+        this.payments[index].trangThai =
+          'Đã thanh toán';
+
+      }
+      else if (
+        this.payments[index].soTienDaDong > 0
+      ) {
+
+        this.payments[index].trangThai =
+          'Đã thanh toán một phần';
+
+      }
+      else {
+
+        this.payments[index].trangThai =
+          'Chưa thanh toán';
+
+      }
+
+      this.filteredPayments = [
+        ...this.payments
+      ];
+
+    }
+
+    this.showDetailDialog = false;
+
+  }
+
 
 }
 

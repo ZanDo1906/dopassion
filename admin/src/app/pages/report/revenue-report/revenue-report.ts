@@ -1,6 +1,6 @@
-import { Component,OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FilterConfig,FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
+import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
 import {
     Chart,
     ArcElement,
@@ -13,20 +13,20 @@ import { RevenueReportService } from '../../../services/sales-report';
 import { iRevenueReport } from '../../../interfaces/sales-report';
 
 @Component({
-    selector:'app-revenue-report',
-    standalone:true,
-    imports:[
+    selector: 'app-revenue-report',
+    standalone: true,
+    imports: [
         CommonModule,
         FilterDataPicker
     ],
-    templateUrl:'./revenue-report.html',
-    styleUrls:['./revenue-report.css']
+    templateUrl: './revenue-report.html',
+    styleUrls: ['./revenue-report.css']
 })
-export class RevenueReport implements OnInit{
+export class RevenueReport implements OnInit {
 
     constructor(
-        private revenueReportService:RevenueReportService
-    ){
+        private revenueReportService: RevenueReportService
+    ) {
         Chart.register(
             ArcElement,
             Tooltip,
@@ -36,310 +36,310 @@ export class RevenueReport implements OnInit{
         );
     }
 
-    filterConfig:FilterConfig[]=[
+    filterConfig: FilterConfig[] = [
         {
-            key:'ngay',
-            label:'Ngày',
-            type:'date-range'
+            key: 'ngay',
+            label: 'Ngày',
+            type: 'date-range'
         },
         {
-            key:'chiNhanh',
-            label:'Chi nhánh',
-            type:'multi-select',
-            options:[
+            key: 'chiNhanh',
+            label: 'Chi nhánh',
+            type: 'multi-select',
+            options: [
                 {
-                    label:'CN1',
-                    value:'CN1'
+                    label: 'CN1',
+                    value: 'CN1'
                 },
                 {
-                    label:'CN2',
-                    value:'CN2'
+                    label: 'CN2',
+                    value: 'CN2'
                 },
                 {
-                    label:'CN3',
-                    value:'CN3'
+                    label: 'CN3',
+                    value: 'CN3'
                 }
             ]
         },
         {
-            key:'khoaHoc',
-            label:'Khóa học',
-            type:'multi-select',
-            options:[
+            key: 'khoaHoc',
+            label: 'Khóa học',
+            type: 'multi-select',
+            options: [
                 {
-                    label:'SW',
-                    value:'SW'
+                    label: 'SW',
+                    value: 'SW'
                 },
                 {
-                    label:'LR',
-                    value:'LR'
+                    label: 'LR',
+                    value: 'LR'
                 }
             ]
         }
     ];
 
-    allData:iRevenueReport[]=[];
+    allData: iRevenueReport[] = [];
 
-    filteredData:any[]=[];
+    filteredData: any[] = [];
 
-    paginatedData:any[]=[];
+    paginatedData: any[] = [];
 
-    currentPage=1;
+    currentPage = 1;
 
-    itemsPerPage=10;
+    itemsPerPage = 10;
 
-    pageSizeOptions=[10,20,50];
+    pageSizeOptions = [10, 20, 50];
 
-    ngOnInit():void{
+    ngOnInit(): void {
 
         this.revenueReportService
-        .getRevenueReport()
-        .subscribe({
+            .getRevenueReport()
+            .subscribe({
 
-            next:(data:any)=>{
+                next: (data: any) => {
 
-                this.allData=data.map((item:any)=>({
-                    ngay:item['Ngày'],
-                    chiNhanh:item['Chi nhánh'],
-                    khoaHoc:item['Khóa học'],
-                    lopHoc:item['Lớp học'],
-                    doanhThu:item['Doanh thu'],
-                    hoanTien:item['Hoàn tiền'],
-                    tongThu:item['Tổng thu']
-                }));
+                    this.allData = data.map((item: any) => ({
+                        ngay: item.ngay,
+                        chiNhanh: item.chiNhanh,
+                        khoaHoc: item.khoaHoc,
+                        lopHoc: item.lopHoc,
+                        doanhThu: item.doanhThu,
+                        hoanTien: item.hoanTien,
+                        tongThu: item.tongThu
+                    }));
 
-                this.filteredData=[...this.allData];
+                    this.filteredData = [...this.allData];
 
-                this.updatePagination();
+                    this.updatePagination();
 
-                this.renderCharts();
-            },
+                    this.renderCharts();
+                },
 
-            error:(err)=>{
-                console.error(err);
-            }
-        });
+                error: (err) => {
+                    console.error(err);
+                }
+            });
     }
 
-    handleSearch(filterValues:any):void{
+    handleSearch(filterValues: any): void {
 
-        this.filteredData=this.allData.filter((item:any)=>{
+        this.filteredData = this.allData.filter((item: any) => {
 
-            let matchDate=true;
+            let matchDate = true;
 
-            if(
+            if (
                 filterValues.ngay &&
                 (
                     filterValues.ngay.fromDate ||
                     filterValues.ngay.toDate
                 )
-            ){
+            ) {
 
-                const itemDate=
+                const itemDate =
                     new Date(item.ngay);
 
-                const fromDate=
+                const fromDate =
                     filterValues.ngay.fromDate
-                    ? new Date(filterValues.ngay.fromDate)
-                    : null;
+                        ? new Date(filterValues.ngay.fromDate)
+                        : null;
 
-                const toDate=
+                const toDate =
                     filterValues.ngay.toDate
-                    ? new Date(filterValues.ngay.toDate)
-                    : null;
+                        ? new Date(filterValues.ngay.toDate)
+                        : null;
 
-                if(
+                if (
                     fromDate &&
-                    itemDate<fromDate
-                ){
-                    matchDate=false;
+                    itemDate < fromDate
+                ) {
+                    matchDate = false;
                 }
 
-                if(
+                if (
                     toDate &&
-                    itemDate>toDate
-                ){
-                    matchDate=false;
+                    itemDate > toDate
+                ) {
+                    matchDate = false;
                 }
             }
 
-            let matchChiNhanh=true;
+            let matchChiNhanh = true;
 
-            if(
+            if (
                 filterValues.chiNhanh &&
-                filterValues.chiNhanh.length>0
-            ){
+                filterValues.chiNhanh.length > 0
+            ) {
 
-                matchChiNhanh=
+                matchChiNhanh =
                     filterValues.chiNhanh.includes(
                         item.chiNhanh
                     );
             }
 
-            let matchKhoaHoc=true;
+            let matchKhoaHoc = true;
 
-            if(
+            if (
                 filterValues.khoaHoc &&
-                filterValues.khoaHoc.length>0
-            ){
+                filterValues.khoaHoc.length > 0
+            ) {
 
-                matchKhoaHoc=
+                matchKhoaHoc =
                     filterValues.khoaHoc.includes(
                         item.khoaHoc
                     );
             }
 
-            return(
+            return (
                 matchDate &&
                 matchChiNhanh &&
                 matchKhoaHoc
             );
         });
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
 
         this.renderCharts();
     }
 
-    handleReset():void{
+    handleReset(): void {
 
-        this.filteredData=[...this.allData];
+        this.filteredData = [...this.allData];
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
 
         this.renderCharts();
     }
 
-    get totalPages():number{
+    get totalPages(): number {
 
         return Math.max(
             1,
             Math.ceil(
                 this.filteredData.length
-                /this.itemsPerPage
+                / this.itemsPerPage
             )
         );
     }
 
-    get pages():number[]{
+    get pages(): number[] {
 
         return Array.from(
             {
-                length:this.totalPages
+                length: this.totalPages
             },
-            (_,i)=>i+1
+            (_, i) => i + 1
         );
     }
 
-    changePage(page:number):void{
+    changePage(page: number): void {
 
-        if(
-            page<1 ||
-            page>this.totalPages
-        ){
+        if (
+            page < 1 ||
+            page > this.totalPages
+        ) {
             return;
         }
 
-        this.currentPage=page;
+        this.currentPage = page;
 
         this.updatePagination();
     }
 
-    changePageSize(event:Event):void{
+    changePageSize(event: Event): void {
 
-        const value=
+        const value =
             (event.target as HTMLSelectElement).value;
 
-        this.itemsPerPage=Number(value);
+        this.itemsPerPage = Number(value);
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
     }
 
-    updatePagination():void{
+    updatePagination(): void {
 
-        const start=
-            (this.currentPage-1)
-            *this.itemsPerPage;
+        const start =
+            (this.currentPage - 1)
+            * this.itemsPerPage;
 
-        const end=
-            start+this.itemsPerPage;
+        const end =
+            start + this.itemsPerPage;
 
-        this.paginatedData=
-            this.filteredData.slice(start,end);
+        this.paginatedData =
+            this.filteredData.slice(start, end);
     }
 
-    renderCharts():void{
+    renderCharts(): void {
 
-        this.renderPieChart('CN1','chartCN1');
+        this.renderPieChart('CN1', 'chartCN1');
 
-        this.renderPieChart('CN2','chartCN2');
+        this.renderPieChart('CN2', 'chartCN2');
 
-        this.renderPieChart('CN3','chartCN3');
+        this.renderPieChart('CN3', 'chartCN3');
     }
 
     renderPieChart(
-        chiNhanh:string,
-        canvasId:string
-    ):void{
+        chiNhanh: string,
+        canvasId: string
+    ): void {
 
-        const canvas=
+        const canvas =
             document.getElementById(
                 canvasId
             ) as HTMLCanvasElement;
 
-        if(!canvas){
+        if (!canvas) {
             return;
         }
 
-        const ctx=canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
 
-        if(!ctx){
+        if (!ctx) {
             return;
         }
 
         Chart.getChart(canvas)?.destroy();
 
-        let swTongThu=0;
+        let swTongThu = 0;
 
-        let lrTongThu=0;
+        let lrTongThu = 0;
 
-        this.filteredData.forEach((item:any)=>{
+        this.filteredData.forEach((item: any) => {
 
-            if(item.chiNhanh!==chiNhanh){
+            if (item.chiNhanh !== chiNhanh) {
                 return;
             }
 
-            if(item.khoaHoc==='SW'){
-                swTongThu+=item.tongThu;
+            if (item.khoaHoc === 'SW') {
+                swTongThu += item.tongThu;
             }
 
-            if(item.khoaHoc==='LR'){
-                lrTongThu+=item.tongThu;
+            if (item.khoaHoc === 'LR') {
+                lrTongThu += item.tongThu;
             }
         });
 
-        new Chart(ctx,{
+        new Chart(ctx, {
 
-            type:'pie',
+            type: 'pie',
 
-            data:{
-                labels:[
+            data: {
+                labels: [
                     'SW',
                     'LR'
                 ],
-                datasets:[
+                datasets: [
                     {
-                        data:[
+                        data: [
                             swTongThu,
                             lrTongThu
                         ],
-                        backgroundColor:[
+                        backgroundColor: [
                             '#4C70AD',
                             '#EC7E16'
                         ]
@@ -347,21 +347,21 @@ export class RevenueReport implements OnInit{
                 ]
             },
 
-            options:{
+            options: {
 
-                responsive:true,
+                responsive: true,
 
-                maintainAspectRatio:false,
+                maintainAspectRatio: false,
 
-                plugins:{
+                plugins: {
 
-                    legend:{
-                        position:'bottom'
+                    legend: {
+                        position: 'bottom'
                     },
 
-                    title:{
-                        display:true,
-                        text:`Doanh thu ${chiNhanh}`
+                    title: {
+                        display: true,
+                        text: `Doanh thu ${chiNhanh}`
                     }
                 }
             }

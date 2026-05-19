@@ -27,7 +27,7 @@ export class Feedback implements OnInit {
   isDialogOpen = false;
   dialogSections: any[] = [];
 
-  constructor(private feedbackService: FeedbackService) {}
+  constructor(private feedbackService: FeedbackService) { }
 
   ngOnInit() {
     this.loadFeedbacks();
@@ -38,7 +38,7 @@ export class Feedback implements OnInit {
       next: (data: any[]) => {
         this.feedbacks = data.map((item, index) => {
           // Xử lý Ngày đánh giá (Từ "2026-05-20 00:00:00" -> "20/05/2026")
-          let parsedDate = item['Ngày đánh giá'];
+          let parsedDate = item.ngayDanhGia;
           if (parsedDate && parsedDate.includes(' ')) {
             const datePart = parsedDate.split(' ')[0];
             const parts = datePart.split('-');
@@ -48,15 +48,15 @@ export class Feedback implements OnInit {
           }
 
           return {
-            stt: item['STT'] || index + 1,
-            maDanhGia: item['Mã đánh giá'],
-            maDangKy: item['Mã đăng ký'],
-            khachHang: item['Tên khách hàng'],
-            lopHoc: item['Tên lớp học'],
-            noiDung: item['Nội dung đánh giá'],
-            soSao: item['Số sao'] || 5,
+            stt: item.stt || index + 1,
+            maDanhGia: item.maDanhGia,
+            maDangKy: item.maDangKy,
+            khachHang: item.tenKhachHang,
+            lopHoc: item.tenLopHoc,
+            noiDung: item.noiDungDanhGia,
+            soSao: item.soSao || 5,
             ngayDanhGia: parsedDate,
-            trangThai: item['Trạng thái'] || 'Chờ duyệt'
+            trangThai: item.trangThai || 'Chờ duyệt'
           };
         });
         this.filteredFeedbacks = [...this.feedbacks];
@@ -76,7 +76,7 @@ export class Feedback implements OnInit {
   // Mở Popup Chi tiết (Giống định dạng 3 mục)
   openDetailDialog(item: any) {
     this.isDialogOpen = true;
-    
+
     this.dialogSections = [
       {
         title: 'I. Thông tin chung',
@@ -117,7 +117,7 @@ export class Feedback implements OnInit {
 
   // Hàm tạo mảng sao để hiển thị HTML
   getStars(rating: number): boolean[] {
-    return Array.from({length: 5}, (_, i) => i < rating);
+    return Array.from({ length: 5 }, (_, i) => i < rating);
   }
 
   // Set màu Badge

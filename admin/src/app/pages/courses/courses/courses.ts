@@ -34,10 +34,10 @@ export class Courses implements OnInit {
     {
       title: 'Thông tin Khóa học',
       fields: [
-        { label: 'Mã khóa học', name: 'Mã khóa học', type: 'text', required: true },
-        { label: 'Tên khóa học', name: 'Tên khóa học', type: 'text', required: true },
-        { label: 'Học phí', name: 'Học phí', type: 'number', required: true },
-        { label: 'Mô tả', name: 'Mô tả', type: 'text', required: false }
+        { label: 'Mã khóa học', name: 'maKhoaHoc', type: 'text', required: true },
+        { label: 'Tên khóa học', name: 'tenKhoaHoc', type: 'text', required: true },
+        { label: 'Học phí', name: 'hocPhi', type: 'number', required: true },
+        { label: 'Mô tả', name: 'moTa', type: 'text', required: false }
       ]
     }
   ];
@@ -65,9 +65,9 @@ export class Courses implements OnInit {
 
   onSubmitDialog(data: any) {
     // If a course with same Mã khóa học exists, update it; otherwise add new
-    const code = data && data['Mã khóa học'];
+    const code = data && data.maKhoaHoc;
     if (code) {
-      const idx = this.courses.findIndex(c => c['Mã khóa học'] === code);
+      const idx = this.courses.findIndex(c => c.maKhoaHoc === code);
       if (idx !== -1) {
         this.courses[idx] = { ...this.courses[idx], ...data };
       } else {
@@ -108,8 +108,8 @@ export class Courses implements OnInit {
       if (
         courseSearch &&
         ![
-          item['Mã khóa học'],
-          item['Tên khóa học']
+          item.maKhoaHoc,
+          item.tenKhoaHoc
         ].some((value) => this.matchesText(`${value ?? ''}`, courseSearch))
       ) {
         return false;

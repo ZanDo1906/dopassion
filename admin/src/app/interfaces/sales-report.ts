@@ -1,9 +1,13 @@
 export interface iRevenueReport {
-    "Ngày": string;
-    "Chi nhánh": string;
-    "Khóa học": string;
-    "Lớp học": string;
-    "Doanh thu": number;
-    "Hoàn tiền": number;
-    "Tổng thu": number;
+    _id?: string;
+    ngay: string;
+    chiNhanh: string;
+    khoaHoc: string;
+    lopHoc: string;
+    doanhThu: number;
+    hoanTien: number;
+    tongThu: number;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

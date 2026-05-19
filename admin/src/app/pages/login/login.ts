@@ -25,7 +25,7 @@ export class Login {
   confirmPassword = '';
   forgotUser: any = null;
 
-  constructor(private router: Router, private staffService: Staff) {}
+  constructor(private router: Router, private staffService: Staff) { }
 
   submit() {
     this.errorMessage = '';
@@ -44,7 +44,7 @@ export class Login {
       (staffList: iStaff[]) => {
         console.log('Staff list loaded', staffList.length);
         const user = staffList.find(
-          (staff) => String(staff['Mã NV']).toUpperCase() === userId
+          (staff) => String(staff.maNv).toUpperCase() === userId
         );
         if (!user) {
           console.log('User not found for', userId);
@@ -54,7 +54,7 @@ export class Login {
 
         // Lấy password mới nếu đã đổi
         const savedPassword = localStorage.getItem(
-          `password_${user['Mã NV']}`
+          `password_${user.maNv}`
         );
 
         // Nếu chưa đổi thì dùng password gốc trong JSON
@@ -97,142 +97,142 @@ export class Login {
 
   openForgotPassword(): void {
 
-  this.showForgotModal = true;
+    this.showForgotModal = true;
 
-  this.forgotStep = 1;
+    this.forgotStep = 1;
 
-  this.forgotError = '';
+    this.forgotError = '';
 
-  this.forgotValue = '';
+    this.forgotValue = '';
 
-  this.otpInput = '';
+    this.otpInput = '';
 
-  this.newPassword = '';
+    this.newPassword = '';
 
-  this.confirmPassword = '';
-}
+    this.confirmPassword = '';
+  }
 
   closeForgotPassword(): void {
 
     this.showForgotModal = false;
   }
 
-sendOtp(): void {
+  sendOtp(): void {
 
-  this.forgotError = '';
+    this.forgotError = '';
 
-  const value = this.forgotValue.trim();
+    const value = this.forgotValue.trim();
 
-  if (!value) {
+    if (!value) {
 
-    this.forgotError = 'Vui lòng nhập email hoặc SĐT';
+      this.forgotError = 'Vui lòng nhập email hoặc SĐT';
 
-    return;
-  }
+      return;
+    }
 
-  this.staffService.getStaff().subscribe({
+    this.staffService.getStaff().subscribe({
 
-    next: (staffList: iStaff[]) => {
+      next: (staffList: iStaff[]) => {
 
-      const user = staffList.find((staff: any) => {
+        const user = staffList.find((staff: any) => {
 
-        const phone =
-          String(staff['SĐT'] || '').trim();
+          const phone =
+            String(staff.sdt || '').trim();
 
-        const email =
-          String(staff['Email'] || '').trim().toLowerCase();
+          const email =
+            String(staff.email || '').trim().toLowerCase();
 
-        return (
-          phone === value ||
-          email === value.toLowerCase()
-        );
-      });
+          return (
+            phone === value ||
+            email === value.toLowerCase()
+          );
+        });
 
-      if (!user) {
+        if (!user) {
+
+          this.forgotError =
+            'Không tìm thấy tài khoản';
+
+          return;
+        }
+
+        this.forgotUser = user;
+
+        // RANDOM OTP
+        this.generatedOtp =
+          Math.floor(
+            100000 + Math.random() * 900000
+          ).toString();
+
+        this.forgotStep = 2;
+      },
+
+      error: () => {
 
         this.forgotError =
-          'Không tìm thấy tài khoản';
-
-        return;
+          'Không thể kiểm tra dữ liệu';
       }
+    });
+  }
 
-      this.forgotUser = user;
+  verifyOtp(): void {
 
-      // RANDOM OTP
-      this.generatedOtp =
-        Math.floor(
-          100000 + Math.random() * 900000
-        ).toString();
+    this.forgotError = '';
 
-      this.forgotStep = 2;
-    },
-
-    error: () => {
+    if (this.otpInput !== this.generatedOtp) {
 
       this.forgotError =
-        'Không thể kiểm tra dữ liệu';
+        'OTP không chính xác';
+
+      return;
     }
-  });
-}
 
-verifyOtp(): void {
-
-  this.forgotError = '';
-
-  if (this.otpInput !== this.generatedOtp) {
-
-    this.forgotError =
-      'OTP không chính xác';
-
-    return;
+    this.forgotStep = 3;
   }
 
-  this.forgotStep = 3;
-}
+  resetPassword(): void {
 
-resetPassword(): void {
+    this.forgotError = '';
 
-  this.forgotError = '';
+    if (
+      !this.newPassword ||
+      !this.confirmPassword
+    ) {
 
-  if (
-    !this.newPassword ||
-    !this.confirmPassword
-  ) {
+      this.forgotError =
+        'Vui lòng nhập đầy đủ mật khẩu';
 
-    this.forgotError =
-      'Vui lòng nhập đầy đủ mật khẩu';
+      return;
+    }
 
-    return;
+    if (this.newPassword.length < 6) {
+
+      this.forgotError =
+        'Mật khẩu phải từ 6 ký tự';
+
+      return;
+    }
+
+    if (
+      this.newPassword !==
+      this.confirmPassword
+    ) {
+
+      this.forgotError =
+        'Xác nhận mật khẩu không khớp';
+
+      return;
+    }
+
+    // LƯU PASSWORD MỚI
+    localStorage.setItem(
+      `password_${this.forgotUser.maNv}`,
+      this.newPassword
+    );
+
+    alert('Đổi mật khẩu thành công');
+
+    this.closeForgotPassword();
   }
-
-  if (this.newPassword.length < 6) {
-
-    this.forgotError =
-      'Mật khẩu phải từ 6 ký tự';
-
-    return;
-  }
-
-  if (
-    this.newPassword !==
-    this.confirmPassword
-  ) {
-
-    this.forgotError =
-      'Xác nhận mật khẩu không khớp';
-
-    return;
-  }
-
-  // LƯU PASSWORD MỚI
-  localStorage.setItem(
-    `password_${this.forgotUser['Mã NV']}`,
-    this.newPassword
-  );
-
-  alert('Đổi mật khẩu thành công');
-
-  this.closeForgotPassword();
-}
 }
 

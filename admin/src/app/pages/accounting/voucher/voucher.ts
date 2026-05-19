@@ -30,7 +30,7 @@ export class Voucher implements OnInit {
       type: 'text'
     },
     {
-      key: 'maKhoaHoc',
+      key: 'khoaHocApDung',
       label: 'Khóa học áp dụng',
       type: 'select',
       options: []
@@ -47,12 +47,12 @@ export class Voucher implements OnInit {
       options: []
     },
     {
-      key: 'trangThai',
+      key: 'active',
       label: 'Trạng thái',
       type: 'multi-select',
       options: [
-        { label: 'Đang hoạt động', value: 'Đang hoạt động' },
-        { label: 'Ngưng hoạt động', value: 'Ngưng hoạt động' }
+        { label: 'Đang hoạt động', value: true },
+        { label: 'Ngưng hoạt động', value: false }
       ]
     }
   ];
@@ -69,7 +69,7 @@ export class Voucher implements OnInit {
 
   showAddDialog = false;
   dialogMode: 'add' | 'view' | 'edit' = 'add';
-  editingIndex:number|null=null;
+  editingIndex: number | null = null;
 
   currentPage = 1;
   itemsPerPage = 10;
@@ -122,7 +122,7 @@ export class Voucher implements OnInit {
     }
   ];
 
-  constructor(private fb: FormBuilder, private voucherService: VoucherService) {}
+  constructor(private fb: FormBuilder, private voucherService: VoucherService) { }
 
   ngOnInit(): void {
     this.loadVouchers();
@@ -136,14 +136,14 @@ export class Voucher implements OnInit {
       donViGiam: ['VND'],
       thongSoGiam: [0],
       chiNhanh: ['ALL'],
-      maKhoaHoc:['']
+      maKhoaHoc: ['']
     });
 
     this.detailForm = this.fb.group({
       maVoucher: [''],
       tenChuongTrinh: [''],
-      chiNhanh:[''],
-      maKhoaHoc:[''],
+      chiNhanh: [''],
+      maKhoaHoc: [''],
       donViGiam: [''],
       thongSoGiam: ['']
     });
@@ -152,20 +152,16 @@ export class Voucher implements OnInit {
   loadVouchers(): void {
     this.voucherService.getVoucher().subscribe({
       next: (items: any[]) => {
-        // Chuyển đổi từ Key của JSON (có dấu/khoảng trắng) sang biến Code (camelCase)
         this.allData = (items || []).map((item) => ({
-          stt: item['STT'],
-          // Đảm bảo các chuỗi trong ngoặc vuông khớp 100% với file JSON của bạn
-          maVoucher: item['Mã voucher'], 
-          tenChuongTrinh: item['Tên chương trình'],
-          donViGiam: item['Đơn vị giảm'],
-          thongSoGiam: item['Thông số'] || item['Thông số giảm'], // Phòng hờ trường hợp sai tên key
-          maLop: item['Mã Lớp'] || item['Mã lớp'] || '',
-          chiNhanh: Array.isArray(item['Chi nhánh']) 
-            ? item['Chi nhánh'] 
-            : (item['Chi nhánh'] ? String(item['Chi nhánh']).split(', ') : []),
-          maKhoaHoc: item['Khóa học áp dụng'] || [],
-          trangThai: item['Trạng thái'] || 'Đang hoạt động'
+          stt: item.stt,
+          maVoucher: item.maVoucher,
+          tenChuongTrinh: item.tenChuongTrinh,
+          donViGiam: item.donViGiam,
+          thongSoGiam: item.thongSo,
+          maLop: '',
+          chiNhanh: Array.isArray(item.chiNhanh) ? item.chiNhanh : [],
+          khoaHocApDung: item.khoaHocApDung,
+          active: item.active
         }));
 
         this.filteredData = [...this.allData];
@@ -319,153 +315,153 @@ export class Voucher implements OnInit {
 
   viewVoucherDetail(item: any): void {
 
-  this.detailForm.enable();
+    this.detailForm.enable();
 
-  this.detailForm.patchValue({
-    maVoucher: item.maVoucher,
-    tenChuongTrinh: item.tenChuongTrinh,
-    donViGiam: item.donViGiam,
-    thongSoGiam: item.thongSoGiam,
-    chiNhanh: Array.isArray(item.chiNhanh)
-      ? item.chiNhanh.join(', ')
-      : item.chiNhanh,
+    this.detailForm.patchValue({
+      maVoucher: item.maVoucher,
+      tenChuongTrinh: item.tenChuongTrinh,
+      donViGiam: item.donViGiam,
+      thongSoGiam: item.thongSoGiam,
+      chiNhanh: Array.isArray(item.chiNhanh)
+        ? item.chiNhanh.join(', ')
+        : item.chiNhanh,
 
-    maKhoaHoc: Array.isArray(item.maKhoaHoc)
-      ? item.maKhoaHoc.join(', ')
-      : item.maKhoaHoc
-  });
+      maKhoaHoc: Array.isArray(item.maKhoaHoc)
+        ? item.maKhoaHoc.join(', ')
+        : item.maKhoaHoc
+    });
 
-  this.detailForm.disable();
+    this.detailForm.disable();
 
-  this.dialogMode = 'view';
+    this.dialogMode = 'view';
 
-  this.showAddDialog = true;
-}
+    this.showAddDialog = true;
+  }
 
-  editVoucher(item:any):void{
+  editVoucher(item: any): void {
 
-    this.dialogMode='edit';
+    this.dialogMode = 'edit';
 
-    this.editingIndex=
-        this.allData.findIndex(
-            x=>x.maVoucher===item.maVoucher
-        );
+    this.editingIndex =
+      this.allData.findIndex(
+        x => x.maVoucher === item.maVoucher
+      );
 
     this.voucherForm.enable();
 
     this.voucherForm.patchValue({
 
-        maVoucher:item.maVoucher,
+      maVoucher: item.maVoucher,
 
-        tenChuongTrinh:item.tenChuongTrinh,
+      tenChuongTrinh: item.tenChuongTrinh,
 
-        donViGiam:item.donViGiam,
+      donViGiam: item.donViGiam,
 
-        thongSoGiam:item.thongSoGiam,
+      thongSoGiam: item.thongSoGiam,
 
-        chiNhanh:Array.isArray(item.chiNhanh)
-            ? item.chiNhanh[0]
-            : item.chiNhanh,
+      chiNhanh: Array.isArray(item.chiNhanh)
+        ? item.chiNhanh[0]
+        : item.chiNhanh,
 
-        maKhoaHoc:Array.isArray(item.maKhoaHoc)
-            ? item.maKhoaHoc[0]
-            : item.maKhoaHoc
+      maKhoaHoc: Array.isArray(item.maKhoaHoc)
+        ? item.maKhoaHoc[0]
+        : item.maKhoaHoc
     });
 
-    this.showAddDialog=true;
-}
+    this.showAddDialog = true;
+  }
 
   closeDialog(): void {
     this.showAddDialog = false;
   }
 
-  onSaveVoucher():void{
+  onSaveVoucher(): void {
 
-    if(this.voucherForm.valid){
+    if (this.voucherForm.valid) {
 
-        const formValue=
-            this.voucherForm.value;
+      const formValue =
+        this.voucherForm.value;
 
-        // EDIT
-        if(
-            this.dialogMode==='edit' &&
-            this.editingIndex!==null
-        ){
+      // EDIT
+      if (
+        this.dialogMode === 'edit' &&
+        this.editingIndex !== null
+      ) {
 
-            this.allData[this.editingIndex]={
+        this.allData[this.editingIndex] = {
 
-                ...this.allData[this.editingIndex],
+          ...this.allData[this.editingIndex],
 
-                maVoucher:formValue.maVoucher,
+          maVoucher: formValue.maVoucher,
 
-                tenChuongTrinh:
-                    formValue.tenChuongTrinh,
+          tenChuongTrinh:
+            formValue.tenChuongTrinh,
 
-                donViGiam:
-                    formValue.donViGiam,
+          donViGiam:
+            formValue.donViGiam,
 
-                thongSoGiam:
-                    formValue.thongSoGiam,
+          thongSoGiam:
+            formValue.thongSoGiam,
 
-                chiNhanh:[
-                    formValue.chiNhanh
-                ],
+          chiNhanh: [
+            formValue.chiNhanh
+          ],
 
-                maKhoaHoc:[
-                    formValue.maKhoaHoc
-                ]
-            };
-
-            this.filteredData=[
-                ...this.allData
-            ];
-
-            this.updatePagination();
-
-            this.showAddDialog=false;
-
-            this.editingIndex=null;
-
-            return;
-        }
-
-        // ADD
-        const newData={
-
-            stt:this.allData.length+1,
-
-            maVoucher:formValue.maVoucher,
-
-            tenChuongTrinh:
-                formValue.tenChuongTrinh,
-
-            donViGiam:
-                formValue.donViGiam,
-
-            thongSoGiam:
-                formValue.thongSoGiam,
-
-            chiNhanh:[
-                formValue.chiNhanh
-            ],
-
-            maKhoaHoc:[
-                formValue.maKhoaHoc
-            ]
+          maKhoaHoc: [
+            formValue.maKhoaHoc
+          ]
         };
 
-        this.allData.unshift(newData);
-
-        this.filteredData=[
-            ...this.allData
+        this.filteredData = [
+          ...this.allData
         ];
-
-        this.currentPage=1;
 
         this.updatePagination();
 
-        this.showAddDialog=false;
+        this.showAddDialog = false;
+
+        this.editingIndex = null;
+
+        return;
+      }
+
+      // ADD
+      const newData = {
+
+        stt: this.allData.length + 1,
+
+        maVoucher: formValue.maVoucher,
+
+        tenChuongTrinh:
+          formValue.tenChuongTrinh,
+
+        donViGiam:
+          formValue.donViGiam,
+
+        thongSoGiam:
+          formValue.thongSoGiam,
+
+        chiNhanh: [
+          formValue.chiNhanh
+        ],
+
+        maKhoaHoc: [
+          formValue.maKhoaHoc
+        ]
+      };
+
+      this.allData.unshift(newData);
+
+      this.filteredData = [
+        ...this.allData
+      ];
+
+      this.currentPage = 1;
+
+      this.updatePagination();
+
+      this.showAddDialog = false;
     }
-}
+  }
 
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FilterConfig,FilterDataPicker} from '../../../components/filter-data-picker/filter-data-picker';
-import {Chart,CategoryScale,LinearScale,BarElement,Title,Tooltip,Legend,BarController}from 'chart.js';
-import { StudentReportService }from '../../../services/student-report';
-import { iStudentReport }from '../../../interfaces/student-report';
+import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, BarController } from 'chart.js';
+import { StudentReportService } from '../../../services/student-report';
+import { iStudentReport } from '../../../interfaces/student-report';
 @Component({
     selector: 'app-student-report',
     standalone: true,
@@ -84,132 +84,132 @@ export class StudentReport implements OnInit {
 
     ngOnInit(): void {
 
-    this.studentReportService
-        .getStudentReport()
-        .subscribe({
+        this.studentReportService
+            .getStudentReport()
+            .subscribe({
 
-            next: (data: any) => {
-                console.log('DATA REPORT', data);
+                next: (data: any) => {
+                    console.log('DATA REPORT', data);
 
-                console.log('DATA REPORT', data);
+                    console.log('DATA REPORT', data);
 
-                this.allData = data.map((item:any)=> ({
-                    ngay: item['Ngày'],
-                    chiNhanh: item['Chi nhánh'],
-                    khoaHoc: item['Khóa học'],
-                    lopHoc: item['Lớp học'],
-                    soHocVienDangKy: item['Số học viên đăng ký'],
-                    soHocVienHuy: item['Số học viên hủy đăng ký']
+                    this.allData = data.map((item: any) => ({
+                        ngay: item.ngay,
+                        chiNhanh: item.chiNhanh,
+                        khoaHoc: item.khoaHoc,
+                        lopHoc: item.lopHoc,
+                        soHocVienDangKy: item.soHocVienDangKy,
+                        soHocVienHuy: item.soHocVienHuyDangKy
 
-                }));
+                    }));
 
-                this.filteredData = [...this.allData];
+                    this.filteredData = [...this.allData];
 
-                this.updatePagination();
+                    this.updatePagination();
 
-                this.renderChart();
-            },
+                    this.renderChart();
+                },
 
-            error: (err) => {
+                error: (err) => {
 
-                console.error(err);
-            }
-        });
-}
+                    console.error(err);
+                }
+            });
+    }
 
     handleSearch(filterValues: any): void {
 
-    this.filteredData = this.allData.filter((item: any) => {
+        this.filteredData = this.allData.filter((item: any) => {
 
-        // ======================
-        // FILTER NGÀY
-        // ======================
+            // ======================
+            // FILTER NGÀY
+            // ======================
 
-        let matchDate = true;
-
-        if (
-            filterValues.ngay &&
-            (
-                filterValues.ngay.fromDate ||
-                filterValues.ngay.toDate
-            )
-        ) {
-
-            const itemDate =
-                new Date(item.ngay);
-
-            const fromDate =
-                filterValues.ngay.fromDate
-                    ? new Date(filterValues.ngay.fromDate)
-                    : null;
-
-            const toDate =
-                filterValues.ngay.toDate
-                    ? new Date(filterValues.ngay.toDate)
-                    : null;
+            let matchDate = true;
 
             if (
-                fromDate &&
-                itemDate < fromDate
+                filterValues.ngay &&
+                (
+                    filterValues.ngay.fromDate ||
+                    filterValues.ngay.toDate
+                )
             ) {
-                matchDate = false;
+
+                const itemDate =
+                    new Date(item.ngay);
+
+                const fromDate =
+                    filterValues.ngay.fromDate
+                        ? new Date(filterValues.ngay.fromDate)
+                        : null;
+
+                const toDate =
+                    filterValues.ngay.toDate
+                        ? new Date(filterValues.ngay.toDate)
+                        : null;
+
+                if (
+                    fromDate &&
+                    itemDate < fromDate
+                ) {
+                    matchDate = false;
+                }
+
+                if (
+                    toDate &&
+                    itemDate > toDate
+                ) {
+                    matchDate = false;
+                }
             }
+
+            // ======================
+            // FILTER CHI NHÁNH
+            // ======================
+
+            let matchChiNhanh = true;
 
             if (
-                toDate &&
-                itemDate > toDate
+                filterValues.chiNhanh &&
+                filterValues.chiNhanh.length > 0
             ) {
-                matchDate = false;
+
+                matchChiNhanh =
+                    filterValues.chiNhanh.includes(
+                        item.chiNhanh
+                    );
             }
-        }
 
-        // ======================
-        // FILTER CHI NHÁNH
-        // ======================
+            // ======================
+            // FILTER KHÓA HỌC
+            // ======================
 
-        let matchChiNhanh = true;
+            let matchKhoaHoc = true;
 
-        if (
-            filterValues.chiNhanh &&
-            filterValues.chiNhanh.length > 0
-        ) {
+            if (
+                filterValues.khoaHoc &&
+                filterValues.khoaHoc.length > 0
+            ) {
 
-            matchChiNhanh =
-                filterValues.chiNhanh.includes(
-                    item.chiNhanh
-                );
-        }
+                matchKhoaHoc =
+                    filterValues.khoaHoc.includes(
+                        item.khoaHoc
+                    );
+            }
 
-        // ======================
-        // FILTER KHÓA HỌC
-        // ======================
+            return (
+                matchDate &&
+                matchChiNhanh &&
+                matchKhoaHoc
+            );
+        });
 
-        let matchKhoaHoc = true;
+        this.currentPage = 1;
 
-        if (
-            filterValues.khoaHoc &&
-            filterValues.khoaHoc.length > 0
-        ) {
+        this.updatePagination();
 
-            matchKhoaHoc =
-                filterValues.khoaHoc.includes(
-                    item.khoaHoc
-                );
-        }
-
-        return (
-            matchDate &&
-            matchChiNhanh &&
-            matchKhoaHoc
-        );
-    });
-
-    this.currentPage = 1;
-
-    this.updatePagination();
-
-    this.renderChart();
-}
+        this.renderChart();
+    }
 
     handleReset(): void {
 
@@ -283,142 +283,142 @@ export class StudentReport implements OnInit {
 
     renderChart(): void {
 
-    const canvas =
-    document.getElementById(
-        'studentChart'
-    ) as HTMLCanvasElement;
+        const canvas =
+            document.getElementById(
+                'studentChart'
+            ) as HTMLCanvasElement;
 
-    if (!canvas) {
-        return;
-    }
-
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-        return;
-    }
-
-    Chart.getChart(canvas)?.destroy();
-
-    // LABEL CHI NHÁNH
-    const labels = [
-        'CN1',
-        'CN2',
-        'CN3'
-    ];
-
-    // SW
-    const swDangKy = [0, 0, 0];
-    const swHuy = [0, 0, 0];
-
-    // LR
-    const lrDangKy = [0, 0, 0];
-    const lrHuy = [0, 0, 0];
-
-    this.filteredData.forEach((item:any) => {
-
-        const index =
-            labels.indexOf(item.chiNhanh);
-
-        if (index === -1) {
+        if (!canvas) {
             return;
         }
 
-        // SW
-        if (item.khoaHoc === 'SW') {
+        const ctx = canvas.getContext('2d');
 
-            swDangKy[index] +=
-                item.soHocVienDangKy;
-
-            swHuy[index] +=
-                item.soHocVienHuy;
+        if (!ctx) {
+            return;
         }
+
+        Chart.getChart(canvas)?.destroy();
+
+        // LABEL CHI NHÁNH
+        const labels = [
+            'CN1',
+            'CN2',
+            'CN3'
+        ];
+
+        // SW
+        const swDangKy = [0, 0, 0];
+        const swHuy = [0, 0, 0];
 
         // LR
-        if (item.khoaHoc === 'LR') {
+        const lrDangKy = [0, 0, 0];
+        const lrHuy = [0, 0, 0];
 
-            lrDangKy[index] +=
-                item.soHocVienDangKy;
+        this.filteredData.forEach((item: any) => {
 
-            lrHuy[index] +=
-                item.soHocVienHuy;
-        }
-    });
+            const index =
+                labels.indexOf(item.chiNhanh);
 
-    new Chart(ctx, {
+            if (index === -1) {
+                return;
+            }
 
-        type: 'bar',
+            // SW
+            if (item.khoaHoc === 'SW') {
 
-        data: {
+                swDangKy[index] +=
+                    item.soHocVienDangKy;
 
-            labels: labels,
+                swHuy[index] +=
+                    item.soHocVienHuy;
+            }
 
-            datasets: [
+            // LR
+            if (item.khoaHoc === 'LR') {
 
-                {
-                    label: 'SW - Đăng ký',
+                lrDangKy[index] +=
+                    item.soHocVienDangKy;
 
-                    data: swDangKy,
+                lrHuy[index] +=
+                    item.soHocVienHuy;
+            }
+        });
 
-                    backgroundColor: '#4C70AD'
-                },
+        new Chart(ctx, {
 
-                {
-                    label: 'SW - Hủy',
+            type: 'bar',
 
-                    data: swHuy,
+            data: {
 
-                    backgroundColor: '#6f98e1'
-                },
+                labels: labels,
 
-                {
-                    label: 'LR - Đăng ký',
+                datasets: [
 
-                    data: lrDangKy,
+                    {
+                        label: 'SW - Đăng ký',
 
-                    backgroundColor: '#EC7E16'
-                },
+                        data: swDangKy,
 
-                {
-                    label: 'LR - Hủy',
+                        backgroundColor: '#4C70AD'
+                    },
 
-                    data: lrHuy,
+                    {
+                        label: 'SW - Hủy',
 
-                    backgroundColor: '#e5a568'
-                }
-            ]
-        },
+                        data: swHuy,
 
-        options: {
+                        backgroundColor: '#6f98e1'
+                    },
 
-            responsive: true,
+                    {
+                        label: 'LR - Đăng ký',
 
-            maintainAspectRatio: false,
+                        data: lrDangKy,
 
-            plugins: {
+                        backgroundColor: '#EC7E16'
+                    },
 
-                legend: {
+                    {
+                        label: 'LR - Hủy',
 
-                    position: 'top'
-                },
+                        data: lrHuy,
 
-                title: {
-
-                    display: true,
-
-                    text:
-                    'Thống kê học viên đăng ký và hủy'
-                }
+                        backgroundColor: '#e5a568'
+                    }
+                ]
             },
 
-            scales: {
+            options: {
 
-                y: {
+                responsive: true,
 
-                    beginAtZero: true
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: 'top'
+                    },
+
+                    title: {
+
+                        display: true,
+
+                        text:
+                            'Thống kê học viên đăng ký và hủy'
+                    }
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
-}
+        });
+    }
 }

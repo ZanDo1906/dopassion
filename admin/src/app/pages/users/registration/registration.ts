@@ -119,7 +119,7 @@ export class Registration implements OnInit {
     this.itemsPerPage = 10; // Explicitly set default
     this.filteredData = [];
     this.paginatedData = [];
-    
+
     // Load data
     this.loadData();
   }
@@ -133,18 +133,18 @@ export class Registration implements OnInit {
       next: (data) => {
         // Chuẩn hóa dữ liệu: máp các khóa tiếng Việt thành khóa Anh
         this.registrations = data.map(item => ({
-          id: item['Mã đăng ký'] || '',
-          customerCode: item['Mã KH'] || '',
-          studentName: item['Tên KH'] || '',
-          className: item['Tên lớp học'] || '',
+          id: item.maDangKy || '',
+          customerCode: item.maKh || '',
+          studentName: item.tenKh || '',
+          className: item.tenLopHoc || '',
           phone: '',
-          registrationDate: this.normalizeDateForInput(item['Ngày đăng ký']),
-          status: item['Trạng thái'] || 'Đang hoạt động',
+          registrationDate: this.normalizeDateForInput(item.ngayDangKy),
+          status: item.trangThai || 'Đang hoạt động',
           // Full data for view
-          maLop: item['Mã lớp'] || '',
-          khoaHoc: item['Khóa học'] || '',
-          tenKhoa: item['Tên khóa'] || '',
-          chiNhanh: item['Chi nhánh'] || '',
+          maLop: item.maLop || '',
+          khoaHoc: item.khoaHoc || '',
+          tenKhoa: item.tenKhoa || '',
+          chiNhanh: item.chiNhanh || '',
           rawData: item
         }));
         this.filteredData = [...this.registrations];
@@ -316,11 +316,11 @@ export class Registration implements OnInit {
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-    
+
     console.log('[Registration] Slice parameters:', { start, end, arrayLength: this.filteredData.length });
-    
+
     this.paginatedData = this.filteredData.slice(start, end);
-    
+
     console.log('[Registration] Paginated data count:', this.paginatedData.length);
   }
 
@@ -333,7 +333,7 @@ export class Registration implements OnInit {
     const currentStatus = item?.status;
     const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
     const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-    
+
     this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} đăng ký "${item?.studentName}" và đổi trạng thái thành "${newStatus}"?`;
     this.isConfirmLockDialogOpen = true;
   }

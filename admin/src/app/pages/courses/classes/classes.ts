@@ -68,11 +68,11 @@ export class Classes implements OnInit, DoCheck {
     {
       title: 'I. Thông tin Khóa học',
       fields: [
-        { label: 'Mã lớp', name: 'Mã lớp', type: 'text', disabled: true },
-        { label: 'Tên lớp', name: 'Tên lớp', type: 'text', disabled: true },
+        { label: 'Mã lớp', name: 'maLop', type: 'text', disabled: true },
+        { label: 'Tên lớp', name: 'tenLop', type: 'text', disabled: true },
         {
           label: 'Khung giờ',
-          name: 'Khung giờ',
+          name: 'khungGio',
           type: 'select',
           required: true,
           options: [
@@ -83,17 +83,17 @@ export class Classes implements OnInit, DoCheck {
             { label: '19h30-21h00 (T3-5-7)', value: '19h30-21h00 (T3-5-7)' }
           ]
         },
-        { label: 'Ngày bắt đầu', name: 'Ngày bắt đầu', type: 'date', required: true },
-        { label: 'Ngày kết thúc', name: 'Ngày kết thúc', type: 'date', required: true },
+        { label: 'Ngày bắt đầu', name: 'ngayBatDau', type: 'date', required: true },
+        { label: 'Ngày kết thúc', name: 'ngayKetThuc', type: 'date', required: true },
         {
           label: 'Mã khóa',
-          name: 'Mã khóa',
+          name: 'maKhoa',
           type: 'text',
           disabled: true
         },
         {
           label: 'Tên khóa học',
-          name: 'Tên khóa học',
+          name: 'tenKhoaHoc',
           type: 'select',
           required: true,
           options: [
@@ -102,7 +102,7 @@ export class Classes implements OnInit, DoCheck {
             { label: 'Khóa học TOEIC Listening và Reading', value: 'Khóa học TOEIC Listening và Reading' }
           ]
         },
-        { label: 'STT', name: 'STT', type: 'number', disabled: true }
+        { label: 'STT', name: 'stt', type: 'number', disabled: true }
       ]
     },
     {
@@ -110,7 +110,7 @@ export class Classes implements OnInit, DoCheck {
       fields: [
         {
           label: 'Chi nhánh',
-          name: 'Chi nhánh',
+          name: 'chiNhanh',
           type: 'select',
           required: true,
           options: [
@@ -120,8 +120,8 @@ export class Classes implements OnInit, DoCheck {
             { label: 'CN3', value: 'CN3' }
           ]
         },
-        { label: 'Giảng viên', name: 'Giảng viên', type: 'select', required: true, options: [{ label: 'Chọn giảng viên...', value: '' }] },
-        { label: 'Mã nhân viên', name: 'Mã nhân viên', type: 'text', disabled: true }
+        { label: 'Giảng viên', name: 'giangVien', type: 'select', required: true, options: [{ label: 'Chọn giảng viên...', value: '' }] },
+        { label: 'Mã nhân viên', name: 'maNhanVien', type: 'text', disabled: true }
       ]
     }
   ];
@@ -129,7 +129,7 @@ export class Classes implements OnInit, DoCheck {
   constructor(private classService: Class, private staffService: Staff) { }
 
   ngOnInit() {
-    this.classService.getClass().subscribe((data) => {
+    this.classService.getClasses().subscribe((data: iClass[]) => {
       this.classes = data;
     });
     this.staffService.getStaff().subscribe((data) => {
@@ -141,16 +141,16 @@ export class Classes implements OnInit, DoCheck {
   ngDoCheck() {
     if (this.isDialogOpen && this.dialogData) {
       // Đảo ngược logic: Dựa vào Tên khóa học để tính Mã khóa
-      if (this.dialogData['Tên khóa học'] === 'Khóa học TOEIC Speaking và Writing' && this.dialogData['Mã khóa'] !== 'SW') {
-        this.dialogData['Mã khóa'] = 'SW';
-      } else if (this.dialogData['Tên khóa học'] === 'Khóa học TOEIC Listening và Reading' && this.dialogData['Mã khóa'] !== 'LR') {
-        this.dialogData['Mã khóa'] = 'LR';
-      } else if (!this.dialogData['Tên khóa học'] && this.dialogData['Mã khóa']) {
-        this.dialogData['Mã khóa'] = '';
+      if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Speaking và Writing' && this.dialogData.maKhoa !== 'SW') {
+        this.dialogData.maKhoa = 'SW';
+      } else if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Listening và Reading' && this.dialogData.maKhoa !== 'LR') {
+        this.dialogData.maKhoa = 'LR';
+      } else if (!this.dialogData.tenKhoaHoc && this.dialogData.maKhoa) {
+        this.dialogData.maKhoa = '';
       }
 
-      const maKhoa = this.dialogData['Mã khóa'];
-      const chiNhanh = this.dialogData['Chi nhánh'];
+      const maKhoa = this.dialogData.maKhoa;
+      const chiNhanh = this.dialogData.chiNhanh;
 
       if (maKhoa && chiNhanh) {
         let branchCode = '';
@@ -158,10 +158,10 @@ export class Classes implements OnInit, DoCheck {
         else if (chiNhanh === 'CN2') branchCode = '02';
         else if (chiNhanh === 'CN3') branchCode = '03';
 
-        const filteredClasses = this.classes.filter(c => c['Mã khóa'] === maKhoa && c['Chi nhánh'] === chiNhanh);
+        const filteredClasses = this.classes.filter(c => c.maKhoa === maKhoa && c.chiNhanh === chiNhanh);
         let maxSeq = 0;
         for (let c of filteredClasses) {
-          const parts = c['Mã lớp'].split('-');
+          const parts = c.maLop.split('-');
           if (parts.length === 3) {
             const seq = parseInt(parts[2], 10);
             if (seq > maxSeq) { maxSeq = seq; }
@@ -170,8 +170,8 @@ export class Classes implements OnInit, DoCheck {
         const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
         const expectedMaLop = `${maKhoa}-${branchCode}-${nextSeq}`;
 
-        if (this.dialogData['Mã lớp'] !== expectedMaLop) {
-          this.dialogData['Mã lớp'] = expectedMaLop;
+        if (this.dialogData.maLop !== expectedMaLop) {
+          this.dialogData.maLop = expectedMaLop;
         }
 
         let prefix = '';
@@ -179,47 +179,47 @@ export class Classes implements OnInit, DoCheck {
         else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
 
         const expectedTenLop = `${prefix} ${chiNhanh}-${nextSeq}`;
-        if (this.dialogData['Tên lớp'] !== expectedTenLop) {
-          this.dialogData['Tên lớp'] = expectedTenLop;
+        if (this.dialogData.tenLop !== expectedTenLop) {
+          this.dialogData.tenLop = expectedTenLop;
         }
 
       } else {
-        if (this.dialogData['Mã lớp']) {
-          this.dialogData['Mã lớp'] = '';
+        if (this.dialogData.maLop) {
+          this.dialogData.maLop = '';
         }
-        if (this.dialogData['Tên lớp']) {
-          this.dialogData['Tên lớp'] = '';
+        if (this.dialogData.tenLop) {
+          this.dialogData.tenLop = '';
         }
       }
 
       // Logic lọc Giáo viên
       if (chiNhanh !== this.lastBranch) {
         this.lastBranch = chiNhanh || '';
-        const giangVienField = this.dialogSections[1].fields.find(f => f.name === 'Giảng viên');
+        const giangVienField = this.dialogSections[1].fields.find(f => f.name === 'giangVien');
         if (giangVienField) {
           if (chiNhanh) {
-            const filteredStaffs = this.staffs.filter(s => s['Chi nhánh'] === chiNhanh && s['Mã vai trò'] === 'INSTRUCTOR');
+            const filteredStaffs = this.staffs.filter(s => s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
             giangVienField.options = [
               { label: 'Chọn giảng viên...', value: '' },
-              ...filteredStaffs.map(s => ({ label: s['Tên nhân viên'], value: s['Tên nhân viên'] }))
+              ...filteredStaffs.map(s => ({ label: s.tenNhanVien, value: s.tenNhanVien }))
             ];
           } else {
             giangVienField.options = [{ label: 'Chọn giảng viên...', value: '' }];
           }
-          this.dialogData['Giảng viên'] = '';
-          this.dialogData['Mã nhân viên'] = '';
+          this.dialogData.giangVien = '';
+          this.dialogData.maNhanVien = '';
         }
       }
 
       // Cập nhật Mã nhân viên khi chọn Giảng viên
-      if (this.dialogData['Giảng viên']) {
-        const selectedTeacher = this.staffs.find(s => s['Tên nhân viên'] === this.dialogData['Giảng viên'] && s['Chi nhánh'] === chiNhanh && s['Mã vai trò'] === 'INSTRUCTOR');
-        if (selectedTeacher && this.dialogData['Mã nhân viên'] !== selectedTeacher['Mã NV']) {
-          this.dialogData['Mã nhân viên'] = selectedTeacher['Mã NV'];
+      if (this.dialogData.giangVien) {
+        const selectedTeacher = this.staffs.find(s => s.tenNhanVien === this.dialogData.giangVien && s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
+        if (selectedTeacher && this.dialogData.maNhanVien !== selectedTeacher.maNv) {
+          this.dialogData.maNhanVien = selectedTeacher.maNv;
         }
       } else {
-        if (this.dialogData['Mã nhân viên']) {
-          this.dialogData['Mã nhân viên'] = '';
+        if (this.dialogData.maNhanVien) {
+          this.dialogData.maNhanVien = '';
         }
       }
     }
@@ -227,9 +227,9 @@ export class Classes implements OnInit, DoCheck {
 
   openDialog() {
     // Tự động tính thứ tự STT tiếp theo
-    const nextStt = this.classes.length > 0 ? Math.max(...this.classes.map(c => c.STT)) + 1 : 1;
+    const nextStt = this.classes.length > 0 ? Math.max(...this.classes.map(c => c.stt)) + 1 : 1;
     // Ensure dialogData contains all fields defined in sections with defaults
-    const data: any = { STT: nextStt };
+    const data: any = { stt: nextStt };
     for (const section of this.dialogSections) {
       for (const field of section.fields) {
         if (!(field.name in data)) {
@@ -249,9 +249,9 @@ export class Classes implements OnInit, DoCheck {
 
   onSubmitDialog(data: any) {
     // Update existing class if Mã lớp matches, otherwise add new
-    const maLop = data && data['Mã lớp'];
+    const maLop = data && data.maLop;
     if (maLop) {
-      const idx = this.classes.findIndex(c => c['Mã lớp'] === maLop);
+      const idx = this.classes.findIndex(c => c.maLop === maLop);
       if (idx !== -1) {
         this.classes[idx] = { ...this.classes[idx], ...data } as iClass;
       } else {
@@ -302,10 +302,11 @@ export class Classes implements OnInit, DoCheck {
       return;
     }
     const teacherNames = Array.from(
-      new Set(this.staffs.filter((s) => s['Mã vai trò'] === 'INSTRUCTOR').map((s) => s['Tên nhân viên']))
+      new Set(this.staffs.filter((s) => s.maVaiTro === 'INSTRUCTOR').map((s) => s.tenNhanVien))
     );
     teacherField.options = teacherNames.map((name) => ({ value: name, label: name }));
   }
+
 
   private normalizeDate(value: any): string {
     if (!value) {
@@ -334,27 +335,27 @@ export class Classes implements OnInit, DoCheck {
       if (
         classCourseSearch &&
         ![
-          item['Mã lớp'],
-          item['Tên lớp'],
-          item['Mã khóa'],
-          item['Tên khóa học']
+          item.maLop,
+          item.tenLop,
+          item.maKhoa,
+          item.tenKhoaHoc
         ].some((value) => this.matchesText(`${value ?? ''}`, classCourseSearch))
       ) {
         return false;
       }
-      if (filters['Chi nhánh'] && item['Chi nhánh'] !== filters['Chi nhánh']) {
+      if (filters['Chi nhánh'] && item.chiNhanh !== filters['Chi nhánh']) {
         return false;
       }
-      if (filters['Giảng viên'] && item['Giảng viên'] !== filters['Giảng viên']) {
+      if (filters['Giảng viên'] && item.giangVien !== filters['Giảng viên']) {
         return false;
       }
-      if (filters['Khung giờ'] && item['Khung giờ'] !== filters['Khung giờ']) {
+      if (filters['Khung giờ'] && item.khungGio !== filters['Khung giờ']) {
         return false;
       }
-      if (filters['Ngày bắt đầu'] && this.normalizeDate(item['Ngày bắt đầu']) !== filters['Ngày bắt đầu']) {
+      if (filters['Ngày bắt đầu'] && this.normalizeDate(item.ngayBatDau) !== filters['Ngày bắt đầu']) {
         return false;
       }
-      if (filters['Ngày kết thúc'] && this.normalizeDate(item['Ngày kết thúc']) !== filters['Ngày kết thúc']) {
+      if (filters['Ngày kết thúc'] && this.normalizeDate(item.ngayKetThuc) !== filters['Ngày kết thúc']) {
         return false;
       }
       return true;

@@ -1,301 +1,301 @@
 
-import { Component,OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FilterConfig,FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
+import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
 import { DebtReportService } from '../../../services/ar-report';
 import { iDebtReport } from '../../../interfaces/AR-report';
 
 @Component({
-    selector:'app-debt-report',
-    standalone:true,
-    imports:[
+    selector: 'app-debt-report',
+    standalone: true,
+    imports: [
         CommonModule,
         FilterDataPicker
     ],
-    templateUrl:'./debt-report.html',
-    styleUrls:['./debt-report.css']
+    templateUrl: './debt-report.html',
+    styleUrls: ['./debt-report.css']
 })
-export class DebtReport implements OnInit{
+export class DebtReport implements OnInit {
 
     constructor(
-        private debtReportService:DebtReportService
-    ){}
+        private debtReportService: DebtReportService
+    ) { }
 
-    filterConfig:FilterConfig[]=[
+    filterConfig: FilterConfig[] = [
         {
-            key:'ngay',
-            label:'Ngày',
-            type:'date-range'
+            key: 'ngay',
+            label: 'Ngày',
+            type: 'date-range'
         },
         {
-            key:'chiNhanh',
-            label:'Chi nhánh',
-            type:'multi-select',
-            options:[
+            key: 'chiNhanh',
+            label: 'Chi nhánh',
+            type: 'multi-select',
+            options: [
                 {
-                    label:'CN1',
-                    value:'CN1'
+                    label: 'CN1',
+                    value: 'CN1'
                 },
                 {
-                    label:'CN2',
-                    value:'CN2'
+                    label: 'CN2',
+                    value: 'CN2'
                 },
                 {
-                    label:'CN3',
-                    value:'CN3'
+                    label: 'CN3',
+                    value: 'CN3'
                 }
             ]
         },
         {
-            key:'khoaHoc',
-            label:'Khóa học',
-            type:'multi-select',
-            options:[
+            key: 'khoaHoc',
+            label: 'Khóa học',
+            type: 'multi-select',
+            options: [
                 {
-                    label:'SW',
-                    value:'SW'
+                    label: 'SW',
+                    value: 'SW'
                 },
                 {
-                    label:'LR',
-                    value:'LR'
+                    label: 'LR',
+                    value: 'LR'
                 }
             ]
         }
     ];
 
-    allData:iDebtReport[]=[];
+    allData: iDebtReport[] = [];
 
-    filteredData:any[]=[];
+    filteredData: any[] = [];
 
-    paginatedData:any[]=[];
+    paginatedData: any[] = [];
 
-    currentPage=1;
+    currentPage = 1;
 
-    itemsPerPage=10;
+    itemsPerPage = 10;
 
-    pageSizeOptions=[10,20,50];
+    pageSizeOptions = [10, 20, 50];
 
-    tongHocPhi=0;
+    tongHocPhi = 0;
 
-    tongGiamGia=0;
+    tongGiamGia = 0;
 
-    tongDaThu=0;
+    tongDaThu = 0;
 
-    tongChuaThu=0;
+    tongChuaThu = 0;
 
-    tongHoan=0;
+    tongHoan = 0;
 
-    ngOnInit():void{
+    ngOnInit(): void {
 
         this.debtReportService
-        .getDebtReport()
-        .subscribe({
+            .getDebtReport()
+            .subscribe({
 
-            next:(data:any)=>{
+                next: (data: any) => {
 
-                this.allData=data.map((item:any)=>({
+                    this.allData = data.map((item: any) => ({
 
-                    ngay:item['Ngày'],
-                    chiNhanh:item['Chi nhánh'],
-                    khoaHoc:item['Khóa học'],
-                    lopHoc:item['Lớp học'],
-                    soTienHocPhi:item['Số tiền học phí'],
-                    soTienGiamGia:item['Số tiền giảm giá'],
-                    soTienDaThu:item['Số tiền đã thu'],
-                    soTienChuaThu:item['Số tiền chưa thu'],
-                    soTienHoan:item['Số tiền hoàn']
+                        ngay: item.ngay,
+                        chiNhanh: item.chiNhanh,
+                        khoaHoc: item.khoaHoc,
+                        lopHoc: item.lopHoc,
+                        soTienHocPhi: item.soTienHocPhi,
+                        soTienGiamGia: item.soTienGiamGia,
+                        soTienDaThu: item.soTienDaThu,
+                        soTienChuaThu: item.soTienChuaThu,
+                        soTienHoan: item.soTienHoan
 
-                }));
+                    }));
 
-                this.filteredData=[...this.allData];
+                    this.filteredData = [...this.allData];
 
-                this.updatePagination();
+                    this.updatePagination();
 
-                this.calculateSummary();
-            },
+                    this.calculateSummary();
+                },
 
-            error:(err)=>{
-                console.error(err);
-            }
-        });
+                error: (err) => {
+                    console.error(err);
+                }
+            });
     }
 
-    handleSearch(filterValues:any):void{
+    handleSearch(filterValues: any): void {
 
-        this.filteredData=this.allData.filter((item:any)=>{
+        this.filteredData = this.allData.filter((item: any) => {
 
-            let matchDate=true;
+            let matchDate = true;
 
-            if(
+            if (
                 filterValues.ngay &&
                 (
                     filterValues.ngay.fromDate ||
                     filterValues.ngay.toDate
                 )
-            ){
+            ) {
 
-                const itemDate=
+                const itemDate =
                     new Date(item.ngay);
 
-                const fromDate=
+                const fromDate =
                     filterValues.ngay.fromDate
-                    ? new Date(filterValues.ngay.fromDate)
-                    : null;
+                        ? new Date(filterValues.ngay.fromDate)
+                        : null;
 
-                const toDate=
+                const toDate =
                     filterValues.ngay.toDate
-                    ? new Date(filterValues.ngay.toDate)
-                    : null;
+                        ? new Date(filterValues.ngay.toDate)
+                        : null;
 
-                if(
+                if (
                     fromDate &&
-                    itemDate<fromDate
-                ){
-                    matchDate=false;
+                    itemDate < fromDate
+                ) {
+                    matchDate = false;
                 }
 
-                if(
+                if (
                     toDate &&
-                    itemDate>toDate
-                ){
-                    matchDate=false;
+                    itemDate > toDate
+                ) {
+                    matchDate = false;
                 }
             }
 
-            let matchChiNhanh=true;
+            let matchChiNhanh = true;
 
-            if(
+            if (
                 filterValues.chiNhanh &&
-                filterValues.chiNhanh.length>0
-            ){
+                filterValues.chiNhanh.length > 0
+            ) {
 
-                matchChiNhanh=
+                matchChiNhanh =
                     filterValues.chiNhanh.includes(
                         item.chiNhanh
                     );
             }
 
-            let matchKhoaHoc=true;
+            let matchKhoaHoc = true;
 
-            if(
+            if (
                 filterValues.khoaHoc &&
-                filterValues.khoaHoc.length>0
-            ){
+                filterValues.khoaHoc.length > 0
+            ) {
 
-                matchKhoaHoc=
+                matchKhoaHoc =
                     filterValues.khoaHoc.includes(
                         item.khoaHoc
                     );
             }
 
-            return(
+            return (
                 matchDate &&
                 matchChiNhanh &&
                 matchKhoaHoc
             );
         });
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
 
         this.calculateSummary();
     }
 
-    handleReset():void{
+    handleReset(): void {
 
-        this.filteredData=[...this.allData];
+        this.filteredData = [...this.allData];
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
 
         this.calculateSummary();
     }
 
-    calculateSummary():void{
+    calculateSummary(): void {
 
-        this.tongHocPhi=0;
+        this.tongHocPhi = 0;
 
-        this.tongGiamGia=0;
+        this.tongGiamGia = 0;
 
-        this.tongDaThu=0;
+        this.tongDaThu = 0;
 
-        this.tongChuaThu=0;
+        this.tongChuaThu = 0;
 
-        this.tongHoan=0;
+        this.tongHoan = 0;
 
-        this.filteredData.forEach((item:any)=>{
+        this.filteredData.forEach((item: any) => {
 
-            this.tongHocPhi+=Number(item.soTienHocPhi);
+            this.tongHocPhi += Number(item.soTienHocPhi);
 
-            this.tongGiamGia+=Number(item.soTienGiamGia);
+            this.tongGiamGia += Number(item.soTienGiamGia);
 
-            this.tongDaThu+=Number(item.soTienDaThu);
+            this.tongDaThu += Number(item.soTienDaThu);
 
-            this.tongChuaThu+=Number(item.soTienChuaThu);
+            this.tongChuaThu += Number(item.soTienChuaThu);
 
-            this.tongHoan+=Number(item.soTienHoan);
+            this.tongHoan += Number(item.soTienHoan);
         });
     }
 
-    get totalPages():number{
+    get totalPages(): number {
 
         return Math.max(
             1,
             Math.ceil(
                 this.filteredData.length
-                /this.itemsPerPage
+                / this.itemsPerPage
             )
         );
     }
 
-    get pages():number[]{
+    get pages(): number[] {
 
         return Array.from(
             {
-                length:this.totalPages
+                length: this.totalPages
             },
-            (_,i)=>i+1
+            (_, i) => i + 1
         );
     }
 
-    changePage(page:number):void{
+    changePage(page: number): void {
 
-        if(
-            page<1 ||
-            page>this.totalPages
-        ){
+        if (
+            page < 1 ||
+            page > this.totalPages
+        ) {
             return;
         }
 
-        this.currentPage=page;
+        this.currentPage = page;
 
         this.updatePagination();
     }
 
-    changePageSize(event:Event):void{
+    changePageSize(event: Event): void {
 
-        const value=
+        const value =
             (event.target as HTMLSelectElement).value;
 
-        this.itemsPerPage=Number(value);
+        this.itemsPerPage = Number(value);
 
-        this.currentPage=1;
+        this.currentPage = 1;
 
         this.updatePagination();
     }
 
-    updatePagination():void{
+    updatePagination(): void {
 
-        const start=
-            (this.currentPage-1)
-            *this.itemsPerPage;
+        const start =
+            (this.currentPage - 1)
+            * this.itemsPerPage;
 
-        const end=
-            start+this.itemsPerPage;
+        const end =
+            start + this.itemsPerPage;
 
-        this.paginatedData=
-            this.filteredData.slice(start,end);
+        this.paginatedData =
+            this.filteredData.slice(start, end);
     }
 }

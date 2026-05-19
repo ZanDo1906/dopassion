@@ -9,10 +9,10 @@ import { RoleService } from '../../../../services/role';
 import { iRole } from '../../../../interfaces/role';
 
 type RoleViewFormGroup = {
-  'MÃ VAI TRÒ': FormControl<string>;
-  'TÊN VAI TRÒ': FormControl<string>;
-  'MÔ TẢ': FormControl<string>;
-  'TRẠNG THÁI': FormControl<string>;
+  maVaiTro: FormControl<string>;
+  tenVaiTro: FormControl<string>;
+  moTa: FormControl<string>;
+  active: FormControl<boolean>;
 };
 
 @Component({
@@ -34,22 +34,22 @@ export class Role implements OnInit {
    */
   filterConfig: FilterConfig[] = [
     {
-      key: 'MÃ VAI TRÒ',
+      key: 'maVaiTro',
       label: 'Mã Vai trò',
       type: 'text'
     },
     {
-      key: 'TÊN VAI TRÒ',
+      key: 'tenVaiTro',
       label: 'Vai trò',
       type: 'text'
     },
     {
-      key: 'TRẠNG THÁI',
+      key: 'active',
       label: 'Trạng thái',
       type: 'select',
       options: [
-        { value: 'Đang hoạt động', label: 'Đang hoạt động' },
-        { value: 'Đã khóa', label: 'Đã khóa' }
+        { value: true, label: 'Đang hoạt động' },
+        { value: false, label: 'Đã khóa' }
       ]
     }
   ];
@@ -98,10 +98,10 @@ export class Role implements OnInit {
     });
 
     this.detailForm = this.formBuilder.group<RoleViewFormGroup>({
-      'MÃ VAI TRÒ': this.formBuilder.control('', { nonNullable: true }),
-      'TÊN VAI TRÒ': this.formBuilder.control('', { nonNullable: true }),
-      'MÔ TẢ': this.formBuilder.control('', { nonNullable: true }),
-      'TRẠNG THÁI': this.formBuilder.control('', { nonNullable: true }),
+      maVaiTro: this.formBuilder.control('', { nonNullable: true }),
+      tenVaiTro: this.formBuilder.control('', { nonNullable: true }),
+      moTa: this.formBuilder.control('', { nonNullable: true }),
+      active: this.formBuilder.control(true, { nonNullable: true }),
     });
   }
 
@@ -119,7 +119,7 @@ export class Role implements OnInit {
     this.itemsPerPage = 10; // Explicitly set default
     this.filteredData = [];
     this.paginatedData = [];
-    
+
     // Load data
     this.loadData();
   }
@@ -127,7 +127,7 @@ export class Role implements OnInit {
   loadData(): void {
     this.roleService.getRole().subscribe({
       next: (data) => {
-        // Giữ nguyên dữ liệu từ JSON với các key tiếng Việt
+        // Dữ liệu đã camelCase từ API
         this.roles = data;
         this.filteredData = [...this.roles];
         this.updatePagination();
@@ -136,19 +136,19 @@ export class Role implements OnInit {
         console.error('Error loading role data:', err);
         // Fallback to sample data
         this.roles = [
-          { 
-            'STT': 1,
-            'MÃ VAI TRÒ': 'ADMIN', 
-            'TÊN VAI TRÒ': 'Admin', 
-            'MÔ TẢ': 'Quản trị hệ thống',
-            'TRẠNG THÁI': 'Đang hoạt động' 
+          {
+            stt: 1,
+            maVaiTro: 'ADMIN',
+            tenVaiTro: 'Admin',
+            moTa: 'Quản trị hệ thống',
+            active: true
           },
-          { 
-            'STT': 2,
-            'MÃ VAI TRÒ': 'KETOAN', 
-            'TÊN VAI TRÒ': 'Kế toán', 
-            'MÔ TẢ': 'Quản lý tài chính',
-            'TRẠNG THÁI': 'Đang hoạt động' 
+          {
+            stt: 2,
+            maVaiTro: 'KETOAN',
+            tenVaiTro: 'Kế toán',
+            moTa: 'Quản lý tài chính',
+            active: true
           },
         ];
         this.filteredData = [...this.roles];
@@ -168,10 +168,10 @@ export class Role implements OnInit {
 
   viewRoleDetail(item: iRole): void {
     this.detailForm.patchValue({
-      'MÃ VAI TRÒ': `${item['MÃ VAI TRÒ'] ?? ''}`,
-      'TÊN VAI TRÒ': `${item['TÊN VAI TRÒ'] ?? ''}`,
-      'MÔ TẢ': `${item['MÔ TẢ'] ?? ''}`,
-      'TRẠNG THÁI': `${item['TRẠNG THÁI'] ?? ''}`,
+      maVaiTro: `${item.maVaiTro ?? ''}`,
+      tenVaiTro: `${item.tenVaiTro ?? ''}`,
+      moTa: `${item.moTa ?? ''}`,
+      active: Boolean(item.active)
     });
     this.detailForm.disable();
     this.dialogMode = 'view';
@@ -181,10 +181,10 @@ export class Role implements OnInit {
     this.addRoleForm.reset({ maVaiTro: '', tenVaiTro: '', moTa: '' });
     this.detailForm.enable();
     this.detailForm.reset({
-      'MÃ VAI TRÒ': '',
-      'TÊN VAI TRÒ': '',
-      'MÔ TẢ': '',
-      'TRẠNG THÁI': '',
+      maVaiTro: '',
+      tenVaiTro: '',
+      moTa: '',
+      active: true,
     });
     this.dialogMode = null;
   }
@@ -204,15 +204,15 @@ export class Role implements OnInit {
     const normalizedMoTa = `${formValue.moTa ?? ''}`.trim();
 
     const nextStt = this.roles.length > 0
-      ? Math.max(...this.roles.map((item) => Number(item['STT']) || 0)) + 1
+      ? Math.max(...this.roles.map((item) => Number(item.stt) || 0)) + 1
       : 1;
 
     const newRole: iRole = {
-      STT: nextStt,
-      'MÃ VAI TRÒ': normalizedMaVaiTro,
-      'TÊN VAI TRÒ': normalizedTenVaiTro,
-      'MÔ TẢ': normalizedMoTa,
-      'TRẠNG THÁI': 'Đang hoạt động'
+      stt: nextStt,
+      maVaiTro: normalizedMaVaiTro,
+      tenVaiTro: normalizedTenVaiTro,
+      moTa: normalizedMoTa,
+      active: true
     };
 
     this.roleService.addRole(newRole).subscribe({
@@ -239,7 +239,7 @@ export class Role implements OnInit {
     this.filteredData = this.roles.filter(role => {
       return Object.keys(filterValues).every(key => {
         const filterValue = filterValues[key];
-        const roleValue = role[key];
+        const roleValue = (role as Record<string, any>)[key];
 
         // Nếu không có giá trị filter cho field này, bỏ qua
         if (!filterValue) {
@@ -248,7 +248,7 @@ export class Role implements OnInit {
 
         // Với trường text: so sánh substring không phân biệt hoa thường
         if (typeof roleValue === 'string') {
-          return roleValue.toLowerCase().includes(filterValue.toLowerCase());
+          return roleValue.toLowerCase().includes(String(filterValue).toLowerCase());
         }
 
         // Cho các type khác, so sánh bằng
@@ -284,11 +284,11 @@ export class Role implements OnInit {
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-    
+
     console.log('[Role] Slice parameters:', { start, end, arrayLength: this.filteredData.length });
-    
+
     this.paginatedData = this.filteredData.slice(start, end);
-    
+
     console.log('[Role] Paginated data count:', this.paginatedData.length);
   }
 
@@ -313,11 +313,11 @@ export class Role implements OnInit {
    */
   toggleLockStatus(item: iRole): void {
     this.confirmLockItem = item;
-    const currentStatus = item['TRẠNG THÁI'];
-    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
-    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-    
-    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} vai trò "${item['TÊN VAI TRÒ']}" và đổi trạng thái thành "${newStatus}"?`;
+    const currentStatus = Boolean(item.active);
+    const action = currentStatus ? 'khóa' : 'mở khóa';
+    const newStatusLabel = currentStatus ? 'Đã khóa' : 'Đang hoạt động';
+
+    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} vai trò "${item.tenVaiTro}" và đổi trạng thái thành "${newStatusLabel}"?`;
     this.isConfirmLockDialogOpen = true;
   }
 
@@ -329,23 +329,23 @@ export class Role implements OnInit {
       return;
     }
 
-    const currentStatus = (this.confirmLockItem['TRẠNG THÁI'] || '') as string;
-    const roleId = (this.confirmLockItem['MÃ VAI TRÒ'] || '') as string;
+    const currentStatus = Boolean(this.confirmLockItem.active);
+    const roleId = (this.confirmLockItem._id || this.confirmLockItem.maVaiTro || '') as string;
 
-    if (!currentStatus || !roleId) {
+    if (!roleId) {
       console.error('Invalid role data for lock/unlock');
       return;
     }
 
     // Gọi service để cập nhật trạng thái
     // endpoint: để trống sẽ mock, sau này thêm API endpoint
-    this.roleService.toggleLockStatus(roleId, currentStatus, '').subscribe({
+    this.roleService.toggleLockStatus(roleId, currentStatus ? 'Đang hoạt động' : 'Đã khóa', '').subscribe({
       next: (response) => {
         if (response.success) {
           // Cập nhật trạng thái trong local data
-          const roleToUpdate = this.roles.find(r => r['MÃ VAI TRÒ'] === roleId);
+          const roleToUpdate = this.roles.find(r => r.maVaiTro === this.confirmLockItem?.maVaiTro);
           if (roleToUpdate) {
-            roleToUpdate['TRẠNG THÁI'] = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+            roleToUpdate.active = !currentStatus;
             // Cập nhật filtered và paginated data
             this.filteredData = [...this.roles];
             this.updatePagination();
@@ -375,6 +375,6 @@ export class Role implements OnInit {
    * Kiểm tra xem vai trò có bị khóa hay không
    */
   isRoleLocked(item: iRole): boolean {
-    return item['TRẠNG THÁI'] === 'Đã khóa';
+    return !item.active;
   }
 }

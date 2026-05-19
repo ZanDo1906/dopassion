@@ -1,10 +1,7 @@
 <div class="role-page">
     <!-- Shared Filter Data Picker Component -->
-    <app-filter-data-picker
-        [config]="filterConfig"
-        (onSearch)="handleSearch($event)"
-        (onReset)="handleReset()"
-    ></app-filter-data-picker>
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"></app-filter-data-picker>
 
     <!-- Action Bar -->
     <div class="toolbar">
@@ -38,18 +35,15 @@
             <tbody>
                 <tr *ngFor="let item of paginatedData; let i = index">
                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td>{{ item['MÃ VAI TRÒ'] }}</td>
-                    <td>{{ item['TÊN VAI TRÒ'] }}</td>
-                    <td>{{ item['MÔ TẢ'] }}</td>
+                    <td>{{ item.maVaiTro }}</td>
+                    <td>{{ item.tenVaiTro }}</td>
+                    <td>{{ item.moTa }}</td>
                     <td>
-                        <span 
-                            class="badge"
-                            [ngClass]="{
-                                'badge--success': item['TRẠNG THÁI'] === 'Đang hoạt động',
-                                'badge--danger': item['TRẠNG THÁI'] === 'Đã khóa' || item['TRẠNG THÁI'] === 'Ngưng hoạt động'
-                            }"
-                        >
-                            {{ item['TRẠNG THÁI'] }}
+                        <span class="badge" [ngClass]="{
+                                'badge--success': item.active,
+                                'badge--danger': !item.active
+                            }">
+                            {{ item.active ? 'Đang hoạt động' : 'Đã khóa' }}
                         </span>
                     </td>
                     <td>
@@ -57,10 +51,7 @@
                             <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewRoleDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button 
-                                class="icon-btn" 
-                                type="button" 
-                                [title]="isRoleLocked(item) ? 'Mở khóa' : 'Khóa'"
+                            <button class="icon-btn" type="button" [title]="isRoleLocked(item) ? 'Mở khóa' : 'Khóa'"
                                 (click)="toggleLockStatus(item)">
                                 <i [class]="isRoleLocked(item) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
                             </button>
@@ -72,14 +63,9 @@
     </div>
 
     <!-- Pagination -->
-    <app-pagination
-        [totalItems]="filteredData.length"
-        [currentPage]="currentPage"
-        [itemsPerPage]="itemsPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPaginationPageChange($event)"
-        (pageSizeChange)="onPaginationPageSizeChange($event)"
-    ></app-pagination>
+    <app-pagination [totalItems]="filteredData.length" [currentPage]="currentPage" [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions" (pageChange)="onPaginationPageChange($event)"
+        (pageSizeChange)="onPaginationPageSizeChange($event)"></app-pagination>
 </div>
 
 <ng-template #viewRoleTemplate>
@@ -91,21 +77,22 @@
                 <div class="col-md-6 role-view-col">
                     <div class="form-group">
                         <label>Mã vai trò</label>
-                        <input class="form-control view-role-input" type="text" formControlName="MÃ VAI TRÒ" readonly />
+                        <input class="form-control view-role-input" type="text" formControlName="maVaiTro" readonly />
                     </div>
                 </div>
 
                 <div class="col-md-6 role-view-col">
                     <div class="form-group">
                         <label>Tên vai trò</label>
-                        <input class="form-control view-role-input" type="text" formControlName="TÊN VAI TRÒ" readonly />
+                        <input class="form-control view-role-input" type="text" formControlName="tenVaiTro" readonly />
                     </div>
                 </div>
 
                 <div class="col-md-12 role-view-col">
                     <div class="form-group">
                         <label>Mô tả</label>
-                        <textarea class="form-control view-role-textarea" rows="3" formControlName="MÔ TẢ" readonly></textarea>
+                        <textarea class="form-control view-role-textarea" rows="3" formControlName="moTa"
+                            readonly></textarea>
                     </div>
                 </div>
 
@@ -113,14 +100,11 @@
                     <div class="form-group">
                         <label>Trạng thái</label>
                         <div class="role-view-status-wrap">
-                            <span
-                                class="badge"
-                                [ngClass]="{
-                                    'badge--success': detailForm.get('TRẠNG THÁI')?.value === 'Đang hoạt động',
-                                    'badge--danger': detailForm.get('TRẠNG THÁI')?.value === 'Đã khóa' || detailForm.get('TRẠNG THÁI')?.value === 'Ngưng hoạt động'
-                                }"
-                            >
-                                {{ detailForm.get('TRẠNG THÁI')?.value }}
+                            <span class="badge" [ngClass]="{
+                                    'badge--success': detailForm.get('active')?.value,
+                                    'badge--danger': !detailForm.get('active')?.value
+                                }">
+                                {{ detailForm.get('active')?.value ? 'Đang hoạt động' : 'Đã khóa' }}
                             </span>
                         </div>
                     </div>
@@ -130,30 +114,18 @@
     </form>
 </ng-template>
 
-<app-form-dialog
-    *ngIf="isDialogOpen"
-    [title]="isViewMode ? 'Chi tiết vai trò' : 'Thêm mới vai trò'"
-    [sections]="isViewMode ? [] : dialogSections"
-    [columns]="3"
-    [formGroup]="isViewMode ? detailForm : addRoleForm"
+<app-form-dialog *ngIf="isDialogOpen" [title]="isViewMode ? 'Chi tiết vai trò' : 'Thêm mới vai trò'"
+    [sections]="isViewMode ? [] : dialogSections" [columns]="3" [formGroup]="isViewMode ? detailForm : addRoleForm"
     [bodyTemplate]="isViewMode ? viewRoleTemplate : null"
-    [cancelText]="isViewMode ? viewDialogConfig.cancelText : 'Thoát'"
-    submitText="Lưu"
-    cancelIcon="bi bi-x-circle"
-    submitIcon="bi bi-save"
-    [class.view-only-dialog]="isViewMode && viewDialogConfig.hideSubmitButton"
-    (close)="closeDialog()"
-    (submit)="onSubmitAddRole($event)">
+    [cancelText]="isViewMode ? viewDialogConfig.cancelText : 'Thoát'" submitText="Lưu" cancelIcon="bi bi-x-circle"
+    submitIcon="bi bi-save" [class.view-only-dialog]="isViewMode && viewDialogConfig.hideSubmitButton"
+    (close)="closeDialog()" (submit)="onSubmitAddRole($event)">
 </app-form-dialog>
 
-<app-confirm-dialog
-    [isOpen]="isConfirmLockDialogOpen"
+<app-confirm-dialog [isOpen]="isConfirmLockDialogOpen"
     [title]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa vai trò' : 'Khóa vai trò'"
-    [message]="confirmLockMessage"
-    [confirmText]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    [message]="confirmLockMessage" [confirmText]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
     cancelText="Hủy"
     [confirmIcon]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
-    cancelIcon="bi bi-x-circle"
-    (confirm)="onConfirmLock()"
-    (cancel)="onCancelLock()">
+    cancelIcon="bi bi-x-circle" (confirm)="onConfirmLock()" (cancel)="onCancelLock()">
 </app-confirm-dialog>

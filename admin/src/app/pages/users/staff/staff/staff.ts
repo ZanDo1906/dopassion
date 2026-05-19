@@ -6,6 +6,7 @@ import { PaginationComponent } from '../../../../components/pagination/paginatio
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dialog';
 import { Staff as StaffService } from '../../../../services/staff';
+import { iStaff } from '../../../../interfaces/staff';
 
 type StaffDetailFormGroup = {
   'Mã nhân viên': FormControl<string>;
@@ -181,7 +182,7 @@ export class Staff implements OnInit {
     this.itemsPerPage = 10; // Explicitly set default
     this.filteredData = [];
     this.paginatedData = [];
-    
+
     // Load data
     this.loadData();
   }
@@ -191,16 +192,16 @@ export class Staff implements OnInit {
       next: (data) => {
         // Normalize data: map Vietnamese keys to normalized keys
         this.allStaffs = data.map(staff => ({
-          maNhanVien: staff['Mã NV'] || '',
-          tenNhanVien: staff['Tên nhân viên'] || '',
-          gioiTinh: staff['Giới tính'] || '',
-          ngaySinh: this.normalizeDateForInput(staff['Ngày sinh']),
-          diaChi: (staff as any)['Địa chỉ'] || '',
-          soDienThoai: `${staff['SĐT'] || ''}`,
-          chiNhanh: staff['Chi nhánh'] || '',
-          vaiTro: staff['Vai trò'] || '',
-          maVaiTro: staff['Mã vai trò'] || this.roleCodeMap[staff['Vai trò']] || '',
-          cccdImage: staff['Ảnh CCCD'] || '',
+          maNhanVien: staff.maNv || '',
+          tenNhanVien: staff.tenNhanVien || '',
+          gioiTinh: staff.gioiTinh || '',
+          ngaySinh: this.normalizeDateForInput(staff.ngaySinh),
+          diaChi: '',
+          soDienThoai: `${staff.sdt || ''}`,
+          chiNhanh: staff.chiNhanh || '',
+          vaiTro: staff.vaiTro || '',
+          maVaiTro: staff.maVaiTro || this.roleCodeMap[staff.vaiTro] || '',
+          cccdImage: staff.anhCccd || '',
           trangThai: 'Đang hoạt động' // Default status
         }));
         this.filteredData = [...this.allStaffs];
@@ -335,6 +336,21 @@ export class Staff implements OnInit {
     }
 
     const rawValue = this.addStaffForm.getRawValue();
+    const newStaffPayload: iStaff = {
+      stt: this.allStaffs.length + 1,
+      maNv: rawValue.employeeId,
+      tenNhanVien: rawValue.fullName,
+      gioiTinh: rawValue.gender,
+      ngaySinh: rawValue.dob,
+      sdt: Number(rawValue.phone) || 0,
+      email: '',
+      chiNhanh: rawValue.branch,
+      vaiTro: rawValue.roleName,
+      maVaiTro: rawValue.roleId,
+      anhCccd: rawValue.cccdImage,
+      active: true
+    };
+
     const newStaff = {
       maNhanVien: rawValue.employeeId,
       tenNhanVien: rawValue.fullName,
@@ -349,7 +365,7 @@ export class Staff implements OnInit {
       trangThai: 'Đang hoạt động'
     };
 
-    this.staffService.addStaff(newStaff).subscribe({
+    this.staffService.addStaff(newStaffPayload).subscribe({
       next: () => {
         this.allStaffs.unshift(newStaff);
         this.filteredData = [...this.allStaffs];
@@ -415,11 +431,11 @@ export class Staff implements OnInit {
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-    
+
     console.log('[Staff] Slice parameters:', { start, end, arrayLength: this.filteredData.length });
-    
+
     this.paginatedData = this.filteredData.slice(start, end);
-    
+
     console.log('[Staff] Paginated data count:', this.paginatedData.length);
   }
 
@@ -432,7 +448,7 @@ export class Staff implements OnInit {
     const currentStatus = item?.trangThai;
     const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
     const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-    
+
     this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} nhân viên "${item?.tenNhanVien}" và đổi trạng thái thành "${newStatus}"?`;
     this.isConfirmLockDialogOpen = true;
   }
