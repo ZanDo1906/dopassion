@@ -3,56 +3,73 @@
         "STT": 1,
         "Mã voucher": "KM100K",
         "Tên chương trình": "Khuyến mãi học viên mới",
-        "Loại giảm": "Cố định",
-        "Thông số": 100000.0
+        "Đơn vị giảm": "VNĐ",
+        "Thông số": 100000.0 ,
+        "Chi nhánh": ["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
+        
     },
     {
         "STT": 2,
         "Mã voucher": "KM200K",
         "Tên chương trình": "Ưu đãi đăng ký sớm",
-        "Loại giảm": "Cố định",
-        "Thông số": 200000.0
+        "Đơn vị giảm": "VNĐ",
+        "Thông số": 200000.0,
+        "Chi nhánh":["CN1"],
+        "Khóa học áp dụng": ["SW"]
     },
     {
         "STT": 3,
         "Mã voucher": "KM300K",
         "Tên chương trình": "Ưu đãi khai giảng tháng 5",
-        "Loại giảm": "Cố định",
-        "Thông số": 300000.0
+        "Đơn vị giảm": "VNĐ",
+        "Thông số": 300000.0, 
+        "Chi nhánh":["CN2"],
+        "Khóa học áp dụng": ["LR"]
     },
     {
         "STT": 4,
         "Mã voucher": "KM500K",
         "Tên chương trình": "Siêu ưu đãi TOEIC Combo",
-        "Loại giảm": "Cố định",
-        "Thông số": 500000.0
+        "Đơn vị giảm": "VNĐ",
+        "Thông số": 500000.0,
+        "Chi nhánh":["CN1", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 5,
         "Mã voucher": "KM10",
         "Tên chương trình": "Giảm học phí mùa hè",
-        "Loại giảm": "Phần trăm",
-        "Thông số": 0.1
+        "Đơn vị giảm": "Phần trăm",
+        "Thông số": 0.1,
+        "Chi nhánh":["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 6,
         "Mã voucher": "KM15",
         "Tên chương trình": "Ưu đãi sinh viên UEL",
-        "Loại giảm": "Phần trăm",
-        "Thông số": 0.15
+        "Đơn vị giảm": "Phần trăm",
+        "Thông số": 0.15,
+        "Chi nhánh":["CN1", "CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 7,
         "Mã voucher": "KM20",
         "Tên chương trình": "Flash Sale cuối tuần",
-        "Loại giảm": "Phần trăm",
-        "Thông số": 0.2
+        "Đơn vị giảm": "Phần trăm",
+        "Thông số": 0.2,
+        "Chi nhánh":["CN2", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     },
     {
         "STT": 8,
         "Mã voucher": "KM25",
         "Tên chương trình": "Khuyến mãi nhóm bạn",
-        "Loại giảm": "Phần trăm",
-        "Thông số": 0.25
+        "Đơn vị giảm": "Phần trăm",
+        "Thông số": 0.25,
+        "Chi nhánh":["CN1", "CN3"],
+        "Khóa học áp dụng": ["SW", "LR"]
     }
 ]
