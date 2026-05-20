@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DecimalPipe, NgForOf, NgIf, NgClass } from '@angular/common';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
@@ -36,6 +36,9 @@ export class Refund {
   errorMessage = '';
 
   showDetailDialog = false;
+  showRejectDialog = false;
+  selectedRefund: any = null;
+  rejectForm!: FormGroup;
   dialogMode: 'view' | 'approve' = 'view';
   detailForm!: FormGroup;
 
@@ -184,6 +187,22 @@ export class Refund {
     ]
   };
 
+  rejectDialogSections = [
+
+  {
+
+    title: 'TỪ CHỐI HOÀN TIỀN',
+
+    fields: [{
+        name: 'lyDoTuChoi',
+        label: 'Lý do từ chối',
+        type: 'textarea',
+        rows: 5
+      }]
+  }
+
+];
+
   refundDetailSections: any[] = [];
 
   constructor(
@@ -215,6 +234,9 @@ export class Refund {
 
     });
 
+    this.rejectForm = this.fb.group({
+      lyDoTuChoi: ['']
+    });
   }
 
   toggleFilter() {
@@ -226,11 +248,9 @@ export class Refund {
   loadRefunds() {
 
     this.refundService.getRefund().subscribe({
-
       next: (items: any[]) => {
-
         this.refunds = items.map((item) => ({
-
+          _id: item._id ? item._id.toString() : (item.id ? item.id.toString() : undefined),
           stt: item.stt,
           maDangKy: item.maDangKy,
           maKH: item.maKh,
@@ -247,13 +267,9 @@ export class Refund {
           lyDoChapNhan: item.lyDoChapNhanHoanTien || '',
           lyDoTuChoi: item.lyDoTuChoi,
           trangThai: item.trangThai
-
         }));
-
         this.filteredRefunds = [...this.refunds];
-
         this.loading = false;
-
       },
 
       error: (error) => {
@@ -335,22 +351,20 @@ export class Refund {
         const matchesBranch =
           branch
             ? item.chiNhanh
-              .toLowerCase()
-              .includes(branch)
+                .toLowerCase()
+                .includes(branch)
             : true;
 
         const matchesCourse =
           courseCode
             ? item.khoaHoc
-              .toLowerCase()
-              .includes(courseCode)
+                .toLowerCase()
+                .includes(courseCode)
             : true;
 
         const matchesStatus =
           status
-            ? item.trangThai
-              .toLowerCase()
-              .includes(status)
+            ? item.trangThai.toLowerCase() === status
             : true;
         return (
 
@@ -369,21 +383,22 @@ export class Refund {
 
   clearFilters() {
 
-    this.filters = {
+  this.filters = {
 
-      registrationCode: '',
-      customerCode: '',
-      classCode: '',
-      branch: '',
-      courseCode: '',
-      status: '',
-    };
+    registrationCode: '',
+    customerCode: '',
+    classCode: '',
+    branch: '',
+    courseCode: '',
+    status: '',
 
-    this.filteredRefunds = [...this.refunds];
+  };
 
-    this.currentPage = 1;
+  this.filteredRefunds = [...this.refunds];
 
-  }
+  this.currentPage = 1;
+
+}
 
   get totalPages(): number {
 
@@ -503,6 +518,13 @@ export class Refund {
 
     this.dialogMode = 'approve';
 
+    this.refundDetailSections = [
+
+      this.registrationSection,
+      this.approvedRefundSection
+
+    ];
+
     this.detailForm.patchValue({
 
       maDangKy: item.maDangKy,
@@ -531,11 +553,54 @@ export class Refund {
     this.showDetailDialog = true;
 
   }
+  openRejectDialog(item: any): void {
+    this.selectedRefund = item;
+    this.rejectForm.reset();
+    this.showRejectDialog = true;
+  }
+  closeRejectDialog(): void {
+    this.showRejectDialog = false;
+  }
   closeDialog(): void {
 
     this.showDetailDialog = false;
 
   }
+
+  saveRejectRefund(): void {
+  if (!this.selectedRefund) return;
+
+  const lyDo = this.rejectForm.value.lyDoTuChoi;
+
+  if (!this.selectedRefund._id) {
+    console.error('selectedRefund._id is undefined!', this.selectedRefund);
+    alert('Không tìm thấy ID của bản ghi hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị.');
+    return;
+  }
+  const updatedData = {
+    trangThai: 'Đã hủy',
+    lyDoTuChoi: lyDo
+  };
+  this.refundService.updateRefund(
+    this.selectedRefund._id,
+    updatedData
+  ).subscribe({
+    next: (res) => {
+      const index = this.refunds.findIndex(
+        x => x._id === this.selectedRefund._id
+      );
+      if (index !== -1) {
+        this.refunds[index] = res; // lấy từ backend
+      }
+      this.filteredRefunds = [...this.refunds];
+      this.showRejectDialog = false;
+      this.selectedRefund = null;
+    },
+    error: (err) => {
+      console.error(err);
+    }
+  });
+}
 
   saveApproveRefund(): void {
 

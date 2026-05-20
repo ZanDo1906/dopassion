@@ -5,463 +5,531 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { VoucherService } from '../../../services/voucher';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
-import { iVoucher } from '../../../interfaces/voucher'
-
+import { iVoucher } from '../../../interfaces/voucher';
 
 @Component({
-  selector: 'app-voucher',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, NgIf, NgForOf, NgSelectModule, GridFormDialog, FilterDataPicker],
-  templateUrl: './voucher.html',
-  styleUrls: ['./voucher.css'],
+selector:'app-voucher',
+standalone:true,
+imports:[FormsModule,ReactiveFormsModule,NgIf,NgForOf,NgSelectModule,GridFormDialog,FilterDataPicker],
+templateUrl:'./voucher.html',
+styleUrls:['./voucher.css'],
 })
 
 export class Voucher implements OnInit {
 
-  filterConfig: FilterConfig[] = [
-    {
-      key: 'maVoucher',
-      label: 'Mã Voucher',
-      type: 'text'
-    },
-    {
-      key: 'tenChuongTrinh',
-      label: 'Tên Chương Trình',
-      type: 'text'
-    },
-    {
-      key: 'khoaHocApDung',
-      label: 'Khóa học áp dụng',
-      type: 'select',
-      options: []
-    },
-    {
-      key: 'maLop',
-      label: 'Mã Lớp',
-      type: 'text'
-    },
-    {
-      key: 'chiNhanh',
-      label: 'Chi nhánh',
-      type: 'multi-select',
-      options: []
-    },
-    {
-      key: 'active',
-      label: 'Trạng thái',
-      type: 'multi-select',
-      options: [
-        { label: 'Đang hoạt động', value: true },
-        { label: 'Ngưng hoạt động', value: false }
-      ]
-    }
-  ];
-
-  // All role data from JSON (không normalize)
-  roles: iVoucher[] = [];
-
-  allData: any[] = [];
-  filteredData: any[] = [];
-  paginatedData: any[] = [];
-
-  loading = true;
-  errorMessage = '';
-
-  showAddDialog = false;
-  dialogMode: 'add' | 'view' | 'edit' = 'add';
-  editingIndex: number | null = null;
-
-  currentPage = 1;
-  itemsPerPage = 10;
-  pageSizeOptions = [10, 20, 50];
-
-  voucherForm!: FormGroup;
-  detailForm!: FormGroup;
-
-  branches = [
-    { label: 'Chi nhánh 1', value: 'CN1' },
-    { label: 'Chi nhánh 2', value: 'CN2' },
-    { label: 'Chi nhánh 3', value: 'CN3' }
-  ];
-
-  courseOptions = [
-    { label: 'LR', value: 'LR' },
-    { label: 'SW', value: 'SW' },
-    { label: 'TOEIC', value: 'TOEIC' }
-  ];
-
-  voucherFormSections = [
-    {
-      title: 'THÔNG TIN VOUCHER',
-      fields: [
-        { name: 'maVoucher', label: 'Mã Voucher', type: 'text', required: true },
-        { name: 'tenChuongTrinh', label: 'Tên Chương Trình', type: 'text', required: true },
-        {
-          name: 'chiNhanh',
-          label: 'Chi nhánh áp dụng',
-          type: 'text',
-          options: this.branches
-        },
-        { name: 'maKhoaHoc', label: 'Khóa học áp dụng', type: 'text', options: this.courseOptions },
-      ]
-    },
-    {
-      title: 'CẤU HÌNH GIẢM GIÁ',
-      fields: [
-        {
-          name: 'donViGiam',
-          label: 'Đơn vị giảm',
-          type: 'select',
-          options: [
-            { label: 'Phần trăm (%)', value: 'Phần trăm' },
-            { label: 'Số tiền (VNĐ)', value: 'VNĐ' }
-          ]
-        },
-        { name: 'thongSoGiam', label: 'Thông số giảm', type: 'number', required: true }
-      ]
-    }
-  ];
-
-  constructor(private fb: FormBuilder, private voucherService: VoucherService) { }
-
-  ngOnInit(): void {
-    this.loadVouchers();
-    this.initForm();
-  }
-
-  initForm(): void {
-    this.voucherForm = this.fb.group({
-      maVoucher: [''],
-      tenChuongTrinh: [''],
-      donViGiam: ['VND'],
-      thongSoGiam: [0],
-      chiNhanh: ['ALL'],
-      maKhoaHoc: ['']
-    });
-
-    this.detailForm = this.fb.group({
-      maVoucher: [''],
-      tenChuongTrinh: [''],
-      chiNhanh: [''],
-      maKhoaHoc: [''],
-      donViGiam: [''],
-      thongSoGiam: ['']
-    });
-  }
-
-  loadVouchers(): void {
-    this.voucherService.getVoucher().subscribe({
-      next: (items: any[]) => {
-        this.allData = (items || []).map((item) => ({
-          stt: item.stt,
-          maVoucher: item.maVoucher,
-          tenChuongTrinh: item.tenChuongTrinh,
-          donViGiam: item.donViGiam,
-          thongSoGiam: item.thongSo,
-          maLop: '',
-          chiNhanh: Array.isArray(item.chiNhanh) ? item.chiNhanh : [],
-          khoaHocApDung: item.khoaHocApDung,
-          active: item.active
-        }));
-
-        this.filteredData = [...this.allData];
-        this.syncFilterOptions();
-        this.currentPage = 1;
-        this.updatePagination();
-        this.loading = false;
-        console.log('Dữ liệu đã được chuyển đổi thành công:', this.allData);
-      },
-      error: (error) => {
-        console.error('Lỗi khi tải hoặc chuyển đổi dữ liệu:', error);
-        this.errorMessage = 'Không thể hiển thị danh sách voucher.';
-        this.loading = false;
-      }
-    });
-  }
-
-  handleSearch(filterValues: any): void {
-    this.filteredData = this.allData.filter((item) => {
-      return Object.keys(filterValues || {}).every((key) => {
-        const filterValue = filterValues[key];
-        const itemValue = item[key];
-
-        if (Array.isArray(filterValue) && filterValue.length === 0) {
-          return true;
-        }
-
-        if (!Array.isArray(filterValue) && (`${filterValue ?? ''}`.trim() === '')) {
-          return true;
-        }
-
-        // Nếu filterValues[key] là một mảng (multi-select) và có dữ liệu
-        if (Array.isArray(filterValue) && filterValue.length > 0) {
-          const normalizedSelected = filterValue
-            .map((value) => `${value ?? ''}`.trim().toLowerCase())
-            .filter(Boolean);
-
-          // Giữ lại bản ghi nếu giá trị của nó nằm trong mảng được chọn
-          if (Array.isArray(itemValue)) {
-            const normalizedItemValues = itemValue
-              .map((value) => `${value ?? ''}`.trim().toLowerCase())
-              .filter(Boolean);
-            return normalizedSelected.some((selected) => normalizedItemValues.includes(selected));
-          }
-
-          const normalizedItemValue = `${itemValue ?? ''}`.trim().toLowerCase();
-          return normalizedSelected.includes(normalizedItemValue);
-        }
-
-        const normalizedFilterText = `${filterValue ?? ''}`.trim().toLowerCase();
-        if (Array.isArray(itemValue)) {
-          const normalizedItemText = itemValue
-            .map((value) => `${value ?? ''}`.trim().toLowerCase())
-            .join(' ');
-          return normalizedItemText.includes(normalizedFilterText);
-        }
-
-        // TODO: Chốt quy tắc lọc theo nghiệp vụ sau
-        const normalizedItemValue = `${itemValue ?? ''}`.trim().toLowerCase();
-        return normalizedItemValue.includes(normalizedFilterText);
-      });
-    });
-
-    this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  handleReset(): void {
-    this.filteredData = [...this.allData];
-    this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredData.length / this.itemsPerPage));
-  }
-
-  get paginatedVouchers(): any[] {
-    return this.paginatedData;
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  changePage(page: number): void {
-
-    if (page < 1 || page > this.totalPages) {
-      return;
-    }
-
-    this.currentPage = page;
-    this.updatePagination();
-
-  }
-
-  changePageSize(event: Event): void {
-
-    const value = (event.target as HTMLSelectElement).value;
-
-    this.itemsPerPage = Number(value);
-    this.currentPage = 1;
-    this.updatePagination();
-
-  }
-
-  updatePagination(): void {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    this.paginatedData = this.filteredData.slice(start, end);
-  }
-
-  private syncFilterOptions(): void {
-    const courseOptions = Array.from(new Set(this.allData.map((item) => `${item.maKhoaHoc ?? ''}`.trim()).filter(Boolean)))
-      .map((value) => ({ label: value, value }));
-
-    const branchOptions = Array.from(new Set(
-      this.allData.flatMap((item) => Array.isArray(item.chiNhanh) ? item.chiNhanh : [])
-    ))
-      .filter(Boolean)
-      .map((value) => ({ label: value, value }));
-
-    this.filterConfig = this.filterConfig.map((field) => {
-      if (field.key === 'maKhoaHoc') {
-        return { ...field, options: courseOptions.length > 0 ? courseOptions : this.courseOptions };
-      }
-
-      if (field.key === 'chiNhanh') {
-        return { ...field, options: branchOptions.length > 0 ? branchOptions : this.branches };
-      }
-
-      return field;
-    });
-  }
-
-  openAddDialog(): void {
-
-    this.dialogMode = 'add';
-
-    this.voucherForm.enable();
-
-    this.voucherForm.reset({
-      chiNhanh: 'ALL',
-      donViGiam: 'VND',
-      thongSoGiam: 0,
-      maKhoaHoc: ''
-    });
-
-    this.showAddDialog = true;
-  }
-
-  viewVoucherDetail(item: any): void {
-
-    this.detailForm.enable();
-
-    this.detailForm.patchValue({
-      maVoucher: item.maVoucher,
-      tenChuongTrinh: item.tenChuongTrinh,
-      donViGiam: item.donViGiam,
-      thongSoGiam: item.thongSoGiam,
-      chiNhanh: Array.isArray(item.chiNhanh)
-        ? item.chiNhanh.join(', ')
-        : item.chiNhanh,
-
-      maKhoaHoc: Array.isArray(item.maKhoaHoc)
-        ? item.maKhoaHoc.join(', ')
-        : item.maKhoaHoc
-    });
+filterConfig: FilterConfig[] = [
+{key:'maVoucher',label:'Mã Voucher',type:'text'},
+{key:'tenChuongTrinh',label:'Tên Chương Trình',type:'text'},
+{key:'khoaHocApDung',label:'Khóa học áp dụng',type:'select',options:[]},
+{key:'maLop',label:'Mã Lớp',type:'text'},
+{key:'chiNhanh',label:'Chi nhánh',type:'multi-select',options:[]},
+{
+key:'active',
+label:'Trạng thái',
+type:'multi-select',
+options:[
+{label:'Đang hoạt động',value:true},
+{label:'Ngưng hoạt động',value:false}
+]
+}
+];
+
+roles:iVoucher[]=[];
+
+allData:any[]=[];
+filteredData:any[]=[];
+paginatedData:any[]=[];
+
+loading=true;
+errorMessage='';
+
+showAddDialog=false;
+dialogMode:'add'|'view'|'edit'='add';
+editingIndex:number|null=null;
+
+currentPage=1;
+itemsPerPage=10;
+pageSizeOptions=[10,20,50];
+
+voucherForm!:FormGroup;
+detailForm!:FormGroup;
+
+branches=[
+{label:'Chi nhánh 1',value:'CN1'},
+{label:'Chi nhánh 2',value:'CN2'},
+{label:'Chi nhánh 3',value:'CN3'}
+];
+
+courseOptions=[
+{label:'LR',value:'LR'},
+{label:'SW',value:'SW'},
+{label:'TOEIC',value:'TOEIC'}
+];
+
+voucherFormSections=[
+{
+title:'THÔNG TIN VOUCHER',
+fields:[
+{name:'maVoucher',label:'Mã Voucher',type:'text',required:true},
+{name:'tenChuongTrinh',label:'Tên Chương Trình',type:'text',required:true},
+{
+name:'chiNhanh',
+label:'Chi nhánh áp dụng',
+type:'multi-select',
+options:this.branches
+},
+{
+name:'maKhoaHoc',
+label:'Khóa học áp dụng',
+type:'multi-select',
+options:this.courseOptions
+}
+]
+},
+{
+title:'CẤU HÌNH GIẢM GIÁ',
+fields:[
+{
+name:'donViGiam',
+label:'Đơn vị giảm',
+type:'select',
+options:[
+{label:'Phần trăm (%)',value:'Phần trăm'},
+{label:'Số tiền (VNĐ)',value:'VNĐ'}
+]
+},
+{
+name:'thongSoGiam',
+label:'Thông số giảm',
+type:'number',
+required:true
+}
+]
+}
+];
+
+constructor(
+private fb:FormBuilder,
+private voucherService:VoucherService
+){}
+
+ngOnInit():void{
+this.loadVouchers();
+this.initForm();
+}
+
+initForm():void{
 
-    this.detailForm.disable();
+this.voucherForm=this.fb.group({
+maVoucher:[''],
+tenChuongTrinh:[''],
+donViGiam:['VNĐ'],
+thongSoGiam:[0],
+chiNhanh:[[]],
+maKhoaHoc:[[]]
+});
 
-    this.dialogMode = 'view';
+this.detailForm=this.fb.group({
+maVoucher:[''],
+tenChuongTrinh:[''],
+chiNhanh:[''],
+maKhoaHoc:[[]],
+donViGiam:[''],
+thongSoGiam:['']
+});
 
-    this.showAddDialog = true;
-  }
+}
 
-  editVoucher(item: any): void {
+loadVouchers():void{
 
-    this.dialogMode = 'edit';
+this.voucherService.getVoucher().subscribe({
 
-    this.editingIndex =
-      this.allData.findIndex(
-        x => x.maVoucher === item.maVoucher
-      );
+next:(items:any[])=>{
 
-    this.voucherForm.enable();
+this.allData=(items||[]).map((item)=>({
 
-    this.voucherForm.patchValue({
+stt:item.stt,
+maVoucher:item.maVoucher,
+tenChuongTrinh:item.tenChuongTrinh,
+donViGiam:item.donViGiam,
+thongSoGiam:item.thongSo,
+maLop:'',
+chiNhanh:Array.isArray(item.chiNhanh)?item.chiNhanh:[],
+khoaHocApDung:Array.isArray(item.khoaHocApDung)?item.khoaHocApDung:[item.khoaHocApDung],
+active:item.active
 
-      maVoucher: item.maVoucher,
+}));
 
-      tenChuongTrinh: item.tenChuongTrinh,
+this.filteredData=[...this.allData];
 
-      donViGiam: item.donViGiam,
+this.syncFilterOptions();
 
-      thongSoGiam: item.thongSoGiam,
+this.currentPage=1;
 
-      chiNhanh: Array.isArray(item.chiNhanh)
-        ? item.chiNhanh[0]
-        : item.chiNhanh,
+this.updatePagination();
 
-      maKhoaHoc: Array.isArray(item.maKhoaHoc)
-        ? item.maKhoaHoc[0]
-        : item.maKhoaHoc
-    });
+this.loading=false;
 
-    this.showAddDialog = true;
-  }
+console.log('Dữ liệu đã được chuyển đổi thành công:',this.allData);
 
-  closeDialog(): void {
-    this.showAddDialog = false;
-  }
+},
 
-  onSaveVoucher(): void {
+error:(error)=>{
 
-    if (this.voucherForm.valid) {
+console.error('Lỗi khi tải hoặc chuyển đổi dữ liệu:',error);
 
-      const formValue =
-        this.voucherForm.value;
+this.errorMessage='Không thể hiển thị danh sách voucher.';
 
-      // EDIT
-      if (
-        this.dialogMode === 'edit' &&
-        this.editingIndex !== null
-      ) {
+this.loading=false;
 
-        this.allData[this.editingIndex] = {
+}
 
-          ...this.allData[this.editingIndex],
+});
 
-          maVoucher: formValue.maVoucher,
+}
 
-          tenChuongTrinh:
-            formValue.tenChuongTrinh,
+handleSearch(filterValues:any):void{
 
-          donViGiam:
-            formValue.donViGiam,
+this.filteredData=this.allData.filter((item)=>{
 
-          thongSoGiam:
-            formValue.thongSoGiam,
+return Object.keys(filterValues||{}).every((key)=>{
 
-          chiNhanh: [
-            formValue.chiNhanh
-          ],
+const filterValue=filterValues[key];
+const itemValue=item[key];
 
-          maKhoaHoc: [
-            formValue.maKhoaHoc
-          ]
-        };
+if(Array.isArray(filterValue)&&filterValue.length===0){
+return true;
+}
 
-        this.filteredData = [
-          ...this.allData
-        ];
+if(!Array.isArray(filterValue)&&(`${filterValue??''}`.trim()==='')){
+return true;
+}
 
-        this.updatePagination();
+if(Array.isArray(filterValue)&&filterValue.length>0){
 
-        this.showAddDialog = false;
+const normalizedSelected=filterValue
+.map((value)=>`${value??''}`.trim().toLowerCase())
+.filter(Boolean);
 
-        this.editingIndex = null;
+if(Array.isArray(itemValue)){
 
-        return;
-      }
+const normalizedItemValues=itemValue
+.map((value)=>`${value??''}`.trim().toLowerCase())
+.filter(Boolean);
 
-      // ADD
-      const newData = {
+return normalizedSelected.some((selected)=>normalizedItemValues.includes(selected));
 
-        stt: this.allData.length + 1,
+}
 
-        maVoucher: formValue.maVoucher,
+const normalizedItemValue=`${itemValue??''}`.trim().toLowerCase();
 
-        tenChuongTrinh:
-          formValue.tenChuongTrinh,
+return normalizedSelected.includes(normalizedItemValue);
 
-        donViGiam:
-          formValue.donViGiam,
+}
 
-        thongSoGiam:
-          formValue.thongSoGiam,
+const normalizedFilterText=`${filterValue??''}`.trim().toLowerCase();
 
-        chiNhanh: [
-          formValue.chiNhanh
-        ],
+if(Array.isArray(itemValue)){
 
-        maKhoaHoc: [
-          formValue.maKhoaHoc
-        ]
-      };
+const normalizedItemText=itemValue
+.map((value)=>`${value??''}`.trim().toLowerCase())
+.join(' ');
 
-      this.allData.unshift(newData);
+return normalizedItemText.includes(normalizedFilterText);
 
-      this.filteredData = [
-        ...this.allData
-      ];
+}
 
-      this.currentPage = 1;
+const normalizedItemValue=`${itemValue??''}`.trim().toLowerCase();
 
-      this.updatePagination();
+return normalizedItemValue.includes(normalizedFilterText);
 
-      this.showAddDialog = false;
-    }
-  }
+});
+
+});
+
+this.currentPage=1;
+
+this.updatePagination();
+
+}
+
+handleReset():void{
+
+this.filteredData=[...this.allData];
+
+this.currentPage=1;
+
+this.updatePagination();
+
+}
+
+get totalPages():number{
+return Math.max(1,Math.ceil(this.filteredData.length/this.itemsPerPage));
+}
+
+get paginatedVouchers():any[]{
+return this.paginatedData;
+}
+
+get pages():number[]{
+return Array.from({length:this.totalPages},(_,i)=>i+1);
+}
+
+changePage(page:number):void{
+
+if(page<1||page>this.totalPages){
+return;
+}
+
+this.currentPage=page;
+
+this.updatePagination();
+
+}
+
+changePageSize(event:Event):void{
+
+const value=(event.target as HTMLSelectElement).value;
+
+this.itemsPerPage=Number(value);
+
+this.currentPage=1;
+
+this.updatePagination();
+
+}
+
+updatePagination():void{
+
+const start=(this.currentPage-1)*this.itemsPerPage;
+
+const end=start+this.itemsPerPage;
+
+this.paginatedData=this.filteredData.slice(start,end);
+
+}
+
+private syncFilterOptions():void{
+
+const courseOptions=Array.from(
+new Set(
+this.allData.flatMap((item)=>
+Array.isArray(item.khoaHocApDung)
+?item.khoaHocApDung
+:[item.khoaHocApDung]
+)
+)
+)
+.filter(Boolean)
+.map((value)=>({
+label:value,
+value
+}));
+
+const branchOptions=Array.from(
+new Set(
+this.allData.flatMap((item)=>
+Array.isArray(item.chiNhanh)
+?item.chiNhanh
+:[]
+)
+)
+)
+.filter(Boolean)
+.map((value)=>({
+label:value,
+value
+}));
+
+this.filterConfig=this.filterConfig.map((field)=>{
+
+if(field.key==='khoaHocApDung'){
+return{
+...field,
+options:courseOptions.length>0
+?courseOptions
+:this.courseOptions
+};
+}
+
+if(field.key==='chiNhanh'){
+return{
+...field,
+options:branchOptions.length>0
+?branchOptions
+:this.branches
+};
+}
+
+return field;
+
+});
+
+}
+
+openAddDialog():void{
+
+this.dialogMode='add';
+
+this.voucherForm.enable();
+
+this.voucherForm.reset({
+maVoucher:'',
+tenChuongTrinh:'',
+chiNhanh:[],
+donViGiam:'VNĐ',
+thongSoGiam:0,
+maKhoaHoc:[]
+});
+
+this.showAddDialog=true;
+
+}
+
+viewVoucherDetail(item:any):void{
+
+this.detailForm.enable();
+
+this.detailForm.patchValue({
+
+maVoucher:item.maVoucher,
+
+tenChuongTrinh:item.tenChuongTrinh,
+
+donViGiam:item.donViGiam,
+
+thongSoGiam:item.thongSoGiam,
+
+chiNhanh:Array.isArray(item.chiNhanh)?item.chiNhanh:[],
+maKhoaHoc:Array.isArray(item.khoaHocApDung)?item.khoaHocApDung:[item.khoaHocApDung]
+
+});
+
+this.detailForm.disable();
+
+this.dialogMode='view';
+
+this.showAddDialog=true;
+
+}
+
+editVoucher(item:any):void{
+
+this.dialogMode='edit';
+
+this.editingIndex=this.allData.findIndex(
+x=>x.maVoucher===item.maVoucher
+);
+
+this.voucherForm.enable();
+
+this.voucherForm.patchValue({
+
+maVoucher:item.maVoucher,
+
+tenChuongTrinh:item.tenChuongTrinh,
+
+donViGiam:item.donViGiam,
+
+thongSoGiam:item.thongSoGiam,
+
+chiNhanh:Array.isArray(item.chiNhanh)
+?item.chiNhanh
+:[item.chiNhanh],
+
+maKhoaHoc:Array.isArray(item.khoaHocApDung)
+?item.khoaHocApDung
+:[item.khoaHocApDung]
+
+});
+
+this.showAddDialog=true;
+
+}
+
+closeDialog():void{
+this.showAddDialog=false;
+}
+
+onSaveVoucher():void{
+
+if(this.voucherForm.valid){
+
+const formValue=this.voucherForm.value;
+
+if(
+this.dialogMode==='edit'&&
+this.editingIndex!==null
+){
+
+this.allData[this.editingIndex]={
+
+...this.allData[this.editingIndex],
+
+maVoucher:formValue.maVoucher,
+
+tenChuongTrinh:formValue.tenChuongTrinh,
+
+donViGiam:formValue.donViGiam,
+
+thongSoGiam:formValue.thongSoGiam,
+
+chiNhanh:Array.isArray(formValue.chiNhanh)
+?formValue.chiNhanh
+:[formValue.chiNhanh],
+
+khoaHocApDung:Array.isArray(formValue.maKhoaHoc)
+?formValue.maKhoaHoc
+:[formValue.maKhoaHoc]
+
+};
+
+this.filteredData=[...this.allData];
+
+this.updatePagination();
+
+this.showAddDialog=false;
+
+this.editingIndex=null;
+
+return;
+
+}
+
+const newData={
+
+stt:this.allData.length+1,
+
+maVoucher:formValue.maVoucher,
+
+tenChuongTrinh:formValue.tenChuongTrinh,
+
+donViGiam:formValue.donViGiam,
+
+thongSoGiam:formValue.thongSoGiam,
+
+chiNhanh:Array.isArray(formValue.chiNhanh)
+?formValue.chiNhanh
+:[formValue.chiNhanh],
+
+khoaHocApDung:Array.isArray(formValue.maKhoaHoc)
+?formValue.maKhoaHoc
+:[formValue.maKhoaHoc]
+
+};
+
+this.allData.unshift(newData);
+
+this.filteredData=[...this.allData];
+
+this.currentPage=1;
+
+this.updatePagination();
+
+this.showAddDialog=false;
+
+}
+
+}
 
 }

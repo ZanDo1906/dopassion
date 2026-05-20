@@ -255,3 +255,39 @@
 .btn-submit:hover {
     background: #f0f5fa;
 }
+
+
+
+
+.readonly-multi-value{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+min-height:42px;
+align-items:center;
+padding:6px 0;
+}
+
+.readonly-tag{
+background:#e8f0fe;
+color:#2f5da9;
+padding:6px 12px;
+border-radius:20px;
+font-size:14px;
+font-weight:500;
+border:1px solid #b7cdf5;
+}
+
+.checkbox-group{
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.checkbox-item{
+display:flex;
+align-items:center;
+gap:8px;
+font-weight:500;
+color:#2f5da9;
+}
