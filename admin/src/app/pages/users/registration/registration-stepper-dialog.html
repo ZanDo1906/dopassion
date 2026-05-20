@@ -1,0 +1,353 @@
+<div class="stepper-backdrop" (click)="closeDialog()">
+  <div class="stepper-container" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="stepper-header">
+      <h2>Đăng Ký Khóa Học</h2>
+      <button type="button" class="close-btn" (click)="closeDialog()">×</button>
+    </div>
+
+    <!-- STEPPER PROGRESS BAR -->
+    <div class="stepper-progress">
+      <div class="steps">
+        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+          <div class="step-number">1</div>
+          <div class="step-label">Thông tin KH</div>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 1"></div>
+
+        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+          <div class="step-number">2</div>
+          <div class="step-label">Chọn Lớp Học</div>
+        </div>
+        <div class="step-connector" [class.completed]="currentStep > 2"></div>
+
+        <div class="step" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">
+          <div class="step-number">3</div>
+          <div class="step-label">Xác Nhận</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div class="error-message" *ngIf="errorMessage">
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <!-- STEPPER BODY -->
+    <div class="stepper-body">
+
+      <!-- STEP 1: CUSTOMER SEARCH & INFO -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <div class="step-title">Bước 1: Thông tin khách hàng</div>
+
+        <!-- Search Customer -->
+        <div class="search-section">
+          <div class="search-box">
+            <input
+              type="text"
+              class="search-input"
+              [(ngModel)]="searchQuery"
+              placeholder="Tìm kiếm theo SĐT hoặc Email"
+              (keyup.enter)="searchCustomer()"
+            />
+            <button type="button" class="search-btn" (click)="searchCustomer()">
+              <i class="bi bi-search"></i> Tìm kiếm
+            </button>
+            <button 
+              type="button" 
+              class="clear-btn" 
+              (click)="clearSearch()"
+              *ngIf="selectedCustomer || searchQuery"
+              title="Xóa tìm kiếm"
+            >
+              <i class="bi bi-x-circle"></i> Xóa
+            </button>
+          </div>
+
+          <div class="search-result" *ngIf="selectedCustomer">
+            <div class="result-badge result-found">
+              <i class="bi bi-check-circle"></i>
+              Khách hàng cũ: {{ selectedCustomer.tenKhachHang }}
+            </div>
+          </div>
+
+          <div class="search-result" *ngIf="isNewCustomer && searchQuery">
+            <div class="result-badge result-new">
+              <i class="bi bi-plus-circle"></i>
+              Khách hàng mới - Vui lòng điền thông tin
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Form (using form-dialog logic) -->
+        <div class="customer-form-wrapper" *ngIf="customerForm">
+          <form [formGroup]="customerForm" class="customer-form">
+            <div class="form-grid">
+              <!-- Tên Khách Hàng -->
+              <div class="form-group">
+                <label for="tenKhachHang">Tên khách hàng <span class="required">*</span></label>
+                <input
+                  id="tenKhachHang"
+                  type="text"
+                  class="form-control"
+                  formControlName="tenKhachHang"
+                  placeholder="Nhập tên khách hàng"
+                />
+              </div>
+
+              <!-- Số Điện Thoại -->
+              <div class="form-group">
+                <label for="sdt">Số điện thoại <span class="required">*</span></label>
+                <input
+                  id="sdt"
+                  type="tel"
+                  class="form-control"
+                  formControlName="sdt"
+                  placeholder="Nhập số điện thoại"
+                />
+              </div>
+
+              <!-- Email -->
+              <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input
+                  id="email"
+                  type="email"
+                  class="form-control"
+                  formControlName="email"
+                  placeholder="Nhập email"
+                />
+              </div>
+
+              <!-- Giới Tính -->
+              <div class="form-group">
+                <label for="gioiTinh">Giới tính</label>
+                <select
+                  id="gioiTinh"
+                  class="form-control"
+                  formControlName="gioiTinh"
+                >
+                  <option value="">-- Chọn giới tính --</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+
+              <!-- Ngày Sinh -->
+              <div class="form-group">
+                <label for="ngaySinh">Ngày sinh</label>
+                <input
+                  id="ngaySinh"
+                  type="date"
+                  class="form-control"
+                  formControlName="ngaySinh"
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- STEP 2: CLASS SELECTION -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <div class="step-title">Bước 2: Chọn lớp học</div>
+
+        <!-- Filter Section -->
+        <app-filter-data-picker
+          [config]="classFilterConfig"
+          (onSearch)="handleClassFilter($event)"
+          (onReset)="handleClassFilterReset()"
+        ></app-filter-data-picker>
+
+        <!-- Classes Cards Grid -->
+        <div class="classes-grid">
+          <div
+            class="class-card"
+            *ngFor="let cls of filteredClasses; trackBy: trackByClass"
+            [class.selected]="selectedClassKey === cls.maLop"
+            (click)="selectClassCard(cls)"
+          >
+            <div class="card-header">
+              <div class="card-title">{{ cls.maLop }}</div>
+              <div class="card-badge">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="card-row">
+                <span class="label">Tên lớp:</span>
+                <span class="value">{{ cls.tenLop }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Khóa học:</span>
+                <span class="value">{{ cls.tenKhoaHoc }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Giảng viên:</span>
+                <span class="value">{{ cls.giangVien || 'N/A' }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Ngày khai giảng:</span>
+                <span class="value">{{ cls.ngayBatDau }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Ngày kết thúc:</span>
+                <span class="value">{{ cls.ngayKetThuc }}</span>
+              </div>
+
+              <div class="card-row">
+                <span class="label">Chi nhánh:</span>
+                <span class="value">{{ cls.chiNhanh }}</span>
+              </div>
+
+              <div class="card-row highlight">
+                <span class="label">Học phí:</span>
+                <span class="value">{{ getCourseFee(cls.maKhoa) | number:'1.0-0' }} VND</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="filteredClasses.length === 0">
+          <i class="bi bi-inbox"></i>
+          <p>Không tìm thấy lớp học phù hợp</p>
+        </div>
+      </div>
+
+      <!-- STEP 3: REVIEW & SUBMIT -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <div class="step-title">Bước 3: Xác nhận đăng ký</div>
+
+        <div class="review-section">
+          <!-- Customer Info Review -->
+          <div class="review-card">
+            <div class="review-card-title">Thông tin khách hàng</div>
+            <div class="review-item">
+              <span class="review-label">Tên khách hàng:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.tenKhachHang }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Số điện thoại:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.sdt }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Email:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.email }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Giới tính:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.gioiTinh }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Ngày sinh:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.ngaySinh }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Chi nhánh:</span>
+              <span class="review-value">{{ mainForm.get('customerData')?.value?.chiNhanh }}</span>
+            </div>
+            <div class="review-item" *ngIf="mainForm.get('isNewCustomer')?.value">
+              <span class="review-badge badge-new">
+                <i class="bi bi-star"></i> Khách hàng mới
+              </span>
+            </div>
+          </div>
+
+          <!-- Class & Course Info Review -->
+          <div class="review-card">
+            <div class="review-card-title">Thông tin lớp học</div>
+            <div class="review-item">
+              <span class="review-label">Mã lớp:</span>
+              <span class="review-value">{{ mainForm.get('classData')?.value?.maLop }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Tên lớp học:</span>
+              <span class="review-value">{{ mainForm.get('classData')?.value?.tenLop }}</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Khóa học:</span>
+              <span class="review-value">{{ mainForm.get('classData')?.value?.tenKhoaHoc }}</span>
+            </div>
+            <div class="review-item highlight">
+              <span class="review-label">Học phí:</span>
+              <span class="review-value">{{ mainForm.get('classData')?.value?.hocPhi | number:'1.0-0' }} VND</span>
+            </div>
+          </div>
+
+          <!-- Debt Info -->
+          <div class="review-card">
+            <div class="review-card-title">Công nợ sẽ được tạo</div>
+            <div class="review-item">
+              <span class="review-label">Tổng số tiền:</span>
+              <span class="review-value">{{ mainForm.get('classData')?.value?.hocPhi | number:'1.0-0' }} VND</span>
+            </div>
+            <div class="review-item">
+              <span class="review-label">Trạng thái:</span>
+              <span class="review-value badge-unpaid">Chưa thanh toán</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER / ACTIONS -->
+    <div class="stepper-footer">
+      <div class="action-buttons">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeDialog()"
+        >
+          <i class="bi bi-x-circle"></i> Hủy bỏ
+        </button>
+
+        <div class="spacer"></div>
+
+        <!-- Previous Button -->
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="goToPreviousStep()"
+          *ngIf="currentStep > 1"
+          [disabled]="isLoading"
+        >
+          <i class="bi bi-chevron-left"></i> Quay lại
+        </button>
+
+        <!-- Next / Submit Button -->
+        <button
+          type="button"
+          class="btn btn-primary"
+          *ngIf="currentStep < 3"
+          (click)="currentStep === 1 ? proceedToStep2() : proceedToStep3()"
+        >
+          <i class="bi bi-chevron-right"></i>
+          {{ currentStep === 1 ? 'Tiếp tục' : 'Tiếp tục' }}
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <!-- Submit Button -->
+        <button
+          type="button"
+          class="btn btn-success"
+          *ngIf="currentStep === 3"
+          (click)="submitRegistration()"
+        >
+          <i class="bi" [class.bi-hourglass-split]="isLoading" [class.bi-check-circle]="!isLoading"></i>
+          {{ isLoading ? 'Đang xử lý...' : 'Xác nhận đăng ký' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -8,9 +8,9 @@
 
     <!-- Action Bar -->
     <div class="toolbar">
-        <button class="btn btn-outline" type="button">
-            <i class="bi bi-download"></i>
-            Nhập excel
+        <button class="btn btn-outline" type="button" (click)="openStepperDialog()">
+            <i class="bi bi-plus-circle"></i>
+            Thêm mới
         </button>
         <button class="btn btn-outline" type="button">
             <i class="bi bi-upload"></i>
@@ -191,3 +191,10 @@
     (confirm)="onConfirmLock()"
     (cancel)="onCancelLock()">
 </app-confirm-dialog>
+
+<!-- Registration Stepper Dialog -->
+<app-registration-stepper-dialog
+    *ngIf="isStepperDialogOpen"
+    (close)="closeStepperDialog()"
+    (success)="onStepperSuccess($event)">
+</app-registration-stepper-dialog>

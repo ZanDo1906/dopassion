@@ -6,6 +6,7 @@ import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { RegistrationService } from '../../../services/registration';
+import { RegistrationStepperDialog } from './registration-stepper-dialog';
 
 type RegistrationDetailFormGroup = {
   'Mã đăng ký': FormControl<string>;
@@ -23,7 +24,7 @@ type RegistrationDetailFormGroup = {
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent, ConfirmDialog],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, FilterDataPicker, PaginationComponent, FormDialogComponent, ConfirmDialog, RegistrationStepperDialog],
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })
@@ -97,6 +98,9 @@ export class Registration implements OnInit {
   isConfirmLockDialogOpen = false;
   confirmLockItem: any = null;
   confirmLockMessage = '';
+
+  // Stepper dialog state
+  isStepperDialogOpen = false;
 
   constructor(private registrationService: RegistrationService, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
     this.detailForm = this.formBuilder.group<RegistrationDetailFormGroup>({
@@ -375,5 +379,40 @@ export class Registration implements OnInit {
    */
   isLocked(item: any): boolean {
     return item?.status === 'Đã khóa';
+  }
+
+  /**
+   * ========== REGISTRATION STEPPER DIALOG METHODS ==========
+   */
+
+  /**
+   * Mở dialog stepper để tạo đăng ký mới
+   */
+  openStepperDialog(): void {
+    this.isStepperDialogOpen = true;
+  }
+
+  /**
+   * Đóng dialog stepper
+   */
+  closeStepperDialog(): void {
+    this.isStepperDialogOpen = false;
+  }
+
+  /**
+   * Xử lý success từ stepper dialog
+   * Tại đây có thể refresh danh sách hoặc hiển thị thông báo
+   */
+  onStepperSuccess(result: any): void {
+    console.log('Registration stepper success:', result);
+    
+    // Refresh danh sách
+    this.loadData();
+    
+    // Đóng dialog
+    this.isStepperDialogOpen = false;
+
+    // TODO: Hiển thị notification thành công
+    // this.notificationService.showSuccess('Đăng ký khóa học thành công');
   }
 }
