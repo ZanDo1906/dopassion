@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { Client } from '../../../services/client';
+import { iClient } from '../../../interfaces/client';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
@@ -88,7 +89,7 @@ export class Customer implements OnInit {
     { value: 'Khác', label: 'Khác' }
   ];
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
+  constructor(private clientService: Client, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
     this.detailForm = this.formBuilder.group<CustomerDetailFormGroup>({
       'Mã KH': this.formBuilder.control('', { nonNullable: true }),
       'Tên khách hàng': this.formBuilder.control('', { nonNullable: true }),
@@ -107,28 +108,28 @@ export class Customer implements OnInit {
     this.itemsPerPage = 10; // Explicitly set default
     this.filteredCustomers = [];
     this.paginatedCustomers = [];
-    
+
     // Load data
     this.loadData();
   }
 
   loadData(): void {
-    this.http.get<any[]>('assets/mock-data-json/customer.json').subscribe({
-      next: (data) => {
-        // Lưu toàn bộ dữ liệu gốc từ JSON
+    this.clientService.getClients().subscribe({
+      next: (data: iClient[]) => {
+        // Lưu toàn bộ dữ liệu gốc từ API
         this.allCustomersRaw = data;
 
-        // Normalize data: map 'Mã KH' to 'maKhachHang', 'Tên khách hàng' to 'tenKhachHang', etc.
+        // Normalize data: map API fields to UI fields
         this.allCustomers = data.map(customer => ({
-          maKhachHang: customer['Mã KH'] || '',
-          tenKhachHang: customer['Tên khách hàng'] || '',
-          phone: customer.SĐT || '',
-          trangThai: customer['Trạng thái'] || 'Chưa đăng ký khóa',
+          maKhachHang: customer.maKh || '',
+          tenKhachHang: customer.tenKhachHang || '',
+          phone: customer.sdt ? String(customer.sdt) : '',
+          trangThai: customer.trangThai || 'Chưa đăng ký khóa',
           // Lưu thêm dữ liệu đầy đủ để dùng cho view detail
-          gioiTinh: customer['Giới tính'] || '',
-          ngaySinh: this.normalizeDateForInput(customer['Ngày sinh']),
-          email: customer['Email'] || '',
-          ngayDangKy: this.normalizeDateForInput(customer['Ngày đăng ký']),
+          gioiTinh: customer.gioiTinh || '',
+          ngaySinh: this.normalizeDateForInput(customer.ngaySinh),
+          email: customer.email || '',
+          ngayDangKy: this.normalizeDateForInput(customer.ngayDangKy),
           // Reference to raw data for view
           rawData: customer
         }));
@@ -237,9 +238,15 @@ export class Customer implements OnInit {
    * @param dateString Chuỗi ngày từ JSON
    * @returns Ngày đã normalize
    */
-  private normalizeDateForInput(value: string): string {
+  private normalizeDateForInput(value: string | Date | undefined): string {
     if (!value) {
       return '';
+    }
+    if (value instanceof Date) {
+      return value.toISOString().split('T')[0];
+    }
+    if (value.includes('T')) {
+      return value.split('T')[0];
     }
     return value.split(' ')[0];
   }
@@ -274,11 +281,11 @@ export class Customer implements OnInit {
 
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-    
+
     console.log('[Customer] Slice parameters:', { start, end, arrayLength: this.filteredCustomers.length });
-    
+
     this.paginatedCustomers = this.filteredCustomers.slice(start, end);
-    
+
     console.log('[Customer] Paginated data count:', this.paginatedCustomers.length);
   }
 
@@ -289,12 +296,12 @@ export class Customer implements OnInit {
   toggleLockStatus(item: any): void {
     this.confirmLockItem = item;
     const currentStatus = item?.trangThai;
-    
+
     // Nếu đã khóa rồi thì mở khóa, ngược lại thì khóa
     const isCurrentlyLocked = currentStatus === 'Đã khóa';
     const action = isCurrentlyLocked ? 'mở khóa' : 'khóa';
     const newStatus = isCurrentlyLocked ? 'Chưa đăng ký khóa' : 'Đã khóa';
-    
+
     this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} khách hàng "${item?.tenKhachHang}" và đổi trạng thái thành "${newStatus}"?`;
     this.isConfirmLockDialogOpen = true;
   }
