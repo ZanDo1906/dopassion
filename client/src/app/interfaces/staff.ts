@@ -1,12 +1,19 @@
 export interface iStaff {
-    "STT": number;
-    "Mã NV": number | null;
-    "Tên nhân viên": string;
-    "Giới tính": string;
-    "Ngày sinh": string;
-    "SĐT": number;
-    "Chi nhánh": string;
-    "Vai trò": string;
-    "Mã vai trò": string;
-    "Ảnh CCCD": string | null;
+    _id?: string;
+    stt: number;
+    maNv: string;
+    tenNhanVien: string;
+    gioiTinh: string;
+    ngaySinh: string;
+    sdt: number;
+    email: string;
+    chiNhanh: string;
+    vaiTro: string;
+    maVaiTro: string;
+    anhCccd: string | null;
+    password?: string;
+    active: boolean;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

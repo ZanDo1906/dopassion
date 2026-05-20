@@ -1,15 +1,22 @@
 export interface iRefund {
-    "STT": number;
-    "Mã đăng ký": string;
-    "Mã KH": string;
-    "Tên KH": string;
-    "Mã lớp": string;
-    "Tên lớp học": string;
-    "Khóa học": string;
-    "Tên khóa": string;
-    "Chi nhánh": string;
-    "Ngày đăng ký": string;
-    "Đã thanh toán": number;
-    "Số tiền hoàn": number;
-    "Trạng thái": string;
+    _id?: string;
+    stt: number;
+    maDangKy: string;
+    maKh: string;
+    tenKh: string;
+    maLop: string;
+    tenLopHoc: string;
+    khoaHoc: string;
+    tenKhoa: string;
+    chiNhanh: string;
+    ngayDangKy: string;
+    daThanhToan: number;
+    soTienHoan: number;
+    lyDoYeuCauHoanTien: string;
+    lyDoChapNhanHoanTien: string;
+    lyDoTuChoi: string;
+    trangThai: string;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

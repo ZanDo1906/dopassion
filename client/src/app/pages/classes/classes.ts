@@ -23,15 +23,24 @@ export class Classes implements OnInit {
   };
 
   // Dữ liệu hiển thị trên UI
-  courses: any[] = [];
-  
-  constructor(private classService: Class) {}
-  
+  courses: Array<{
+    id?: string;
+    title: string;
+    startDate: string;
+    branch: string;
+    schedule: string;
+    lessons: string;
+    hasTest: boolean;
+    raw: iClass;
+  }> = [];
+
+  constructor(private classService: Class) { }
+
   ngOnInit() {
     console.log('Classes component initialized');
     this.loadClasses();
   }
-  
+
   /**
    * Lấy dữ liệu lớp học từ Service với bộ lọc hiện tại
    */
@@ -47,10 +56,21 @@ export class Classes implements OnInit {
 
     // Gọi Service để lấy dữ liệu đã được lọc
     this.classService.getClasses(filters).subscribe({
-      next: (data: any[]) => {
+      next: (data: iClass[]) => {
         console.log('Filtered data received from service:', data);
-        // Gán dữ liệu, có thể là mảng rỗng nếu không khớp filter
-        this.courses = data && data.length > 0 ? data : [];
+        // Normalize để khớp với fields trong template
+        this.courses = (data || []).map((item) => ({
+          id: item._id,
+          title: item.tenKhoaHoc || item.tenLop || item.maLop || '',
+          startDate: item.ngayBatDau || '',
+          branch: item.chiNhanh || '',
+          schedule: item.khungGio || '',
+          lessons: item.ngayBatDau && item.ngayKetThuc
+            ? `${this.getLessonCount(item.ngayBatDau, item.ngayKetThuc)} buổi`
+            : 'Chưa cập nhật',
+          hasTest: true,
+          raw: item
+        }));
         console.log('Total courses after filter:', this.courses.length);
       },
       error: (error) => {
@@ -60,7 +80,17 @@ export class Classes implements OnInit {
       }
     });
   }
-  
+
+  private getLessonCount(startDate: string, endDate: string): number {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return 0;
+    }
+    const diffDays = Math.max(0, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+    return Math.max(1, Math.ceil(diffDays / 2));
+  }
+
   /**
    * Xử lý khi người dùng thay đổi lựa chọn khóa học
    * Cập nhật filter và gọi service để lấy dữ liệu mới
@@ -69,25 +99,25 @@ export class Classes implements OnInit {
     this.currentFilters.courseCode = event.target.value;
     console.log('Course filter changed:', this.currentFilters.courseCode);
   }
-  
+
   /**
    * Xử lý khi người dùng thay đổi lựa chọn chi nhánh
    * Cập nhật filter và gọi service để lấy dữ liệu mới
    */
   filterByBranch(event: any) {
     const selectedBranch = event.target.value;
-    
+
     // Convert từ tên chi nhánh (Hà Nội) sang code (CN1)
     const branchCodeMap: { [key: string]: string } = {
       'Hà Nội': 'CN1',
       'TP. HCM': 'CN2',
       'Đà Nẵng': 'CN3'
     };
-    
+
     this.currentFilters.branch = branchCodeMap[selectedBranch] || '';
     console.log('Branch filter changed:', this.currentFilters.branch);
   }
-  
+
   /**
    * Xử lý khi người dùng thay đổi khoảng ngày khai giảng
    * Cập nhật filter và gọi service để lấy dữ liệu mới
@@ -111,7 +141,7 @@ export class Classes implements OnInit {
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   }
-  
+
   /**
    * Thực hiện tìm kiếm với các bộ lọc hiện tại
    * Gọi Service với ClassFilter object để lấy dữ liệu đã được lọc
@@ -132,7 +162,7 @@ export class Classes implements OnInit {
    */
   resetFilters() {
     console.log('Resetting all filters');
-    
+
     // Reset tất cả filters về giá trị mặc định (rỗng)
     // startDate/endDate rỗng sẽ lọc toàn bộ dữ liệu (không hạn chế ngày)
     this.currentFilters = {

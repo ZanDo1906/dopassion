@@ -1,7 +1,14 @@
 export interface iVoucher {
-    "STT": number;
-    "Mã voucher": string;
-    "Tên chương trình": string;
-    "Loại giảm": string;
-    "Thông số": number;
+    _id?: string;
+    stt: number;
+    maVoucher: string;
+    tenChuongTrinh: string;
+    donViGiam: string;
+    thongSo: number;
+    chiNhanh: string;
+    khoaHocApDung: string;
+    active: boolean;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

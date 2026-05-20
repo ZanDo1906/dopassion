@@ -65,14 +65,6 @@ export const routes: Routes = [
     title: 'Reviews'
   },
 
-  // TEST
-  {
-    path: 'test',
-    loadComponent: () =>
-      import('./pages/test/test').then(m => m.Test),
-    title: 'Test'
-  },
-
   // NOT FOUND
   {
     path: '**',
