@@ -1,6 +1,11 @@
 export interface iRole {
-    "STT": number;
-    "MÃ VAI TRÒ": string;
-    "TÊN VAI TRÒ": string;
-    "MÔ TẢ": string;
+    _id?: string;
+    stt: number;
+    maVaiTro: string;
+    tenVaiTro: string;
+    moTa: string;
+    active: boolean;
+
+    createdAt?: string;
+    updatedAt?: string;
 }

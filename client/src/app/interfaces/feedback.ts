@@ -1,11 +1,15 @@
 export interface iFeedback {
-    "STT": number;
-    "Mã đánh giá": string;
-    "Mã đăng ký": string;
-    "Tên khách hàng": string;
-    "Tên lớp học": string;
-    "Nội dung đánh giá": string;
-    "Số sao": number;
-    "Ngày đánh giá": string;
-    "Trạng thái": string;
+    _id?: string;
+    stt: number;
+    maDanhGia: string;
+    maDangKy: string;
+    tenKhachHang: string;
+    tenLopHoc: string;
+    noiDungDanhGia: string;
+    soSao: number;
+    ngayDanhGia: string;
+    trangThai: string;
+
+    createdAt?: string;
+    updatedAt?: string;
 }
