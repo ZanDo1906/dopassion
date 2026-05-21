@@ -111,6 +111,17 @@ export class Customer implements OnInit {
 
     // Load data
     this.loadData();
+
+    // Subscribe to client changes so the list refreshes when new clients are added elsewhere
+    try {
+      this.clientService.clientsChanged$.subscribe((client) => {
+        console.log('[Customer] clientsChanged event received:', client);
+        // reload list to ensure newly created clients are shown
+        this.loadData();
+      });
+    } catch (e) {
+      console.warn('Failed to subscribe to clientsChanged$', e);
+    }
   }
 
   loadData(): void {

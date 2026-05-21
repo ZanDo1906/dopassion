@@ -406,8 +406,33 @@ export class Registration implements OnInit {
   onStepperSuccess(result: any): void {
     console.log('Registration stepper success:', result);
     
-    // Refresh danh sách
-    this.loadData();
+    // If stepper returned the created registration object, prepend it to the list for immediate visibility
+    if (result && result.registration && typeof result.registration === 'object') {
+      const reg = result.registration;
+      const mapped = {
+        id: reg.maDangKy || '',
+        customerCode: reg.maKh || '',
+        studentName: reg.tenKh || '',
+        className: reg.tenLopHoc || '',
+        phone: '',
+        registrationDate: this.normalizeDateForInput(reg.ngayDangKy ? (typeof reg.ngayDangKy === 'string' ? reg.ngayDangKy : new Date(reg.ngayDangKy).toISOString()) : ''),
+        status: reg.trangThai || 'Đang hoạt động',
+        maLop: reg.maLop || '',
+        khoaHoc: reg.khoaHoc || '',
+        tenKhoa: reg.tenKhoa || '',
+        chiNhanh: reg.chiNhanh || '',
+        rawData: reg
+      };
+
+      // Prepend into arrays
+      this.registrations = [mapped, ...this.registrations];
+      this.filteredData = [mapped, ...this.filteredData];
+      this.currentPage = 1;
+      this.updatePagination();
+    } else {
+      // Fallback: refresh full list
+      this.loadData();
+    }
     
     // Đóng dialog
     this.isStepperDialogOpen = false;

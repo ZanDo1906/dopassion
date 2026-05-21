@@ -172,33 +172,26 @@ export class FilterDataPicker implements OnInit, OnChanges {
    * Component cha sẽ xử lý logic lọc dữ liệu
    */
   triggerSearch(): void {
-    const normalizedValues = { ...this.filterValues };
+    const normalizedValues: any = {};
 
     for (const field of this.config) {
-      if (field.type !== 'multi-select') {
-        if (field.type !== 'date-range') {
-          continue;
-        }
-      }
+      const rawValue = this.filterValues[field.key];
 
-      const rawValue = normalizedValues[field.key];
-      if (Array.isArray(rawValue)) {
-        normalizedValues[field.key] = rawValue;
+      if (field.type === 'multi-select') {
+        normalizedValues[field.key] = Array.isArray(rawValue) ? rawValue : [];
       } else if (field.type === 'date-range') {
         normalizedValues[field.key] = rawValue && typeof rawValue === 'object'
-          ? {
-            fromDate: `${rawValue.fromDate || ''}`,
-            toDate: `${rawValue.toDate || ''}`,
-          }
+          ? { fromDate: `${rawValue.fromDate || ''}`, toDate: `${rawValue.toDate || ''}` }
           : { fromDate: '', toDate: '' };
-      } else if (rawValue === null || rawValue === undefined || rawValue === '') {
-        normalizedValues[field.key] = [];
       } else {
-        normalizedValues[field.key] = [rawValue];
+        // text / select / date -> keep as raw string (or empty string)
+        normalizedValues[field.key] = rawValue ?? '';
       }
     }
 
     this.onSearch.emit(normalizedValues);
+    // Close any open multi-select panel after triggering search
+    this.openDropdownKey = null;
   }
 
   /**

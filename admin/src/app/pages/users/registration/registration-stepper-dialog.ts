@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { Client } from '../../../services/client';
 import { Course } from '../../../services/course';
@@ -17,7 +16,7 @@ import { iPayment } from '../../../interfaces/payment';
 @Component({
   selector: 'app-registration-stepper-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, FormDialogComponent, FilterDataPicker],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, FilterDataPicker],
   templateUrl: './registration-stepper-dialog.html',
   styleUrl: './registration-stepper-dialog.css'
 })
@@ -46,6 +45,9 @@ export class RegistrationStepperDialog implements OnInit {
   selectedClassKey = '';
   classForm: FormGroup | null = null;
   classFilterConfig: FilterConfig[] = [];
+  existingRegistrations: iRegistration[] = [];
+  customerExistingCourseTypes: string[] = []; // 'LR' or 'SW'
+  customerExistingClasses: iClass[] = [];
 
   // Step 3: Review & Submit
   reviewForm: FormGroup | null = null;
@@ -72,7 +74,166 @@ export class RegistrationStepperDialog implements OnInit {
     this.loadCustomers();
     this.loadClasses();
     this.loadCourses();
+    this.loadExistingRegistrations();
     this.initializeStep1();
+  }
+
+  /**
+   * Tải danh sách đăng ký hiện có từ backend
+   */
+  private loadExistingRegistrations(): void {
+    console.log('[loadExistingRegistrations] Starting to load...');
+    this.registrationService.getRegistrations().subscribe({
+      next: (data) => {
+        this.existingRegistrations = data;
+        console.log('[loadExistingRegistrations] SUCCESS - Loaded:', data.length, 'registrations');
+        data.forEach((reg, idx) => {
+          console.log(`  [${idx}] maKh="${reg.maKh}", maDangKy="${reg.maDangKy}", tenKhoa="${reg.tenKhoa}"`);
+        });
+      },
+      error: (err) => {
+        console.error('[loadExistingRegistrations] ERROR:', err);
+      }
+    });
+  }
+
+  /**
+   * Trích xuất loại khóa học từ tên khóa học (LR hoặc SW)
+   * VD: 
+   * - 'Learn React (LR)' -> 'LR'
+   * - 'TOEIC Listening&Reading' -> 'LR'
+   * - 'Solidworks (SW)' -> 'SW'
+   * - 'TOEIC Speaking&Writing' -> 'SW'
+   */
+  private extractCourseType(courseName: string | undefined): string | null {
+    if (!courseName) return null;
+    
+    const name = courseName.toLowerCase();
+    
+    // Thử tìm pattern (LR) hoặc (SW)
+    const match = name.match(/\((lr|sw)\)/i);
+    if (match) {
+      return match[1].toUpperCase();
+    }
+    
+    // Kiểm tra cho LR (Learn React, Listening&Reading, Listening & Reading)
+    if (
+      name.includes('react') || 
+      name.includes('learn') || 
+      name.includes('listening') ||
+      name.includes('reading') ||
+      name.match(/listening\s*&\s*reading/i) ||
+      name === 'lr'
+    ) {
+      console.log(`[extractCourseType] "${courseName}" -> LR (keyword match)`);
+      return 'LR';
+    }
+    
+    // Kiểm tra cho SW (Solidworks, Speaking&Writing, Speaking & Writing)
+    if (
+      name.includes('solidwork') || 
+      name.includes('speaking') ||
+      name.includes('writing') ||
+      name.match(/speaking\s*&\s*writing/i) ||
+      name === 'sw'
+    ) {
+      console.log(`[extractCourseType] "${courseName}" -> SW (keyword match)`);
+      return 'SW';
+    }
+    
+    // Không tìm thấy type
+    console.warn('[extractCourseType] Could not extract type from course name:', courseName);
+    return null;
+  }
+
+  /**
+   * Lấy danh sách loại khóa học từ các khóa học đã đăng ký của khách hàng
+   * Kiểm tra khách hàng có đăng ký cả 2 loại (LR và SW) không
+   */
+  private getCustomerExistingCourseTypes(customerId: string): string[] {
+    const types = new Set<string>();
+    
+    console.log('=== CHECK EXISTING REGISTRATIONS ===');
+    console.log('Looking for registrations of customer ID (maKh):', customerId);
+    console.log('Total registrations in system:', this.existingRegistrations.length);
+    
+    // In ra tất cả registrations để debug
+    if (this.existingRegistrations.length > 0) {
+      console.log('All registrations:');
+      this.existingRegistrations.forEach((reg, idx) => {
+        console.log(`  [${idx}] maKh="${reg.maKh}", tenKh="${reg.tenKh}", maDangKy="${reg.maDangKy}", tenKhoa="${reg.tenKhoa}"`);
+      });
+    } else {
+      console.warn('No registrations loaded yet!');
+    }
+    
+    // Lọc đăng ký theo nhiều chiến lược: maKh, tenKh, sdt
+    const customerRegs = this.existingRegistrations.filter(reg => {
+      const regMaKh = (reg.maKh || '').toString();
+      const regTenKh = (reg.tenKh || '').toString().toLowerCase();
+      const regPhone = ((reg as any).sdt || '').toString().replace(/\D/g, '');
+
+      const targetMaKh = (customerId || '').toString();
+      const targetTenKh = (this.selectedCustomer?.tenKhachHang || '').toString().toLowerCase();
+      const targetPhone = (this.selectedCustomer?.sdt || '').toString().replace(/\D/g, '');
+
+      const matchMaKh = regMaKh && targetMaKh && regMaKh === targetMaKh;
+      const matchTenKh = regTenKh && targetTenKh && regTenKh === targetTenKh;
+      const matchPhone = regPhone && targetPhone && regPhone === targetPhone;
+
+      if (matchMaKh || matchTenKh || matchPhone) {
+        console.log(`[getCustomerExistingCourseTypes] matched registration by ${matchMaKh ? 'maKh' : matchTenKh ? 'tenKh' : 'phone'}`);
+        return true;
+      }
+      return false;
+    });
+
+    console.log('Found registrations matching maKh:', customerRegs.length);
+    customerRegs.forEach((reg, idx) => {
+      console.log(`  [${idx}] maKh=${reg.maKh}, tenKhoa=${reg.tenKhoa}, maDangKy=${reg.maDangKy}`);
+    });
+
+    // Trích xuất loại khóa học từ tên khóa học
+    customerRegs.forEach(reg => {
+      const courseType = this.extractCourseType(reg.tenKhoa);
+      console.log(`  Processing course: "${reg.tenKhoa}" -> Type: ${courseType}`);
+      if (courseType) {
+        types.add(courseType);
+      }
+    });
+
+    const result = Array.from(types);
+    console.log('Final course types found:', result);
+    return result;
+  }
+
+  /**
+   * Lấy danh sách lớp học đã đăng ký của khách hàng
+   */
+  private getCustomerExistingClasses(customerId: string): iClass[] {
+    // Use same flexible matching as course types (maKh, tenKh, phone)
+    const customerRegs = this.existingRegistrations.filter(reg => {
+      const regMaKh = (reg.maKh || '').toString();
+      const regTenKh = (reg.tenKh || '').toString().toLowerCase();
+      const regPhone = ((reg as any).sdt || '').toString().replace(/\D/g, '');
+
+      const targetMaKh = (customerId || '').toString();
+      const targetTenKh = (this.selectedCustomer?.tenKhachHang || '').toString().toLowerCase();
+      const targetPhone = (this.selectedCustomer?.sdt || '').toString().replace(/\D/g, '');
+
+      return (regMaKh && targetMaKh && regMaKh === targetMaKh)
+        || (regTenKh && targetTenKh && regTenKh === targetTenKh)
+        || (regPhone && targetPhone && regPhone === targetPhone);
+    });
+
+    console.log(`Found ${customerRegs.length} registrations to match with classes`);
+    
+    const matchedClasses = this.classes.filter(cls =>
+      customerRegs.some(reg => reg.maLop === cls.maLop)
+    );
+    
+    console.log(`Matched ${matchedClasses.length} classes for customer`);
+    return matchedClasses;
   }
 
   /**
@@ -93,31 +254,78 @@ export class RegistrationStepperDialog implements OnInit {
 
   /**
    * Tìm kiếm khách hàng theo SĐT hoặc Email
+   * Kiểm tra quy tắc: khách hàng chỉ được đăng ký 1 trong 2 khóa (LR hoặc SW)
    */
   searchCustomer(): void {
+    this.errorMessage = '';
+    
     if (!this.searchQuery.trim()) {
       this.selectedCustomer = null;
       this.isNewCustomer = false;
+      this.customerExistingCourseTypes = [];
+      this.customerExistingClasses = [];
       return;
     }
 
-    const found = this.customers.find(c =>
-      String(c.sdt) === this.searchQuery || c.email.toLowerCase() === this.searchQuery.toLowerCase()
-    );
+    const q = this.searchQuery.trim();
+    const qLower = q.toLowerCase();
+    const qDigits = q.replace(/\D/g, '');
+
+    const found = this.customers.find(c => {
+      const sdtDigits = String(c.sdt ?? '').replace(/\D/g, '');
+      const email = (c.email ?? '').toLowerCase();
+      const name = (c.tenKhachHang ?? '').toLowerCase();
+
+      // match phone exactly (digits) OR email exact OR name contains query (partial, case-insensitive)
+      if (qDigits && sdtDigits === qDigits) return true;
+      if (email && email === qLower) return true;
+      if (name && name.includes(qLower)) return true;
+      return false;
+    });
 
     if (found) {
       console.log('=== CUSTOMER FOUND ===');
-      console.log('Full customer object:', found);
-      console.log('ngaySinh:', found.ngaySinh);
+      console.log('Customer name:', found.tenKhachHang);
+      console.log('Customer maKh:', found.maKh);
+      console.log('Customer _id:', found._id);
+      console.log('Total registrations in memory:', this.existingRegistrations.length);
       
       this.selectedCustomer = found;
       this.isNewCustomer = false;
+      
+      // === VALIDATION: Check existing registrations ===
+      // Thử nhiều cách để find customer registrations (maKh, _id, tenKh)
+      const customerId = found.maKh;
+      console.log('Using customerId for lookup:', customerId);
+      
+      this.customerExistingCourseTypes = this.getCustomerExistingCourseTypes(customerId);
+      this.customerExistingClasses = this.getCustomerExistingClasses(customerId);
+
+      console.log('Customer existing course types:', this.customerExistingCourseTypes);
+      console.log('Customer existing classes count:', this.customerExistingClasses.length);
+
+      // === RULE: If customer has both LR and SW registrations, show error ===
+      if (this.customerExistingCourseTypes.length >= 2) {
+        this.errorMessage = `Khách hàng này đã đăng ký cả 2 khóa (LR và SW). Không thể đăng ký thêm!`;
+        console.warn('VALIDATION FAILED: Customer has both LR and SW courses');
+        this.selectedCustomer = null;
+        this.isNewCustomer = false;
+        this.customerExistingCourseTypes = [];
+        this.customerExistingClasses = [];
+        this.initializeStep1();
+        this.clearCustomerForm();
+        return;
+      }
+
       // Reinitialize form trước khi populate
       this.initializeStep1();
       this.populateCustomerForm(found);
+      console.log('VALIDATION PASSED: Customer can proceed');
     } else {
       this.selectedCustomer = null;
       this.isNewCustomer = true;
+      this.customerExistingCourseTypes = [];
+      this.customerExistingClasses = [];
       // Reinitialize form cho khách mới
       this.initializeStep1();
       this.clearCustomerForm();
@@ -312,16 +520,33 @@ export class RegistrationStepperDialog implements OnInit {
    * Chuyển sang Step 2
    */
   proceedToStep2(): void {
-    // Chỉ check form tồn tại, không check valid vì có thể form có các control không cần thiết
+    // Kiểm tra: phải có khách hàng được chọn hoặc điền thông tin hợp lệ
     if (!this.customerForm) {
       this.errorMessage = 'Lỗi: Form không được khởi tạo';
       return;
     }
 
-    // Lưu dữ liệu Step 1 vào mainForm
-    this.mainForm.addControl('customerData', new FormControl(this.customerForm.getRawValue()));
+    if (!this.selectedCustomer && this.customerForm.invalid) {
+      this.errorMessage = 'Vui lòng điền thông tin khách hàng hợp lệ trước khi chuyển bước';
+      return;
+    }
+
+    // Lưu dữ liệu Step 1 vào mainForm (nếu đã chọn khách thì lưu object khách, còn không thì lưu giá trị form)
+    const customerData = this.selectedCustomer ? this.selectedCustomer : this.customerForm.getRawValue();
+    if (this.mainForm.get('customerData')) {
+      this.mainForm.get('customerData')?.patchValue(customerData);
+    } else {
+      this.mainForm.addControl('customerData', new FormControl(customerData));
+    }
     this.mainForm.addControl('isNewCustomer', new FormControl(this.isNewCustomer));
     this.mainForm.addControl('selectedCustomerId', new FormControl(this.selectedCustomer?._id || null));
+
+    // If this is a new customer, ensure any previous customer's existing registrations/classes
+    // are cleared so time-conflict validation does not apply.
+    if (this.isNewCustomer || this.mainForm.get('isNewCustomer')?.value) {
+      this.customerExistingCourseTypes = [];
+      this.customerExistingClasses = [];
+    }
 
     this.currentStep = 2;
     this.errorMessage = '';
@@ -336,8 +561,12 @@ export class RegistrationStepperDialog implements OnInit {
     this.classService.getClasses().subscribe({
       next: (data) => {
         this.classes = data;
-        this.filteredClasses = [...data];
-        console.log('Classes loaded:', data.length);
+        const deduped = this.dedupeClasses(data);
+        this.filteredClasses = [...deduped];
+        if (data.length !== deduped.length) {
+          console.warn('[loadClasses] Duplicates removed:', data.length - deduped.length);
+        }
+        console.log('Classes loaded:', deduped.length);
       },
       error: (err) => {
         console.error('Lỗi tải danh sách lớp học:', err);
@@ -361,9 +590,27 @@ export class RegistrationStepperDialog implements OnInit {
 
   /**
    * Khởi tạo form Step 2 (Class Selection)
+   * Nếu khách hàng đã đăng ký 1 khóa, chỉ hiển thị khóa còn lại
    */
   private initializeStep2(): void {
     console.log('Initializing Step 2. Courses:', this.courses.length, 'Classes:', this.classes.length);
+    console.log('Customer existing course types:', this.customerExistingCourseTypes);
+    
+    // === RULE: Filter available courses based on existing registrations ===
+    let availableCourses = [...this.courses];
+    
+    if (this.customerExistingCourseTypes.length === 1) {
+      const existingType = this.customerExistingCourseTypes[0];
+      const otherType = existingType === 'LR' ? 'SW' : 'LR';
+      
+      // Chỉ cho phép đăng ký khóa còn lại (khóa khác)
+      availableCourses = availableCourses.filter(c => {
+        const courseType = this.extractCourseType(c.tenKhoaHoc);
+        return courseType === otherType;
+      });
+      
+      console.log('Available courses after filtering:', availableCourses.length);
+    }
     
     // Tạo filter config cho classes
     const chiNhanhOptions = [...new Set(this.classes.map(c => c.chiNhanh))].map(cn => ({
@@ -376,8 +623,8 @@ export class RegistrationStepperDialog implements OnInit {
         key: 'maKhoa',
         label: 'Khóa học',
         type: 'select',
-        options: this.courses.length > 0 
-          ? this.courses.map(c => ({ value: c.maKhoaHoc, label: c.tenKhoaHoc }))
+        options: availableCourses.length > 0 
+          ? availableCourses.map(c => ({ value: c.maKhoaHoc, label: c.tenKhoaHoc }))
           : []
       },
       {
@@ -395,8 +642,12 @@ export class RegistrationStepperDialog implements OnInit {
 
     console.log('Filter config:', this.classFilterConfig);
 
-    // Khởi tạo filtered classes = tất cả classes
-    this.filteredClasses = [...this.classes];
+    // === Filter classes based on available courses ===
+    let baseClasses = this.classes.filter(cls => 
+      availableCourses.some(c => c.maKhoaHoc === cls.maKhoa)
+    );
+    
+    this.filteredClasses = this.dedupeClasses([...baseClasses]);
     this.selectedClass = null;
     this.selectedClassKey = '';
 
@@ -417,12 +668,12 @@ export class RegistrationStepperDialog implements OnInit {
     const selectedDate = normalizeText(criteria.ngayBatDau);
     const selectedBranches = Array.isArray(criteria.chiNhanh) ? criteria.chiNhanh : [];
 
-    this.filteredClasses = this.classes.filter(cls => {
+    this.filteredClasses = this.dedupeClasses(this.classes.filter(cls => {
       const matchesCourse = !selectedCourse || normalizeText(cls.maKhoa).includes(selectedCourse) || normalizeText(cls.tenKhoaHoc).includes(selectedCourse);
       const matchesDate = !selectedDate || normalizeText(cls.ngayBatDau).startsWith(selectedDate);
       const matchesBranch = selectedBranches.length === 0 || selectedBranches.includes(cls.chiNhanh);
       return matchesCourse && matchesDate && matchesBranch;
-    });
+    }));
 
     this.selectedClass = null;
     this.selectedClassKey = '';
@@ -432,9 +683,87 @@ export class RegistrationStepperDialog implements OnInit {
    * Reset lọc lớp học
    */
   handleClassFilterReset(): void {
-    this.filteredClasses = [...this.classes];
+    this.filteredClasses = this.dedupeClasses([...this.classes]);
     this.selectedClass = null;
     this.selectedClassKey = '';
+  }
+
+  /**
+   * Kiểm tra xung đột khungGio giữa 2 lớp
+   * VD: '09:00-12:00' và '10:00-13:00' là trùng
+   */
+  private hasTimeSlotConflict(existingKhungGio: string, newKhungGio: string): boolean {
+    // Parse a schedule string into an array of time ranges and a set of days (optional)
+    const parseSchedule = (s: string): { ranges: { start: number; end: number }[]; days: Set<number> } => {
+      const result: { ranges: { start: number; end: number }[]; days: Set<number> } = { ranges: [], days: new Set<number>() };
+      if (!s) return result;
+      const str = s.toString();
+
+      // Extract parenthesis content for days like (T2-4-6)
+      const parenMatch = str.match(/\(([^)]*)\)/);
+      if (parenMatch && parenMatch[1]) {
+        const nums = parenMatch[1].match(/\d+/g);
+        if (nums) {
+          nums.forEach(n => result.days.add(parseInt(n, 10)));
+        }
+      }
+
+      // Find all time ranges in formats like 17:45-19:15 or 17h45-19h15 or 17h45 - 19h15
+      const timeRangeRegex = /(\d{1,2})\s*(?:h|:)\s*(\d{2})\s*-\s*(\d{1,2})\s*(?:h|:)\s*(\d{2})/g;
+      let m: RegExpExecArray | null;
+      while ((m = timeRangeRegex.exec(str)) !== null) {
+        const sh = parseInt(m[1], 10);
+        const sm = parseInt(m[2], 10);
+        const eh = parseInt(m[3], 10);
+        const em = parseInt(m[4], 10);
+        const start = sh * 60 + sm;
+        const end = eh * 60 + em;
+        if (!isNaN(start) && !isNaN(end)) {
+          result.ranges.push({ start, end });
+        }
+      }
+
+      // Also support formats with colon only like 09:00-12:00
+      const colonRegex = /(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/g;
+      while ((m = colonRegex.exec(str)) !== null) {
+        const toMinutes = (t: string) => {
+          const [hh, mm] = t.split(':').map(s => parseInt(s, 10));
+          return hh * 60 + mm;
+        };
+        const start = toMinutes(m[1]);
+        const end = toMinutes(m[2]);
+        result.ranges.push({ start, end });
+      }
+
+      return result;
+    };
+
+    const a = parseSchedule(existingKhungGio);
+    const b = parseSchedule(newKhungGio);
+
+    if (a.ranges.length === 0 || b.ranges.length === 0) return false;
+
+    // If both specify days, require intersection of days; otherwise assume potential overlap
+    const bothHaveDays = a.days.size > 0 && b.days.size > 0;
+
+    // Check any pair of ranges for overlap AND (days intersect OR no days specified)
+    for (const ra of a.ranges) {
+      for (const rb of b.ranges) {
+        const overlap = ra.start < rb.end && rb.start < ra.end;
+        if (!overlap) continue;
+
+        if (bothHaveDays) {
+          // check day intersection
+          const intersect = Array.from(a.days).some(d => b.days.has(d));
+          if (intersect) return true;
+        } else {
+          // no day info -> treat as conflict when times overlap
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -442,6 +771,7 @@ export class RegistrationStepperDialog implements OnInit {
    */
   selectClassCard(classItem: iClass): void {
     console.log('selectClassCard called with:', classItem.maLop);
+    this.errorMessage = '';
     
     // Nếu đã chọn rồi → deselect
     if (this.selectedClassKey === classItem.maLop) {
@@ -455,6 +785,19 @@ export class RegistrationStepperDialog implements OnInit {
       return;
     }
 
+    // === VALIDATION: Check time slot conflicts ===
+    // Skip time-conflict validation for new customers
+    const isNew = this.isNewCustomer || (this.mainForm.get('isNewCustomer')?.value ?? false);
+    if (!isNew && this.customerExistingClasses.length > 0) {
+      for (const existingClass of this.customerExistingClasses) {
+        if (this.hasTimeSlotConflict(existingClass.khungGio, classItem.khungGio)) {
+          this.errorMessage = `Xung đột thời gian! Lớp "${classItem.tenLop}" (${classItem.khungGio}) trùng với lớp đã đăng ký "${existingClass.tenLop}" (${existingClass.khungGio})`;
+          console.warn('Time slot conflict detected:', this.errorMessage);
+          return;
+        }
+      }
+    }
+
     // Chọn lớp mới
     console.log('Selecting new class:', classItem.maLop);
     this.selectedClass = classItem;
@@ -465,7 +808,9 @@ export class RegistrationStepperDialog implements OnInit {
       tenLop: classItem.tenLop,
       maKhoa: classItem.maKhoa,
       tenKhoaHoc: this.courses.find(c => c.maKhoaHoc === classItem.maKhoa)?.tenKhoaHoc || classItem.tenKhoaHoc,
-      hocPhi: this.getCourseFee(classItem.maKhoa)
+      hocPhi: this.getCourseFee(classItem.maKhoa),
+      chiNhanh: classItem.chiNhanh || '',
+      khungGio: classItem.khungGio || ''
     };
     
     console.log('classData:', classData);
@@ -489,7 +834,7 @@ export class RegistrationStepperDialog implements OnInit {
   /**
    * Lấy học phí theo mã khóa học
    */
-  private getCourseFee(maKhoa: string): number {
+  getCourseFee(maKhoa: string): number {
     const normalizedKey = `${maKhoa ?? ''}`.trim().toLowerCase();
     const course = this.courses.find(c => {
       return `${c.maKhoaHoc ?? ''}`.trim().toLowerCase() === normalizedKey
@@ -515,7 +860,9 @@ export class RegistrationStepperDialog implements OnInit {
       tenLop: this.selectedClass.tenLop,
       maKhoa: this.selectedClass.maKhoa,
       tenKhoaHoc: this.courses.find(c => c.maKhoaHoc === this.selectedClass?.maKhoa)?.tenKhoaHoc || this.selectedClass.tenKhoaHoc,
-      hocPhi: this.getCourseFee(this.selectedClass.maKhoa)
+      hocPhi: this.getCourseFee(this.selectedClass.maKhoa),
+      chiNhanh: this.selectedClass.chiNhanh || '',
+      khungGio: this.selectedClass.khungGio || ''
     };
 
     this.mainForm.addControl('classData', new FormControl(classData));
@@ -542,7 +889,7 @@ export class RegistrationStepperDialog implements OnInit {
 
     const customerData = this.mainForm.get('customerData')?.value;
     const classData = this.mainForm.get('classData')?.value;
-    const isNewCustomer = this.mainForm.get('isNewCustomer')?.value;
+    const isNewCustomer = this.mainForm.get('isNewCustomer')?.value ?? this.isNewCustomer;
     const selectedCustomerId = this.mainForm.get('selectedCustomerId')?.value;
 
     let customerId = selectedCustomerId;
@@ -565,6 +912,9 @@ export class RegistrationStepperDialog implements OnInit {
       this.clientService.addClient(newClientPayload).subscribe({
         next: (createdCustomer) => {
           customerId = createdCustomer._id;
+          // refresh local customers list and put the new customer on top
+          this.loadCustomers();
+          this.customers = [createdCustomer, ...this.customers.filter(c => c._id !== createdCustomer._id)];
           // Sau khi tạo Customer, tạo Registration
           this.createRegistration(customerId, customerData, classData);
         },
@@ -593,7 +943,7 @@ export class RegistrationStepperDialog implements OnInit {
       tenLopHoc: classData.tenLop,
       khoaHoc: classData.maKhoa,
       tenKhoa: this.getClassCourseName(classData.maKhoa),
-      chiNhanh: '',
+      chiNhanh: classData.chiNhanh || customerData.chiNhanh || '',
       ngayDangKy: new Date().toISOString().split('T')[0],
       trangThai: 'Đang hoạt động'
     };
@@ -601,7 +951,7 @@ export class RegistrationStepperDialog implements OnInit {
     this.registrationService.addRegistration(registrationPayload).subscribe({
       next: (createdRegistration) => {
         // Sau khi tạo Registration, tạo Payment (Debt)
-        this.createDebtRecord(customerId, customerData, classData, createdRegistration._id || null);
+        this.createDebtRecord(customerId, customerData, classData, createdRegistration);
       },
       error: (err) => {
         this.isLoading = false;
@@ -613,18 +963,18 @@ export class RegistrationStepperDialog implements OnInit {
   /**
    * Tạo Payment record (dùng làm Debt/Invoice)
    */
-  private createDebtRecord(customerId: string, customerData: any, classData: any, registrationId: string | null): void {
+  private createDebtRecord(customerId: string, customerData: any, classData: any, registrationObj: any): void {
     // ========== Step 3: Tạo Payment (Debt/Invoice) ==========
     const debtPayload: iPayment = {
       stt: 0,
-      maDangKy: registrationId || 'PENDING',
+      maDangKy: (registrationObj && registrationObj.maDangKy) || 'PENDING',
       maKh: customerId,
       tenKh: customerData.tenKhachHang,
       maLop: classData.maLop,
       tenLopHoc: classData.tenLop,
       khoaHoc: classData.maKhoa,
       tenKhoa: this.getClassCourseName(classData.maKhoa),
-      chiNhanh: '',
+      chiNhanh: classData.chiNhanh || customerData.chiNhanh || '',
       ngayDangKy: new Date().toISOString().split('T')[0],
       hocPhi: classData.hocPhi,
       voucher: '',
@@ -639,8 +989,8 @@ export class RegistrationStepperDialog implements OnInit {
         this.isLoading = false;
         this.success.emit({
           customer: customerData,
-          registration: registrationId,
-          debt: createdDebt._id
+          registration: registrationObj,
+          debt: createdDebt
         });
         this.close.emit();
       },
@@ -677,7 +1027,13 @@ export class RegistrationStepperDialog implements OnInit {
    * Lấy tên khóa học dựa vào maKhoa
    */
   private getClassCourseName(maKhoa: string): string {
-    return this.courses.find(c => c._id === maKhoa)?.tenKhoaHoc || '';
+    const key = `${maKhoa ?? ''}`.trim().toLowerCase();
+    const course = this.courses.find(c => {
+      return `${c.maKhoaHoc ?? ''}`.trim().toLowerCase() === key
+        || `${c._id ?? ''}`.trim().toLowerCase() === key
+        || `${c.tenKhoaHoc ?? ''}`.trim().toLowerCase() === key;
+    });
+    return course?.tenKhoaHoc || '';
   }
 
   /**
@@ -695,5 +1051,23 @@ export class RegistrationStepperDialog implements OnInit {
    */
   closeDialog(): void {
     this.close.emit();
+  }
+
+  /**
+   * Remove duplicate classes by `maLop` (keep first occurrence)
+   */
+  private dedupeClasses(list: iClass[]): iClass[] {
+    const seen = new Set<string>();
+    const out: iClass[] = [];
+    for (const item of list) {
+      const key = `${item.maLop ?? item._id ?? ''}`.trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(item);
+      } else {
+        console.warn('[dedupeClasses] duplicate detected for', key);
+      }
+    }
+    return out;
   }
 }

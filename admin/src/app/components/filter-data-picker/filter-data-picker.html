@@ -41,17 +41,22 @@
 
                         <div class="multi-select-panel" [id]="field.key + '-panel'"
                             *ngIf="openDropdownKey === field.key" (click)="$event.stopPropagation()">
-                            <label class="multi-select-option" *ngFor="let option of field.options; let index = index"
-                                [for]="field.key + '-' + index">
-                                <input type="checkbox" [id]="field.key + '-' + index"
-                                    [checked]="isMultiSelectChecked(field.key, option.value)"
-                                    (change)="onMultiSelectChange(field.key, option.value, $any($event.target).checked)" />
-                                <span>{{ option.label }}</span>
-                            </label>
+                            <ng-container *ngIf="field.options && field.options.length > 0; else noOptions">
+                                <ng-container *ngFor="let option of field.options; let index = index">
+                                    <label class="multi-select-option"
+                                        *ngIf="option && option.label && (option.label + '').trim() !== ''"
+                                        [for]="field.key + '-' + index">
+                                        <input type="checkbox" [id]="field.key + '-' + index"
+                                            [checked]="isMultiSelectChecked(field.key, option.value)"
+                                            (change)="onMultiSelectChange(field.key, option.value, $any($event.target).checked)" />
+                                        <span>{{ option.label }}</span>
+                                    </label>
+                                </ng-container>
+                            </ng-container>
 
-                            <div class="multi-select-empty" *ngIf="!field.options || field.options.length === 0">
-                                Không có dữ liệu
-                            </div>
+                            <ng-template #noOptions>
+                                <div class="multi-select-empty">Không có dữ liệu</div>
+                            </ng-template>
                         </div>
                     </div>
 
