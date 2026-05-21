@@ -109,7 +109,7 @@ export class RegistrationStepperDialog implements OnInit {
       console.log('=== CUSTOMER FOUND ===');
       console.log('Full customer object:', found);
       console.log('ngaySinh:', found.ngaySinh);
-      
+
       this.selectedCustomer = found;
       this.isNewCustomer = false;
       // Reinitialize form trước khi populate
@@ -140,12 +140,12 @@ export class RegistrationStepperDialog implements OnInit {
    */
   private formatDateForInput(dateStr: string | undefined): string {
     console.log('formatDateForInput called with:', dateStr, 'Type:', typeof dateStr);
-    
+
     if (!dateStr) {
       console.log('dateStr is empty/null, returning empty string');
       return '';
     }
-    
+
     try {
       // **FALLBACK FIRST**: Nếu string chứa YYYY-MM-DD ở đầu, extract nó
       const dateMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}/);
@@ -153,7 +153,7 @@ export class RegistrationStepperDialog implements OnInit {
         console.log('Found YYYY-MM-DD pattern at start, extracting:', dateMatch[0]);
         return dateMatch[0];
       }
-      
+
       // Nếu là format "YYYY-MM-DD HH:MM:SS" (từ backend), extract chỉ date part
       // Regex này linh hoạt với space và khoảng trắng khác
       if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(dateStr)) {
@@ -162,7 +162,7 @@ export class RegistrationStepperDialog implements OnInit {
         console.log('Extracted to:', result);
         return result;
       }
-      
+
       // Nếu là ISO date string (2022-05-20T00:00:00Z), parse và extract date
       if (typeof dateStr === 'string' && dateStr.includes('T')) {
         console.log('Is ISO date format, converting...');
@@ -174,7 +174,7 @@ export class RegistrationStepperDialog implements OnInit {
         console.log('Converted to:', result);
         return result;
       }
-      
+
       // Nếu là format DD/MM/YYYY, convert thành YYYY-MM-DD
       if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
         console.log('Is DD/MM/YYYY format, converting...');
@@ -183,7 +183,7 @@ export class RegistrationStepperDialog implements OnInit {
         console.log('Converted to:', result);
         return result;
       }
-      
+
       console.log('Could not match any format, returning as is:', dateStr);
       return dateStr;
     } catch (error) {
@@ -364,7 +364,7 @@ export class RegistrationStepperDialog implements OnInit {
    */
   private initializeStep2(): void {
     console.log('Initializing Step 2. Courses:', this.courses.length, 'Classes:', this.classes.length);
-    
+
     // Tạo filter config cho classes
     const chiNhanhOptions = [...new Set(this.classes.map(c => c.chiNhanh))].map(cn => ({
       value: cn,
@@ -376,7 +376,7 @@ export class RegistrationStepperDialog implements OnInit {
         key: 'maKhoa',
         label: 'Khóa học',
         type: 'select',
-        options: this.courses.length > 0 
+        options: this.courses.length > 0
           ? this.courses.map(c => ({ value: c.maKhoaHoc, label: c.tenKhoaHoc }))
           : []
       },
@@ -442,7 +442,7 @@ export class RegistrationStepperDialog implements OnInit {
    */
   selectClassCard(classItem: iClass): void {
     console.log('selectClassCard called with:', classItem.maLop);
-    
+
     // Nếu đã chọn rồi → deselect
     if (this.selectedClassKey === classItem.maLop) {
       console.log('Deselecting:', classItem.maLop);
@@ -467,16 +467,16 @@ export class RegistrationStepperDialog implements OnInit {
       tenKhoaHoc: this.courses.find(c => c.maKhoaHoc === classItem.maKhoa)?.tenKhoaHoc || classItem.tenKhoaHoc,
       hocPhi: this.getCourseFee(classItem.maKhoa)
     };
-    
+
     console.log('classData:', classData);
-    
+
     // Lưu classData vào mainForm
     if (this.mainForm.get('classData')) {
       this.mainForm.get('classData')?.patchValue(classData);
     } else {
       this.mainForm.addControl('classData', new FormControl(classData));
     }
-    
+
     this.classForm?.patchValue({
       selectedClassId: classItem.maLop
     });
@@ -489,7 +489,7 @@ export class RegistrationStepperDialog implements OnInit {
   /**
    * Lấy học phí theo mã khóa học
    */
-  private getCourseFee(maKhoa: string): number {
+  getCourseFee(maKhoa: string): number {
     const normalizedKey = `${maKhoa ?? ''}`.trim().toLowerCase();
     const course = this.courses.find(c => {
       return `${c.maKhoaHoc ?? ''}`.trim().toLowerCase() === normalizedKey
