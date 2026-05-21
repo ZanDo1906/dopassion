@@ -210,7 +210,7 @@
                 <i [class]="cancelIcon"></i> {{ cancelText }}
             </button>
 
-            <button class="btn-submit" [ngClass]="submitBtnClass" type="button" (click)="onSubmit()">
+            <button class="btn-submit" [ngClass]="submitBtnClass" type="button" (click)="onSubmit()" *ngIf="!isViewOnly">
                 <i [class]="submitIcon"></i> {{ submitText }}
             </button>
         </div>

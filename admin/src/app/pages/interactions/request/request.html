@@ -1,102 +1,157 @@
 <div class="role-page">
-    <section class="filter-card">
-        <div class="filter-header" (click)="toggleFilter()">
-            <span class="filter-title">
-                <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
-                Tìm kiếm yêu cầu
+  <section class="filter-card">
+    <div class="filter-header" (click)="toggleFilter()">
+      <span class="filter-title">
+        <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+        Tìm kiếm yêu cầu tư vấn
+      </span>
+    </div>
+    <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
+      <div class="filter-row">
+        <div class="filter-field">
+          <label>Số điện thoại</label>
+          <input type="text" [(ngModel)]="searchPhone" placeholder="Tìm kiếm theo số điện thoại...">
+        </div>
+        <div class="filter-field">
+          <label>Email (Gmail)</label>
+          <input type="text" [(ngModel)]="searchEmail" placeholder="Tìm kiếm theo địa chỉ email...">
+        </div>
+      </div>
+      <div class="filter-row" style="margin-top: 12px;">
+        <div class="filter-field">
+          <label>Trạng thái yêu cầu</label>
+          <select [(ngModel)]="searchStatus">
+            <option value="">-- Tất cả --</option>
+            <option value="Chưa xử lý">Chưa xử lý</option>
+            <option value="Đã xử lý">Đã xử lý</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-muted" type="button" (click)="resetFilters()">
+          <i class="bi bi-x-circle"></i> Xóa bộ lọc
+        </button>
+        <button class="btn btn-primary" type="button" (click)="filterRequests()">
+          <i class="bi bi-search"></i> Tìm kiếm
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="table-card">
+    <table class="role-table">
+      <thead>
+        <tr>
+          <th class="col-stt">STT</th>
+          <th>Mã Liên Hệ</th>
+          <th>Mã KH</th>
+          <th>Tên Khách Hàng</th>
+          <th>Số Điện Thoại</th>
+          <th>Email (Gmail)</th>
+          <th>Trạng Thái</th>
+          <th class="col-actions">Tác vụ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedRequestList; let i = index">
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td><strong>{{ item.maLienHe }}</strong></td>
+          <td>{{ item.maKh || '---' }}</td>
+          <td style="text-align: left;">{{ item.tenKhachHang }}</td>
+          <td>{{ item.soDienThoai }}</td>
+          <td>{{ item.gmail }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge--success': item.trangThaiLienHe === 'Đã xử lý',
+              'badge--danger': item.trangThaiLienHe !== 'Đã xử lý'
+            }">
+              {{ item.trangThaiLienHe === 'Đã xử lý' ? 'Đã xử lý' : 'Chưa xử lý' }}
             </span>
-        </div>
-        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
-            <div class="filter-field">
-                <label>Mã yêu cầu</label>
-                <input type="text" placeholder="Nhập mã LH..." />
+          </td>
+          <td>
+            <div class="action-group">
+              <button class="icon-btn" type="button" (click)="openViewModal(item)" title="Xem chi tiết">
+                <i class="bi bi-eye"></i>
+              </button>
             </div>
-            <div class="filter-field">
-                <label>Loại yêu cầu</label>
-                <select>
-                    <option value="">-- Tất cả --</option>
-                    <option value="1">Tư vấn / Hỗ trợ</option>
-                </select>
-            </div>
-            <div class="filter-field">
-                <label>Trạng thái</label>
-                <select>
-                    <option value="">-- Tất cả --</option>
-                    <option value="1">Mới tạo</option>
-                    <option value="2">Đã xử lý</option>
-                </select>
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-muted" type="button"><i class="bi bi-x-circle"></i> Xóa bộ lọc</button>
-                <button class="btn btn-primary" type="button"><i class="bi bi-search"></i> Tìm kiếm</button>
-            </div>
-        </div>
-    </section>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedRequestList.length === 0">
+          <td colspan="8" style="padding: 24px; color: #7f8c8d; font-style: italic; text-align: center;">
+            Không tìm thấy dữ liệu yêu cầu tư vấn phù hợp.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="toolbar">
-        <button class="btn btn-outline" type="button"><i class="bi bi-plus-circle"></i> Thêm mới</button>
-        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-in-down"></i> Nhập excel</button>
-        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-up"></i> Xuất excel</button>
-    </div>
-
-    <div class="table-card">
-        <table class="role-table">
-            <thead>
-                <tr>
-                    <th class="col-stt">STT</th>
-                    <th>Mã yêu cầu</th>
-                    <th>Nội dung liên hệ</th>
-                    <th>Người gửi</th>
-                    <th>Ngày gửi</th>
-                    <th>Trạng thái</th>
-                    <th class="col-actions">Tác vụ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of paginatedRequests; let i = index">
-                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td class="text-primary" style="font-weight: 500;">{{ item.maYeuCau }}</td>
-                    <td style="text-align: left; max-width: 250px;">{{ item.tieuDe }}</td>
-                    <td>{{ item.nguoiGui }}</td>
-                    <td>{{ item.ngayGui }}</td>
-                    <td><span class="badge" [ngClass]="getStatusClass(item.trangThai)">{{ item.trangThai }}</span></td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" title="Xem chi tiết" (click)="openDetailDialog(item)">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="icon-btn"><i class="bi bi-pencil"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="pagination">
-        <div class="pagination-info">
-            {{ (currentPage - 1) * itemsPerPage + 1 }} - 
-            {{ currentPage * itemsPerPage > filteredRequests.length ? filteredRequests.length : currentPage * itemsPerPage }} 
-            of {{ filteredRequests.length }}
-        </div>
-        <div class="pagination-pages">
-            <button class="page" (click)="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
-            <button *ngFor="let page of pages" class="page" [class.active]="page === currentPage" (click)="changePage(page)">{{ page }}</button>
-            <button class="page" (click)="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></button>
-        </div>
-        <div class="page-size">
-            <select [value]="itemsPerPage" (change)="changePageSize($event)">
-                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
-            </select>
-        </div>
-    </div>
+  <app-pagination
+    [totalItems]="filteredRequestList.length"
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPaginationPageChange($event)"
+    (pageSizeChange)="onPaginationPageSizeChange($event)"
+  ></app-pagination>
 </div>
 
+<ng-template #viewRequestTemplate>
+  <div class="customer-view-form">
+    <div class="section-title">I. Thông tin cá nhân khách hàng</div>
+    <div class="customer-view-row">
+      <div class="form-group">
+        <label>Mã Khách Hàng</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedRequest?.maKh || 'Chưa liên kết'" readonly />
+      </div>
+      <div class="form-group">
+        <label>Tên khách hàng</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedRequest?.tenKhachHang" readonly />
+      </div>
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedRequest?.soDienThoai" readonly />
+      </div>
+      <div class="form-group">
+        <label>Email (Gmail)</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedRequest?.gmail" readonly />
+      </div>
+    </div>
+
+    <div class="section-title">II. Chi tiết nội dung yêu cầu tư vấn</div>
+    <div class="customer-view-row">
+      <div class="form-group">
+        <label>Mã Liên Hệ</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedRequest?.maLienHe" readonly />
+      </div>
+      <div class="form-group">
+        <label>Trạng thái</label>
+        <div class="customer-view-status-wrap">
+          <span class="badge" [ngClass]="{
+            'badge--success': selectedRequest?.trangThaiLienHe === 'Đã xử lý',
+            'badge--danger': selectedRequest?.trangThaiLienHe !== 'Đã xử lý'
+          }">
+            {{ selectedRequest?.trangThaiLienHe === 'Đã xử lý' ? 'Đã xử lý' : 'Chưa xử lý' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group" style="width: 100%;">
+      <label>Nội dung chi tiết yêu cầu</label>
+      <textarea class="form-control input-readonly" rows="4" readonly>{{ selectedRequest?.noiDungLienHe }}</textarea>
+    </div>
+  </div>
+</ng-template>
+
 <app-form-dialog 
-    *ngIf="isDialogOpen" 
-    title="Chi tiết yêu cầu tương tác" 
-    [sections]="dialogSections" 
-    [columns]="3"
-    (close)="closeDialog()" 
-    (submit)="onSubmitDialog($event)">
+  *ngIf="isModalOpen"
+  [title]="'Chi tiết yêu cầu tư vấn'" 
+  [bodyTemplate]="viewRequestTemplate"
+  [cancelText]="'Thoát'"
+  [submitText]="'Đã xử lý'"
+  [cancelIcon]="'bi bi-x-circle'"
+  [submitIcon]="'bi bi-check-circle-fill'"
+  [isViewOnly]="selectedRequest?.trangThaiLienHe === 'Đã xử lý'"
+  (close)="closeModal()" 
+  (submit)="markAsProcessed()">
 </app-form-dialog>

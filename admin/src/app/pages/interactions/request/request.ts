@@ -1,136 +1,128 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Contact } from '../../../services/contact';
-import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { FormsModule } from '@angular/forms'; 
+import { ContactService } from '../../../services/contact'; 
+import { FormDialogComponent } from '../../../components/form-dialog/form-dialog'; 
+import { PaginationComponent } from '../../../components/pagination/pagination'; // Import phân trang dùng chung
+import { iContact } from '../../../interfaces/contact';
 
 @Component({
   selector: 'app-request',
   standalone: true,
-  imports: [CommonModule, FormsModule, GridFormDialog],
+  imports: [CommonModule, FormsModule, FormDialogComponent, PaginationComponent], 
   templateUrl: './request.html',
-  styleUrl: './request.css',
+  styleUrl: './request.css'
 })
 export class Request implements OnInit {
-  isFilterOpen = true;
-  loading = true;
-  requests: any[] = [];
-  filteredRequests: any[] = [];
+  
+  requestList: iContact[] = [];
+  filteredRequestList: iContact[] = []; 
+  paginatedRequestList: iContact[] = []; 
+  
+  selectedRequest: iContact | null = null;
+  isModalOpen: boolean = false;
+  isFilterOpen: boolean = true; 
 
-  // Phân trang
-  currentPage = 1;
-  itemsPerPage = 10;
-  pageSizeOptions = [10, 20, 50];
+  // Cấu hình phân trang đồng bộ hệ thống giống hệt trang khách hàng
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  pageSizeOptions: number[] = [5, 10, 20, 50];
 
-  // Trạng thái Popup
-  isDialogOpen = false;
-  dialogSections: any[] = [];
+  // Các biến lọc tìm kiếm độc lập tại client
+  searchPhone: string = '';
+  searchEmail: string = '';
+  searchStatus: string = '';
 
-  constructor(private contactService: Contact) { }
+  constructor(private contactService: ContactService) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadRequests();
   }
 
-  loadRequests() {
-    this.contactService.getContact().subscribe({
-      next: (data: any[]) => {
-        this.requests = data.map((item, index) => {
-          // Trích xuất ngày từ Mã liên hệ (LH-080526-001 -> 08/05/2026)
-          let dateStr = 'N/A';
-          const maLH = item.maLienHe || '';
-          if (maLH.length >= 11) {
-            const d = maLH.substring(3, 5);
-            const m = maLH.substring(5, 7);
-            const y = '20' + maLH.substring(7, 9);
-            dateStr = `${d}/${m}/${y}`;
-          }
-
-          return {
-            stt: item.stt || index + 1,
-            maYeuCau: maLH,
-            tieuDe: item.noiDungLienHe,
-            nguoiGui: item.tenKhachHang,
-            ngayGui: dateStr,
-            trangThai: item.trangThaiLienHe,
-            cauTraLoi: ''
-          };
-        });
-        this.filteredRequests = [...this.requests];
-        this.loading = false;
+  loadRequests(): void {
+    this.contactService.getContacts().subscribe({
+      next: (data: iContact[]) => {
+        this.requestList = data;
+        this.filterRequests(); 
       },
-      error: (error) => {
-        console.error('Lỗi khi đọc contact.json', error);
-        this.loading = false;
+      error: (err: any) => {
+        console.error('Lỗi khi tải danh sách yêu cầu tư vấn:', err);
       }
     });
   }
 
-  // Hàm mở Popup và nạp dữ liệu từ row tương ứng vào các field
-  openDetailDialog(item: any) {
-    this.isDialogOpen = true;
+  toggleFilter(): void {
+    this.isFilterOpen = !this.isFilterOpen;
+  }
 
-    // Cấu hình các mục hiển thị trong Popup dựa trên dữ liệu của 'item'
-    this.dialogSections = [
-      {
-        title: 'I. Thông tin chung',
-        fields: [
-          // Row 1 (3 cột): Mã yêu cầu, Ngày gửi, Trạng thái
-          { label: 'Mã yêu cầu', name: 'maYeuCau', type: 'text', value: item.maYeuCau, disabled: true },
-          { label: 'Ngày gửi', name: 'ngayGui', type: 'text', value: item.ngayGui, disabled: true },
-          { label: 'Trạng thái', name: 'trangThai', type: 'text', value: item.trangThai, disabled: true },
-          // Row 2 (2 cột còn lại): Người gửi, Nhân viên tiếp nhận
-          { label: 'Người gửi', name: 'nguoiGui', type: 'text', value: item.nguoiGui, disabled: true },
-          { label: 'Nhân viên tiếp nhận', name: 'staff', type: 'text', value: 'Admin (Mặc định)', disabled: true }
-        ]
-      },
-      {
-        title: 'II. Nội dung chi tiết',
-        fields: [
-          { label: 'Nội dung yêu cầu', name: 'tieuDe', type: 'textarea', value: item.tieuDe, disabled: true }
-        ]
-      },
-      {
-        title: 'III. Phản hồi yêu cầu',
-        fields: [
-          // ĐÂY LÀ TRƯỜNG DUY NHẤT KHÔNG BỊ DISABLED (Cho phép nhập liệu)
-          { label: 'Nội dung phản hồi', name: 'cauTraLoi', type: 'textarea', value: item.cauTraLoi, disabled: false }
-        ]
+  filterRequests(): void {
+    this.filteredRequestList = this.requestList.filter(item => {
+      const matchPhone = !this.searchPhone || (item.soDienThoai || '').toLowerCase().includes(this.searchPhone.trim().toLowerCase());
+      const matchEmail = !this.searchEmail || (item.gmail || '').toLowerCase().includes(this.searchEmail.trim().toLowerCase());
+      
+      let matchStatus = true;
+      if (this.searchStatus) {
+        const currentStatus = item.trangThaiLienHe === 'Đã xử lý' ? 'Đã xử lý' : 'Chưa xử lý';
+        matchStatus = currentStatus === this.searchStatus;
       }
-    ];
-  }
+      
+      return matchPhone && matchEmail && matchStatus;
+    });
 
-  closeDialog() { this.isDialogOpen = false; }
-
-  onSubmitDialog(data: any) {
-    console.log('Dữ liệu phản hồi mới:', data);
-    this.isDialogOpen = false;
-  }
-
-  toggleFilter() { this.isFilterOpen = !this.isFilterOpen; }
-
-  getStatusClass(status: string): string {
-    const s = status?.toLowerCase() || '';
-    if (s.includes('mới tạo')) return 'badge--blue';
-    if (s.includes('chưa xử lý')) return 'badge--orange';
-    if (s.includes('đã xử lý')) return 'badge--green';
-    return 'badge--inactive';
-  }
-
-  // Phân trang
-  get paginatedRequests(): any[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredRequests.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number { return Math.max(1, Math.ceil(this.filteredRequests.length / this.itemsPerPage)); }
-
-  get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
-
-  changePage(page: number) { if (page >= 1 && page <= this.totalPages) this.currentPage = page; }
-
-  changePageSize(event: Event) {
-    this.itemsPerPage = Number((event.target as HTMLSelectElement).value);
     this.currentPage = 1;
+    this.updatePaginatedRequests();
+  }
+
+  updatePaginatedRequests(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedRequestList = this.filteredRequestList.slice(startIndex, endIndex);
+  }
+
+  onPaginationPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedRequests();
+  }
+
+  onPaginationPageSizeChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1; 
+    this.updatePaginatedRequests();
+  }
+
+  resetFilters(): void {
+    this.searchPhone = '';
+    this.searchEmail = '';
+    this.searchStatus = '';
+    this.filterRequests();
+  }
+
+  markAsProcessed(): void {
+    if (this.selectedRequest && this.selectedRequest._id) {
+      this.contactService.updateContact(this.selectedRequest._id, { trangThaiLienHe: 'Đã xử lý' }).subscribe({
+        next: () => {
+          if (this.selectedRequest) {
+            this.selectedRequest.trangThaiLienHe = 'Đã xử lý';
+          }
+          this.loadRequests();
+          setTimeout(() => {
+            this.closeModal();
+          }, 400);
+        },
+        error: (err: any) => {
+          console.error('Lỗi khi cập nhật trạng thái yêu cầu:', err);
+        }
+      });
+    }
+  }
+
+  openViewModal(request: iContact): void {
+    this.selectedRequest = { ...request };
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedRequest = null;
   }
 }

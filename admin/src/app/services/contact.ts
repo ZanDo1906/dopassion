@@ -7,9 +7,11 @@ import { environment } from '../../environments/environments';
 @Injectable({
   providedIn: 'root',
 })
-export class Contact {
+export class ContactService { // Đổi từ 'Contact' thành 'ContactService' để đồng bộ toàn hệ thống
   private apiUrl = `${environment.apiUrl}/contact`;
+  
   constructor(private http: HttpClient) { }
+  
   getContacts(): Observable<iContact[]> {
     return this.http.get<iContact[]>(this.apiUrl);
   }

@@ -255,3 +255,8 @@
 .btn-submit:hover {
     background: #f0f5fa;
 }
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -6,7 +6,48 @@ const Contact = require('../models/contact');
 // GET all
 router.get('/', async (req, res) => {
     try {
-        const data = await Contact.find();
+        const data = await Contact.aggregate([
+            {
+                $lookup: {
+                    from: 'customer',
+                    localField: 'maKh',
+                    foreignField: 'maKh',
+                    as: 'customerDetails'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$customerDetails',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    stt: 1,
+                    maLienHe: 1,
+                    maKh: 1,
+                    tenKhachHang: 1,
+                    noiDungLienHe: 1,
+                    trangThaiLienHe: 1,
+                    gmail: {
+                        $cond: [
+                            { $ifNull: ['$gmail', false] },
+                            '$gmail',
+                            { $ifNull: ['$customerDetails.email', ''] }
+                        ]
+                    },
+                    soDienThoai: {
+                        $cond: [
+                            { $ifNull: ['$soDienThoai', false] },
+                            '$soDienThoai',
+                            { $ifNull: ['$customerDetails.sdt', ''] }
+                        ]
+                    },
+                    createdAt: 1,
+                    updatedAt: 1
+                }
+            }
+        ]);
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({
