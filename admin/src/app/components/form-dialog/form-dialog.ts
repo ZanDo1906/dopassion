@@ -57,7 +57,14 @@ export class FormDialogComponent implements OnChanges, DoCheck {
         if (control) {
           const parentValue = this.formData[key];
           if (parentValue !== undefined && control.value !== parentValue) {
-            control.setValue(parentValue, { emitEvent: false });
+            const isBothNaN = Number.isNaN(control.value) && Number.isNaN(parentValue);
+            if (!isBothNaN) {
+              const activeElement = document.activeElement;
+              const isFocused = activeElement && (activeElement.id === key || activeElement.getAttribute('formcontrolname') === key);
+              if (!isFocused) {
+                control.setValue(parentValue, { emitEvent: false });
+              }
+            }
           }
         }
       });
@@ -110,8 +117,29 @@ export class FormDialogComponent implements OnChanges, DoCheck {
   }
 
   onFieldChange(fieldName: string, value: any): void {
-    this.formData[fieldName] = value;
-    this.fieldChange.emit({ fieldName, value });
+    let fieldType = 'text';
+    if (this.sections) {
+      for (const section of this.sections) {
+        if (section.fields) {
+          const field = section.fields.find((f: any) => f.name === fieldName);
+          if (field) {
+            fieldType = field.type;
+            break;
+          }
+        }
+      }
+    }
+
+    let processedValue = value;
+    if (fieldType === 'number') {
+      processedValue = value === '' || value === null || value === undefined ? null : Number(value);
+      if (processedValue !== null && Number.isNaN(processedValue)) {
+        processedValue = value;
+      }
+    }
+
+    this.formData[fieldName] = processedValue;
+    this.fieldChange.emit({ fieldName, value: processedValue });
   }
 
   onSubmit(): void {

@@ -84,7 +84,7 @@
     margin-right: 2px;
 }
 
-.form-group input,
+.form-group input:not([type="checkbox"]):not([type="radio"]),
 .form-group select,
 .form-group textarea {
     width: 100%;
@@ -99,16 +99,17 @@
     font-family: inherit;
 }
 
-.form-group input:focus,
+.form-group input:not([type="checkbox"]):not([type="radio"]):focus,
 .form-group select:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group .checkbox-group:focus-within {
     border-color: #436da5;
     box-shadow: 0 0 0 2px rgba(67, 109, 165, 0.2);
 }
 
-.form-group input:disabled,
-.form-group input[readonly],
-.form-group input.input-readonly,
+.form-group input:not([type="checkbox"]):not([type="radio"]):disabled,
+.form-group input:not([type="checkbox"]):not([type="radio"])[readonly],
+.form-group input:not([type="checkbox"]):not([type="radio"]).input-readonly,
 .form-group select:disabled,
 .form-group textarea:disabled,
 .form-group textarea.input-readonly {
@@ -117,13 +118,10 @@
     cursor: not-allowed;
 }
 
-/* Make leading '*' in labels red for required fields */
-.form-group label::first-letter {
-    color: #ff3333;
-}
+/* Note: required-star class handles red asterisk coloring */
 
 /* Style invalid controls (Angular adds ng-invalid and ng-touched) */
-.form-group input.ng-invalid.ng-touched,
+.form-group input:not([type="checkbox"]):not([type="radio"]).ng-invalid.ng-touched,
 .form-group select.ng-invalid.ng-touched,
 .form-group textarea.ng-invalid.ng-touched {
     border-color: #ff4d4f;
@@ -186,16 +184,18 @@
 }
 
 /* ERROR STATES */
-.form-group.has-error input,
+.form-group.has-error input:not([type="checkbox"]):not([type="radio"]),
 .form-group.has-error select,
-.form-group.has-group.has-error textarea {
+.form-group.has-error textarea,
+.form-group.has-error .checkbox-group {
     border-color: #ff4d4f;
     background-color: #fff1f0;
 }
 
-.form-group.has-error input:focus,
+.form-group.has-error input:not([type="checkbox"]):not([type="radio"]):focus,
 .form-group.has-error select:focus,
-.form-group.has-error textarea:focus {
+.form-group.has-error textarea:focus,
+.form-group.has-error .checkbox-group:focus-within {
     border-color: #ff4d4f;
     box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
 }
@@ -259,4 +259,73 @@
 .btn-submit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* MULTI SELECT CUSTOM STYLES */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 10px 12px;
+    border: 1px solid #aebfd6;
+    border-radius: 4px;
+    background: #fff;
+    min-height: 42px;
+    align-items: center;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.checkbox-group:hover {
+    border-color: #436da5;
+}
+
+.checkbox-group.disabled {
+    background: #eef3fa;
+    cursor: not-allowed;
+    border-color: #aebfd6 !important;
+}
+
+.checkbox-group.disabled .checkbox-item {
+    cursor: not-allowed;
+    color: #666 !important;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 400 !important;
+    color: #333 !important;
+    cursor: pointer;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    cursor: pointer;
+    accent-color: #436da5;
+}
+
+/* READONLY MULTI VALUE TAGS */
+.readonly-multi-value {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.readonly-tag {
+    background: #eef3fa;
+    color: #436da5;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid #d0daf0;
+    display: inline-block;
 }

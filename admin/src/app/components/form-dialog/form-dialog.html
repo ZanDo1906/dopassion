@@ -41,6 +41,7 @@
                             <input [id]="field.name" [type]="field.type" [disabled]="field.disabled || isReadOnly"
                                 [placeholder]="field.placeholder || ''" [class.input-readonly]="isReadOnly"
                                 [formControlName]="field.name"
+                                (input)="onFieldChange(field.name,getInputValue($event))"
                                 (change)="onFieldChange(field.name,getInputValue($event))" />
                         </ng-container>
 
@@ -118,7 +119,7 @@
                             </div>
 
                             <!-- EDIT / ADD MODE -->
-                            <div *ngIf="!isReadOnly" class="checkbox-group">
+                            <div *ngIf="!isReadOnly" class="checkbox-group" [class.disabled]="field.disabled">
 
                                 <label class="checkbox-item" *ngFor="let option of field.options">
 
@@ -141,6 +142,7 @@
                             <textarea [id]="field.name" [disabled]="field.disabled || isReadOnly"
                                 [placeholder]="field.placeholder || ''" [rows]="field.rows || 3"
                                 [class.input-readonly]="isReadOnly" [formControlName]="field.name"
+                                (input)="onFieldChange(field.name,getTextareaValue($event))"
                                 (change)="onFieldChange(field.name,getTextareaValue($event))">
                             </textarea>
 

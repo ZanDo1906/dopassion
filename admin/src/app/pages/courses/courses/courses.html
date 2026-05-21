@@ -34,11 +34,12 @@
                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
                     <td>{{item.maKhoaHoc}}</td>
                     <td>{{item.tenKhoaHoc}}</td>
-                    <td>{{ item.hocPhi | number:'0,0-0' }}</td>
+                    <td>{{ item.hocPhi | number:'1.0-0' }}</td>
                     <td>{{item.moTa || '--'}}</td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
+                            <button class="icon-btn" type="button" (click)="openView(item)"><i
+                                    class="bi bi-eye"></i></button>
                             <button class="icon-btn" type="button" (click)="openEdit(item)"><i
                                     class="bi bi-pencil-square"></i></button>
                         </div>
@@ -80,6 +81,7 @@
     </div>
 </div>
 
-<app-form-dialog *ngIf="isDialogOpen" title="Thêm khóa học" [sections]="dialogSections" [formData]="dialogData"
-    [columns]="2" (close)="closeDialog()" (submit)="onSubmitDialog($event)">
+<app-form-dialog *ngIf="isDialogOpen" [class.hide-submit]="isViewMode" [class.view-only-dialog]="isViewMode"
+    [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData" [columns]="2" [isReadOnly]="isViewMode"
+    (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>

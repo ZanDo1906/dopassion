@@ -29,15 +29,17 @@ export class Courses implements OnInit {
   pageSizeOptions = [10, 20, 50];
 
   isDialogOpen = false;
+  dialogMode: 'add' | 'edit' | 'view' = 'add';
+  dialogTitle: string = 'Thêm khóa học';
   dialogData: any = {};
   dialogSections = [
     {
       title: 'Thông tin Khóa học',
       fields: [
-        { label: 'Mã khóa học', name: 'maKhoaHoc', type: 'text', required: true },
-        { label: 'Tên khóa học', name: 'tenKhoaHoc', type: 'text', required: true },
-        { label: 'Học phí', name: 'hocPhi', type: 'number', required: true },
-        { label: 'Mô tả', name: 'moTa', type: 'text', required: false }
+        { label: 'Mã khóa học', name: 'maKhoaHoc', type: 'text', required: true, disabled: false },
+        { label: 'Tên khóa học', name: 'tenKhoaHoc', type: 'text', required: true, disabled: false },
+        { label: 'Học phí', name: 'hocPhi', type: 'number', required: true, disabled: false },
+        { label: 'Mô tả', name: 'moTa', type: 'text', required: false, disabled: false }
       ]
     }
   ];
@@ -54,32 +56,96 @@ export class Courses implements OnInit {
     });
   }
 
+  get isViewMode(): boolean {
+    return this.dialogMode === 'view';
+  }
+
   openDialog() {
+    this.dialogTitle = 'Thêm khóa học';
+    this.dialogMode = 'add';
+    const codeField = this.dialogSections[0].fields.find(f => f.name === 'maKhoaHoc');
+    if (codeField) (codeField as any).disabled = false;
     this.dialogData = {};
     this.isDialogOpen = true;
   }
 
   closeDialog() {
     this.isDialogOpen = false;
+    this.dialogMode = 'add';
   }
 
   onSubmitDialog(data: any) {
-    // If a course with same Mã khóa học exists, update it; otherwise add new
-    const code = data && data.maKhoaHoc;
-    if (code) {
-      const idx = this.courses.findIndex(c => c.maKhoaHoc === code);
-      if (idx !== -1) {
-        this.courses[idx] = { ...this.courses[idx], ...data };
-      } else {
-        this.courses.push(data);
-      }
+    if (this.dialogMode === 'view') {
+      return;
     }
-    this.isDialogOpen = false;
-    this.cdr.detectChanges();
+
+    if (this.dialogMode === 'add') {
+      const payload: iCourse = {
+        ...data,
+        active: true
+      };
+      this.courseService.addCourse(payload).subscribe({
+        next: (created) => {
+          this.courses.push(created);
+          this.courses = [...this.courses];
+          this.isDialogOpen = false;
+          this.cdr.detectChanges();
+          alert('Thêm khóa học thành công!');
+        },
+        error: (err) => {
+          console.error('Lỗi thêm khóa học:', err);
+          alert('Lỗi thêm khóa học: ' + (err.error?.message || err.message));
+        }
+      });
+      return;
+    }
+
+    if (this.dialogMode === 'edit') {
+      const courseId = this.dialogData?._id || this.courses.find(c => c.maKhoaHoc === data.maKhoaHoc)?._id;
+      if (!courseId) {
+        console.error('Không tìm thấy _id để cập nhật khóa học');
+        alert('Không tìm thấy ID khóa học để cập nhật.');
+        return;
+      }
+      const existing = this.courses.find(c => c._id === courseId || c.maKhoaHoc === data.maKhoaHoc);
+      const payload: Partial<iCourse> = {
+        ...data,
+        active: data.active ?? existing?.active ?? true
+      };
+
+      this.courseService.updateCourse(courseId, payload).subscribe({
+        next: (updated) => {
+          const idx = this.courses.findIndex(c => c._id === courseId || c.maKhoaHoc === updated.maKhoaHoc);
+          if (idx !== -1) {
+            this.courses[idx] = { ...this.courses[idx], ...updated };
+            this.courses = [...this.courses];
+          }
+          this.isDialogOpen = false;
+          this.cdr.detectChanges();
+          alert('Cập nhật khóa học thành công!');
+        },
+        error: (err) => {
+          console.error('Lỗi cập nhật khóa học:', err);
+          alert('Lỗi cập nhật khóa học: ' + (err.error?.message || err.message));
+        }
+      });
+    }
   }
 
   openEdit(item: iCourse) {
-    // Prefill dialogData with a shallow copy of the item
+    this.dialogTitle = 'Sửa khóa học';
+    this.dialogMode = 'edit';
+    const codeField = this.dialogSections[0].fields.find(f => f.name === 'maKhoaHoc');
+    if (codeField) (codeField as any).disabled = true;
+    this.dialogData = { ...item };
+    this.isDialogOpen = true;
+  }
+
+  openView(item: iCourse) {
+    this.dialogTitle = 'Xem khóa học';
+    this.dialogMode = 'view';
+    const codeField = this.dialogSections[0].fields.find(f => f.name === 'maKhoaHoc');
+    if (codeField) (codeField as any).disabled = true;
     this.dialogData = { ...item };
     this.isDialogOpen = true;
   }

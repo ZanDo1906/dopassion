@@ -346,7 +346,12 @@ export class Classes implements OnInit, DoCheck {
       return;
     }
 
-    this.classService.addClass(data as iClass).subscribe({
+    const payload = {
+      ...data,
+      active: true
+    };
+
+    this.classService.addClass(payload as iClass).subscribe({
       next: (created) => {
         this.classes.push(created as iClass);
         this.classes = [...this.classes];
