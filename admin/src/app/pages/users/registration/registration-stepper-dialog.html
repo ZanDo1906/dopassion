@@ -208,6 +208,11 @@
                 <span class="value">{{ cls.chiNhanh }}</span>
               </div>
 
+              <div class="card-row">
+                <span class="label">Khung giờ:</span>
+                <span class="value">{{ cls.khungGio || 'N/A' }}</span>
+              </div>
+
               <div class="card-row highlight">
                 <span class="label">Học phí:</span>
                 <span class="value">{{ getCourseFee(cls.maKhoa) | number:'1.0-0' }} VND</span>

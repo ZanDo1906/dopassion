@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { iClient } from '../interfaces/client';
 import { environment } from '../../environments/environments';
@@ -10,6 +10,8 @@ import { environment } from '../../environments/environments';
 })
 export class Client {
   private apiUrl = `${environment.apiUrl}/client`;
+  private clientsChanged = new Subject<iClient | null>();
+  public clientsChanged$ = this.clientsChanged.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -28,7 +30,16 @@ export class Client {
   }
 
   addClient(data: iClient): Observable<iClient> {
-    return this.http.post<iClient>(this.apiUrl, data);
+    return this.http.post<iClient>(this.apiUrl, data).pipe(
+      tap((created) => {
+        // Notify subscribers that clients changed (new client created)
+        try {
+          this.clientsChanged.next(created);
+        } catch (e) {
+          console.warn('clientsChanged notify failed', e);
+        }
+      })
+    );
   }
 
   updateClient(id: string, data: Partial<iClient>): Observable<iClient> {
