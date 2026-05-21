@@ -4,45 +4,262 @@
     --primary-100: #eef3ff;
     --border: #c7d6f5;
     --surface: #ffffff;
+    --surface-muted: #f8faff;
     --text: #1f3766;
+    --shadow: 0 8px 20px rgba(22, 44, 84, 0.08);
     font-family: 'Work Sans', sans-serif;
+    color: var(--text);
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.filter-card { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
-.filter-header { background: var(--primary-100); padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #dbe4fb; }
-.filter-title { font-weight: 600; font-size: 13px; color: var(--primary-600); display: flex; align-items: center; gap: 8px; }
-.filter-body { padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.filter-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-.filter-field label { font-weight: 600; color: var(--primary-600); }
-.filter-field input, .filter-field select { height: 34px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; outline: none; }
-.filter-actions { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; }
+.page-header {
+    margin-bottom: 12px;
+}
 
-.table-card { background: #ffffff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.role-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.role-table thead th { background: var(--primary-100); color: var(--primary-600); padding: 10px; border-bottom: 1px solid #e2e7f4; }
-.role-table tbody td { padding: 10px; border-bottom: 1px solid #edf1fa; text-align: center; }
+.page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+/* Khối bộ lọc tìm kiếm nâng cao đồng bộ */
+.filter-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.filter-header {
+    background: var(--primary-100);
+    padding: 10px 14px;
+    border-bottom: 1px solid #dbe4fb;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-title {
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-600);
+}
+
+.filter-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.filter-field label {
+    color: var(--primary-600);
+    font-weight: 600;
+}
+
+.filter-field input, .filter-field select {
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+    outline: none;
+    background: var(--surface-muted);
+    color: var(--text);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.filter-field input:focus, .filter-field select:focus {
+    border-color: var(--primary);
+    background: #ffffff;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* Định dạng Button và Table */
+.btn {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 6px 16px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(22, 44, 84, 0.12);
+}
+
+.btn-muted {
+    background: #cfd4df;
+    border-color: #c2c9d6;
+    color: #3b4a66;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.table-card {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.role-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.role-table thead th {
+    background: var(--primary-100);
+    color: var(--primary-600);
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e7f4;
+}
+
+.role-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #edf1fa;
+    text-align: center;
+    color: var(--text);
+    vertical-align: middle;
+}
+
+.role-table tbody tr:nth-child(even) { background: #fafcff; }
 .role-table tbody tr:hover { background: #f2f6ff; }
 
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
-.badge--green { background: #e2f6e7; color: #1d7a37; }
-.badge--orange { background: #fff4e5; color: #c47d1a; }
-.badge--blue { background: #e5f4ff; color: #1a73c4; }
+.col-stt { width: 60px; }
+.col-actions { width: 100px; }
 
-.btn { padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; border: 1px solid transparent; transition: 0.2s; }
-.btn-primary { background: var(--primary); color: white; }
-.btn-outline { background: white; border-color: var(--border); color: var(--primary); }
-.btn-muted { background: #cfd4df; color: #3b4a66; }
-.btn:hover { opacity: 0.8; }
+/* Trạng thái Badge */
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
 
-.icon-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; transition: 0.2s; }
-.icon-btn:hover { background: #f2f6ff; }
-.toolbar { display: flex; gap: 10px; margin: 5px 0; }
-.text-primary { color: var(--primary); }
+.badge--success { background: #e2f6e7; color: #1d7a37; border: 1px solid #bfe8c9; }
+.badge--danger { background: #fde5e5; color: #c03d3d; border: 1px solid #f2bcbc; }
 
-.pagination { display: flex; justify-content: center; align-items: center; gap: 15px; font-size: 12px; margin-top: 5px; }
-.pagination-pages { display: flex; gap: 5px; }
-.page { width: 28px; height: 26px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; background: transparent; }
-.page.active { background: white; border-color: var(--border); font-weight: 600; }
+.action-group { display: flex; justify-content: center; gap: 8px; }
+
+.icon-btn {
+    width: 26px; height: 26px; border: 1px solid var(--border);
+    background: #ffffff; border-radius: 6px; color: var(--primary-600);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-btn:hover { background: #f2f6ff; transform: translateY(-1px); }
+
+/* ================= ĐỒNG BỘ TỐI ƯU MÀU SẮC THEME KHÁCH HÀNG ================= */
+.customer-view-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+}
+
+.customer-view-form .section-title {
+    background: #dde4f0;
+    color: #436da5;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+}
+
+.customer-view-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #436da5;
+}
+
+.form-control {
+    width: 100%;
+    min-height: 2.25rem;
+    border: 1px solid #aebfd6;
+    border-radius: 0.375rem;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    color: #333;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+/* Sửa triệt để thuộc tính màu xám mờ của disabled từ browser */
+.input-readonly {
+    background: #eef3fa !important;
+    color: #1f3766 !important;
+    cursor: not-allowed;
+    opacity: 1 !important;
+}
+
+textarea.form-control {
+    padding: 0.5rem 0.75rem;
+    resize: none;
+}
+
+.customer-view-status-wrap {
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 860px) {
+    .customer-view-row {
+        grid-template-columns: 1fr;
+    }
+}

@@ -133,9 +133,9 @@
 
 /* Ensure error label color when control is invalid and touched - use .has-error fallback if present */
 .form-group.has-error label,
-.form-group input.ng-invalid.ng-touched + label,
-.form-group select.ng-invalid.ng-touched + label,
-.form-group textarea.ng-invalid.ng-touched + label {
+.form-group input.ng-invalid.ng-touched+label,
+.form-group select.ng-invalid.ng-touched+label,
+.form-group textarea.ng-invalid.ng-touched+label {
     color: #ff4d4f;
 }
 
@@ -256,38 +256,7 @@
     background: #f0f5fa;
 }
 
-
-
-
-.readonly-multi-value{
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-min-height:42px;
-align-items:center;
-padding:6px 0;
-}
-
-.readonly-tag{
-background:#e8f0fe;
-color:#2f5da9;
-padding:6px 12px;
-border-radius:20px;
-font-size:14px;
-font-weight:500;
-border:1px solid #b7cdf5;
-}
-
-.checkbox-group{
-display:flex;
-flex-direction:column;
-gap:10px;
-}
-
-.checkbox-item{
-display:flex;
-align-items:center;
-gap:8px;
-font-weight:500;
-color:#2f5da9;
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

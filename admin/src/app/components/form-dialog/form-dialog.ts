@@ -34,6 +34,7 @@ export class FormDialogComponent implements OnChanges {
   @Input() submitBtnClass: string = '';
   @Input() cancelBtnClass: string = '';
   @Input() autoCreateFormGroup: boolean = true;
+  @Input() isViewOnly: boolean = false;
 
   @Output() close = new EventEmitter<void>();
   @Output() submit = new EventEmitter<any>();

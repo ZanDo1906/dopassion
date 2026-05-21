@@ -22,15 +22,12 @@
 
                 <div class="form-grid" [style.--dialog-columns]="section.columns || columns">
 
-                    <div class="form-group"
-                        *ngFor="let field of section.fields"
+                    <div class="form-group" *ngFor="let field of section.fields"
                         [style.grid-column]="'span ' + (field.colspan || 1)"
                         [ngClass]="{'has-error': hasError(field.name)}">
 
                         <!-- LABEL -->
-                        <label *ngIf="!field.hideLabel"
-                            [attr.for]="field.name"
-                            class="field-label">
+                        <label *ngIf="!field.hideLabel" [attr.for]="field.name" class="field-label">
 
                             <span *ngIf="field.required" class="required-star">*</span>
 
@@ -39,33 +36,23 @@
                         </label>
 
                         <!-- INPUT -->
-                        <ng-container *ngIf="['text','number','email','password','date','time','datetime-local','url','tel'].includes(field.type)">
-                            <input
-                                [id]="field.name"
-                                [type]="field.type"
-                                [disabled]="field.disabled || isReadOnly"
-                                [placeholder]="field.placeholder || ''"
-                                [class.input-readonly]="isReadOnly"
+                        <ng-container
+                            *ngIf="['text','number','email','password','date','time','datetime-local','url','tel'].includes(field.type)">
+                            <input [id]="field.name" [type]="field.type" [disabled]="field.disabled || isReadOnly"
+                                [placeholder]="field.placeholder || ''" [class.input-readonly]="isReadOnly"
                                 [formControlName]="field.name"
-                                (change)="onFieldChange(field.name,getInputValue($event))"
-                            />
+                                (change)="onFieldChange(field.name,getInputValue($event))" />
                         </ng-container>
 
                         <!-- CHECKBOX -->
                         <ng-container *ngIf="field.type === 'checkbox'">
                             <div class="checkbox-wrapper">
 
-                                <input
-                                    type="checkbox"
-                                    [id]="field.name"
-                                    [disabled]="field.disabled || isReadOnly"
+                                <input type="checkbox" [id]="field.name" [disabled]="field.disabled || isReadOnly"
                                     [formControlName]="field.name"
-                                    (change)="onFieldChange(field.name,getCheckboxChecked($event))"
-                                />
+                                    (change)="onFieldChange(field.name,getCheckboxChecked($event))" />
 
-                                <label
-                                    [attr.for]="field.name"
-                                    class="checkbox-label">
+                                <label [attr.for]="field.name" class="checkbox-label">
 
                                     {{ field.checkboxLabel || field.label }}
 
@@ -78,17 +65,11 @@
                         <ng-container *ngIf="field.type === 'radio'">
                             <div class="radio-group">
 
-                                <div class="radio-item"
-                                    *ngFor="let option of field.options">
+                                <div class="radio-item" *ngFor="let option of field.options">
 
-                                    <input
-                                        type="radio"
-                                        [id]="field.name + '-' + option.value"
-                                        [value]="option.value"
-                                        [disabled]="field.disabled || isReadOnly"
-                                        [formControlName]="field.name"
-                                        (change)="onFieldChange(field.name,getRadioValue($event))"
-                                    />
+                                    <input type="radio" [id]="field.name + '-' + option.value" [value]="option.value"
+                                        [disabled]="field.disabled || isReadOnly" [formControlName]="field.name"
+                                        (change)="onFieldChange(field.name,getRadioValue($event))" />
 
                                     <label [attr.for]="field.name + '-' + option.value">
                                         {{ option.label }}
@@ -102,9 +83,7 @@
                         <!-- SELECT -->
                         <ng-container *ngIf="field.type === 'select'">
 
-                            <select
-                                [id]="field.name"
-                                [disabled]="field.disabled || isReadOnly"
+                            <select [id]="field.name" [disabled]="field.disabled || isReadOnly"
                                 [formControlName]="field.name"
                                 (change)="onFieldChange(field.name,getSelectValue($event))">
 
@@ -112,9 +91,7 @@
                                     {{ field.placeholder }}
                                 </option>
 
-                                <option
-                                    *ngFor="let option of field.options"
-                                    [value]="option.value">
+                                <option *ngFor="let option of field.options" [value]="option.value">
 
                                     {{ option.label }}
 
@@ -130,9 +107,7 @@
                             <!-- VIEW MODE -->
                             <div *ngIf="isReadOnly" class="readonly-multi-value">
 
-                                <span
-                                    class="readonly-tag"
-                                    *ngFor="let option of field.options">
+                                <span class="readonly-tag" *ngFor="let option of field.options">
 
                                     <ng-container *ngIf="formGroup?.get(field.name)?.value?.includes(option.value)">
                                         {{ option.label }}
@@ -145,16 +120,12 @@
                             <!-- EDIT / ADD MODE -->
                             <div *ngIf="!isReadOnly" class="checkbox-group">
 
-                                <label
-                                    class="checkbox-item"
-                                    *ngFor="let option of field.options">
+                                <label class="checkbox-item" *ngFor="let option of field.options">
 
-                                    <input
-                                        type="checkbox"
+                                    <input type="checkbox"
                                         [checked]="formGroup?.get(field.name)?.value?.includes(option.value)"
                                         [disabled]="field.disabled"
-                                        (change)="onMultiSelectChange(field.name, option.value, $event)"
-                                    />
+                                        (change)="onMultiSelectChange(field.name, option.value, $event)" />
 
                                     {{ option.label }}
 
@@ -167,13 +138,9 @@
                         <!-- TEXTAREA -->
                         <ng-container *ngIf="field.type === 'textarea'">
 
-                            <textarea
-                                [id]="field.name"
-                                [disabled]="field.disabled || isReadOnly"
-                                [placeholder]="field.placeholder || ''"
-                                [rows]="field.rows || 3"
-                                [class.input-readonly]="isReadOnly"
-                                [formControlName]="field.name"
+                            <textarea [id]="field.name" [disabled]="field.disabled || isReadOnly"
+                                [placeholder]="field.placeholder || ''" [rows]="field.rows || 3"
+                                [class.input-readonly]="isReadOnly" [formControlName]="field.name"
                                 (change)="onFieldChange(field.name,getTextareaValue($event))">
                             </textarea>
 
@@ -182,44 +149,32 @@
                         <!-- FILE -->
                         <ng-container *ngIf="field.type === 'file'">
 
-                            <input
-                                type="file"
-                                [id]="field.name"
-                                [disabled]="field.disabled || isReadOnly"
-                                [accept]="field.accept || null"
-                                [multiple]="field.multiple ? true : null"
+                            <input type="file" [id]="field.name" [disabled]="field.disabled || isReadOnly"
+                                [accept]="field.accept || null" [multiple]="field.multiple ? true : null"
                                 [formControlName]="field.name"
-                                (change)="onFieldChange(field.name,getFileList($event))"
-                            />
+                                (change)="onFieldChange(field.name,getFileList($event))" />
 
                         </ng-container>
 
                         <!-- COLOR -->
                         <ng-container *ngIf="field.type === 'color'">
 
-                            <input
-                                type="color"
-                                [id]="field.name"
-                                [disabled]="field.disabled || isReadOnly"
+                            <input type="color" [id]="field.name" [disabled]="field.disabled || isReadOnly"
                                 [formControlName]="field.name"
-                                (change)="onFieldChange(field.name,getInputValue($event))"
-                            />
+                                (change)="onFieldChange(field.name,getInputValue($event))" />
 
                         </ng-container>
 
                         <!-- CUSTOM TEMPLATE -->
                         <ng-container *ngIf="field.customTemplate">
 
-                            <ng-container
-                                *ngTemplateOutlet="field.customTemplate;context:{field,formGroup}">
+                            <ng-container *ngTemplateOutlet="field.customTemplate;context:{field,formGroup}">
                             </ng-container>
 
                         </ng-container>
 
                         <!-- ERROR -->
-                        <div
-                            class="error-message"
-                            *ngIf="showErrors && getFieldError(field.name)">
+                        <div class="error-message" *ngIf="showErrors && getFieldError(field.name)">
 
                             {{ getFieldError(field.name) }}
 
@@ -236,11 +191,7 @@
         <!-- FOOTER -->
         <div class="dialog-footer">
 
-            <button
-                class="btn-cancel"
-                [ngClass]="cancelBtnClass"
-                type="button"
-                (click)="close.emit()">
+            <button class="btn-cancel" [ngClass]="cancelBtnClass" type="button" (click)="close.emit()">
 
                 <i [class]="cancelIcon"></i>
 
@@ -248,16 +199,9 @@
 
             </button>
 
-            <button
-                class="btn-submit"
-                [ngClass]="submitBtnClass"
-                type="button"
-                (click)="onSubmit()">
-
-                <i [class]="submitIcon"></i>
-
-                {{ submitText }}
-
+            <button class="btn-submit" [ngClass]="submitBtnClass" type="button" (click)="onSubmit()"
+                *ngIf="!isViewOnly">
+                <i [class]="submitIcon"></i> {{ submitText }}
             </button>
 
         </div>
