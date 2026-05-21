@@ -159,6 +159,7 @@ export class Debt {
     classCode: '',
     branch: '',
     courseCode: '',
+    status: ''
   };
 
   constructor(
@@ -247,18 +248,15 @@ export class Debt {
     this.courseService.getCourse().subscribe({
 
       next: (items: any[]) => {
+              console.log(items);
+
 
         this.courses = items.map((item) => ({
-
-          maKhoaHoc: item['Mã khóa học'],
-
-          tenKhoaHoc: item['Tên khóa học'],
-
-          hocPhi: item['Học phí'],
-
-          moTa: item['Mô tả']
-
-        }));
+        maKhoaHoc: item.maKhoaHoc,
+        tenKhoaHoc: item.tenKhoaHoc,
+        hocPhi: item.hocPhi,
+        moTa: item.moTa
+      }));
 
       },
 
@@ -277,95 +275,107 @@ export class Debt {
 
   applyFilter() {
 
-    this.currentPage = 1;
+  this.currentPage = 1;
 
-    const registration =
-      this.filters.registrationCode
-        .trim()
-        .toLowerCase();
+  const registration =
+    this.filters.registrationCode
+      .trim()
+      .toLowerCase();
 
-    const customer =
-      this.filters.customerCode
-        .trim()
-        .toLowerCase();
+  const customer =
+    this.filters.customerCode
+      .trim()
+      .toLowerCase();
 
-    const classCode =
-      this.filters.classCode
-        .trim()
-        .toLowerCase();
+  const classCode =
+    this.filters.classCode
+      .trim()
+      .toLowerCase();
 
-    const branch =
-      this.filters.branch
-        .trim()
-        .toLowerCase();
+  const branch =
+    this.filters.branch
+      .trim()
+      .toLowerCase();
 
-    const courseCode =
-      this.filters.courseCode
-        .trim()
-        .toLowerCase();
+  const courseCode =
+    this.filters.courseCode
+      .trim()
+      .toLowerCase();
 
-    this.filteredPayments = this.payments.filter((item) => {
+  const status =
+  this.filters.status
+    .trim()
+    .toLowerCase();
+
+  this.filteredPayments =
+    this.payments.filter((item) => {
 
       const matchesRegistration =
         registration
           ? item.maDangKy
-            .toLowerCase()
-            .includes(registration)
+              ?.toLowerCase()
+              .includes(registration)
           : true;
 
       const matchesCustomer =
         customer
           ? item.maKH
-            .toLowerCase()
-            .includes(customer)
+              ?.toLowerCase()
+              .includes(customer)
           : true;
 
       const matchesClass =
         classCode
           ? item.maLop
-            .toLowerCase()
-            .includes(classCode)
+              ?.toLowerCase()
+              .includes(classCode)
           : true;
 
       const matchesBranch =
         branch
           ? item.chiNhanh
-            .toLowerCase()
-            .includes(branch)
+              ?.toLowerCase()
+              .includes(branch)
           : true;
 
       const matchesCourse =
         courseCode
           ? item.khoaHoc
-            .toLowerCase()
-            .includes(courseCode)
+              ?.toLowerCase()
+              .includes(courseCode)
+          : true;
+
+      const matchesStatus =
+        status
+          ? item.trangThai
+              ?.toLowerCase()
+              .includes(status)
           : true;
 
       return (
+
         matchesRegistration &&
         matchesCustomer &&
         matchesClass &&
         matchesBranch &&
-        matchesCourse
+        matchesCourse &&
+        matchesStatus
+
       );
 
     });
 
-  }
+}
 
   clearFilters() {
 
     this.filters = {
-
       registrationCode: '',
-
       customerCode: '',
-
       classCode: '',
-
       branch: '',
-
       courseCode: '',
+      status: '',
 
     };
 

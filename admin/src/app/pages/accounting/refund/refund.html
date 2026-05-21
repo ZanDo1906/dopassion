@@ -104,15 +104,15 @@
                         -- Chọn chi nhánh --
                     </option>
 
-                    <option value="CN001">
+                    <option value="CN1">
                         Chi nhánh 1
                     </option>
 
-                    <option value="CN002">
+                    <option value="CN2">
                         Chi nhánh 2
                     </option>
 
-                    <option value="CN003">
+                    <option value="CN3">
                         Chi nhánh 3
                     </option>
 
@@ -383,6 +383,7 @@
                                     type="button"
                                     title="Từ chối hoàn tiền"
                                     style="color:red;"
+                                    (click)="openRejectDialog(item)"
                                 >
 
                                     <i class="bi bi-x-circle"></i>
@@ -493,7 +494,7 @@
 
 <app-form-dialog
     *ngIf="showDetailDialog"
-    class="hide-submit"
+    [class.hide-submit]="dialogMode === 'view'"
     [title]="
         dialogMode === 'view'
             ? 'CHI TIẾT HOÀN TIỀN'
@@ -503,5 +504,19 @@
     [columns]="3"
     [formGroup]="detailForm"
     [isReadOnly]="dialogMode === 'view'"
-    (close)="closeDialog()">
+    [submitText]="dialogMode === 'approve' ? 'Lưu' : 'Đóng'"
+    (close)="closeDialog()"
+    (submit)="saveApproveRefund()">
+</app-form-dialog>
+<app-form-dialog
+    *ngIf="showRejectDialog"
+    [title]="'TỪ CHỐI HOÀN TIỀN'"
+    [sections]="rejectDialogSections"
+    [formGroup]="rejectForm"
+    [columns]="1"
+    [autoCreateFormGroup]="false"
+    submitText="Lưu"
+    cancelText="Thoát"
+    (close)="closeRejectDialog()"
+    (submit)="saveRejectRefund()">
 </app-form-dialog>

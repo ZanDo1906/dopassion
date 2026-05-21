@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-form-dialog',
@@ -8,7 +9,8 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angul
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgSelectModule
   ],
   templateUrl: './form-dialog.html',
   styleUrls: ['./form-dialog.css']
@@ -183,6 +185,30 @@ export class FormDialogComponent implements OnChanges {
     return (event.target as HTMLInputElement).files ?? null;
   }
 
+  onMultiSelectChange(fieldName: string, value: any, event: Event): void {
+
+  if (!this.formGroup) return;
+
+  const checked = (event.target as HTMLInputElement).checked;
+
+  const control = this.formGroup.get(fieldName);
+
+  let currentValues = control?.value || [];
+
+  if (!Array.isArray(currentValues)) {
+    currentValues = [];
+  }
+
+  if (checked) {
+    currentValues = [...currentValues, value];
+  } else {
+    currentValues = currentValues.filter((x: any) => x !== value);
+  }
+
+  control?.setValue(currentValues);
+
+  this.onFieldChange(fieldName, currentValues);
+}
 }
 
 export { FormDialogComponent as GridFormDialog };

@@ -4,10 +4,10 @@ import { Router } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { Staff } from '../../services/staff';
 import { iStaff } from '../../interfaces/staff';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule, NgIf, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

@@ -1,1 +1,62 @@
-<p>setting works!</p>
+<div class="config-page">
+
+    <div class="page-header">
+
+        <button class="btn-save">
+            <i class="bi bi-floppy"></i>
+            Lưu
+        </button>
+
+    </div>
+
+    <div class="config-table-wrapper">
+
+        <table class="config-table">
+
+            <thead>
+                <tr>
+                    <th class="col-stt">STT</th>
+                    <th class="col-name">Tên thiết lập</th>
+                    <th class="col-value">Thông số</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let item of configData; let i = index">
+
+                    <td>
+                        {{ i + 1 }}
+                    </td>
+
+                    <td>
+                        {{ item.tenThietLap }}
+                    </td>
+
+                    <td>
+
+                        <div class="value-group">
+
+                            <input
+                                type="number"
+                                class="value-input"
+                                [(ngModel)]="item.giaTri"
+                            />
+
+                            <span class="unit">
+                                {{ item.donVi }}
+                            </span>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

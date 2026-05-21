@@ -362,3 +362,7 @@ thead th.sticky-action {
     background: var(--primary-100);
     z-index: 6;
 }
+
+.hide-submit ::ng-deep .btn-submit{
+    display: none !important;
+}

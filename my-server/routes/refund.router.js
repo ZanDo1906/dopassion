@@ -6,8 +6,12 @@ const Refund = require('../models/refund');
 // GET all
 router.get('/', async (req, res) => {
     try {
-        const data = await Refund.find();
-        res.status(200).json(data);
+        const data = await Refund.find().lean();
+        const formattedData = data.map(item => ({
+            ...item,
+            _id: item._id.toString()
+        }));
+        res.status(200).json(formattedData);
     } catch (error) {
         res.status(500).json({
             message: error.message

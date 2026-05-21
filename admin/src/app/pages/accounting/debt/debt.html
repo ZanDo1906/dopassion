@@ -14,22 +14,34 @@
         >
             <div class="filter-field">
                 <label for="role-code">Mã Đăng ký</label>
-                <input id="role-code" type="text" />
+
+                <input
+                    id="role-code"
+                    type="text"
+                    name="registrationCode"
+                    [(ngModel)]="filters.registrationCode"
+                />
             </div>
+
             <div class="filter-field">
                 <label for="role-name">Mã Khách hàng</label>
-                <input id="role-name" type="text" />
+
+                <input
+                    id="role-name"
+                    type="text"
+                    name="customerCode"
+                    [(ngModel)]="filters.customerCode"
+                />
             </div>
+
             <div class="filter-field">
                 <label for="role-name">Mã Khóa học</label>
-                
 
-                <select id="role-name">
-
-                    <option value="">
-                        -- Chọn mã khóa học --
-                    </option>
-
+                <select
+                    id="role-name"
+                    name="courseCode"
+                    [(ngModel)]="filters.courseCode"
+                >
                     <option
                         *ngFor="let course of courses"
                         [value]="course.maKhoaHoc"
@@ -38,32 +50,86 @@
                     </option>
 
                 </select>
-            
-
             </div>
+
             <div class="filter-field">
                 <label for="role-name">Mã Lớp</label>
-                <input id="role-name" type="text" />
+
+                <input
+                    id="role-name"
+                    type="text"
+                    name="classCode"
+                    [(ngModel)]="filters.classCode"
+                />
             </div>
+
             <div class="filter-field">
                 <label for="role-name">Chi nhánh</label>
-                <select id="role-name">
-                    <option value="">-- Chọn chi nhánh --</option>
-                    <option value="CN001">Chi nhánh 1</option>
-                    <option value="CN002">Chi nhánh 2</option>
-                    <option value="CN003">Chi nhánh 3</option>
+
+                <select
+                    id="role-name"
+                    name="branch"
+                    [(ngModel)]="filters.branch"
+                >
+
+                    <option value="CN1">
+                        Chi nhánh 1
+                    </option>
+
+                    <option value="CN2">
+                        Chi nhánh 2
+                    </option>
+
+                    <option value="CN3">
+                        Chi nhánh 3
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="filter-field">
+
+                <label for="status">
+                    Trạng thái
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                    [(ngModel)]="filters.status"
+                >
+                    <option value="Đã thanh toán">
+                        Đã thanh toán
+                    </option>
+                    <option value="Đã thanh toán một phần">
+                        Đã thanh toán một phần
+                    </option>
+                    <option value="Chưa thanh toán">
+                        Chưa thanh toán
+                    </option>
                 </select>
             </div>
 
             <div class="filter-actions">
-                <button class="btn btn-muted" type="button">
+
+                <button
+                    class="btn btn-muted"
+                    type="button"
+                    (click)="clearFilters()"
+                >
                     <i class="bi bi-x-circle"></i>
                     Xóa bộ lọc
                 </button>
-                <button class="btn btn-primary" type="button">
+
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    (click)="applyFilter()"
+                >
                     <i class="bi bi-search"></i>
                     Tìm kiếm
                 </button>
+
             </div>
         </div>
     </section>
