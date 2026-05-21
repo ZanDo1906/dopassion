@@ -37,7 +37,7 @@
                         <span 
                             class="badge"
                             [ngClass]="{
-                                'badge--success': customer.trangThai === 'Đang học',
+                                'badge--success': customer.trangThai === 'Đang học' || customer.trangThai === 'Đã đăng ký khóa',
                                 'badge--danger': customer.trangThai === 'Đã khóa',
                                 'badge--warning': customer.trangThai === 'Chưa đăng ký khóa',
                                 'badge--info': customer.trangThai === 'Đã hoàn thành'
@@ -140,7 +140,7 @@
                         <span
                             class="badge"
                             [ngClass]="{
-                                'badge--success': detailForm.get('Trạng thái')?.value === 'Đang học',
+                                'badge--success': detailForm.get('Trạng thái')?.value === 'Đang học' || detailForm.get('Trạng thái')?.value === 'Đã đăng ký khóa',
                                 'badge--danger': detailForm.get('Trạng thái')?.value === 'Đã khóa',
                                 'badge--warning': detailForm.get('Trạng thái')?.value === 'Chưa đăng ký khóa',
                                 'badge--info': detailForm.get('Trạng thái')?.value === 'Đã hoàn thành'

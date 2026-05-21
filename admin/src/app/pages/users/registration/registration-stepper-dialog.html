@@ -50,7 +50,7 @@
               class="search-input"
               [(ngModel)]="searchQuery"
               placeholder="Tìm kiếm theo SĐT hoặc Email"
-              (keyup.enter)="searchCustomer()"
+                (keydown.enter)="$event.preventDefault(); searchCustomer()"
             />
             <button type="button" class="search-btn" (click)="searchCustomer()">
               <i class="bi bi-search"></i> Tìm kiếm
@@ -83,7 +83,7 @@
 
         <!-- Customer Form (using form-dialog logic) -->
         <div class="customer-form-wrapper" *ngIf="customerForm">
-          <form [formGroup]="customerForm" class="customer-form">
+          <form [formGroup]="customerForm" class="customer-form" (keydown.enter)="$event.preventDefault()">
             <div class="form-grid">
               <!-- Tên Khách Hàng -->
               <div class="form-group">
@@ -123,7 +123,7 @@
 
               <!-- Giới Tính -->
               <div class="form-group">
-                <label for="gioiTinh">Giới tính</label>
+                <label for="gioiTinh">Giới tính <span class="required">*</span></label>
                 <select
                   id="gioiTinh"
                   class="form-control"
@@ -138,7 +138,7 @@
 
               <!-- Ngày Sinh -->
               <div class="form-group">
-                <label for="ngaySinh">Ngày sinh</label>
+                <label for="ngaySinh">Ngày sinh <span class="required">*</span></label>
                 <input
                   id="ngaySinh"
                   type="date"
@@ -329,7 +329,8 @@
           type="button"
           class="btn btn-primary"
           *ngIf="currentStep < 3"
-          (click)="currentStep === 1 ? proceedToStep2() : proceedToStep3()"
+            (click)="onNextClick()"
+            [disabled]="isLoading || (currentStep === 1 && !selectedCustomer && (!customerForm || !customerForm.get('tenKhachHang')?.value || !customerForm.get('sdt')?.value || !customerForm.get('email')?.value || !customerForm.get('gioiTinh')?.value || !customerForm.get('ngaySinh')?.value))"
         >
           <i class="bi bi-chevron-right"></i>
           {{ currentStep === 1 ? 'Tiếp tục' : 'Tiếp tục' }}
