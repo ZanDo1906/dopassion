@@ -132,6 +132,10 @@ export const routes: Routes = [
     },
     {
         path: 'setting',
-        loadComponent: () => import('./pages/setting/setting').then(m => m.Setting)
+        loadComponent: () => import('./pages/setting/setting/setting').then(m => m.Setting)
+    },
+    {
+        path: 'permissions',
+        loadComponent: () => import('./pages/setting/permissions/permissions').then(m => m.Permissions)
     }
 ];

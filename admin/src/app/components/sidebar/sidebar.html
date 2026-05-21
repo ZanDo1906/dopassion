@@ -94,12 +94,20 @@
             </div>
         </div>
 
-        <a class="nav-item" routerLink="/setting" routerLinkActive="active">
-            <span class="nav-icon">
-                <i class="bi bi-gear"></i>
-            </span>
-            <span class="nav-label">Cấu hình</span>
-        </a>
+        <div class="nav-group">
+            <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('setting')"
+                [attr.aria-expanded]="isOpen('setting')" aria-controls="nav-setting">
+                <span class="nav-icon">
+                    <i class="bi bi-gear"></i>
+                </span>
+                <span class="nav-label">Cài đặt</span>
+                <span class="nav-caret" [class.nav-caret--open]="isOpen('setting')">▾</span>
+            </button>
+            <div class="nav-sub" id="nav-setting" *ngIf="isOpen('setting')">
+                <a class="nav-sub-item" routerLink="/setting" routerLinkActive="active">Cấu hình</a>
+                <a class="nav-sub-item" routerLink="/permissions" routerLinkActive="active">Phân quyền</a>
+            </div>
+        </div>
 
         <a class="nav-item logout-btn" (click)="logout()">
             <span class="nav-icon">
