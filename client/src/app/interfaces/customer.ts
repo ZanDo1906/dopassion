@@ -1,4 +1,4 @@
-export interface iClient {
+export interface iCustomer {
     _id?: string;
     stt: number;
     maKh: string;
