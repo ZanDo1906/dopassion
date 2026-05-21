@@ -149,3 +149,7 @@
         height: 40px;
     }
 }
+
+.nav-item.active {
+    color: #1e3a8a;
+}

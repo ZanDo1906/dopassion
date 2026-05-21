@@ -118,7 +118,6 @@
     cursor: not-allowed;
 }
 
-/* Note: required-star class handles red asterisk coloring */
 
 /* Style invalid controls (Angular adds ng-invalid and ng-touched) */
 .form-group input:not([type="checkbox"]):not([type="radio"]).ng-invalid.ng-touched,

@@ -8,4 +8,20 @@ import { Component } from '@angular/core';
 })
 export class HomePage {
 
+  currentSlide = 0;
+
+  nextSlide(): void {
+    const maxSlide = 1;
+
+    if (this.currentSlide < maxSlide) {
+      this.currentSlide++;
+    }
+  }
+
+  prevSlide(): void {
+    if (this.currentSlide > 0) {
+      this.currentSlide--;
+    }
+  }
+
 }

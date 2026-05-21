@@ -70,7 +70,7 @@
                 <div class="line-long"></div>
             </div>
             <p class="about-desc">
-                Với hơn một thập kỷ tận tâm trong ngành giáo dục, Anh Ng. ĐÔNG TRƯỜNG (DoPassion) đã khẳng định vị thế
+                Với hơn một thập kỷ tận tâm trong ngành giáo dục, Anh TRẦN QUANG ĐỘ (DoPassion) đã khẳng định vị thế
                 là
                 địa chỉ đào tạo TOEIC 4 kỹ năng hàng đầu tại khu vực Thủ Đức và Quận 9, nơi mỗi học viên không chỉ đến
                 để học mà còn để được truyền ngọn lửa đam mê ngôn ngữ. Suốt 10 năm qua, chúng tôi kiên định với phương
@@ -235,6 +235,13 @@
                 </div>
             </div>
         </div>
+        <!-- NÚT XEM THÊM -->
+            <div class="class-more">
+                <a href="/classes" class="class-more-btn">
+                    Xem thêm
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
     </div>
 </section>
 
@@ -243,33 +250,80 @@
     <div class="lecturers-container">
         <h2 class="lecturers-title">ĐỘI NGŨ GIẢNG VIÊN</h2>
 
-        <div class="lecturers-grid">
-            <!-- Lecturer 1 -->
-            <div class="lecturer-card">
-                <div class="lecturer-avatar">
-                    <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+        <div class="lecturers-slider-wrapper">
+
+            <!-- Button Left -->
+            <button class="slider-btn prev-btn" (click)="prevSlide()">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <!-- Slider -->
+            <div class="lecturers-slider">
+
+                <div
+                    class="lecturers-track"
+                    [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
+
+                    <!-- Lecturer 1 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-avatar">
+                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        </div>
+
+                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
+
+                        <p class="lecturer-desc">
+                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
+                        </p>
+                    </div>
+
+                    <!-- Lecturer 2 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-avatar">
+                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        </div>
+
+                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
+
+                        <p class="lecturer-desc">
+                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
+                        </p>
+                    </div>
+
+                    <!-- Lecturer 3 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-avatar">
+                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        </div>
+
+                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
+
+                        <p class="lecturer-desc">
+                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
+                        </p>
+                    </div>
+
+                    <!-- Lecturer 4 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-avatar">
+                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        </div>
+
+                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
+
+                        <p class="lecturer-desc">
+                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
+                        </p>
+                    </div>
+
                 </div>
-                <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-                <p class="lecturer-desc">IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate</p>
             </div>
 
-            <!-- Lecturer 2 -->
-            <div class="lecturer-card">
-                <div class="lecturer-avatar">
-                    <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
-                </div>
-                <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-                <p class="lecturer-desc">IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate</p>
-            </div>
+            <!-- Button Right -->
+            <button class="slider-btn next-btn" (click)="nextSlide()">
+                <i class="bi bi-chevron-right"></i>
+            </button>
 
-            <!-- Lecturer 3 -->
-            <div class="lecturer-card">
-                <div class="lecturer-avatar">
-                    <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
-                </div>
-                <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-                <p class="lecturer-desc">IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate</p>
-            </div>
         </div>
     </div>
 </section>
@@ -289,77 +343,77 @@
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        CẬP NHẬT LỊCH KHAI GIẢNG THÁNG 6 - 7/2026
                     </p>
                 </div>
             </a>
 
             <!-- News Card 2 -->
-            <a class="news-card" href="#">
+            <a class="news-card" href="https://www.facebook.com/share/p/1DytYTsD24/">
                 <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/689863774_1522537879882976_5659284541431969100_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGB7ilYbQMv_eU63znWDz1h3daMCu8wv9nd1owK7zC_2crjszvqH0FkyEBO1QbfN8pQ0Wm8N9bt5kI89ADR5XPE&_nc_ohc=sIH6NtFYAc4Q7kNvwH1MiSt&_nc_oc=Adrj3pH1fj5wJCmxthLv96XfeGbt212NP0NVHkEBNsdqp9jMubNCyL1DHNHDhcm1FOU&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=wbL6fZfW7IJdNtsVgidzJg&_nc_ss=7c2a8&oh=00_Af6u72dDcGTIokoEag23p2i8o_dsz9DVj3RtD-fgRkvtmg&oe=6A149098"
                     alt="Tin tức"
                     class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        KHỞI ĐỘNG SAU LỄ 30/4 - 1/5
                     </p>
                 </div>
             </a>
 
             <!-- News Card 3 -->
-            <a class="news-card" href="#">
+            <a class="news-card" href="https://www.facebook.com/share/p/18fQE9N82K/">
                 <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.30808-6/669588199_1500578335412264_3736170642815399833_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFkqNOSGMtSuSHxDAW7s_tYbnRGCjNFkphudEYKM0WSmIEIYYHlnGNO_lmU4jPAKn0TzHYw6ZGTknf7fJTtvOyV&_nc_ohc=kaCPPGnsYfwQ7kNvwG-i9yc&_nc_oc=AdqgvyhwY4FJZD7UyLfHLjZd0rIweu6ZjX7Zs6415Xh_iOY4wa_3QQG0soD9N9aso88&_nc_zt=23&_nc_ht=scontent.fsgn5-9.fna&_nc_gid=-bvh43Sf7Oxxahigey6YQg&_nc_ss=7c2a8&oh=00_Af7oW7EvEosL-P6qne7mTqXIzKQR4nBJ80Q_UJaV29uCJA&oe=6A14AA05"
                     alt="Tin tức"
                     class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        KHAI GIẢNG LỚP TOEIC THÁNG 4 CÙNG DOPASSION
                     </p>
                 </div>
             </a>
 
             <!-- News Card 4 -->
-            <a class="news-card" href="#">
+            <a class="news-card" href="https://www.facebook.com/share/p/1TL1zJgzzN/">
                 <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    src="https://scontent.fsgn5-13.fna.fbcdn.net/v/t39.30808-6/660489614_1488560836614014_553396693677481457_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHbw9eor8xVVwf7wrRIjuYZBvLVfg9SLisG8tV-D1IuK7ymBEKYl9iXAepaAk2kLjsWmrVxsWLNZ8imu0OVi7CJ&_nc_ohc=gbgMESoY-rUQ7kNvwEyhIM2&_nc_oc=Ado6M4QfJH5RgwwCQ4LhbZuITxd7XM67m5ufX0jWIBdZtSy45QLAmmaBNq1BJNYuuqE&_nc_zt=23&_nc_ht=scontent.fsgn5-13.fna&_nc_gid=07fuxGBPMKSXWjoSJykm6w&_nc_ss=7c2a8&oh=00_Af4Egs9PgYuBrFPCMwZ0ssv4RfquoKbJrCAoafWO_PivXQ&oe=6A14B65D"
                     alt="Tin tức"
                     class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        BẢNG ĐIỂM HỌC VIÊN - THÁNG 3/2026
                     </p>
                 </div>
             </a>
 
             <!-- News Card 5 -->
-            <a class="news-card" href="#">
+            <a class="news-card" href="https://www.facebook.com/share/p/18sYaBnwQH/">
                 <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/654721375_1478189170984514_8048325110111098782_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEc0Ktb80Qj3U_2xF25-djuR9jZVtWPa9hH2NlW1Y9r2PzHcmKBYzEB-yL4FREL7IpaB9XFb9ZnVfZIB-SfLl2L&_nc_ohc=6rPiDA4v1toQ7kNvwHFtszL&_nc_oc=AdrSnouHahLhwIIr5V3md6c-6jq3f0fjIZFVC2Sd-3CpX9j4iReVc-jBJNv0yJNrQBs&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af4oW_6HyJPgNKmKuwWxnvELk1Y4Faa49MgUQ5onUkE8zg&oe=6A149E47"
                     alt="Tin tức"
                     class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        KHAI GIẢNG LỚP TOEIC NGHE - ĐỌC
                     </p>
                 </div>
             </a>
 
             <!-- News Card 6 -->
-            <a class="news-card" href="#">
+            <a class="news-card" href="https://www.facebook.com/share/p/1BLuvSjECY/">
                 <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                    src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/650143571_1476744934462271_3759957533388563366_n.jpg?stp=dst-jpg_p552x414_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH_u7vAELyE6dAaUE2A8NdAKRfqoA3Rv0cpF-qgDdG_R14JLGZSDqFGUTkwb8zapoR6RbeBZoF6XbbEwhNaHywi&_nc_ohc=qIJm6oChvhwQ7kNvwHVe0cR&_nc_oc=Adpg0w09ZxqqOMQiFUgFX1wq93qaMpxH_NWwyfcIzyaZr72DqKD31VTgGZIWpCpFS6s&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af6fU4lvRKP6-dBMOnsZQZ7MGxzZ5_C9oubgHGesOIJAPQ&oe=6A14B214"
                     alt="Tin tức"
                     class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
-                        THI THỬ TOEIC – DẤU ẤN ĐỒNG HÀNH CÙNG ĐẠI HỌC KINH TẾ - LUẬT
+                        BÍ KIẾP CHINH PHỤC TOEIC PART 7
                     </p>
                 </div>
             </a>
@@ -377,7 +431,13 @@
         </div>
         <div class="consult-actions">
             <button class="consult-btn consult-call">Gọi ngay</button>
-            <button class="consult-btn consult-chat">Chat Messenger / Zalo</button>
+            <a
+                href="https://www.facebook.com/DoPassionToeic4kynang"
+                target="_blank"
+                class="consult-btn consult-chat"
+            >
+                Chat Messenger
+            </a>
         </div>
     </div>
 </section>
