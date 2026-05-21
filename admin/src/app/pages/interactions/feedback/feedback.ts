@@ -2,30 +2,65 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Feedback as FeedbackService } from '../../../services/feedback';
-import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
+import { PaginationComponent } from '../../../components/pagination/pagination';
+import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 
 @Component({
   selector: 'app-feedback',
   standalone: true,
-  imports: [CommonModule, FormsModule, GridFormDialog],
+  imports: [CommonModule, FormsModule, FormDialogComponent, PaginationComponent, FilterDataPicker],
   templateUrl: './feedback.html',
   styleUrl: './feedback.css',
 })
 export class Feedback implements OnInit {
-  isFilterOpen = true;
   loading = true;
 
   feedbacks: any[] = [];
   filteredFeedbacks: any[] = [];
+  paginatedFeedbacks: any[] = []; 
 
-  // Phân trang
+  selectedFeedback: any = null;
+  isDialogOpen = false;
+
   currentPage = 1;
   itemsPerPage = 10;
-  pageSizeOptions = [10, 20, 50];
+  pageSizeOptions = [5, 10, 20, 50];
 
-  // Logic Popup
-  isDialogOpen = false;
-  dialogSections: any[] = [];
+  filterValues: Record<string, any> = {};
+  filterConfig: FilterConfig[] = [
+    {
+      key: 'maDanhGia',
+      label: 'Mã đánh giá',
+      type: 'text'
+    },
+    {
+      key: 'lopHoc',
+      label: 'Lớp học',
+      type: 'text'
+    },
+    {
+      key: 'soSao',
+      label: 'Số sao',
+      type: 'select',
+      options: [
+        { value: 5, label: '5 Sao' },
+        { value: 4, label: '4 Sao' },
+        { value: 3, label: '3 Sao' },
+        { value: 2, label: '2 Sao' },
+        { value: 1, label: '1 Sao' }
+      ]
+    },
+    {
+      key: 'trangThai',
+      label: 'Trạng thái',
+      type: 'select',
+      options: [
+        { value: 'Chưa ẩn', label: 'Chưa ẩn' },
+        { value: 'Đã ẩn', label: 'Đã ẩn' }
+      ]
+    }
+  ];
 
   constructor(private feedbackService: FeedbackService) { }
 
@@ -34,10 +69,10 @@ export class Feedback implements OnInit {
   }
 
   loadFeedbacks() {
+    this.loading = true;
     this.feedbackService.getFeedback().subscribe({
       next: (data: any[]) => {
         this.feedbacks = data.map((item, index) => {
-          // Xử lý Ngày đánh giá (Từ "2026-05-20 00:00:00" -> "20/05/2026")
           let parsedDate = item.ngayDanhGia;
           if (parsedDate && parsedDate.includes(' ')) {
             const datePart = parsedDate.split(' ')[0];
@@ -48,6 +83,7 @@ export class Feedback implements OnInit {
           }
 
           return {
+            _id: item._id, 
             stt: item.stt || index + 1,
             maDanhGia: item.maDanhGia,
             maDangKy: item.maDangKy,
@@ -56,100 +92,118 @@ export class Feedback implements OnInit {
             noiDung: item.noiDungDanhGia,
             soSao: item.soSao || 5,
             ngayDanhGia: parsedDate,
-            trangThai: item.trangThai || 'Chờ duyệt'
+            trangThai: (item.trangThai === 'Từ chối' || item.trangThai === 'Đã ẩn') ? 'Đã ẩn' : 'Chưa ẩn'
           };
         });
         this.filteredFeedbacks = [...this.feedbacks];
+        this.currentPage = 1;
+        this.updatePaginatedFeedbacks();
         this.loading = false;
       },
       error: (error) => {
-        console.error('Không thể tải dữ liệu feedback.json', error);
+        console.error('Không thể tải dữ liệu feedback từ Server:', error);
         this.loading = false;
       }
     });
   }
 
-  toggleFilter() {
-    this.isFilterOpen = !this.isFilterOpen;
+  handleSearch(filterValues: any): void {
+    this.filterValues = { ...filterValues };
+    this.currentPage = 1;
+    this.applyFilter();
   }
 
-  // Mở Popup Chi tiết (Giống định dạng 3 mục)
-  openDetailDialog(item: any) {
-    this.isDialogOpen = true;
+  applyFilter(): void {
+    this.filteredFeedbacks = this.feedbacks.filter(item => {
+      return Object.keys(this.filterValues).every(key => {
+        const filterValue = this.filterValues[key];
+        if (filterValue === null || filterValue === undefined || filterValue === '') {
+          return true;
+        }
 
-    this.dialogSections = [
-      {
-        title: 'I. Thông tin chung',
-        fields: [
-          { label: 'Mã đánh giá', name: 'maDanhGia', type: 'text', value: item.maDanhGia, disabled: true },
-          { label: 'Mã đăng ký', name: 'maDangKy', type: 'text', value: item.maDangKy, disabled: true },
-          { label: 'Học viên', name: 'khachHang', type: 'text', value: item.khachHang, disabled: true },
-          { label: 'Lớp học', name: 'lopHoc', type: 'text', value: item.lopHoc, disabled: true },
-          { label: 'Ngày đánh giá', name: 'ngayDanhGia', type: 'text', value: item.ngayDanhGia, disabled: true },
-          { label: 'Số sao', name: 'soSao', type: 'text', value: `${item.soSao} Sao`, disabled: true },
-          { label: 'Trạng thái', name: 'trangThai', type: 'text', value: item.trangThai, disabled: true }
-        ]
-      },
-      {
-        title: 'II. Nội dung đánh giá',
-        fields: [
-          { label: 'Chi tiết đánh giá của học viên', name: 'noiDung', type: 'textarea', value: item.noiDung, disabled: true }
-        ]
-      },
-      {
-        title: 'III. Phản hồi từ trung tâm',
-        fields: [
-          // Trường duy nhất được phép nhập (để phản hồi lại học viên)
-          { label: 'Nội dung phản hồi', name: 'phanHoiTrungTam', type: 'textarea', value: '', disabled: false }
-        ]
-      }
-    ];
+        const itemValue = item[key];
+
+        if (key === 'maDanhGia' || key === 'lopHoc') {
+          if (typeof itemValue === 'string') {
+            return itemValue.toLowerCase().includes(String(filterValue).trim().toLowerCase());
+          }
+        }
+
+        if (key === 'soSao') {
+          return Number(itemValue) === Number(filterValue);
+        }
+
+        return String(itemValue) === String(filterValue);
+      });
+    });
+    const maxPage = Math.max(1, Math.ceil(this.filteredFeedbacks.length / this.itemsPerPage));
+    if (this.currentPage > maxPage) {
+      this.currentPage = maxPage;
+    }
+    this.updatePaginatedFeedbacks();
+  }
+
+  updatePaginatedFeedbacks() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedFeedbacks = this.filteredFeedbacks.slice(start, end);
+  }
+
+  handleReset(): void {
+    this.filterValues = {};
+    this.currentPage = 1;
+    this.applyFilter();
+  }
+
+  onPaginationPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedFeedbacks();
+  }
+
+  onPaginationPageSizeChange(size: number): void {
+    this.itemsPerPage = size;
+    this.currentPage = 1;
+    this.updatePaginatedFeedbacks();
+  }
+
+  openDetailDialog(item: any) {
+    this.selectedFeedback = { ...item };
+    this.isDialogOpen = true;
   }
 
   closeDialog() {
     this.isDialogOpen = false;
+    this.selectedFeedback = null;
   }
 
-  onSubmitDialog(data: any) {
-    console.log('Dữ liệu phản hồi đã lưu:', data);
-    this.isDialogOpen = false;
+  onSubmitDialog() {
+    if (this.selectedFeedback && this.selectedFeedback._id) {
+      const targetStatus = this.selectedFeedback.trangThai === 'Đã ẩn' ? 'Chưa ẩn' : 'Đã ẩn';
+      const updatePayload = {
+        trangThai: targetStatus
+      };
+
+      this.feedbackService.updateFeedback(this.selectedFeedback._id, updatePayload).subscribe({
+        next: () => {
+          if (this.selectedFeedback) {
+            this.selectedFeedback.trangThai = targetStatus;
+          }
+
+          // Cập nhật danh sách local trực tiếp để giao diện nền thay đổi ngay lập tức
+          const idx = this.feedbacks.findIndex(f => f._id === this.selectedFeedback._id);
+          if (idx !== -1) {
+            this.feedbacks[idx].trangThai = targetStatus;
+          }
+          this.applyFilter();
+        },
+        error: (err) => {
+          console.error('Lỗi khi cập nhật trạng thái hiển thị đánh giá:', err);
+        }
+      });
+    }
   }
 
-  // Hàm tạo mảng sao để hiển thị HTML
   getStars(rating: number): boolean[] {
     return Array.from({ length: 5 }, (_, i) => i < rating);
-  }
-
-  // Set màu Badge
-  getStatusClass(status: string): string {
-    const s = status?.toLowerCase() || '';
-    if (s.includes('đã duyệt')) return 'badge--green';
-    if (s.includes('chờ') || s.includes('chưa')) return 'badge--orange';
-    if (s.includes('từ chối')) return 'badge--inactive';
-    return 'badge--blue';
-  }
-
-  // Phân trang
-  get paginatedFeedbacks(): any[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.filteredFeedbacks.slice(start, end);
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredFeedbacks.length / this.itemsPerPage));
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  changePage(page: number) {
-    if (page >= 1 && page <= this.totalPages) this.currentPage = page;
-  }
-
-  changePageSize(event: Event) {
-    this.itemsPerPage = Number((event.target as HTMLSelectElement).value);
-    this.currentPage = 1;
   }
 }

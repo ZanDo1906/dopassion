@@ -22,11 +22,8 @@
         </div>
 
         <div class="action-buttons">
-          <button class="btn btn-primary">
+          <button class="btn btn-primary" (click)="scrollToWriteReview()">
             <i class="bi bi-pencil-square"></i> Viết đánh giá
-          </button>
-          <button class="btn btn-outline-secondary">
-            <i class="bi bi-funnel"></i> Bộ lọc được lưu
           </button>
         </div>
       </div>
@@ -90,7 +87,7 @@
 
           <div class="filter-group">
             <label class="filter-label">Lớp học</label>
-            <select [(ngModel)]="selectedClass" class="form-control filter-select">
+            <select [(ngModel)]="selectedClass" (ngModelChange)="onFilterChange()" class="form-control filter-select">
               <option value="">Tất cả</option>
               <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
             </select>
@@ -98,7 +95,7 @@
 
           <div class="filter-group">
             <label class="filter-label">Đánh giá</label>
-            <select [(ngModel)]="selectedRating" class="form-control filter-select">
+            <select [(ngModel)]="selectedRating" (ngModelChange)="onFilterChange()" class="form-control filter-select">
               <option value="">Tất cả</option>
               <option value="5">5 sao</option>
               <option value="4">4 sao</option>
@@ -110,7 +107,7 @@
 
           <div class="filter-group">
             <label class="filter-label">Sắp xếp</label>
-            <select [(ngModel)]="selectedSort" class="form-control filter-select">
+            <select [(ngModel)]="selectedSort" (ngModelChange)="onFilterChange()" class="form-control filter-select">
               <option value="newest">Mới nhất</option>
               <option value="oldest">Cũ nhất</option>
               <option value="highest">Đánh giá cao nhất</option>
@@ -128,7 +125,8 @@
             type="text" 
             class="form-control search-input" 
             placeholder="Tìm kiếm đánh giá..."
-            [(ngModel)]="searchQuery">
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onFilterChange()">
           <i class="bi bi-search search-icon"></i>
         </div>
 
@@ -143,9 +141,6 @@
                   <p class="reviewer-meta">{{ review.date }} · {{ review.course }} ({{ review.courseCode }})</p>
                 </div>
               </div>
-              <button class="btn-more" (click)="onMoreOptions(review.id)">
-                <i class="bi bi-three-dots-vertical"></i>
-              </button>
             </div>
 
             <!-- Rating -->
@@ -158,28 +153,17 @@
             <!-- Content -->
             <p class="review-content">{{ review.content }}</p>
 
-            <!-- Reply Section -->
-            <div *ngIf="review.hasReply" class="reply-section">
-              <div class="reply-badge">Phản hồi từ quản lý</div>
-              <div class="reply-content">
-                <strong>{{ review.replyAuthor }}:</strong> {{ review.reply }}
-              </div>
-            </div>
-
             <!-- Actions -->
             <div class="review-actions">
-              <button class="action-btn" (click)="onToggleHelpful(review.id)">
-                <i class="bi bi-hand-thumbs-up"></i> Hữu ích ({{ review.helpful }})
-              </button>
-              <button class="action-btn" (click)="onReply(review.id)">
-                <i class="bi bi-reply"></i> Trả lời
+              <button class="action-btn" [class.liked]="hasLiked(review._id)" [disabled]="hasLiked(review._id)" (click)="onToggleHelpful(review._id)">
+                <i class="bi" [ngClass]="hasLiked(review._id) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i> Hữu ích ({{ review.helpful }})
               </button>
             </div>
           </div>
         </div>
 
         <!-- Load More Button -->
-        <div class="text-center mt-4">
+        <div class="text-center mt-4" *ngIf="visibleLimit < filteredFeedbacks.length">
           <button class="btn btn-outline-primary" (click)="onLoadMoreReviews()">
             Tải thêm đánh giá
           </button>
@@ -190,7 +174,7 @@
 </section>
 
 <!-- Write Review Section -->
-<section class="write-review-section">
+<section id="write-review-section" class="write-review-section">
   <div class="container">
     <h2 class="section-title">Viết đánh giá</h2>
     
@@ -198,6 +182,16 @@
       <div class="col-lg-8">
         <form [formGroup]="reviewFormGroup" (ngSubmit)="onSubmitReview()" class="review-form">
           
+          <div class="form-group">
+            <label class="form-label">Họ và tên học viên</label>
+            <input 
+              type="text" 
+              formControlName="studentName" 
+              class="form-control" 
+              placeholder="Nhập họ và tên của bạn..." 
+              required>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Lớp học</label>
             <select formControlName="class" class="form-control">
@@ -220,27 +214,6 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Mức độ hài lòng</label>
-            <div class="satisfaction-options">
-              <label class="satisfaction-option">
-                <input type="radio" formControlName="satisfaction" value="very-satisfied">
-                <span>Rất hài lòng</span>
-              </label>
-              <label class="satisfaction-option">
-                <input type="radio" formControlName="satisfaction" value="satisfied">
-                <span>Hài lòng</span>
-              </label>
-              <label class="satisfaction-option">
-                <input type="radio" formControlName="satisfaction" value="neutral">
-                <span>Bình thường</span>
-              </label>
-              <label class="satisfaction-option">
-                <input type="radio" formControlName="satisfaction" value="unsatisfied">
-                <span>Không hài lòng</span>
-              </label>
-            </div>
-          </div>
 
           <div class="form-group">
             <label class="form-label">Nội dung đánh giá</label>

@@ -132,6 +132,22 @@
     color: #ffffff;
 }
 
+.btn-outline {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--primary-600);
+}
+
+.btn-outline:hover {
+    background: var(--primary-100);
+}
+
+/* ===== TOOLBAR THANH TÁC VỤ ===== */
+.toolbar {
+    display: flex;
+    gap: 8px;
+}
+
 .table-card {
     background: #ffffff;
     border-radius: 10px;
@@ -260,6 +276,9 @@ textarea.form-control {
 
 @media (max-width: 860px) {
     .customer-view-row {
+        grid-template-columns: 1fr;
+    }
+    .filter-row {
         grid-template-columns: 1fr;
     }
 }

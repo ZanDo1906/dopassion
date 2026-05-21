@@ -1,42 +1,12 @@
 <div class="role-page">
-    <section class="filter-card">
-        <div class="filter-header" (click)="toggleFilter()">
-            <span class="filter-title">
-                <i class="bi" [ngClass]="isFilterOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
-                Tìm kiếm đánh giá
-            </span>
-        </div>
-        <div class="filter-body" *ngIf="isFilterOpen" (click)="$event.stopPropagation()">
-            <div class="filter-field">
-                <label>Mã đánh giá</label>
-                <input type="text" placeholder="Nhập mã ĐG..." />
-            </div>
-            <div class="filter-field">
-                <label>Lớp học</label>
-                <select>
-                    <option value="">-- Tất cả --</option>
-                    <option value="1">Lớp TOEIC Speaking&Writing</option>
-                    <option value="2">Lớp IELTS Foundation</option>
-                </select>
-            </div>
-            <div class="filter-field">
-                <label>Trạng thái</label>
-                <select>
-                    <option value="">-- Tất cả --</option>
-                    <option value="choduyet">Chờ duyệt</option>
-                    <option value="daduyet">Đã duyệt</option>
-                </select>
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-muted" type="button"><i class="bi bi-x-circle"></i> Xóa bộ lọc</button>
-                <button class="btn btn-primary" type="button"><i class="bi bi-search"></i> Tìm kiếm</button>
-            </div>
-        </div>
-    </section>
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"></app-filter-data-picker>
 
     <div class="toolbar">
-        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-in-down"></i> Nhập excel</button>
-        <button class="btn btn-outline" type="button"><i class="bi bi-box-arrow-up"></i> Xuất excel</button>
+        <button class="btn btn-outline" type="button">
+            <i class="bi bi-upload"></i>
+            Xuất excel
+        </button>
     </div>
 
     <div class="table-card">
@@ -56,9 +26,9 @@
             <tbody>
                 <tr *ngFor="let item of paginatedFeedbacks; let i = index">
                     <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td class="text-primary">{{ item.maDanhGia }}</td>
+                    <td class="text-primary" style="font-weight: 600;">{{ item.maDanhGia }}</td>
                     <td style="font-weight: 500;">{{ item.khachHang }}</td>
-                    <td style="text-align: left; max-width: 200px;">{{ item.lopHoc }}</td>
+                    <td style="text-align: left; max-width: 220px;">{{ item.lopHoc }}</td>
                     
                     <td class="rating-stars">
                         <i *ngFor="let isFilled of getStars(item.soSao)" 
@@ -68,49 +38,88 @@
                     </td>
                     
                     <td>{{ item.ngayDanhGia }}</td>
-                    <td><span class="badge" [ngClass]="getStatusClass(item.trangThai)">{{ item.trangThai }}</span></td>
+                    <td>
+                        <span class="badge" [ngClass]="{
+                            'badge--success': item.trangThai === 'Chưa ẩn',
+                            'badge--danger': item.trangThai === 'Đã ẩn'
+                        }">{{ item.trangThai }}</span>
+                    </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" title="Xem chi tiết" (click)="openDetailDialog(item)">
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="openDetailDialog(item)">
                                 <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="icon-btn" title="Chỉnh sửa">
-                                <i class="bi bi-pencil"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
                 <tr *ngIf="paginatedFeedbacks.length === 0">
-                    <td colspan="8">Đang tải dữ liệu hoặc không có dữ liệu...</td>
+                    <td colspan="8" style="padding: 24px; color: #7f8c8d; font-style: italic; text-align: center;">
+                        Không tìm thấy dữ liệu đánh giá học viên phù hợp.
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <div class="pagination">
-        <div class="pagination-info">
-            {{ (currentPage - 1) * itemsPerPage + 1 }} - 
-            {{ currentPage * itemsPerPage > filteredFeedbacks.length ? filteredFeedbacks.length : currentPage * itemsPerPage }} 
-            of {{ filteredFeedbacks.length }}
-        </div>
-        <div class="pagination-pages">
-            <button class="page" (click)="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
-            <button *ngFor="let page of pages" class="page" [class.active]="page === currentPage" (click)="changePage(page)">{{ page }}</button>
-            <button class="page" (click)="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></button>
-        </div>
-        <div class="page-size">
-            <select [value]="itemsPerPage" (change)="changePageSize($event)">
-                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}/trang</option>
-            </select>
-        </div>
-    </div>
+    <app-pagination
+        [totalItems]="filteredFeedbacks.length"
+        [currentPage]="currentPage"
+        [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="onPaginationPageChange($event)"
+        (pageSizeChange)="onPaginationPageSizeChange($event)"
+    ></app-pagination>
 </div>
+
+<ng-template #viewFeedbackTemplate>
+  <div class="customer-view-form">
+    <div class="section-title">I. Thông tin chung bản ghi</div>
+    <div class="customer-view-row">
+      <div class="form-group">
+        <label>Mã Đánh Giá</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.maDanhGia" readonly />
+      </div>
+      <div class="form-group">
+        <label>Mã Đăng Ký Lớp</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.maDangKy" readonly />
+      </div>
+      <div class="form-group">
+        <label>Tên Học Viên</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.khachHang" readonly />
+      </div>
+    </div>
+    <div class="customer-view-row">
+      <div class="form-group">
+        <label>Lớp Học</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.lopHoc" readonly />
+      </div>
+      <div class="form-group">
+        <label>Ngày Đánh Giá</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.ngayDanhGia" readonly />
+      </div>
+      <div class="form-group">
+        <label>Mức Độ Đánh Giá</label>
+        <input class="form-control input-readonly" type="text" [value]="selectedFeedback?.soSao + ' Sao'" readonly />
+      </div>
+    </div>
+
+    <div class="section-title">II. Nội dung khảo sát đánh giá</div>
+    <div class="form-group" style="width: 100%;">
+      <label>Chi tiết ý kiến phản hồi của học viên</label>
+      <textarea class="form-control input-readonly" rows="3" readonly>{{ selectedFeedback?.noiDung }}</textarea>
+    </div>
+  </div>
+</ng-template>
 
 <app-form-dialog 
     *ngIf="isDialogOpen" 
     title="Chi tiết đánh giá học viên" 
-    [sections]="dialogSections" 
-    [columns]="3"
+    [bodyTemplate]="viewFeedbackTemplate" 
+    cancelText="Thoát"
+    [submitText]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'Bỏ ẩn' : 'Ẩn'"
+    cancelIcon="bi bi-x-circle"
+    [submitIcon]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill'"
+    [isViewOnly]="false"
     (close)="closeDialog()" 
-    (submit)="onSubmitDialog($event)">
+    (submit)="onSubmitDialog()">
 </app-form-dialog>
