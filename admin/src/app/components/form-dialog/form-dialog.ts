@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, DoCheck, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -15,7 +15,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
   templateUrl: './form-dialog.html',
   styleUrls: ['./form-dialog.css']
 })
-export class FormDialogComponent implements OnChanges {
+export class FormDialogComponent implements OnChanges, DoCheck {
 
   constructor(private elementRef: ElementRef<HTMLElement>) {}
 
@@ -47,6 +47,20 @@ export class FormDialogComponent implements OnChanges {
       } else {
         this.syncFormDataFromSections();
       }
+    }
+  }
+
+  ngDoCheck(): void {
+    if (this.formGroup && this.formData) {
+      Object.keys(this.formGroup.controls).forEach(key => {
+        const control = this.formGroup!.get(key);
+        if (control) {
+          const parentValue = this.formData[key];
+          if (parentValue !== undefined && control.value !== parentValue) {
+            control.setValue(parentValue, { emitEvent: false });
+          }
+        }
+      });
     }
   }
 

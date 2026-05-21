@@ -4,36 +4,10 @@ const router = express.Router();
 // Import model
 const Class = require('../models/class');
 
-// GET all với support filter query params
+// GET all
 router.get('/', async (req, res) => {
     try {
-        // Xây dựng filter object từ query params
-        const filter = {};
-        
-        // Filter theo maKhoa (khóa học)
-        if (req.query.maKhoa) {
-            filter.maKhoa = req.query.maKhoa;
-        }
-        
-        // Filter theo chiNhanh (chi nhánh) - support multi-select
-        if (req.query.chiNhanh) {
-            const branches = req.query.chiNhanh.split(',').filter(b => b.trim());
-            if (branches.length > 0) {
-                filter.chiNhanh = { $in: branches };
-            }
-        }
-        
-        // Filter theo ngayBatDau (ngày khai giảng)
-        if (req.query.ngayBatDau) {
-            // Tìm classes có ngayBatDau >= ngày filter
-            filter.ngayBatDau = {
-                $regex: `^${req.query.ngayBatDau}`,
-                $options: 'i'
-            };
-        }
-
-        const data = await Class.find(filter);
-
+        const data = await Class.find();
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({
@@ -47,7 +21,71 @@ router.get('/:id', async (req, res) => {
     try {
         const data = await Class.findById(req.params.id);
 
+        if (!data) {
+            return res.status(404).json({
+                message: 'Data not found'
+            });
+        }
+
         res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+// CREATE
+router.post('/', async (req, res) => {
+    try {
+        const newData = new Class(req.body);
+        const savedData = await newData.save();
+
+        res.status(201).json(savedData);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+// UPDATE
+router.put('/:id', async (req, res) => {
+    try {
+        const updatedData = await Class.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        if (!updatedData) {
+            return res.status(404).json({
+                message: 'Data not found'
+            });
+        }
+
+        res.status(200).json(updatedData);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+// DELETE
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedData = await Class.findByIdAndDelete(req.params.id);
+
+        if (!deletedData) {
+            return res.status(404).json({
+                message: 'Data not found'
+            });
+        }
+
+        res.status(200).json({
+            message: 'Deleted successfully'
+        });
     } catch (error) {
         res.status(500).json({
             message: error.message

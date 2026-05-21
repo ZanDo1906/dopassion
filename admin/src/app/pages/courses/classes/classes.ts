@@ -18,6 +18,7 @@ export class Classes implements OnInit, DoCheck {
   classes: iClass[] = [];
   staffs: iStaff[] = [];
   lastBranch: string = '';
+  lastStaffCount = 0;
 
   filterValues: Record<string, any> = {};
   filterConfig: FilterConfig[] = [
@@ -205,6 +206,11 @@ export class Classes implements OnInit, DoCheck {
       const maKhoa = this.dialogData.maKhoa;
       const chiNhanh = this.dialogData.chiNhanh;
 
+      if (this.staffs.length !== this.lastStaffCount) {
+        this.lastStaffCount = this.staffs.length;
+        this.lastBranch = '';
+      }
+
       // Logic lọc Giáo viên
       if (chiNhanh !== this.lastBranch) {
         const previousBranch = this.lastBranch;
@@ -220,7 +226,23 @@ export class Classes implements OnInit, DoCheck {
           } else {
             giangVienField.options = [{ label: 'Chọn giảng viên...', value: '' }];
           }
-          if (this.dialogMode !== 'view' && previousBranch) {
+
+          const teacherByCode = this.dialogData.maNhanVien
+            ? this.staffs.find(s => s.maNv === this.dialogData.maNhanVien)
+            : null;
+          if (teacherByCode && (!this.dialogData.giangVien || this.dialogData.giangVien !== teacherByCode.tenNhanVien)) {
+            this.dialogData.giangVien = teacherByCode.tenNhanVien;
+          }
+
+          const currentTeacher = `${this.dialogData.giangVien || ''}`.trim();
+          if (currentTeacher && !giangVienField.options.some((opt: any) => opt.value === currentTeacher)) {
+            giangVienField.options = [
+              { label: currentTeacher, value: currentTeacher },
+              ...giangVienField.options
+            ];
+          }
+
+          if (this.dialogMode === 'add' && previousBranch) {
             this.dialogData.giangVien = '';
             this.dialogData.maNhanVien = '';
           }
@@ -248,6 +270,13 @@ export class Classes implements OnInit, DoCheck {
     const nextStt = this.classes.length > 0 ? Math.max(...this.classes.map(c => c.stt)) + 1 : 1;
     // Ensure dialogData contains all fields defined in sections with defaults
     const data: any = { stt: nextStt };
+    
+    // Enable tenKhoaHoc and chiNhanh for add mode
+    const courseField = this.dialogSections[0].fields.find(f => f.name === 'tenKhoaHoc');
+    if (courseField) courseField.disabled = false;
+    const branchField = this.dialogSections[1].fields.find(f => f.name === 'chiNhanh');
+    if (branchField) branchField.disabled = false;
+
     for (const section of this.dialogSections) {
       for (const field of section.fields) {
         if (!(field.name in data)) {
@@ -273,8 +302,8 @@ export class Classes implements OnInit, DoCheck {
     if (this.dialogMode === 'view') {
       return;
     }
-    this.pendingSubmitData = data;
-    this.isConfirmOpen = true;
+    this.pendingSubmitData = { ...data, _id: this.dialogData?._id };
+    this.confirmSubmit();
   }
 
   confirmSubmit() {
@@ -284,19 +313,53 @@ export class Classes implements OnInit, DoCheck {
       return;
     }
 
-    // Update existing class if Mã lớp matches, otherwise add new
-    const maLop = data && data.maLop;
-    if (maLop) {
-      const idx = this.classes.findIndex(c => c.maLop === maLop);
-      if (idx !== -1) {
-        this.classes[idx] = { ...this.classes[idx], ...data } as iClass;
-      } else {
-        this.classes.push(data as iClass);
+    if (this.dialogMode === 'edit') {
+      const classId = this.resolveClassId(data);
+      if (!classId) {
+        console.error('Không tìm thấy _id để cập nhật lớp học');
+        alert('Không tìm thấy ID lớp học để cập nhật.');
+        return;
       }
+      const existing = this.classes.find(c => c._id === classId || c.maLop === data.maLop);
+      const payload: Partial<iClass> = {
+        ...data,
+        active: data.active ?? existing?.active
+      };
+
+      this.classService.updateClass(classId, payload).subscribe({
+        next: (updated) => {
+          const idx = this.classes.findIndex(c => c._id === classId || c.maLop === updated.maLop);
+          if (idx !== -1) {
+            this.classes[idx] = { ...this.classes[idx], ...updated } as iClass;
+            this.classes = [...this.classes];
+          }
+          this.pendingSubmitData = null;
+          this.isConfirmOpen = false;
+          this.isDialogOpen = false;
+          alert('Cập nhật lớp học thành công!');
+        },
+        error: (err) => {
+          console.error('Lỗi cập nhật lớp học:', err);
+          alert('Lỗi cập nhật lớp học: ' + (err.error?.message || err.message));
+        }
+      });
+      return;
     }
-    this.pendingSubmitData = null;
-    this.isConfirmOpen = false;
-    this.isDialogOpen = false;
+
+    this.classService.addClass(data as iClass).subscribe({
+      next: (created) => {
+        this.classes.push(created as iClass);
+        this.classes = [...this.classes];
+        this.pendingSubmitData = null;
+        this.isConfirmOpen = false;
+        this.isDialogOpen = false;
+        alert('Thêm lớp học thành công!');
+      },
+      error: (err) => {
+        console.error('Lỗi thêm lớp học:', err);
+        alert('Lỗi thêm lớp học: ' + (err.error?.message || err.message));
+      }
+    });
   }
 
   cancelConfirm() {
@@ -309,6 +372,13 @@ export class Classes implements OnInit, DoCheck {
     const data: any = { ...item };
     data.ngayBatDau = this.normalizeDate(item.ngayBatDau);
     data.ngayKetThuc = this.normalizeDate(item.ngayKetThuc);
+    
+    // Disable tenKhoaHoc and chiNhanh for edit mode
+    const courseField = this.dialogSections[0].fields.find(f => f.name === 'tenKhoaHoc');
+    if (courseField) courseField.disabled = true;
+    const branchField = this.dialogSections[1].fields.find(f => f.name === 'chiNhanh');
+    if (branchField) branchField.disabled = true;
+
     for (const section of this.dialogSections) {
       for (const field of section.fields) {
         if (!(field.name in data)) {
@@ -348,6 +418,17 @@ export class Classes implements OnInit, DoCheck {
       case 'select': return '';
       default: return '';
     }
+  }
+
+  private resolveClassId(data: any): string | null {
+    if (data?._id) {
+      return data._id;
+    }
+    if (data?.maLop) {
+      const found = this.classes.find(c => c.maLop === data.maLop);
+      return found?._id ?? null;
+    }
+    return null;
   }
 
   handleFilterSearch(filters: Record<string, any>) {
