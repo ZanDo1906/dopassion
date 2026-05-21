@@ -1,0 +1,109 @@
+.config-page{
+padding:16px;
+background:#f5f7fb;
+min-height:100vh;
+font-family:Arial,sans-serif;
+}
+
+.page-header{
+margin-bottom:16px;
+}
+
+.btn-save{
+display:flex;
+align-items:center;
+gap:6px;
+padding:8px 14px;
+border:1px solid #2f5da9;
+background:#fff;
+color:#2f5da9;
+border-radius:4px;
+cursor:pointer;
+font-size:14px;
+font-weight:500;
+transition:0.2s;
+}
+
+.btn-save:hover{
+background:#2f5da9;
+color:#fff;
+}
+
+.config-table-wrapper{
+background:#fff;
+border-radius:6px;
+overflow:hidden;
+border:1px solid #dbe2ef;
+}
+
+.config-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.config-table thead{
+background:#eef3fb;
+}
+
+.config-table th{
+padding:14px;
+font-size:13px;
+font-weight:600;
+color:#2f5da9;
+text-align:center;
+border-bottom:1px solid #dbe2ef;
+}
+
+.config-table td{
+padding:12px 14px;
+border-bottom:1px solid #edf1f7;
+font-size:14px;
+color:#333;
+vertical-align:middle;
+}
+
+.config-table tbody tr:hover{
+background:#fafcff;
+}
+
+.col-stt{
+width:80px;
+text-align:center;
+}
+
+.col-value{
+width:220px;
+text-align:center;
+}
+
+.value-group{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+}
+
+.value-input{
+width:70px;
+height:34px;
+border:1px solid #9eb6db;
+border-radius:4px;
+outline:none;
+padding:0 10px;
+text-align:center;
+font-size:14px;
+transition:0.2s;
+}
+
+.value-input:focus{
+border-color:#2f5da9;
+box-shadow:0 0 0 2px rgba(47,93,169,0.1);
+}
+
+.unit{
+font-size:14px;
+font-weight:500;
+color:#333;
+min-width:40px;
+text-align:left;
+}
