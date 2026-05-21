@@ -5,11 +5,12 @@ import { iClass } from '../../../interfaces/class';
 import { Staff } from '../../../services/staff';
 import { iStaff } from '../../../interfaces/staff';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 
 @Component({
   selector: 'app-classes',
-  imports: [CommonModule, GridFormDialog, FilterDataPicker],
+  imports: [CommonModule, GridFormDialog, FilterDataPicker, ConfirmDialog],
   templateUrl: './classes.html',
   styleUrl: './classes.css',
 })
@@ -62,6 +63,9 @@ export class Classes implements OnInit, DoCheck {
   pageSizeOptions = [10, 20, 50];
 
   isDialogOpen = false;
+  dialogMode: 'add' | 'edit' | 'view' = 'add';
+  isConfirmOpen = false;
+  pendingSubmitData: any = null;
   dialogData: any = {};
   dialogTitle: string = 'Thêm lớp học';
   dialogSections = [
@@ -128,6 +132,10 @@ export class Classes implements OnInit, DoCheck {
 
   constructor(private classService: Class, private staffService: Staff) { }
 
+  get isViewMode(): boolean {
+    return this.dialogMode === 'view';
+  }
+
   ngOnInit() {
     this.classService.getClasses().subscribe((data: iClass[]) => {
       this.classes = data;
@@ -140,60 +148,66 @@ export class Classes implements OnInit, DoCheck {
 
   ngDoCheck() {
     if (this.isDialogOpen && this.dialogData) {
-      // Đảo ngược logic: Dựa vào Tên khóa học để tính Mã khóa
-      if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Speaking và Writing' && this.dialogData.maKhoa !== 'SW') {
-        this.dialogData.maKhoa = 'SW';
-      } else if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Listening và Reading' && this.dialogData.maKhoa !== 'LR') {
-        this.dialogData.maKhoa = 'LR';
-      } else if (!this.dialogData.tenKhoaHoc && this.dialogData.maKhoa) {
-        this.dialogData.maKhoa = '';
+      if (this.dialogMode === 'add') {
+        // Đảo ngược logic: Dựa vào Tên khóa học để tính Mã khóa
+        if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Speaking và Writing' && this.dialogData.maKhoa !== 'SW') {
+          this.dialogData.maKhoa = 'SW';
+        } else if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Listening và Reading' && this.dialogData.maKhoa !== 'LR') {
+          this.dialogData.maKhoa = 'LR';
+        } else if (!this.dialogData.tenKhoaHoc && this.dialogData.maKhoa) {
+          this.dialogData.maKhoa = '';
+        }
+
+        const maKhoa = this.dialogData.maKhoa;
+        const chiNhanh = this.dialogData.chiNhanh;
+
+        if (maKhoa && chiNhanh) {
+          let branchCode = '';
+          if (chiNhanh === 'CN1') branchCode = '01';
+          else if (chiNhanh === 'CN2') branchCode = '02';
+          else if (chiNhanh === 'CN3') branchCode = '03';
+
+          const filteredClasses = this.classes.filter(c => c.maKhoa === maKhoa && c.chiNhanh === chiNhanh);
+          let maxSeq = 0;
+          for (let c of filteredClasses) {
+            const parts = c.maLop.split('-');
+            if (parts.length === 3) {
+              const seq = parseInt(parts[2], 10);
+              if (seq > maxSeq) { maxSeq = seq; }
+            }
+          }
+          const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
+          const expectedMaLop = `${maKhoa}-${branchCode}-${nextSeq}`;
+
+          if (this.dialogData.maLop !== expectedMaLop) {
+            this.dialogData.maLop = expectedMaLop;
+          }
+
+          let prefix = '';
+          if (maKhoa === 'SW') prefix = 'Lớp TOEIC Speaking&Writing';
+          else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
+
+          const expectedTenLop = `${prefix} ${chiNhanh}-${nextSeq}`;
+          if (this.dialogData.tenLop !== expectedTenLop) {
+            this.dialogData.tenLop = expectedTenLop;
+          }
+
+        } else {
+          if (this.dialogData.maLop) {
+            this.dialogData.maLop = '';
+          }
+          if (this.dialogData.tenLop) {
+            this.dialogData.tenLop = '';
+          }
+        }
       }
 
       const maKhoa = this.dialogData.maKhoa;
       const chiNhanh = this.dialogData.chiNhanh;
 
-      if (maKhoa && chiNhanh) {
-        let branchCode = '';
-        if (chiNhanh === 'CN1') branchCode = '01';
-        else if (chiNhanh === 'CN2') branchCode = '02';
-        else if (chiNhanh === 'CN3') branchCode = '03';
-
-        const filteredClasses = this.classes.filter(c => c.maKhoa === maKhoa && c.chiNhanh === chiNhanh);
-        let maxSeq = 0;
-        for (let c of filteredClasses) {
-          const parts = c.maLop.split('-');
-          if (parts.length === 3) {
-            const seq = parseInt(parts[2], 10);
-            if (seq > maxSeq) { maxSeq = seq; }
-          }
-        }
-        const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
-        const expectedMaLop = `${maKhoa}-${branchCode}-${nextSeq}`;
-
-        if (this.dialogData.maLop !== expectedMaLop) {
-          this.dialogData.maLop = expectedMaLop;
-        }
-
-        let prefix = '';
-        if (maKhoa === 'SW') prefix = 'Lớp TOEIC Speaking&Writing';
-        else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
-
-        const expectedTenLop = `${prefix} ${chiNhanh}-${nextSeq}`;
-        if (this.dialogData.tenLop !== expectedTenLop) {
-          this.dialogData.tenLop = expectedTenLop;
-        }
-
-      } else {
-        if (this.dialogData.maLop) {
-          this.dialogData.maLop = '';
-        }
-        if (this.dialogData.tenLop) {
-          this.dialogData.tenLop = '';
-        }
-      }
-
       // Logic lọc Giáo viên
       if (chiNhanh !== this.lastBranch) {
+        const previousBranch = this.lastBranch;
         this.lastBranch = chiNhanh || '';
         const giangVienField = this.dialogSections[1].fields.find(f => f.name === 'giangVien');
         if (giangVienField) {
@@ -206,20 +220,24 @@ export class Classes implements OnInit, DoCheck {
           } else {
             giangVienField.options = [{ label: 'Chọn giảng viên...', value: '' }];
           }
-          this.dialogData.giangVien = '';
-          this.dialogData.maNhanVien = '';
+          if (this.dialogMode !== 'view' && previousBranch) {
+            this.dialogData.giangVien = '';
+            this.dialogData.maNhanVien = '';
+          }
         }
       }
 
       // Cập nhật Mã nhân viên khi chọn Giảng viên
-      if (this.dialogData.giangVien) {
-        const selectedTeacher = this.staffs.find(s => s.tenNhanVien === this.dialogData.giangVien && s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
-        if (selectedTeacher && this.dialogData.maNhanVien !== selectedTeacher.maNv) {
-          this.dialogData.maNhanVien = selectedTeacher.maNv;
-        }
-      } else {
-        if (this.dialogData.maNhanVien) {
-          this.dialogData.maNhanVien = '';
+      if (this.dialogMode !== 'view') {
+        if (this.dialogData.giangVien) {
+          const selectedTeacher = this.staffs.find(s => s.tenNhanVien === this.dialogData.giangVien && s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
+          if (selectedTeacher && this.dialogData.maNhanVien !== selectedTeacher.maNv) {
+            this.dialogData.maNhanVien = selectedTeacher.maNv;
+          }
+        } else {
+          if (this.dialogData.maNhanVien) {
+            this.dialogData.maNhanVien = '';
+          }
         }
       }
     }
@@ -240,14 +258,32 @@ export class Classes implements OnInit, DoCheck {
     }
     this.dialogTitle = 'Thêm lớp học';
     this.dialogData = data;
+    this.dialogMode = 'add';
     this.isDialogOpen = true;
   }
 
   closeDialog() {
     this.isDialogOpen = false;
+    this.isConfirmOpen = false;
+    this.pendingSubmitData = null;
+    this.dialogMode = 'add';
   }
 
   onSubmitDialog(data: any) {
+    if (this.dialogMode === 'view') {
+      return;
+    }
+    this.pendingSubmitData = data;
+    this.isConfirmOpen = true;
+  }
+
+  confirmSubmit() {
+    const data = this.pendingSubmitData;
+    if (!data) {
+      this.isConfirmOpen = false;
+      return;
+    }
+
     // Update existing class if Mã lớp matches, otherwise add new
     const maLop = data && data.maLop;
     if (maLop) {
@@ -258,12 +294,21 @@ export class Classes implements OnInit, DoCheck {
         this.classes.push(data as iClass);
       }
     }
+    this.pendingSubmitData = null;
+    this.isConfirmOpen = false;
     this.isDialogOpen = false;
+  }
+
+  cancelConfirm() {
+    this.isConfirmOpen = false;
+    this.pendingSubmitData = null;
   }
 
   openEdit(item: iClass) {
     // Prefill dialog with the selected class data and ensure all fields exist
     const data: any = { ...item };
+    data.ngayBatDau = this.normalizeDate(item.ngayBatDau);
+    data.ngayKetThuc = this.normalizeDate(item.ngayKetThuc);
     for (const section of this.dialogSections) {
       for (const field of section.fields) {
         if (!(field.name in data)) {
@@ -274,6 +319,25 @@ export class Classes implements OnInit, DoCheck {
     }
     this.dialogTitle = 'Sửa lớp học';
     this.dialogData = data;
+    this.dialogMode = 'edit';
+    this.isDialogOpen = true;
+  }
+
+  openView(item: iClass) {
+    const data: any = { ...item };
+    data.ngayBatDau = this.normalizeDate(item.ngayBatDau);
+    data.ngayKetThuc = this.normalizeDate(item.ngayKetThuc);
+    for (const section of this.dialogSections) {
+      for (const field of section.fields) {
+        if (!(field.name in data)) {
+          const val = (field as any).value;
+          data[field.name] = val !== undefined ? val : this.getDefaultForType(field.type);
+        }
+      }
+    }
+    this.dialogTitle = 'Xem lớp học';
+    this.dialogData = data;
+    this.dialogMode = 'view';
     this.isDialogOpen = true;
   }
 

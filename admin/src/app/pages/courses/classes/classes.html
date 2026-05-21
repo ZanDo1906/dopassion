@@ -50,7 +50,8 @@
                     <td>{{item.ngayKetThuc | date:'dd/MM/yyyy'}}</td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button"><i class="bi bi-eye"></i></button>
+                            <button class="icon-btn" type="button" (click)="openView(item)"><i
+                                    class="bi bi-eye"></i></button>
                             <button class="icon-btn" type="button" (click)="openEdit(item)"><i
                                     class="bi bi-pencil-square"></i></button>
                         </div>
@@ -92,6 +93,7 @@
     </div>
 </div>
 
-<app-form-dialog *ngIf="isDialogOpen" [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData"
-    [columns]="3" (close)="closeDialog()" (submit)="onSubmitDialog($event)">
+<app-form-dialog *ngIf="isDialogOpen" [class.hide-submit]="isViewMode" [class.view-only-dialog]="isViewMode"
+    [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData" [columns]="3" [isReadOnly]="isViewMode"
+    (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>

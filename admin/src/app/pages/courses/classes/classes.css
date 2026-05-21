@@ -258,6 +258,23 @@
     font-weight: 600;
 }
 
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body .form-group {
+    cursor: not-allowed;
+}
+
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body input,
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body select,
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body textarea,
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body .checkbox-wrapper,
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body .radio-group,
+:host ::ng-deep app-form-dialog.view-only-dialog .dialog-body .radio-item {
+    pointer-events: none;
+}
+
+:host ::ng-deep app-form-dialog.hide-submit .btn-submit {
+    display: none !important;
+}
+
 .page-size select {
     height: 28px;
     border: 1px solid var(--border);
