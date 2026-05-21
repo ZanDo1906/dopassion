@@ -117,10 +117,6 @@
     cursor: not-allowed;
 }
 
-/* Make leading '*' in labels red for required fields */
-.form-group label::first-letter {
-    color: #ff3333;
-}
 
 /* Style invalid controls (Angular adds ng-invalid and ng-touched) */
 .form-group input.ng-invalid.ng-touched,

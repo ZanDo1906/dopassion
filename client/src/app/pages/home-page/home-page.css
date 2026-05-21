@@ -471,57 +471,14 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(255, 138, 42, 0.35);
 }
-
-/* Lecturers Section */
-.lecturers-section {
-    background-color: #ffffff;
-    padding: 70px 20px 90px;
-}
-
-.lecturers-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.lecturers-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #3B5B94;
-    margin-bottom: 40px;
-    letter-spacing: 1px;
-}
-
 .lecturers-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 40px;
     align-items: start;
 }
-
 .lecturer-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-
-.lecturer-avatar {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: #cfe4ff;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    overflow: hidden;
-    border: 6px solid #6aaaf5;
-}
-
-.lecturer-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    min-width: 100%;
 }
 
 .lecturer-name {
@@ -568,26 +525,46 @@
 .news-card {
     background: #ffffff;
     border-radius: 16px;
-    padding: 12px;
+    overflow: hidden;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.news-thumb {
+.news-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.news-image {
     width: 100%;
-    aspect-ratio: 16 / 9;
-    background: #d9d9d9;
+    height: 220px;
+    object-fit: cover;
+    display: block;
     border-radius: 12px;
-    margin-bottom: 12px;
 }
 
+.news-content {
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
 .news-text {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #222;
     line-height: 1.5;
     margin: 0;
     text-transform: uppercase;
+
+    height: 60px;
+    overflow: hidden;
 }
 
 /* Consultation Section */
@@ -699,12 +676,6 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
-
-    .lecturers-grid {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-
     .lecturer-avatar {
         width: 180px;
         height: 180px;
@@ -718,4 +689,155 @@
         flex-direction: column;
         text-align: center;
     }
+}
+
+
+
+
+/* =========================
+   LECTURERS SECTION
+========================= */
+
+.lecturers-section {
+    background-color: #ffffff;
+    padding: 70px 20px 90px;
+}
+
+.lecturers-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.lecturers-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #3B5B94;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+/* =========================
+   SLIDER WRAPPER
+========================= */
+
+.lecturers-slider-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* =========================
+   SLIDER
+========================= */
+
+.lecturers-slider {
+    overflow: hidden;
+    width: 100%;
+}
+
+.lecturers-track {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.lecturer-card {
+    min-width: calc(100% / 3);
+    box-sizing: border-box;
+    padding: 10px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.lecturer-avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: #cfe4ff;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    border: 6px solid #6aaaf5;
+}
+
+.lecturer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lecturer-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+}
+
+.lecturer-desc {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 240px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.slider-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    border-radius: 50%;
+    background: #3B5B94;
+    color: white;
+    cursor: pointer;
+    font-size: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.slider-btn:hover {
+    background: #274474;
+    transform: scale(1.08);
+}
+
+.class-more {
+    margin-top: 40px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-more-btn {
+    background-color: #3B5B94;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.class-more-btn:hover {
+    background-color: #274474;
+    transform: translateY(-3px);
 }

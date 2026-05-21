@@ -9,10 +9,12 @@
         <nav class="nav-menu">
 
             <a
-                routerLink=""
+                [routerLink]="['/home']"
                 class="nav-item"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
+                #rlaHome="routerLinkActive"
+                [class.active]="rlaHome.isActive"
             >
                 Giới thiệu
             </a>
