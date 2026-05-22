@@ -323,7 +323,11 @@
 <app-form-dialog
     *ngIf="showDetailDialog"
     [class.hide-submit]="dialogMode === 'view'"
-    title="CHI TIẾT CÔNG NỢ"
+    [title]="
+    dialogMode === 'payment'
+        ? 'XỬ LÝ THANH TOÁN'
+        : 'CHI TIẾT CÔNG NỢ'
+        "
     [sections]="paymentDetailSections"
     [columns]="3"
     [formGroup]="detailForm"

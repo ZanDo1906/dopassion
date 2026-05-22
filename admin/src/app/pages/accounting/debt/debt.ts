@@ -7,6 +7,7 @@ import { Course } from '../../../services/course';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { VoucherService } from '../../../services/voucher';
+import { Observable } from 'rxjs/internal/Observable';
 @Component({
   selector: 'app-debt',
   standalone: true,
@@ -117,6 +118,11 @@ export class Debt {
         },
 
         {
+          name: 'nhapSoTienThanhToan',
+          label: 'Nhập số tiền thanh toán',
+          type: 'number'
+        },
+        {
           name: 'soTienConLai',
           label: 'Số tiền còn lại',
           type: 'number'
@@ -149,6 +155,7 @@ export class Debt {
       voucher: [''],
       soTienCanThanhToan: [''],
       soTienDaDong: [''],
+      nhapSoTienThanhToan: [''],
       soTienConLai: [''],
       trangThai: ['']
 
@@ -198,6 +205,7 @@ export class Debt {
       next: (items: any[]) => {
 
         this.payments = this.sortPaymentsNewestFirst(items.map((item) => ({
+          _id: item._id,
 
           stt: item.stt,
 
@@ -500,6 +508,7 @@ export class Debt {
       voucher: item.voucher,
       soTienCanThanhToan: item.soTienCanThanhToan,
       soTienDaDong: item.soTienDaDong,
+      nhapSoTienThanhToan: '',
       soTienConLai: item.soTienConLai,
       trangThai: item.trangThai
 
@@ -511,9 +520,62 @@ export class Debt {
     // mở edit
     this.detailForm.get('voucher')?.enable();
 
-    this.detailForm.get('soTienDaDong')?.enable();
+    this.detailForm.get('nhapSoTienThanhToan')?.enable();
 
     this.showDetailDialog = true;
+    this.detailForm
+    .get('voucher')
+    ?.valueChanges
+    .subscribe((value) => {
+
+      this.calculatePaymentByVoucher(value);
+
+    });
+
+    this.detailForm
+  .get('nhapSoTienThanhToan')
+  ?.valueChanges
+  .subscribe((value) => {
+
+    const soTienCanThanhToan =
+      Number(
+        this.detailForm.get(
+          'soTienCanThanhToan'
+        )?.value || 0
+      );
+
+    const soTienDaDongHienTai =
+      Number(
+        this.detailForm.get(
+          'soTienDaDong'
+        )?.value || 0
+      );
+
+    const nhapSoTienThanhToan =
+      Number(value || 0);
+
+    const tongDaDong =
+      soTienDaDongHienTai +
+      nhapSoTienThanhToan;
+
+    let soTienConLai =
+      soTienCanThanhToan - tongDaDong;
+
+    if (soTienConLai < 0) {
+      soTienConLai = 0;
+    }
+
+    this.detailForm.patchValue(
+      {
+        soTienConLai:
+          soTienConLai
+      },
+      {
+        emitEvent: false
+      }
+    );
+
+  });
 
   }
 
@@ -524,57 +586,127 @@ export class Debt {
   }
   savePayment(): void {
 
-    const formValue =
-      this.detailForm.getRawValue();
+  const formValue =
+    this.detailForm.getRawValue();
 
-    const index =
-      this.payments.findIndex(
-        x => x.maDangKy === formValue.maDangKy
-      );
+  const index =
+    this.payments.findIndex(
+      x => x.maDangKy === formValue.maDangKy
+    );
 
-    if (index !== -1) {
+  if (index === -1) {
+    return;
+  }
 
-      this.payments[index].voucher =
-        formValue.voucher;
+  const soTienCanThanhToan =
+    Number(formValue.soTienCanThanhToan || 0);
 
-      this.payments[index].soTienDaDong =
-        Number(formValue.soTienDaDong);
+  const soTienDaDongHienTai =
+  Number(formValue.soTienDaDong || 0);
 
-      // tính lại
-      this.payments[index].soTienConLai =
-        this.payments[index].soTienCanThanhToan
-        - this.payments[index].soTienDaDong;
+  const nhapSoTienThanhToan =
+    Number(
+      formValue.nhapSoTienThanhToan || 0
+    );
 
-      // cập nhật trạng thái
-      if (this.payments[index].soTienConLai <= 0) {
+  // cộng dồn tiền mới thanh toán
+  const soTienDaDong =
+    soTienDaDongHienTai +
+    nhapSoTienThanhToan;
 
-        this.payments[index].trangThai =
-          'Đã thanh toán';
+  const soTienConLai =
+    soTienCanThanhToan - soTienDaDong;
 
-      }
-      else if (
-        this.payments[index].soTienDaDong > 0
-      ) {
+  let trangThai = 'Chưa thanh toán';
 
-        this.payments[index].trangThai =
-          'Đã thanh toán một phần';
+  // ===== ĐÃ THANH TOÁN =====
 
-      }
-      else {
+  if (
+    soTienDaDong >= soTienCanThanhToan
+  ) {
 
-        this.payments[index].trangThai =
-          'Chưa thanh toán';
-
-      }
-
-      this.payments = this.sortPaymentsNewestFirst(this.payments);
-      this.filteredPayments = [...this.payments];
-
-    }
-
-    this.showDetailDialog = false;
+    trangThai = 'Đã thanh toán';
 
   }
+
+  // ===== THANH TOÁN 1 PHẦN =====
+
+  else if (soTienDaDong > 0) {
+
+    trangThai =
+      'Đã thanh toán một phần';
+
+  }
+
+  // cập nhật local
+
+  this.payments[index].voucher =
+    formValue.voucher;
+
+  this.payments[index].soTienCanThanhToan =
+    soTienCanThanhToan;
+
+  this.payments[index].soTienDaDong =
+    soTienDaDong;
+
+  this.payments[index].soTienConLai =
+    soTienConLai;
+
+  this.payments[index].trangThai =
+    trangThai;
+
+  // ===== PAYLOAD =====
+
+  const payload = {
+
+    voucher: formValue.voucher,
+
+    soTienCanThanhToan:
+      soTienCanThanhToan,
+
+    soTienConLai:
+      soTienConLai,
+
+    trangThaiThanhToan:
+      trangThai
+
+  };
+
+  // ===== UPDATE DATABASE =====
+
+  this.paymentService
+    .updatePayment(
+      this.payments[index]._id,
+      payload
+    )
+    .subscribe({
+
+      next: (response: any) => {
+
+        console.log(
+          'Cập nhật thanh toán thành công',
+          response
+        );
+
+        this.filteredPayments =
+          [...this.payments];
+
+        this.showDetailDialog = false;
+
+      },
+
+      error: (error: any) => {
+
+        console.error(
+          'Lỗi cập nhật payment',
+          error
+        );
+
+      }
+
+    });
+
+}
 
 loadVouchers() {
 
@@ -617,6 +749,59 @@ loadVouchers() {
       );
 
     }
+
+  });
+
+}
+
+calculatePaymentByVoucher(voucherCode: string): void {
+
+  const selectedVoucher =
+    this.vouchers.find(
+      (x: any) => x.maVoucher === voucherCode
+    );
+
+  if (!selectedVoucher) {
+    return;
+  }
+
+  const hocPhi =
+    Number(this.detailForm.get('hocPhi')?.value || 0);
+
+  let soTienCanThanhToan = hocPhi;
+
+  // giảm theo VNĐ
+  if (selectedVoucher.donViGiam === 'VNĐ') {
+
+    soTienCanThanhToan =
+      hocPhi - Number(selectedVoucher.thongSo || 0);
+
+  }
+
+  // giảm theo %
+  else if (
+    selectedVoucher.donViGiam === 'Phần trăm'
+  ) {
+
+    soTienCanThanhToan =
+      hocPhi * (
+        1 - Number(selectedVoucher.thongSo || 0)
+      );
+
+  }
+
+  // không âm
+  if (soTienCanThanhToan < 0) {
+    soTienCanThanhToan = 0;
+  }
+
+  this.detailForm.patchValue({
+
+    soTienCanThanhToan:
+      Math.round(soTienCanThanhToan),
+
+    soTienConLai:
+      Math.round(soTienCanThanhToan)
 
   });
 

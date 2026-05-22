@@ -4,7 +4,8 @@ import {
 FormBuilder,
 FormGroup,
 FormsModule,
-ReactiveFormsModule
+ReactiveFormsModule,
+Validators
 } from '@angular/forms';
 
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -19,6 +20,18 @@ FilterDataPicker
 } from '../../../components/filter-data-picker/filter-data-picker';
 
 import { iVoucher } from '../../../interfaces/voucher';
+
+const BRANCHES = [
+  { label: 'Chi nhánh 1', value: 'CN1' },
+  { label: 'Chi nhánh 2', value: 'CN2' },
+  { label: 'Chi nhánh 3', value: 'CN3' }
+];
+
+const COURSE_OPTIONS = [
+  { label: 'LR', value: 'LR' },
+  { label: 'SW', value: 'SW' },
+  { label: 'TOEIC', value: 'TOEIC' }
+];
 
 @Component({
 selector: 'app-voucher',
@@ -90,17 +103,9 @@ voucherForm!: FormGroup;
 
 detailForm!: FormGroup;
 
-branches = [
-{ label: 'Chi nhánh 1', value: 'CN1' },
-{ label: 'Chi nhánh 2', value: 'CN2' },
-{ label: 'Chi nhánh 3', value: 'CN3' }
-];
+branches = BRANCHES;
 
-courseOptions = [
-{ label: 'LR', value: 'LR' },
-{ label: 'SW', value: 'SW' },
-{ label: 'TOEIC', value: 'TOEIC' }
-];
+courseOptions = COURSE_OPTIONS;
 
 voucherFormSections = [
 {
@@ -122,13 +127,13 @@ required: true
 name: 'chiNhanh',
 label: 'Chi nhánh áp dụng',
 type: 'multi-select',
-options: this.branches
+options: BRANCHES
 },
 {
 name: 'khoaHocApDung',
 label: 'Khóa học áp dụng',
 type: 'multi-select',
-options: this.courseOptions
+options: COURSE_OPTIONS
 }
 ]
 },
@@ -176,10 +181,10 @@ this.loadVouchers();
 initForm(): void {
 
 this.voucherForm = this.fb.group({
-maVoucher: [''],
-tenChuongTrinh: [''],
-donViGiam: ['VNĐ'],
-thongSoGiam: [0],
+maVoucher: ['', [Validators.required]],
+tenChuongTrinh: ['', [Validators.required]],
+donViGiam: ['VNĐ', [Validators.required]],
+thongSoGiam: [0, [Validators.required, Validators.min(0)]],
 chiNhanh: [[]],
 khoaHocApDung: [[]]
 });
@@ -588,7 +593,7 @@ chiNhanh: Array.isArray(item.chiNhanh)
     ? item.chiNhanh
     : [],
 
-maKhoaHoc: Array.isArray(item.khoaHocApDung)
+khoaHocApDung: Array.isArray(item.khoaHocApDung)
     ? item.khoaHocApDung
     : [],
 
