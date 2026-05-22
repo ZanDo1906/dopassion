@@ -7,10 +7,15 @@
   </div>
 
   <!-- Filter Section -->
-  <div class="filter-section">
+  <div class="filter-card">
+    <div class="filter-card-header">
+      <h3 class="filter-card-title"><i class="bi bi-funnel-fill me-2"></i>Bộ lọc</h3>
+    </div>
+
+    <div class="filter-section">
     <div class="filter-group">
       <label class="filter-label">Khóa học</label>
-      <select class="filter-select filter-select-main" (change)="filterByCourse($event)">
+      <select title="Khóa" class="filter-select filter-select-main" (change)="filterByCourse($event)">
         <option value="">Tất cả khóa học</option>
         <option value="LR">TOEIC - LR</option>
         <option value="SW">TOEIC - SW</option>
@@ -29,11 +34,9 @@
 
     <div class="filter-group">
       <label class="filter-label">Chi nhánh</label>
-      <select class="filter-select filter-select-main" (change)="filterByBranch($event)">
+      <select title="Chi" class="filter-select filter-select-main" (change)="filterByBranch($event)">
         <option value="">Tất cả chi nhánh</option>
-        <option value="Hà Nội">Hà Nội</option>
-        <option value="TP. HCM">TP. HCM</option>
-        <option value="Đà Nẵng">Đà Nẵng</option>
+        <option *ngFor="let branch of branchOptions" [value]="branch">{{ branch }}</option>
       </select>
     </div>
 
@@ -45,6 +48,7 @@
         <i class="bi bi-arrow-counterclockwise"></i>
       </button>
     </div>
+    </div>
   </div>
 
   <!-- Result Count -->
@@ -54,7 +58,7 @@
 
   <!-- Courses Grid -->
   <div class="courses-grid" *ngIf="courses && courses.length > 0">
-    <div *ngFor="let course of courses" class="course-card">
+    <div *ngFor="let course of courses; trackBy: trackByCourseId" class="course-card">
       <div class="course-image">
         <img src="/sample.png" alt="{{ course.title }}" />
       </div>
@@ -75,17 +79,12 @@
             <span class="meta-value">{{ course.schedule }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Số buổi</span>
-            <span class="meta-value">{{ course.lessons }}</span>
+            <span class="meta-label">Học phí</span>
+            <span class="meta-value meta-value-highlight">{{ formatCurrency(course.tuition) }} VND</span>
           </div>
         </div>
 
-        <button class="view-details-btn">Xem chi tiết</button>
-
-        <div class="checkbox-item">
-          <span class="check-icon" [class.checked]="course.hasTest"><i class="bi bi-check-circle-fill text-success"></i></span>
-          <label>Kiểm tra đầu vào</label>
-        </div>
+        <button class="view-details-btn" (click)="openClassDetail(course.code)">Xem chi tiết</button>
       </div>
     </div>
   </div>
@@ -99,6 +98,192 @@
       <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
         <i class="bi bi-arrow-counterclockwise me-2"></i>Xóa bộ lọc
       </button>
+    </div>
+  </div>
+
+  <!-- Class Detail Modal -->
+  <div class="class-detail-overlay" *ngIf="isDetailModalOpen">
+    <div class="class-detail-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="class-detail-close" (click)="closeClassDetail()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="class-detail-hero">
+        <div class="class-detail-tag">Chi tiết lớp học</div>
+        <h3>{{ selectedClassDetail?.tenLop || selectedClassDetail?.tenKhoaHoc || 'Thông tin lớp học' }}</h3>
+        <p>{{ selectedClassDetail?.maLop }}</p>
+      </div>
+
+      <div class="class-detail-body" *ngIf="!isDetailLoading && !detailError && selectedClassDetail">
+        <div class="class-detail-image-wrap">
+          <img
+            class="class-detail-image"
+            src="/sample.png"
+            alt="Hình ảnh lớp học"
+          />
+          <div class="class-detail-image-badge">
+            <i class="bi bi-people-fill me-1"></i>
+            Tối đa {{ selectedClassDetail.maxEnrollment }} học viên
+          </div>
+        </div>
+
+        <div class="class-detail-stats">
+          <div class="detail-stat">
+            <span class="detail-stat-label">Tên giảng viên</span>
+            <strong>{{ selectedClassDetail.giangVien || 'Chưa cập nhật' }}</strong>
+            <small>Giảng viên phụ trách lớp học</small>
+          </div>
+          <div class="detail-stat">
+            <span class="detail-stat-label">Sĩ số hiện tại</span>
+            <strong>{{ selectedClassDetail.currentEnrollment }}/{{ selectedClassDetail.maxEnrollment }}</strong>
+            <small>Hiện có {{ selectedClassDetail.currentEnrollment }} học viên trên {{ selectedClassDetail.maxEnrollment }}</small>
+          </div>
+        </div>
+
+        <div class="class-detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Tên lớp</span>
+            <span class="detail-value">{{ selectedClassDetail.tenLop }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Lịch học</span>
+            <span class="detail-value">{{ selectedClassDetail.khungGio }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Ngày khai giảng</span>
+            <span class="detail-value">{{ formatDate(selectedClassDetail.ngayBatDau) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Ngày kết thúc</span>
+            <span class="detail-value">{{ formatDate(selectedClassDetail.ngayKetThuc) }}</span>
+          </div>
+            <div class="detail-item">
+              <span class="detail-label">Chi nhánh</span>
+              <span class="detail-value">{{ selectedClassDetail.chiNhanh }}</span>
+            </div>
+          <div class="detail-item">
+            <span class="detail-label">Học phí</span>
+            <span class="detail-value meta-value-highlight">{{ formatCurrency(selectedClassDetail?.hocPhi) }} VND</span>
+          </div>
+        </div>
+
+        <div class="class-detail-actions">
+          <button type="button" class="btn btn-register-now" (click)="registerNow()">
+            Đăng ký ngay
+          </button>
+        </div>
+      </div>
+
+      <div class="class-detail-loading" *ngIf="isDetailLoading">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>Đang tải thông tin chi tiết lớp học...</p>
+      </div>
+
+      <div class="class-detail-error" *ngIf="detailError">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <p>{{ detailError }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Popup -->
+  <div class="register-overlay" *ngIf="isRegisterModalOpen">
+    <div class="register-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="register-close" (click)="closeRegisterModal()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="register-hero">
+        <div class="register-tag">Xác nhận đăng ký</div>
+        <h3>Thông tin đăng ký lớp học</h3>
+        <p>Vui lòng kiểm tra lại thông tin trước khi tạo công nợ.</p>
+      </div>
+
+      <div class="register-body" *ngIf="registrationPreview">
+        <div class="register-section">
+          <h4>Thông tin khách hàng</h4>
+          <div class="register-grid">
+            <div class="register-item">
+              <span class="register-label">Tên khách hàng</span>
+              <input class="register-input" type="text" [(ngModel)]="registrationPreview.customerName" />
+            </div>
+            <div class="register-item">
+              <span class="register-label">Email</span>
+              <input class="register-input" type="email" [(ngModel)]="registrationPreview.email" />
+            </div>
+          </div>
+        </div>
+
+        <div class="register-section">
+          <h4>Thông tin lớp học</h4>
+          <div class="register-grid">
+            <div class="register-item">
+              <span class="register-label">Mã lớp</span>
+              <strong>{{ selectedClassDetail?.maLop }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Tên lớp học</span>
+              <strong>{{ selectedClassDetail?.tenLop }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Khóa học</span>
+              <strong>{{ selectedClassDetail?.tenKhoaHoc }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Chi nhánh</span>
+              <strong>{{ selectedClassDetail?.chiNhanh }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Lịch học</span>
+              <strong>{{ selectedClassDetail?.khungGio }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Ngày khai giảng</span>
+              <strong>{{ formatDate(selectedClassDetail?.ngayBatDau || '') }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Ngày kết thúc</span>
+              <strong>{{ formatDate(selectedClassDetail?.ngayKetThuc || '') }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Giảng viên</span>
+              <strong>{{ selectedClassDetail?.giangVien || 'Chưa cập nhật' }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Học phí</span>
+              <strong>{{ formatCurrency(selectedClassDetail?.hocPhi) }} VND</strong>
+            </div>
+            <div class="register-item register-voucher-item">
+              <span class="register-label">Voucher hiện tại của trung tâm</span>
+              <select class="register-select" [ngModel]="registrationVoucherId" (change)="onVoucherChange($event)">
+                <option value="">Không chọn voucher</option>
+                <option *ngFor="let voucher of voucherOptions" [value]="voucher.id">{{ voucher.label }}</option>
+              </select>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Cách giảm</span>
+              <strong>{{ getDiscountLabel() }}</strong>
+            </div>
+            <div class="register-item">
+              <span class="register-label">Số tiền được giảm</span>
+              <strong>{{ formatCurrency(getSelectedVoucherDiscountAmount()) }} VND</strong>
+            </div>
+            <div class="register-item register-total-item">
+              <span class="register-label">Số tiền còn lại cần thanh toán</span>
+              <strong>{{ formatCurrency(getRemainingAmount()) }} VND</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="register-actions">
+          <button type="button" class="btn btn-register-back" (click)="closeRegisterModal()">
+            Quay lại
+          </button>
+          <button type="button" class="btn btn-register-continue" (click)="continueRegistration()">
+            Tiếp tục
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

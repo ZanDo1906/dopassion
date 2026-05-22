@@ -16,6 +16,7 @@ export interface iClass {
 
     createdAt?: string;
     updatedAt?: string;
+    currentEnrollment?: number;
 }
 
 export interface ClassFilter {
