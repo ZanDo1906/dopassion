@@ -49,7 +49,7 @@ app-footer {
 
 .navbar-brand span {
   font-size: 20px;
-  color: #ff9800;
+  color: #4f70a6;
   font-weight: 700;
   margin: 0;
 }
@@ -71,11 +71,11 @@ app-footer {
 }
 
 .nav-link:hover {
-  color: #ff9800 !important;
+  color: #4f70a6 !important;
 }
 
 .nav-link.active {
-  color: #ff9800 !important;
+  color: #4f70a6 !important;
   font-weight: 700;
 }
 
@@ -86,7 +86,7 @@ app-footer {
   left: 16px;
   right: 16px;
   height: 3px;
-  background: #ff9800;
+  background: #4f70a6;
   border-radius: 2px 2px 0 0;
 }
 

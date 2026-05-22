@@ -1300,7 +1300,7 @@
     height: 35px;
 
     border-radius: 50%;
-    background: #ff7b00;
+    background: linear-gradient(135deg, #4f70a6, #d47a20);
     color: white;
 
     display: flex;
