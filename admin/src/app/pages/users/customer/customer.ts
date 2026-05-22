@@ -47,6 +47,7 @@ export class Customer implements OnInit {
       type: 'select',
       options: [
         { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' },
+        { value: 'Đã đăng ký khóa', label: 'Đã đăng ký khóa' },
         { value: 'Đã khóa', label: 'Đã khóa' },
         { value: 'Đang hoạt động', label: 'Đang hoạt động' }
       ]
@@ -102,6 +103,14 @@ export class Customer implements OnInit {
     });
   }
 
+  private sortCustomersNewestFirst(items: any[]): any[] {
+    return [...items].sort((left, right) => {
+      const leftTime = new Date(left.createdAt || left.updatedAt || left.ngayDangKy || 0).getTime();
+      const rightTime = new Date(right.createdAt || right.updatedAt || right.ngayDangKy || 0).getTime();
+      return rightTime - leftTime;
+    });
+  }
+
   ngOnInit(): void {
     // Initialize pagination state before loading data
     this.currentPage = 1;
@@ -131,7 +140,7 @@ export class Customer implements OnInit {
         this.allCustomersRaw = data;
 
         // Normalize data: map API fields to UI fields
-        this.allCustomers = data.map(customer => ({
+        this.allCustomers = this.sortCustomersNewestFirst(data.map(customer => ({
           maKhachHang: customer.maKh || '',
           tenKhachHang: customer.tenKhachHang || '',
           phone: customer.sdt ? String(customer.sdt) : '',
@@ -141,20 +150,22 @@ export class Customer implements OnInit {
           ngaySinh: this.normalizeDateForInput(customer.ngaySinh),
           email: customer.email || '',
           ngayDangKy: this.normalizeDateForInput(customer.ngayDangKy),
+          createdAt: customer.createdAt,
+          updatedAt: customer.updatedAt,
           // Reference to raw data for view
           rawData: customer
-        }));
+        })));
         this.filteredCustomers = [...this.allCustomers];
         this.updatePagination();
       },
       error: (err) => {
         console.error('Error loading customer data:', err);
         // Fallback to sample data
-        this.allCustomers = [
+        this.allCustomers = this.sortCustomersNewestFirst([
           { maKhachHang: 'KH001', tenKhachHang: 'Dương Trọng Nhân', phone: '0912345678', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1995-01-15', email: 'duong@example.com', ngayDangKy: '2026-05-01', rawData: {} },
           { maKhachHang: 'KH002', tenKhachHang: 'Cao Thành Thuận', phone: '0912345679', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1998-05-20', email: 'thuan@example.com', ngayDangKy: '2026-05-01', rawData: {} },
           { maKhachHang: 'KH003', tenKhachHang: 'Nguyễn Văn A', phone: '0912345680', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1996-03-10', email: 'nguyena@example.com', ngayDangKy: '2026-05-02', rawData: {} },
-        ];
+        ]);
         this.filteredCustomers = [...this.allCustomers];
         this.updatePagination();
       }
@@ -333,6 +344,7 @@ export class Customer implements OnInit {
     if (customerToUpdate) {
       // Nếu đã khóa rồi thì mở khóa (=> Chưa đăng ký khóa), ngược lại thì khóa (=> Đã khóa)
       customerToUpdate.trangThai = currentStatus === 'Đã khóa' ? 'Chưa đăng ký khóa' : 'Đã khóa';
+        this.allCustomers = this.sortCustomersNewestFirst(this.allCustomers);
       // Cập nhật filtered và paginated data
       this.filteredCustomers = [...this.allCustomers];
       this.updatePagination();

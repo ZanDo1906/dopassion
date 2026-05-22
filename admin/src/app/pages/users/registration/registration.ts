@@ -117,6 +117,14 @@ export class Registration implements OnInit {
     });
   }
 
+  private sortRegistrationsNewestFirst(items: any[]): any[] {
+    return [...items].sort((left, right) => {
+      const leftTime = new Date(left.createdAt || left.updatedAt || left.registrationDate || 0).getTime();
+      const rightTime = new Date(right.createdAt || right.updatedAt || right.registrationDate || 0).getTime();
+      return rightTime - leftTime;
+    });
+  }
+
   ngOnInit(): void {
     // Initialize pagination state before loading data
     this.currentPage = 1;
@@ -136,7 +144,7 @@ export class Registration implements OnInit {
     this.registrationService.getRegistrations().subscribe({
       next: (data) => {
         // Chuẩn hóa dữ liệu: máp các khóa tiếng Việt thành khóa Anh
-        this.registrations = data.map(item => ({
+        this.registrations = this.sortRegistrationsNewestFirst(data.map(item => ({
           id: item.maDangKy || '',
           customerCode: item.maKh || '',
           studentName: item.tenKh || '',
@@ -144,20 +152,22 @@ export class Registration implements OnInit {
           phone: '',
           registrationDate: this.normalizeDateForInput(item.ngayDangKy),
           status: item.trangThai || 'Đang hoạt động',
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
           // Full data for view
           maLop: item.maLop || '',
           khoaHoc: item.khoaHoc || '',
           tenKhoa: item.tenKhoa || '',
           chiNhanh: item.chiNhanh || '',
           rawData: item
-        }));
+        })));
         this.filteredData = [...this.registrations];
         this.updatePagination();
       },
       error: (err) => {
         console.error('Lỗi tải dữ liệu đăng ký:', err);
         // Dữ liệu mẫu khi lỗi
-        this.registrations = [
+        this.registrations = this.sortRegistrationsNewestFirst([
           {
             id: 'DK-020526-001',
             customerCode: 'KH-010526-001',
@@ -176,7 +186,7 @@ export class Registration implements OnInit {
             registrationDate: '2026-05-02',
             status: 'Đang hoạt động'
           }
-        ];
+        ]);
         this.filteredData = [...this.registrations];
         this.updatePagination();
       }
@@ -357,6 +367,7 @@ export class Registration implements OnInit {
     const registrationToUpdate = this.registrations.find(r => r.id === registrationId);
     if (registrationToUpdate) {
       registrationToUpdate.status = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
+      this.registrations = this.sortRegistrationsNewestFirst(this.registrations);
       // Cập nhật filtered và paginated data
       this.filteredData = [...this.registrations];
       this.updatePagination();

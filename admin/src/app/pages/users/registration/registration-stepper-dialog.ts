@@ -7,6 +7,7 @@ import { Course } from '../../../services/course';
 import { Class } from '../../../services/class';
 import { RegistrationService } from '../../../services/registration';
 import { Payment } from '../../../services/payment';
+import { tap } from 'rxjs/operators';
 import { iClient } from '../../../interfaces/client';
 import { iCourse } from '../../../interfaces/course';
 import { iClass } from '../../../interfaces/class';
@@ -252,6 +253,33 @@ export class RegistrationStepperDialog implements OnInit {
     });
   }
 
+  private loadClasses(): void {
+    this.classService.getClasses().subscribe({
+      next: (data) => {
+        this.classes = data;
+        const deduped = this.dedupeClasses(data);
+        this.filteredClasses = [...deduped];
+        console.log('Classes loaded:', deduped.length);
+      },
+      error: (err) => {
+        console.error('Lỗi tải danh sách lớp học:', err);
+        this.errorMessage = 'Không thể tải danh sách lớp học';
+      }
+    });
+  }
+
+  private loadCourses(): void {
+    this.courseService.getCourses().subscribe({
+      next: (data) => {
+        this.courses = data;
+        console.log('Courses loaded:', data.length);
+      },
+      error: (err) => {
+        console.error('Lỗi tải danh sách khóa học:', err);
+      }
+    });
+  }
+
   /**
    * Tìm kiếm khách hàng theo SĐT hoặc Email
    * Kiểm tra quy tắc: khách hàng chỉ được đăng ký 1 trong 2 khóa (LR hoặc SW)
@@ -434,6 +462,8 @@ export class RegistrationStepperDialog implements OnInit {
             name: 'gioiTinh',
             label: 'Giới tính',
             type: 'select',
+            required: true, // Đã thêm bắt buộc
+            validators: [Validators.required], // Đã thêm Validators
             options: [
               { value: 'Nam', label: 'Nam' },
               { value: 'Nữ', label: 'Nữ' },
@@ -443,7 +473,9 @@ export class RegistrationStepperDialog implements OnInit {
           {
             name: 'ngaySinh',
             label: 'Ngày sinh',
-            type: 'date'
+            type: 'date',
+            required: true, // Đã thêm bắt buộc
+            validators: [Validators.required] // Đã thêm Validators
           }
         ]
       }
@@ -455,10 +487,6 @@ export class RegistrationStepperDialog implements OnInit {
         return acc;
       }, {})
     );
-
-    console.log('=== FORM INITIALIZED ===');
-    console.log('Fields in customerForm:', Object.keys(this.customerForm.controls));
-    console.log('Has ngaySinh?', !!this.customerForm.get('ngaySinh'));
   }
 
   /**
@@ -517,75 +545,59 @@ export class RegistrationStepperDialog implements OnInit {
   }
 
   /**
-   * Chuyển sang Step 2
-   */
+     * Chuyển sang Step 2
+     */
   proceedToStep2(): void {
-    // Kiểm tra: phải có khách hàng được chọn hoặc điền thông tin hợp lệ
     if (!this.customerForm) {
       this.errorMessage = 'Lỗi: Form không được khởi tạo';
       return;
     }
 
-    if (!this.selectedCustomer && this.customerForm.invalid) {
-      this.errorMessage = 'Vui lòng điền thông tin khách hàng hợp lệ trước khi chuyển bước';
-      return;
+    // 1. Nếu không có khách cũ được chọn -> Chắc chắn là Khách Mới
+    const isActuallyNew = this.selectedCustomer === null;
+
+    // 2. ÉP LỖI: Bắt buộc nhập đầy đủ 5 trường
+    if (isActuallyNew) {
+      this.customerForm.markAllAsTouched();
+
+      if (this.customerForm.invalid) {
+        if (this.customerForm.get('tenKhachHang')?.hasError('required')) {
+          this.errorMessage = 'Vui lòng nhập tên khách hàng';
+        } else if (this.customerForm.get('sdt')?.hasError('required')) {
+          this.errorMessage = 'Vui lòng nhập số điện thoại';
+        } else if (this.customerForm.get('email')?.hasError('required')) {
+          this.errorMessage = 'Vui lòng nhập email';
+        } else if (this.customerForm.get('email')?.hasError('email')) {
+          this.errorMessage = 'Vui lòng nhập email hợp lệ (VD: abc@domain.com)';
+        } else if (this.customerForm.get('gioiTinh')?.hasError('required')) {
+          this.errorMessage = 'Vui lòng chọn giới tính'; // Bắt lỗi Giới tính
+        } else if (this.customerForm.get('ngaySinh')?.hasError('required')) {
+          this.errorMessage = 'Vui lòng chọn ngày sinh'; // Bắt lỗi Ngày sinh
+        } else {
+          this.errorMessage = 'Vui lòng nhập đầy đủ các thông tin bắt buộc (*)';
+        }
+        return; // Dừng lại, không cho sang Bước 2
+      }
     }
 
-    // Lưu dữ liệu Step 1 vào mainForm (nếu đã chọn khách thì lưu object khách, còn không thì lưu giá trị form)
-    const customerData = this.selectedCustomer ? this.selectedCustomer : this.customerForm.getRawValue();
-    if (this.mainForm.get('customerData')) {
-      this.mainForm.get('customerData')?.patchValue(customerData);
-    } else {
+    // 3. Lấy dữ liệu và lưu an toàn
+    const customerData = this.customerForm.getRawValue();
+
+    if (!this.mainForm.contains('customerData')) {
       this.mainForm.addControl('customerData', new FormControl(customerData));
-    }
-    this.mainForm.addControl('isNewCustomer', new FormControl(this.isNewCustomer));
-    this.mainForm.addControl('selectedCustomerId', new FormControl(this.selectedCustomer?._id || null));
-
-    // If this is a new customer, ensure any previous customer's existing registrations/classes
-    // are cleared so time-conflict validation does not apply.
-    if (this.isNewCustomer || this.mainForm.get('isNewCustomer')?.value) {
-      this.customerExistingCourseTypes = [];
-      this.customerExistingClasses = [];
+      this.mainForm.addControl('isNewCustomer', new FormControl(isActuallyNew));
+      this.mainForm.addControl('selectedCustomerId', new FormControl(this.selectedCustomer?._id || null));
+    } else {
+      // Update existing controls with latest values
+      this.mainForm.get('customerData')?.patchValue(customerData);
+      this.mainForm.get('isNewCustomer')?.setValue(isActuallyNew);
+      this.mainForm.get('selectedCustomerId')?.setValue(this.selectedCustomer?._id || null);
     }
 
+    // 4. Cho qua bước 2
     this.currentStep = 2;
     this.errorMessage = '';
     this.initializeStep2();
-  }
-
-  /**
-   * ========== STEP 2: CLASS SELECTION ==========
-   */
-
-  private loadClasses(): void {
-    this.classService.getClasses().subscribe({
-      next: (data) => {
-        this.classes = data;
-        const deduped = this.dedupeClasses(data);
-        this.filteredClasses = [...deduped];
-        if (data.length !== deduped.length) {
-          console.warn('[loadClasses] Duplicates removed:', data.length - deduped.length);
-        }
-        console.log('Classes loaded:', deduped.length);
-      },
-      error: (err) => {
-        console.error('Lỗi tải danh sách lớp học:', err);
-        this.errorMessage = 'Không thể tải danh sách lớp học';
-      }
-    });
-  }
-
-  private loadCourses(): void {
-    this.courseService.getCourses().subscribe({
-      next: (data) => {
-        this.courses = data;
-        console.log('Courses loaded:', data.length);
-        console.log('Sample course:', data[0]);
-      },
-      error: (err) => {
-        console.error('Lỗi tải danh sách khóa học:', err);
-      }
-    });
   }
 
   /**
@@ -872,6 +884,18 @@ export class RegistrationStepperDialog implements OnInit {
   }
 
   /**
+   * Unified handler for the Next button to avoid accidental double-advances
+   */
+  onNextClick(): void {
+    if (this.isLoading) return;
+    if (this.currentStep === 1) {
+      this.proceedToStep2();
+    } else if (this.currentStep === 2) {
+      this.proceedToStep3();
+    }
+  }
+
+  /**
    * ========== STEP 3: SUBMIT & CREATE RECORDS ==========
    */
 
@@ -892,7 +916,7 @@ export class RegistrationStepperDialog implements OnInit {
     const isNewCustomer = this.mainForm.get('isNewCustomer')?.value ?? this.isNewCustomer;
     const selectedCustomerId = this.mainForm.get('selectedCustomerId')?.value;
 
-    let customerId = selectedCustomerId;
+    let customerId = selectedCustomerId || this.selectedCustomer?._id || null;
 
     // ========== Step 1: Tạo Customer (nếu khách mới) ==========
     if (isNewCustomer) {
@@ -911,7 +935,7 @@ export class RegistrationStepperDialog implements OnInit {
 
       this.clientService.addClient(newClientPayload).subscribe({
         next: (createdCustomer) => {
-          customerId = createdCustomer._id;
+          customerId = createdCustomer._id || createdCustomer.maKh || customerId;
           // refresh local customers list and put the new customer on top
           this.loadCustomers();
           this.customers = [createdCustomer, ...this.customers.filter(c => c._id !== createdCustomer._id)];
@@ -950,8 +974,21 @@ export class RegistrationStepperDialog implements OnInit {
 
     this.registrationService.addRegistration(registrationPayload).subscribe({
       next: (createdRegistration) => {
-        // Sau khi tạo Registration, tạo Payment (Debt)
-        this.createDebtRecord(customerId, customerData, classData, createdRegistration);
+        this.existingRegistrations = [
+          createdRegistration,
+          ...this.existingRegistrations.filter(reg => reg.maDangKy !== createdRegistration.maDangKy)
+        ];
+
+        // Sau khi tạo Registration, cập nhật trạng thái khách hàng rồi tạo Payment (Debt)
+        this.markCustomerAsRegistered(customerId).subscribe({
+          next: () => {
+            this.createDebtRecord(customerId, customerData, classData, createdRegistration);
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.errorMessage = 'Lỗi cập nhật trạng thái khách hàng: ' + err.message;
+          }
+        });
       },
       error: (err) => {
         this.isLoading = false;
@@ -1006,17 +1043,56 @@ export class RegistrationStepperDialog implements OnInit {
    */
 
   private generateCustomerCode(): string {
-    const date = new Date();
-    const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `KH-${dateStr}-${random}`;
+    return this.generateSequentialCode('KH', this.customers.map(customer => customer.maKh || ''));
   }
 
   private generateRegistrationCode(): string {
-    const date = new Date();
-    const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `DK-${dateStr}-${random}`;
+    return this.generateSequentialCode('DK', this.existingRegistrations.map(registration => registration.maDangKy || ''));
+  }
+
+  private generateSequentialCode(prefix: 'KH' | 'DK', existingCodes: string[]): string {
+    const dateCode = this.getCurrentDateCode();
+    const pattern = new RegExp(`^${prefix}-${dateCode}-(\\d{3})$`, 'i');
+
+    let maxSequence = 0;
+    for (const existingCode of existingCodes) {
+      const match = `${existingCode ?? ''}`.trim().match(pattern);
+      if (match) {
+        maxSequence = Math.max(maxSequence, Number(match[1]));
+      }
+    }
+
+    const nextSequence = maxSequence + 1;
+    if (nextSequence > 999) {
+      throw new Error(`Đã vượt quá giới hạn mã ${prefix} trong ngày ${dateCode}`);
+    }
+
+    return `${prefix}-${dateCode}-${String(nextSequence).padStart(3, '0')}`;
+  }
+
+  private getCurrentDateCode(date = new Date()): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}${month}${year}`;
+  }
+
+  private markCustomerAsRegistered(customerId: string) {
+    const updatedStatus = 'Đã đăng ký khóa';
+
+    return this.clientService.updateClient(customerId, { trangThai: updatedStatus }).pipe(
+      tap((updatedCustomer: iClient) => {
+        const localId = updatedCustomer._id || customerId;
+        this.selectedCustomer = this.selectedCustomer && (this.selectedCustomer._id === localId || this.selectedCustomer.maKh === localId)
+          ? { ...this.selectedCustomer, trangThai: updatedStatus }
+          : this.selectedCustomer;
+
+        this.customers = this.customers.map(customer => {
+          const matchesId = customer._id === localId || customer.maKh === localId;
+          return matchesId ? { ...customer, trangThai: updatedStatus } : customer;
+        });
+      })
+    );
   }
 
   private getCourseNameById(courseId: string): string {

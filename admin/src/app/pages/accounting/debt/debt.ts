@@ -172,6 +172,14 @@ export class Debt {
     this.initForm();
   }
 
+  private sortPaymentsNewestFirst(items: any[]): any[] {
+    return [...items].sort((left, right) => {
+      const leftTime = new Date(left.createdAt || left.updatedAt || left.ngayDangKy || 0).getTime();
+      const rightTime = new Date(right.createdAt || right.updatedAt || right.ngayDangKy || 0).getTime();
+      return rightTime - leftTime;
+    });
+  }
+
   toggleFilter() {
 
     this.isFilterOpen = !this.isFilterOpen;
@@ -184,7 +192,7 @@ export class Debt {
 
       next: (items: any[]) => {
 
-        this.payments = items.map((item) => ({
+        this.payments = this.sortPaymentsNewestFirst(items.map((item) => ({
 
           stt: item.stt,
 
@@ -219,9 +227,12 @@ export class Debt {
 
           soTienConLai: item.soTienConLai,
 
-          trangThai: item.trangThaiThanhToan
+          trangThai: item.trangThaiThanhToan,
 
-        }));
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt
+
+        })));
 
         this.filteredPayments = [...this.payments];
 
@@ -551,9 +562,8 @@ export class Debt {
 
       }
 
-      this.filteredPayments = [
-        ...this.payments
-      ];
+      this.payments = this.sortPaymentsNewestFirst(this.payments);
+      this.filteredPayments = [...this.payments];
 
     }
 
