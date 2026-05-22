@@ -60,8 +60,33 @@
 
             <!-- Avatar -->
             <div class="avatar" (click)="onAvatarClick()">
-                <img src="/avatar.jpg" alt="User Avatar" class="avatar-img" />
+
+                <!-- Có avatar -->
+                <img
+                    *ngIf="avatarUrl"
+                    [src]="avatarUrl"
+                    alt="User Avatar"
+                    class="avatar-img"
+                />
+
+                <!-- Không có avatar -->
+                <div
+                    *ngIf="!avatarUrl"
+                    class="avatar-default"
+                >
+
+                    <i
+                        class="bi"
+                        [ngClass]="
+                            gender === 'Nữ'
+                            ? 'bi-gender-female'
+                            : 'bi-gender-male'
+                        "
+                    ></i>
+
+                </div>
+
             </div>
         </div>
     </div>
-</header>
+</header>

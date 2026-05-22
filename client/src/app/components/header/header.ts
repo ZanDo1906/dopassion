@@ -2,20 +2,39 @@ import { Component, ElementRef, ViewChild, AfterViewInit, HostListener } from '@
 import { Router, NavigationEnd } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
 export class Header implements AfterViewInit {
+  avatarUrl: string = '';
+  gender: string = '';
   @ViewChild('navMenu') navMenu!: ElementRef;
 
   private lastLeft = -1;
   private lastWidth = -1;
 
   constructor(private router: Router) {
+    const userData = localStorage.getItem('currentUser');
+
+if (userData) {
+
+  const user = JSON.parse(userData);
+  this.gender = user.gioiTinh || '';
+
+  // có avatar từ DB
+  if (user.avatar && user.avatar.trim() !== '') {
+
+    this.avatarUrl = user.avatar;
+
+  }
+
+
+}
     // Recalculate on route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

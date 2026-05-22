@@ -461,3 +461,48 @@ thead th.sticky-action {
 :host ::ng-deep app-form-dialog.hide-submit .btn-submit {
     display: none !important;
 }
+.status-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 4px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    border: 1px solid;
+
+    min-width: 90px;
+
+}
+
+/* Đang hoạt động */
+
+.status-badge.active {
+
+    background: #e8f7ec;
+
+    color: #2e9b50;
+
+    border-color: #b7e4c2;
+
+}
+
+/* Ngưng hoạt động */
+
+.status-badge.inactive {
+
+    background: #fdeeee;
+
+    color: #d9534f;
+
+    border-color: #f5c2c0;
+
+}

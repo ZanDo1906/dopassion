@@ -49,6 +49,8 @@
                 <input
                   type="text"
                   placeholder="Nhập email hoặc số điện thoại"
+                  [(ngModel)]="loginValue"
+                  name="loginValue"
                 >
               </div>
             </div>
@@ -63,6 +65,8 @@
                 <input
                   type="password"
                   placeholder="Nhập mật khẩu"
+                  [(ngModel)]="password"
+                  name="password"
                 >
 
                 <button type="button" class="toggle-password">

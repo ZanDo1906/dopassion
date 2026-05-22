@@ -34,8 +34,10 @@
         </label>
 
       </div>
-      <h2 class="profile-name">Dương Trọng Nhân</h2>
-      <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
+      <h2 class="profile-name">
+        {{ fullName }}
+      </h2>
+      <p class="profile-date"> Đã tham gia từ {{ joinDate }}</p>
     </div>
 
     <nav class="menu">
@@ -99,16 +101,18 @@
               <input
                 type="date"
                 id="dob"
-                value="2005-06-16"
+                [(ngModel)]="dateOfBirth"
+                name="dateOfBirth"
                 [disabled]="!isEditingProfile"
-              >
+              />
             </div>
             <div class="form-group">
               <label for="email">Email</label>
               <input
                 type="email"
                 id="email"
-                placeholder="nhandt234@st.uel.edu.vn"
+                [(ngModel)]="email"
+                name="email"
                 [readonly]="!isEditingProfile"
               >
             </div>

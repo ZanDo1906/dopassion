@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
 interface CalendarDay {
   date: number;
   isCurrentMonth: boolean;
@@ -60,8 +59,12 @@ interface PaymentDetail {
 export class Account implements OnInit {
   constructor(private router: Router) {}
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
-  fullName: string = 'Dương Trọng Nhân';
-  phoneNumber: string = '0562173125';
+  fullName: string = '';
+  phoneNumber: string = '';
+  email: string = '';
+  customerCode: string = '';
+  dateOfBirth: string = '';
+  joinDate: string = '';
   showPasswordForm: boolean = false;
 
   // PROFILE EDIT
@@ -199,9 +202,68 @@ avatarPreview: string | null = null;
   }
 
   ngOnInit() {
-    this.generateCalendar();
+
+  this.generateCalendar();
+
+  // LẤY USER LOGIN
+  const userData = localStorage.getItem('currentUser');
+
+  if (!userData) {
+
+    this.router.navigate(['/login']);
+
+    return;
   }
 
+  const user = JSON.parse(userData);
+
+  console.log('USER LOGIN:', user);
+
+
+  // FILL PROFILE
+this.fullName =
+  user.tenKhachHang ||
+  user.fullName ||
+  '';
+
+this.phoneNumber =
+  user.soDienThoai ||
+  user.sdt ||
+  user.phone ||
+  '';
+
+this.email = user.email || '';
+
+this.customerCode =
+  user.maKh ||
+  user.maKhachHang ||
+  '';
+
+
+// FIX NGÀY SINH
+if (user.ngaySinh) {
+
+  const ngaySinh = new Date(user.ngaySinh);
+
+  this.dateOfBirth =
+    `${ngaySinh.getUTCFullYear()}-` +
+    `${String(ngaySinh.getUTCMonth() + 1).padStart(2, '0')}-` +
+    `${String(ngaySinh.getUTCDate()).padStart(2, '0')}`;
+
+}
+
+
+// FIX NGÀY THAM GIA
+if (user.ngayDangKy) {
+
+  const ngayDangKy = new Date(user.ngayDangKy);
+
+  const month = ngayDangKy.getUTCMonth() + 1;
+  const year = ngayDangKy.getUTCFullYear();
+
+  this.joinDate = `tháng ${month} năm ${year}`;
+
+}}
   generateCalendar() {
     const firstDayOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1);
     const lastDayOfMonth = new Date(this.selectedYear, this.selectedMonth, 0);
@@ -392,7 +454,11 @@ onAvatarChange(event: any) {
   reader.readAsDataURL(file);
 }
 logout(){
+
+  localStorage.removeItem('currentUser');
+
   this.router.navigate(['/login']);
+
 }
 
 }

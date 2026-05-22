@@ -1,26 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForOf, NgIf } from '@angular/common';
-import {
-FormBuilder,
-FormGroup,
-FormsModule,
-ReactiveFormsModule,
-Validators
-} from '@angular/forms';
-
+import { NgForOf, NgIf, NgClass } from '@angular/common';
+import {FormBuilder,FormGroup,FormsModule,ReactiveFormsModule,Validators} from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-
 import { VoucherService } from '../../../services/voucher';
-
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
-
-import {
-FilterConfig,
-FilterDataPicker
-} from '../../../components/filter-data-picker/filter-data-picker';
-
+import {FilterConfig,FilterDataPicker} from '../../../components/filter-data-picker/filter-data-picker';
 import { iVoucher } from '../../../interfaces/voucher';
-
+import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 const BRANCHES = [
   { label: 'Chi nhánh 1', value: 'CN1' },
   { label: 'Chi nhánh 2', value: 'CN2' },
@@ -36,20 +22,19 @@ const COURSE_OPTIONS = [
 @Component({
 selector: 'app-voucher',
 standalone: true,
-imports: [
-FormsModule,
-ReactiveFormsModule,
-NgIf,
-NgForOf,
-NgSelectModule,
-GridFormDialog,
-FilterDataPicker
-],
+imports: [FormsModule,ReactiveFormsModule,NgIf,NgForOf,NgClass,NgSelectModule,GridFormDialog,FilterDataPicker, ConfirmDialog],
 templateUrl: './voucher.html',
 styleUrls: ['./voucher.css'],
 })
 
 export class Voucher implements OnInit {
+    showConfirmDialog = false;
+
+    selectedVoucher: any = null;
+
+    confirmTitle = '';
+
+    confirmMessage = '';
 
 filterConfig: FilterConfig[] = [
 { key: 'maVoucher', label: 'Mã Voucher', type: 'text' },
@@ -76,6 +61,7 @@ options: [
 { label: 'Ngưng hoạt động', value: false }
 ]
 }
+
 ];
 
 roles: iVoucher[] = [];
@@ -134,6 +120,12 @@ name: 'khoaHocApDung',
 label: 'Khóa học áp dụng',
 type: 'multi-select',
 options: COURSE_OPTIONS
+}
+,
+{
+name: 'active',
+label: 'Trạng thái',
+type: 'text'
 }
 ]
 },
@@ -195,7 +187,8 @@ tenChuongTrinh: [''],
 chiNhanh: [[]],
 khoaHocApDung: [[]],
 donViGiam: [''],
-thongSoGiam: ['']
+thongSoGiam: [''],
+active: ['']
 });
 
 }
@@ -209,27 +202,19 @@ this.voucherService.getVoucher().subscribe({
 next: (items: any[]) => {
 
 this.allData = (items || []).map((item) => ({
-
 _id: item._id,
-
 stt: item.stt,
-
 maVoucher: item.maVoucher,
-
 tenChuongTrinh: item.tenChuongTrinh,
-
 donViGiam: item.donViGiam,
-
 thongSoGiam: item.thongSo,
-
 maLop: '',
-
+active: item.active,
 chiNhanh: Array.isArray(item.chiNhanh)
     ? item.chiNhanh
     : item.chiNhanh
         ? [item.chiNhanh]
         : [],
-
 khoaHocApDung: Array.isArray(item.khoaHocApDung)
     ? item.khoaHocApDung
     : item.khoaHocApDung
@@ -316,7 +301,7 @@ const normalizedItemValues = itemValue
 )
 .filter(Boolean);
 
-return normalizedSelected.some((selected) =>
+return normalizedSelected.every((selected) =>
 normalizedItemValues.includes(selected)
 );
 
@@ -462,18 +447,33 @@ value
 }));
 
 const branchOptions = Array.from(
-new Set(
-this.allData.flatMap((item) =>
-Array.isArray(item.chiNhanh)
-? item.chiNhanh
-: []
-)
-)
+
+    new Set(
+
+        this.allData.flatMap((item) => {
+
+            if (Array.isArray(item.chiNhanh)) {
+
+                return item.chiNhanh.flatMap((branch: string) =>
+
+                    branch
+                        .split(',')
+                        .map(x => x.trim())
+                );
+
+            }
+
+            return [];
+
+        })
+
+    )
+
 )
 .filter(Boolean)
 .map((value) => ({
-label: value,
-value
+    label: value,
+    value
 }));
 
 this.filterConfig = this.filterConfig.map((field) => {
@@ -556,7 +556,11 @@ chiNhanh: Array.isArray(item.chiNhanh)
 
 khoaHocApDung: Array.isArray(item.khoaHocApDung)
 ? item.khoaHocApDung
-: []
+: [],
+
+active: item.active
+? 'Đang hoạt động'
+: 'Ngưng hoạt động'
 
 });
 
@@ -600,6 +604,87 @@ khoaHocApDung: Array.isArray(item.khoaHocApDung)
 });
 
 this.showAddDialog = true;
+
+}
+
+toggleVoucherStatus(item: any): void {
+
+  this.selectedVoucher = item;
+
+  if (item.active) {
+
+    this.confirmTitle =
+      'Ngưng hoạt động voucher';
+
+    this.confirmMessage =
+      'Bạn có chắc muốn ngưng hoạt động voucher này không?';
+
+  }
+
+  else {
+
+    this.confirmTitle =
+      'Kích hoạt voucher';
+
+    this.confirmMessage =
+      'Bạn có chắc muốn kích hoạt lại voucher này không?';
+
+  }
+
+  this.showConfirmDialog = true;
+
+}
+confirmToggleVoucherStatus(): void {
+
+  if (!this.selectedVoucher) {
+    return;
+  }
+
+  const payload = {
+
+    ...this.selectedVoucher,
+
+    active: !this.selectedVoucher.active
+
+  };
+
+  this.voucherService
+    .updateVoucher(
+      this.selectedVoucher._id,
+      payload
+    )
+    .subscribe({
+
+      next: () => {
+
+        this.selectedVoucher.active =
+          !this.selectedVoucher.active;
+
+        this.filteredData = [...this.allData];
+
+        this.showConfirmDialog = false;
+
+        this.selectedVoucher = null;
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Lỗi cập nhật trạng thái voucher',
+          error
+        );
+
+      }
+
+    });
+
+}
+closeConfirmDialog(): void {
+
+  this.showConfirmDialog = false;
+
+  this.selectedVoucher = null;
 
 }
 

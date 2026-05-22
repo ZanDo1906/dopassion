@@ -42,6 +42,7 @@
                     <th>Đơn vị giảm</th>
                     <th>Thông số giảm</th>
                     <th>Chi nhánh áp dụng</th>
+                    <th>Trạng thái</th>
                     <th>Tác vụ</th>
                 </tr>
             </thead>
@@ -66,6 +67,15 @@
                     <td>{{ item.donViGiam }}</td>
                     <td>{{ item.thongSoGiam }}</td>
                     <td>{{ item.chiNhanh?.join(', ') || '' }}</td>
+                    <td>
+                        <span *ngIf="item.active" class="status-badge active">
+                            Đang hoạt động
+                        </span>
+
+                        <span *ngIf="!item.active" class="status-badge inactive">
+                            Ngưng hoạt động
+                        </span>
+                    </td>
                     <!-- ACTION -->
                     <td class="sticky-action">
                         <div class="action-group">
@@ -73,11 +83,31 @@
                                 (click)="viewVoucherDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Chỉnh sửa" (click)="editVoucher(item)">
+                            <button
+                                *ngIf="item.active"
+                                class="icon-btn"
+                                type="button"
+                                title="Chỉnh sửa"
+                                (click)="editVoucher(item)"
+                            >
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="icon-btn" type="button" title="Ngưng hoạt động" style="color: red;">
-                                <i class="bi bi-ban"></i>
+                            <button
+                                class="icon-btn"
+                                type="button"
+                                (click)="toggleVoucherStatus(item)"
+                                [title]="item.active ? 'Ngưng hoạt động' : 'Kích hoạt lại'"
+                                [style.color]="item.active ? '#4C70AD': '#4C70AD'"
+                            >
+
+                                <i
+                                    class="bi"
+                                    [ngClass]="
+                                        item.active
+                                        ? 'bi bi-unlock'
+                                        : 'bi bi-lock-fill'
+                                    "
+                                ></i>
                             </button>
                         </div>
                     </td>
@@ -122,3 +152,15 @@
         </div>
     </div>
 </div>
+<app-confirm-dialog
+    [isOpen]="showConfirmDialog"
+    [title]="confirmTitle"
+    [message]="confirmMessage"
+    confirmText="Xác nhận"
+    cancelText="Hủy"
+    confirmIcon="bi bi-check-circle"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="confirmToggleVoucherStatus()"
+    (cancel)="closeConfirmDialog()"
+>
+</app-confirm-dialog>

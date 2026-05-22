@@ -372,8 +372,8 @@ export class Debt {
       const matchesStatus =
         status
           ? item.trangThai
-              ?.toLowerCase()
-              .includes(status)
+              ?.trim()
+              .toLowerCase() === status
           : true;
 
       return (
