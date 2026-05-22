@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header navbar-glass">
     <div class="header-container">
         <!-- Logo -->
         <div class="logo">
@@ -6,11 +6,12 @@
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="nav-menu">
+        <nav class="nav-menu nav-pill" #navMenu>
+            <div class="nav-indicator"></div>
 
             <a
                 [routerLink]="['/home']"
-                class="nav-item"
+                class="nav-item nav-item-link"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"
                 #rlaHome="routerLinkActive"
@@ -21,7 +22,7 @@
 
             <a
                 routerLink="/classes"
-                class="nav-item"
+                class="nav-item nav-item-link"
                 routerLinkActive="active"
             >
                 Lớp học
@@ -29,7 +30,7 @@
 
             <a
                 routerLink="/contact"
-                class="nav-item"
+                class="nav-item nav-item-link"
                 routerLinkActive="active"
             >
                 Liên hệ
@@ -37,7 +38,7 @@
 
             <a
                 routerLink="/reviews"
-                class="nav-item"
+                class="nav-item nav-item-link"
                 routerLinkActive="active"
             >
                 Đánh giá
@@ -63,4 +64,4 @@
             </div>
         </div>
     </div>
-</header>
+</header>

@@ -47,7 +47,7 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: 1px;
-  color: #ff9800;
+  color: #4f70a6;
 }
 
 .classes-header h2 {
@@ -381,7 +381,7 @@
 .course-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0, 102, 204, 0.15);
-  border-color: #ff9800;
+  border-color: #d47a20;
 }
 
 .course-image {
@@ -517,7 +517,7 @@
 .view-details-btn {
   width: 100%;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #ff9800 0%, #f77d00 100%);
+  background: linear-gradient(135deg, #4f70a6 0%, #d47a20 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -528,13 +528,13 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(212, 122, 32, 0.2);
 }
 
 .view-details-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.3);
-  background: linear-gradient(135deg, #f77d00 0%, #e66a00 100%);
+  box-shadow: 0 6px 16px rgba(212, 122, 32, 0.35);
+  filter: brightness(1.08);
 }
 
 .checkbox-item {

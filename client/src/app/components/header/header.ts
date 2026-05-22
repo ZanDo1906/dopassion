@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -8,8 +9,61 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header {
-  constructor(private router: Router) { }
+export class Header implements AfterViewInit {
+  @ViewChild('navMenu') navMenu!: ElementRef;
+
+  private lastLeft = -1;
+  private lastWidth = -1;
+
+  constructor(private router: Router) {
+    // Recalculate on route changes
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      setTimeout(() => this.updateIndicator(), 100);
+    });
+  }
+
+  ngAfterViewInit() {
+    // Initial calculation
+    setTimeout(() => this.updateIndicator(), 150);
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.updateIndicator();
+  }
+
+  // Periodic check on click to ensure state is synchronized
+  @HostListener('click')
+  onClick() {
+    setTimeout(() => this.updateIndicator(), 50);
+  }
+
+  updateIndicator() {
+    if (!this.navMenu) return;
+    const menuEl = this.navMenu.nativeElement;
+    const activeEl = menuEl.querySelector('.nav-item-link.active');
+    const indicatorEl = menuEl.querySelector('.nav-indicator');
+    
+    if (activeEl && indicatorEl) {
+      const left = activeEl.offsetLeft;
+      const width = activeEl.offsetWidth;
+      
+      // Only touch DOM if coords actually changed
+      if (left !== this.lastLeft || width !== this.lastWidth) {
+        this.lastLeft = left;
+        this.lastWidth = width;
+        indicatorEl.style.left = `${left}px`;
+        indicatorEl.style.width = `${width}px`;
+        indicatorEl.style.opacity = '1';
+      }
+    } else if (indicatorEl) {
+      indicatorEl.style.opacity = '0';
+      this.lastLeft = -1;
+      this.lastWidth = -1;
+    }
+  }
 
   onHelpClick() {
     // TODO: Xử lý click help icon
@@ -25,3 +79,4 @@ export class Header {
     this.router.navigate(['/account']);
   }
 }
+

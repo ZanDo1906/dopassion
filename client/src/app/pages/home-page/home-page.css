@@ -155,7 +155,7 @@
 }
 
 .card-btn {
-    background: #ffb800;
+    background: linear-gradient(135deg, #4f70a6, #d47a20);
     color: white;
     border: none;
     padding: 12px 28px;
@@ -171,8 +171,9 @@
 }
 
 .card-btn:hover {
-    background: #e6a600;
     transform: translateY(-2px) !important;
+    box-shadow: 0 6px 15px rgba(212, 122, 32, 0.35);
+    filter: brightness(1.08);
 }
 
 .program-card:hover .card-btn {
@@ -456,7 +457,7 @@
 
 .class-btn {
     margin-left: auto;
-    background-color: #ff8a2a;
+    background: linear-gradient(135deg, #4f70a6, #d47a20);
     color: #ffffff;
     border: none;
     padding: 6px 12px;
@@ -469,7 +470,7 @@
 
 .class-card:hover .class-btn {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(255, 138, 42, 0.35);
+    box-shadow: 0 6px 12px rgba(212, 122, 32, 0.35);
 }
 .lecturers-grid {
     display: grid;

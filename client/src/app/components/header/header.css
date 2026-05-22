@@ -1,12 +1,16 @@
-.header {
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.header.navbar-glass {
+    background: rgba(255, 255, 255, 0.7); /* White glass */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 100;
     width: 100%;
+    transition: all 0.3s ease;
 }
 
 .header-container {
@@ -16,58 +20,89 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 20px;
-    height: 70px;
+    height: 80px;
     gap: 20px;
 }
 
 /* Logo */
 .logo {
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
 .logo-img {
-    height: 70px;
+    height: 50px;
     width: auto;
     object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-/* Navigation Menu */
-.nav-menu {
+.logo-img:hover {
+    transform: scale(1.03);
+}
+
+/* Navigation Menu - Modern Glassmorphism Pill */
+.nav-menu.nav-pill {
     display: flex;
-    gap: 40px;
-    flex: 1;
+    align-items: center;
     justify-content: center;
-}
-
-.nav-item {
-    color: #3B5B94;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 700;
+    background: rgba(248, 250, 252, 0.6); /* Slate 50 white glass */
+    border-radius: 60px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 0.5px solid rgba(15, 23, 42, 0.08);
+    padding: 6px 8px;
+    gap: 8px;
+    flex: 0 1 auto;
     transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    padding-bottom: 6px;
+    position: relative; /* Crucial for absolute positioned indicator */
 }
 
-.nav-item::after {
-    content: "";
+/* Sliding active indicator - blue accent */
+.nav-indicator {
     position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 0%;
-    height: 3px;
-    background-color: #3B5B94;
-    border-radius: 999px;
-    transition: width 0.3s ease;
+    top: 6px;
+    height: calc(100% - 12px);
+    background: linear-gradient(135deg, #4f70a6, #d47a20); /* Custom blue/orange gradient */
+    box-shadow: 0 4px 14px rgba(79, 112, 166, 0.25);
+    border-radius: 50px;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
 }
 
-.nav-item:hover::after {
-    width: 100%;
+.nav-item-link {
+    color: #475569; /* Slate 600 - Muted inactive text */
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 8px 24px;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative; /* Crucial to render on top of indicator */
+    z-index: 1; /* Crucial to render on top of indicator */
 }
 
-.nav-item.active::after {
-    width: 100%;
+/* Hover effect: soft blue accent tint */
+.nav-item-link:hover:not(.active) {
+    color: #4f70a6; /* Accent blue */
+    background: rgba(79, 112, 166, 0.06); /* Soft blue glow background */
+}
+
+/* Active item: bright white text on blue indicator */
+.nav-item-link.active {
+    color: #ffffff !important;
+    font-weight: 700;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 /* Right Section */
@@ -80,21 +115,25 @@
 
 /* Icon Buttons */
 .icon-btn {
-    background: none;
-    border: none;
+    background: rgba(15, 23, 42, 0.02);
+    border: 1px solid rgba(15, 23, 42, 0.04);
     cursor: pointer;
-    padding: 5px 10px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
-    font-size: 20px;
-    color: #3B5B94;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    color: #475569;
 }
 
 .icon-btn:hover {
-    background-color: #f0f0f0;
+    background-color: rgba(79, 112, 166, 0.08);
+    color: #4f70a6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(79, 112, 166, 0.1);
 }
 
 .icon-btn i {
@@ -105,17 +144,18 @@
 
 /* Avatar */
 .avatar {
-    width: 45px;
-    height: 45px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #3B5B94;
+    border: 2px solid #4f70a6; /* Accent blue border */
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .avatar:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(79, 112, 166, 0.25);
 }
 
 .avatar-img {
@@ -124,32 +164,68 @@
     object-fit: cover;
 }
 
-/* Responsive */
+/* Responsive Styles for Mobile */
 @media (max-width: 768px) {
+    .header.navbar-glass {
+        background: rgba(255, 255, 255, 0.92); /* Bright white glass on mobile */
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
     .header-container {
-        padding: 0 15px;
-        height: 60px;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        height: auto;
+        padding: 12px 15px;
+        gap: 12px 0;
     }
 
-    .nav-menu {
-        gap: 20px;
-    }
-
-    .nav-item {
-        font-size: 12px;
+    .logo {
+        grid-column: 1;
+        grid-row: 1;
     }
 
     .logo-img {
         height: 40px;
     }
 
-    .avatar {
-        width: 40px;
-        height: 40px;
+    .header-right {
+        grid-column: 2;
+        grid-row: 1;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .nav-menu.nav-pill {
+        grid-column: 1 / span 2;
+        grid-row: 2;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none; /* Hide scrollbar for Firefox */
+        padding: 4px;
+        border-radius: 40px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+        background: rgba(248, 250, 252, 0.9);
+        border: 0.5px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .nav-menu.nav-pill::-webkit-scrollbar {
+        display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+    }
+
+    /* Adjust sliding indicator dimensions for mobile padding */
+    .nav-indicator {
+        top: 4px;
+        height: calc(100% - 8px);
+    }
+
+    .nav-item-link {
+        padding: 8px 18px;
+        font-size: 13px;
+        flex: 1 0 auto;
+        text-align: center;
     }
 }
 
-.nav-item.active {
-    color: #1e3a8a;
-}
