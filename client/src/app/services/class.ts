@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
 import { iClass, ClassFilter } from '../interfaces/class';
 import { environment } from '../../environments/environments';
 
@@ -13,41 +14,33 @@ export class Class {
   constructor(private http: HttpClient) { }
 
   getClasses(filters?: ClassFilter): Observable<iClass[]> {
-    return this.http.get<iClass[]>(this.apiUrl).pipe(
-      map((items) => {
-        if (!filters) {
-          return items;
-        }
+    let params = new HttpParams();
 
-        return items.filter((item) => {
-          const matchCourse = filters.courseCode
-            ? item.maKhoa === filters.courseCode
-            : true;
-          const matchBranch = filters.branch
-            ? item.chiNhanh === filters.branch
-            : true;
+    if (filters?.courseCode) {
+      params = params.set('courseCode', filters.courseCode);
+    }
 
-          const itemDate = item.ngayBatDau ? new Date(item.ngayBatDau) : null;
-          const startDate = filters.startDate ? new Date(filters.startDate) : null;
-          const endDate = filters.endDate ? new Date(filters.endDate) : null;
+    if (filters?.branch) {
+      params = params.set('branch', filters.branch);
+    }
 
-          const matchStartDate = startDate && itemDate
-            ? itemDate >= startDate
-            : true;
-          const matchEndDate = endDate && itemDate
-            ? itemDate <= endDate
-            : true;
+    if (filters?.startDate) {
+      params = params.set('startDate', filters.startDate);
+    }
 
-          const keyword = filters.keyword ? filters.keyword.toLowerCase() : '';
-          const matchKeyword = keyword
-            ? (item.tenLop || '').toLowerCase().includes(keyword)
-            || (item.maLop || '').toLowerCase().includes(keyword)
-            : true;
+    if (filters?.endDate) {
+      params = params.set('endDate', filters.endDate);
+    }
 
-          return matchCourse && matchBranch && matchStartDate && matchEndDate && matchKeyword;
-        });
-      })
-    );
+    if (filters?.keyword) {
+      params = params.set('keyword', filters.keyword);
+    }
+
+    return this.http.get<iClass[]>(this.apiUrl, { params });
+  }
+
+  getClassDetailByMaLop(maLop: string): Observable<iClass> {
+    return this.http.get<iClass>(`${this.apiUrl}/detail/${encodeURIComponent(maLop)}`);
   }
 
   addClass(data: iClass): Observable<iClass> {

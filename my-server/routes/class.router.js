@@ -3,12 +3,78 @@ const router = express.Router();
 
 // Import model
 const Class = require('../models/class');
+const Registration = require('../models/registration');
 
 // GET all
 router.get('/', async (req, res) => {
     try {
-        const data = await Class.find();
+        const { courseCode, branch, startDate, endDate, keyword } = req.query;
+
+        const query = {};
+
+        if (courseCode) {
+            query.maKhoa = `${courseCode}`.trim().toUpperCase();
+        }
+
+        if (branch) {
+            query.chiNhanh = `${branch}`.trim();
+        }
+
+        if (startDate || endDate) {
+            query.ngayBatDau = {};
+
+            if (startDate) {
+                query.ngayBatDau.$gte = new Date(startDate);
+            }
+
+            if (endDate) {
+                query.ngayBatDau.$lte = new Date(endDate);
+            }
+        }
+
+        if (keyword) {
+            const escapedKeyword = `${keyword}`.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.$or = [
+                { tenLop: { $regex: escapedKeyword, $options: 'i' } },
+                { maLop: { $regex: escapedKeyword, $options: 'i' } },
+                { tenKhoaHoc: { $regex: escapedKeyword, $options: 'i' } }
+            ];
+        }
+
+        const data = await Class.find(query);
         res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
+
+// GET detail by maLop with current enrollment count
+router.get('/detail/:maLop', async (req, res) => {
+    try {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+
+        const classData = await Class.findOne({ maLop: req.params.maLop });
+
+        if (!classData) {
+            return res.status(404).json({
+                message: 'Class not found'
+            });
+        }
+
+        // Count registration records that reference the same class code
+        const currentEnrollment = await Registration.countDocuments({
+            maLop: classData.maLop
+        });
+
+        res.status(200).json({
+            ...classData.toObject(),
+            currentEnrollment,
+            maxEnrollment: 30
+        });
     } catch (error) {
         res.status(500).json({
             message: error.message
