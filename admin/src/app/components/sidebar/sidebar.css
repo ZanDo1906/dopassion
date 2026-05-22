@@ -210,9 +210,17 @@
     padding: 0 0 0 1.5em;
 }
 
+
 .nav-sub-nested .nav-sub-item {
     background: rgba(255, 255, 255, 0.15);
     font-size: 0.95em;
+}
+
+.nav-sub-nested .nav-sub-item.active {
+    background: #f7f7f7;
+    color: #2f5ea8;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(42, 76, 127, 0.08);
 }
 
 .logout-btn {

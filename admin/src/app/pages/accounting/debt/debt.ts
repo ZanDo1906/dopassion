@@ -6,7 +6,7 @@ import { Payment } from '../../../services/payment';
 import { Course } from '../../../services/course';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
-
+import { VoucherService } from '../../../services/voucher';
 @Component({
   selector: 'app-debt',
   standalone: true,
@@ -17,6 +17,7 @@ import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 
 export class Debt {
 
+  vouchers: any[] = [];
   payments: any[] = [];
   filteredPayments: any[] = [];
   courses: any[] = [];
@@ -98,7 +99,9 @@ export class Debt {
         {
           name: 'voucher',
           label: 'Voucher',
-          type: 'text'
+          type: 'select',
+          options: []
+
         },
 
         {
@@ -165,11 +168,13 @@ export class Debt {
   constructor(
     private paymentService: Payment,
     private courseService: Course,
+    private voucherService: VoucherService,
     private fb: FormBuilder
   ) {
     this.loadPayments();
     this.loadCourses();
     this.initForm();
+    this.loadVouchers();
   }
 
   private sortPaymentsNewestFirst(items: any[]): any[] {
@@ -571,6 +576,51 @@ export class Debt {
 
   }
 
+loadVouchers() {
+
+  this.voucherService.getVouchers().subscribe({
+
+    next: (items: any[]) => {
+
+      this.vouchers = items.filter(
+        (x: any) => x.active === true
+      );
+
+      const voucherField: any =
+        this.paymentDetailSections[1].fields.find(
+          (x: any) => x.name === 'voucher'
+        );
+
+      if (voucherField) {
+
+        voucherField.options =
+          this.vouchers.map((voucher: any) => ({
+
+            value: voucher.maVoucher,
+
+            label:
+              voucher.maVoucher +
+              ' - ' +
+              voucher.tenChuongTrinh
+
+          }));
+
+      }
+
+    },
+
+    error: (error) => {
+
+      console.error(
+        'Không thể tải voucher',
+        error
+      );
+
+    }
+
+  });
+
+}
 
 }
 

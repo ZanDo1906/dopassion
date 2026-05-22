@@ -1,0 +1,71 @@
+<div class="role-page">
+
+    <div class="toolbar">
+
+        <button class="btn btn-outline" type="button">
+
+            <i class="bi bi-plus-circle"></i>
+
+            Thêm mới
+
+        </button>
+
+    </div>
+
+    <div class="table-card">
+
+        <table class="role-table">
+
+            <thead>
+
+                <tr>
+
+                    <th class="sticky-col sticky-stt">
+                        STT
+                    </th>
+
+                    <th>
+                        Mã chi nhánh
+                    </th>
+
+                    <th>
+                        Tên chi nhánh
+                    </th>
+
+                    <th>
+                        Địa chỉ
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let item of branches">
+
+                    <td class="sticky-col sticky-stt">
+                        {{ item.stt }}
+                    </td>
+
+                    <td>
+                        {{ item.maChiNhanh }}
+                    </td>
+
+                    <td>
+                        {{ item.tenChiNhanh }}
+                    </td>
+
+                    <td>
+                        {{ item.diaChi }}
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

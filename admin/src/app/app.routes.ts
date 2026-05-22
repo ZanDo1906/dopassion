@@ -137,5 +137,13 @@ export const routes: Routes = [
     {
         path: 'permissions',
         loadComponent: () => import('./pages/setting/permissions/permissions').then(m => m.Permissions)
-    }
+    },
+    // BRANCH
+    {
+    path: 'branch',
+    loadComponent: () =>
+        import('./pages/setting/branch/branch')
+        .then(m => m.Branch),
+    title: 'Branch'
+    },
 ];

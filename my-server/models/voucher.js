@@ -8,8 +8,8 @@ const voucherSchema = new Schema({
     tenChuongTrinh: { type: String },
     donViGiam: { type: String },
     thongSo: { type: Number },
-    chiNhanh: { type: String },
-    khoaHocApDung: { type: String },
+    chiNhanh: [{ type: String }],
+    khoaHocApDung: [{ type: String }],
     active: { type: Boolean },
 },
     {

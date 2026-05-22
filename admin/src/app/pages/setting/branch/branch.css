@@ -1,0 +1,112 @@
+.role-page {
+    --primary: #2a4d90;
+    --primary-600: #24447d;
+    --primary-100: #eef3ff;
+    --border: #c7d6f5;
+    --surface: #ffffff;
+    --text: #1f3766;
+    --shadow: 0 8px 20px rgba(22, 44, 84, 0.08);
+
+    font-family: 'Work Sans', sans-serif;
+    color: var(--text);
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 12px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 12px rgba(22, 44, 84, 0.12);
+}
+
+.btn-outline {
+    background: #ffffff;
+
+    border-color: var(--border);
+
+    color: var(--primary-600);
+}
+
+.table-card {
+    width: 100%;
+    overflow-x: auto;
+
+    background: #ffffff;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--border);
+
+    box-shadow: var(--shadow);
+}
+
+.role-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 12px;
+}
+
+.role-table thead th {
+    background: var(--primary-100);
+
+    color: var(--primary-600);
+
+    font-weight: 600;
+
+    padding: 12px;
+
+    border-bottom: 1px solid #e2e7f4;
+
+    text-align: center;
+}
+
+.role-table tbody td {
+    padding: 12px;
+
+    border-bottom: 1px solid #edf1fa;
+
+    text-align: center;
+
+    color: var(--text);
+}
+
+.role-table tbody tr:nth-child(even) {
+    background: #fafcff;
+}
+
+.role-table tbody tr:hover {
+    background: #f2f6ff;
+}
+
+th.sticky-stt,
+td.sticky-stt {
+    width: 70px;
+}

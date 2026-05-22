@@ -10,7 +10,8 @@
     <nav class="nav">
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('report')"
-                [attr.aria-expanded]="isOpen('report')" aria-controls="nav-report">
+                [attr.aria-expanded]="isOpen('report')" aria-controls="nav-report"
+                [class.active]="isSectionActive('report')">
                 <span class="nav-icon">
                     <i class="bi bi-bar-chart"></i>
                 </span>
@@ -18,15 +19,16 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('report')">▾</span>
             </button>
             <div class="nav-sub" id="nav-report" *ngIf="isOpen('report')">
-                <a class="nav-sub-item" routerLink="/report/student-report">Báo cáo học viên</a>
-                <a class="nav-sub-item" routerLink="/report/debt-report">Báo cáo công nợ</a>
-                <a class="nav-sub-item" routerLink="/report/revenue-report">Báo cáo doanh thu</a>
+                <a class="nav-sub-item" routerLink="/report/student-report" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Báo cáo học viên</a>
+                <a class="nav-sub-item" routerLink="/report/debt-report" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Báo cáo công nợ</a>
+                <a class="nav-sub-item" routerLink="/report/revenue-report" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Báo cáo doanh thu</a>
             </div>
         </div>
 
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('users')"
-                [attr.aria-expanded]="isOpen('users')" aria-controls="nav-users">
+                [attr.aria-expanded]="isOpen('users')" aria-controls="nav-users"
+                [class.active]="isSectionActive('users')">
                 <span class="nav-icon">
                     <i class="bi bi-people"></i>
                 </span>
@@ -35,14 +37,17 @@
             </button>
             <div class="nav-sub" id="nav-users" *ngIf="isOpen('users')">
                 <button class="nav-sub-item nav-sub-toggle" type="button" (click)="toggleSection('users.staff')"
-                    [attr.aria-expanded]="isOpen('users.staff')" aria-controls="nav-users-staff">
+                    [attr.aria-expanded]="isOpen('users.staff')" aria-controls="nav-users-staff"
+                    [class.active]="isSectionActive('users.staff')">
                     <span>Danh sách nhân viên</span>
                     <span class="nav-caret" [class.nav-caret--open]="isOpen('users.staff')">▾</span>
                 </button>
-                <div class="nav-sub-nested" id="nav-users-staff" *ngIf="isOpen('users.staff')">
-                    <a class="nav-sub-item" routerLink="/users/staff/role" routerLinkActive="active">Vai trò</a>
-                    <a class="nav-sub-item" routerLink="/users/staff/staff" routerLinkActive="active">Nhân viên</a>
-                </div>
+                                <ng-container routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+                                    <div class="nav-sub-nested" id="nav-users-staff" *ngIf="isOpen('users.staff')">
+                                            <a class="nav-sub-item" routerLink="/users/staff/role" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Vai trò</a>
+                                            <a class="nav-sub-item" routerLink="/users/staff/staff" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Nhân viên</a>
+                                    </div>
+                                </ng-container>
                 <a class="nav-sub-item" routerLink="/users/customer" routerLinkActive="active">Danh sách khách hàng</a>
                 <a class="nav-sub-item" routerLink="/users/registration" routerLinkActive="active">Danh sách đăng ký</a>
             </div>
@@ -50,7 +55,8 @@
 
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('courses')"
-                [attr.aria-expanded]="isOpen('courses')" aria-controls="nav-courses">
+                [attr.aria-expanded]="isOpen('courses')" aria-controls="nav-courses"
+                [class.active]="isSectionActive('courses')">
                 <span class="nav-icon">
                     <i class="bi bi-journal-text"></i>
                 </span>
@@ -58,14 +64,15 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('courses')">▾</span>
             </button>
             <div class="nav-sub" id="nav-courses" *ngIf="isOpen('courses')">
-                <a class="nav-sub-item" routerLink="/courses/courses">Khóa học</a>
-                <a class="nav-sub-item" routerLink="/courses/classes">Lớp học</a>
+                <a class="nav-sub-item" routerLink="/courses/courses" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Khóa học</a>
+                <a class="nav-sub-item" routerLink="/courses/classes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Lớp học</a>
             </div>
         </div>
 
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('interactions')"
-                [attr.aria-expanded]="isOpen('interactions')" aria-controls="nav-interactions">
+                [attr.aria-expanded]="isOpen('interactions')" aria-controls="nav-interactions"
+                [class.active]="isSectionActive('interactions')">
                 <span class="nav-icon">
                     <i class="bi bi-chat-dots"></i>
                 </span>
@@ -73,14 +80,15 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('interactions')">▾</span>
             </button>
             <div class="nav-sub" id="nav-interactions" *ngIf="isOpen('interactions')">
-                <a class="nav-sub-item" routerLink="/interactions/request">Yêu cầu</a>
-                <a class="nav-sub-item" routerLink="/interactions/feedback">Phản hồi</a>
+                <a class="nav-sub-item" routerLink="/interactions/request" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Yêu cầu</a>
+                <a class="nav-sub-item" routerLink="/interactions/feedback" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Phản hồi</a>
             </div>
         </div>
 
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('accounting')"
-                [attr.aria-expanded]="isOpen('accounting')" aria-controls="nav-accounting">
+                [attr.aria-expanded]="isOpen('accounting')" aria-controls="nav-accounting"
+                [class.active]="isSectionActive('accounting')">
                 <span class="nav-icon">
                     <i class="bi bi-cash-coin"></i>
                 </span>
@@ -88,15 +96,16 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('accounting')">▾</span>
             </button>
             <div class="nav-sub" id="nav-accounting" *ngIf="isOpen('accounting')">
-                <a class="nav-sub-item" routerLink="/accounting/refund">Hoàn tiền</a>
-                <a class="nav-sub-item" routerLink="/accounting/debt">Công nợ</a>
-                <a class="nav-sub-item" routerLink="/accounting/voucher">Voucher</a>
+                <a class="nav-sub-item" routerLink="/accounting/refund" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Hoàn tiền</a>
+                <a class="nav-sub-item" routerLink="/accounting/debt" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Công nợ</a>
+                <a class="nav-sub-item" routerLink="/accounting/voucher" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Voucher</a>
             </div>
         </div>
 
         <div class="nav-group">
             <button class="nav-item nav-item--toggle" type="button" (click)="toggleSection('setting')"
-                [attr.aria-expanded]="isOpen('setting')" aria-controls="nav-setting">
+                [attr.aria-expanded]="isOpen('setting')" aria-controls="nav-setting"
+                [class.active]="isSectionActive('setting')">
                 <span class="nav-icon">
                     <i class="bi bi-gear"></i>
                 </span>
@@ -104,6 +113,7 @@
                 <span class="nav-caret" [class.nav-caret--open]="isOpen('setting')">▾</span>
             </button>
             <div class="nav-sub" id="nav-setting" *ngIf="isOpen('setting')">
+                <a class="nav-sub-item" routerLink="/branch" routerLinkActive="active">Thiết lập Chi nhánh</a>
                 <a class="nav-sub-item" routerLink="/setting" routerLinkActive="active">Cấu hình</a>
                 <a class="nav-sub-item" routerLink="/permissions" routerLinkActive="active">Phân quyền</a>
             </div>

@@ -62,10 +62,10 @@
                     </td>
                     <td>{{ item.maVoucher }}</td>
                     <td>{{ item.tenChuongTrinh }}</td>
-                    <td>{{ item.khoaHocApDung?.join(', ') }}</td>
+                    <td>{{ item.khoaHocApDung?.join(', ') || '' }}</td>
                     <td>{{ item.donViGiam }}</td>
                     <td>{{ item.thongSoGiam }}</td>
-                    <td>{{ item.chiNhanh?.join(', ') }}</td>
+                    <td>{{ item.chiNhanh?.join(', ') || '' }}</td>
                     <!-- ACTION -->
                     <td class="sticky-action">
                         <div class="action-group">
