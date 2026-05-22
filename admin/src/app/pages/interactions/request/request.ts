@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; 
 import { ContactService } from '../../../services/contact'; 
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog'; 
-import { PaginationComponent } from '../../../components/pagination/pagination'; // Import phân trang dùng chung
+import { PaginationComponent } from '../../../components/pagination/pagination'; 
 import { iContact } from '../../../interfaces/contact';
 
 @Component({
@@ -23,12 +23,10 @@ export class Request implements OnInit {
   isModalOpen: boolean = false;
   isFilterOpen: boolean = true; 
 
-  // Cấu hình phân trang đồng bộ hệ thống giống hệt trang khách hàng
   currentPage: number = 1;
   itemsPerPage: number = 10;
   pageSizeOptions: number[] = [5, 10, 20, 50];
 
-  // Các biến lọc tìm kiếm độc lập tại client
   searchPhone: string = '';
   searchEmail: string = '';
   searchStatus: string = '';

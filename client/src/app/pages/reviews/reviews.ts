@@ -1,8 +1,12 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import 'iconify-icon';
+
+// Services
+import { Feedback as FeedbackService } from '../../services/feedback';
+import { Class as ClassService } from '../../services/class';
 
 // Interfaces
 export interface Review {
@@ -39,24 +43,24 @@ export interface DetailedRating {
   templateUrl: './reviews.html',
   styleUrl: './reviews.css',
 })
-export class Reviews {
+export class Reviews implements OnInit {
   // Make Math available in template
   Math = Math;
 
-  // Constants
-  readonly averageRating = 4.8;
-  readonly totalReviews = 1245;
-  readonly fiveStarPercentage = 72;
-  readonly responseRatePercentage = 91;
-  readonly categories = ['TOEIC', 'IELTS', 'Giao tiếp', 'Speaking'];
+  // Dynamic Rating Stats
+  averageRating = 5.0;
+  totalReviews = 0;
+  fiveStarPercentage = 0;
+  responseRatePercentage = 0;
+  categories: string[] = ['TOEIC', 'IELTS', 'Giao tiếp', 'Speaking'];
 
   // Rating Data
   ratingDistribution: RatingDistribution[] = [
-    { stars: 5, percentage: 72, count: 894 },
-    { stars: 4, percentage: 18, count: 223 },
-    { stars: 3, percentage: 6, count: 74 },
-    { stars: 2, percentage: 3, count: 37 },
-    { stars: 1, percentage: 1, count: 12 }
+    { stars: 5, percentage: 0, count: 0 },
+    { stars: 4, percentage: 0, count: 0 },
+    { stars: 3, percentage: 0, count: 0 },
+    { stars: 2, percentage: 0, count: 0 },
+    { stars: 1, percentage: 0, count: 0 }
   ];
 
   detailedRatings: DetailedRating[] = [
@@ -65,68 +69,184 @@ export class Reviews {
     { category: 'Hỗ trợ', rating: 5 }
   ];
 
-  // Reviews Data
-  reviews: Review[] = [
-    {
-      id: 1,
-      author: 'Nguyễn Tấn Dũng',
-      avatar: 'https://ui-avatars.com/api/?name=ND&background=ef4444&color=fff',
-      date: '21/12/2023',
-      rating: 5,
-      course: 'TOEIC',
-      courseCode: 'TOEIC LR108',
-      content: 'Mình rất hài lòng với khóa học vì giảng viên truyền đạt dễ hiểu, lớp học đúng tiến độ và đội ngũ hỗ trợ phản hồi nhanh mỗi khi cần. Phần bài tập được thiết kế vừa sức nhưng vẫn đủ thử thách để mình cải thiện kỹ năng đều hơn.',
-      helpful: 24,
-      hasReply: true,
-      reply: 'Cảm ơn bạn đã dành thời gian chia sẻ cảm nhận. Trung tâm rất vui khi chất lượng giảng dạy và hỗ trợ đã mang lại trải nghiệm tích cực cho bạn.',
-      replyAuthor: 'Giảng viên ĐỒNG TRƯỜNG'
-    },
-    {
-      id: 2,
-      author: 'Trần Gia Hân',
-      avatar: 'https://ui-avatars.com/api/?name=TH&background=f97316&color=fff',
-      date: '18/12/2023',
-      rating: 4,
-      course: 'IELTS',
-      courseCode: 'IELTS FOUNDATION',
-      content: 'Giáo trình khá rõ ràng và bài tập về nhà bám sát nội dung trên lớp. Mình mong trung tâm có thêm nhiều buổi chữa speaking theo nhóm nhỏ để được góp ý kỹ hơn cho từng học viên.',
-      helpful: 16,
-      hasReply: false
-    },
-    {
-      id: 3,
-      author: 'Lê Minh Tuấn',
-      avatar: 'https://ui-avatars.com/api/?name=LMT&background=3b82f6&color=fff',
-      date: '15/12/2023',
-      rating: 5,
-      course: 'Giao tiếp',
-      courseCode: 'COMMUNICATION 101',
-      content: 'Khóa học rất bổ ích, giáo viên thân thiện và giúp đỡ hết mình. Mình đã cải thiện kỹ năng giao tiếp đáng kể sau khóa học này. Sẽ tiếp tục học khóa tiếp theo.',
-      helpful: 32,
-      hasReply: true,
-      reply: 'Cảm ơn Tuấn! Rất vui khi bạn có tiến bộ. Chúng tôi sẽ chờ bạn trong khóa học tiếp theo.',
-      replyAuthor: 'DoPassion Team'
-    }
-  ];
+  // Reviews Data arrays
+  allFeedbacks: any[] = [];
+  filteredFeedbacks: any[] = [];
+  reviews: any[] = [];
+  visibleLimit = 3;
 
   // Filter States
   selectedClass = '';
   selectedRating = '';
   selectedSort = 'newest';
   searchQuery = '';
-  formRating = 0;
+  formRating = 5;
 
   // Reactive Form
   reviewFormGroup: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private feedbackService: FeedbackService,
+    private classService: ClassService
+  ) {
     this.reviewFormGroup = this.fb.group({
+      studentName: ['', Validators.required],
       class: ['', Validators.required],
       rating: [5, Validators.required],
-      satisfaction: ['very-satisfied', Validators.required],
       content: ['', [Validators.required, Validators.minLength(20)]],
       agreeToTerms: [false, Validators.requiredTrue]
     });
+  }
+
+  ngOnInit() {
+    this.loadClasses();
+    this.loadFeedbacks();
+  }
+
+  loadClasses() {
+    this.classService.getClasses().subscribe({
+      next: (data: any[]) => {
+        const classNames = data.map(c => c.tenLop).filter(Boolean);
+        const courseNames = data.map(c => c.tenKhoaHoc).filter(Boolean);
+        const distinct = Array.from(new Set([...classNames, ...courseNames]));
+        if (distinct.length > 0) {
+          this.categories = distinct;
+        } else {
+          this.categories = ['TOEIC', 'IELTS', 'Giao tiếp', 'Speaking'];
+        }
+      },
+      error: (err) => {
+        console.error('Không thể tải danh sách lớp học:', err);
+        this.categories = ['TOEIC', 'IELTS', 'Giao tiếp', 'Speaking'];
+      }
+    });
+  }
+
+  loadFeedbacks() {
+    this.feedbackService.getFeedback().subscribe({
+      next: (data: any[]) => {
+        this.allFeedbacks = data
+          .filter(item => {
+            // Lọc bỏ những phản hồi có trạng thái Đã ẩn hoặc Từ chối
+            return item.trangThai !== 'Đã ẩn' && item.trangThai !== 'Từ chối';
+          })
+          .map((item, index) => {
+            let parsedDate = '';
+            if (item.ngayDanhGia) {
+              const d = new Date(item.ngayDanhGia);
+              if (!isNaN(d.getTime())) {
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                parsedDate = `${day}/${month}/${year}`;
+              } else {
+                parsedDate = String(item.ngayDanhGia);
+              }
+            }
+
+            const author = item.tenKhachHang || 'Học viên ẩn danh';
+            const nameParts = author.split(' ');
+            const initials = nameParts.length > 1 
+              ? (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase()
+              : author.substring(0, 2).toUpperCase();
+            
+            const colors = ['ef4444', 'f97316', '3b82f6', '10b981', '8b5cf6'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${randomColor}&color=fff`;
+
+            return {
+              id: index + 1,
+              _id: item._id,
+              author: author,
+              avatar: avatar,
+              date: parsedDate,
+              rawDate: item.ngayDanhGia || new Date().toISOString(),
+              rating: item.soSao || 5,
+              course: item.tenLopHoc || 'Khóa học',
+              courseCode: item.maDangKy || 'Mã lớp',
+              content: item.noiDungDanhGia || '',
+              helpful: item.helpful || 0,
+              hasReply: false
+            };
+          });
+
+        this.calculateStats();
+        this.applyClientFilters();
+      },
+      error: (err) => {
+        console.error('Không thể tải đánh giá từ backend:', err);
+      }
+    });
+  }
+
+  calculateStats() {
+    const total = this.allFeedbacks.length;
+    this.totalReviews = total;
+
+    if (total > 0) {
+      const sum = this.allFeedbacks.reduce((acc, curr) => acc + curr.rating, 0);
+      this.averageRating = Math.round((sum / total) * 10) / 10;
+
+      const fiveStars = this.allFeedbacks.filter(r => r.rating === 5).length;
+      this.fiveStarPercentage = Math.round((fiveStars / total) * 100);
+
+      this.ratingDistribution = [5, 4, 3, 2, 1].map(stars => {
+        const count = this.allFeedbacks.filter(r => r.rating === stars).length;
+        const percentage = Math.round((count / total) * 100);
+        return { stars, percentage, count };
+      });
+    } else {
+      this.averageRating = 5.0;
+      this.fiveStarPercentage = 100;
+      this.ratingDistribution = [
+        { stars: 5, percentage: 0, count: 0 },
+        { stars: 4, percentage: 0, count: 0 },
+        { stars: 3, percentage: 0, count: 0 },
+        { stars: 2, percentage: 0, count: 0 },
+        { stars: 1, percentage: 0, count: 0 }
+      ];
+    }
+
+    this.responseRatePercentage = 0;
+  }
+
+  applyClientFilters() {
+    let result = [...this.allFeedbacks];
+
+    // Lọc theo lớp học
+    if (this.selectedClass) {
+      result = result.filter(r => r.course === this.selectedClass);
+    }
+
+    // Lọc theo số sao
+    if (this.selectedRating) {
+      result = result.filter(r => Number(r.rating) === Number(this.selectedRating));
+    }
+
+    // Lọc theo tìm kiếm từ khóa
+    if (this.searchQuery && this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase().trim();
+      result = result.filter(r => 
+        (r.author && r.author.toLowerCase().includes(q)) || 
+        (r.content && r.content.toLowerCase().includes(q)) ||
+        (r.course && r.course.toLowerCase().includes(q))
+      );
+    }
+
+    // Sắp xếp
+    if (this.selectedSort === 'newest') {
+      result.sort((a, b) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime());
+    } else if (this.selectedSort === 'oldest') {
+      result.sort((a, b) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime());
+    } else if (this.selectedSort === 'highest') {
+      result.sort((a, b) => b.rating - a.rating);
+    } else if (this.selectedSort === 'lowest') {
+      result.sort((a, b) => a.rating - b.rating);
+    }
+
+    this.filteredFeedbacks = result;
+    this.reviews = this.filteredFeedbacks.slice(0, this.visibleLimit);
   }
 
   // Methods
@@ -143,40 +263,81 @@ export class Reviews {
 
   onSubmitReview(): void {
     if (this.reviewFormGroup.valid) {
-      console.log('Review submitted:', this.reviewFormGroup.value);
-      alert('Cảm ơn bạn! Đánh giá của bạn sẽ được kiểm duyệt trong 24h.');
-      this.reviewFormGroup.reset();
-      this.formRating = 0;
+      const formValues = this.reviewFormGroup.value;
+      const maDanhGia = 'DG' + Math.floor(100000 + Math.random() * 900000);
+      const maDangKy = 'DK' + Math.floor(100000 + Math.random() * 900000);
+
+      const newFeedback: any = {
+        stt: this.allFeedbacks.length + 1,
+        maDanhGia: maDanhGia,
+        maDangKy: maDangKy,
+        tenKhachHang: formValues.studentName,
+        tenLopHoc: formValues.class,
+        noiDungDanhGia: formValues.content,
+        soSao: Number(formValues.rating),
+        ngayDanhGia: new Date().toISOString(),
+        trangThai: 'Chưa ẩn'
+      };
+
+      this.feedbackService.addFeedback(newFeedback).subscribe({
+        next: () => {
+          alert('Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.');
+          this.reviewFormGroup.reset({
+            studentName: '',
+            class: '',
+            rating: 5,
+            content: '',
+            agreeToTerms: false
+          });
+          this.formRating = 5;
+          this.loadFeedbacks();
+        },
+        error: (err) => {
+          console.error('Lỗi khi gửi đánh giá:', err);
+          alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.');
+        }
+      });
     }
   }
 
-  onToggleHelpful(reviewId: number): void {
-    const review = this.reviews.find(r => r.id === reviewId);
+  hasLiked(reviewId: string): boolean {
+    return localStorage.getItem('helpful_' + reviewId) === 'true';
+  }
+
+  onToggleHelpful(reviewId: string): void {
+    if (!reviewId || this.hasLiked(reviewId)) {
+      return;
+    }
+    const review = this.allFeedbacks.find(r => r._id === reviewId);
     if (review) {
-      review.helpful += 1;
-      console.log(`Marked review ${reviewId} as helpful. Total: ${review.helpful}`);
+      const newHelpfulCount = (review.helpful || 0) + 1;
+      this.feedbackService.updateFeedback(reviewId, { helpful: newHelpfulCount }).subscribe({
+        next: (updated) => {
+          review.helpful = updated.helpful !== undefined ? updated.helpful : newHelpfulCount;
+          localStorage.setItem('helpful_' + reviewId, 'true');
+          this.applyClientFilters();
+        },
+        error: (err) => {
+          console.error('Không thể cập nhật lượt hữu ích:', err);
+        }
+      });
     }
-  }
-
-  onReply(reviewId: number): void {
-    console.log('Reply clicked for review:', reviewId);
-    alert('Tính năng này sẽ được kích hoạt sớm.');
-  }
-
-  onMoreOptions(reviewId: number): void {
-    console.log('More options clicked for review:', reviewId);
   }
 
   onLoadMoreReviews(): void {
-    console.log('Load more reviews clicked');
-    alert('Đang tải thêm đánh giá...');
+    this.visibleLimit = this.filteredFeedbacks.length;
+    this.applyClientFilters();
   }
 
   onFilterChange(): void {
-    console.log('Filters applied:', {
-      class: this.selectedClass,
-      rating: this.selectedRating,
-      sort: this.selectedSort
-    });
+    this.visibleLimit = 3;
+    this.applyClientFilters();
+  }
+
+  scrollToWriteReview(): void {
+    const el = document.getElementById('write-review-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 }

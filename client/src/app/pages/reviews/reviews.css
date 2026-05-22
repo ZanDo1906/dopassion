@@ -468,6 +468,16 @@
   color: #667eea;
 }
 
+.action-btn.liked {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.95;
+}
+
 .action-btn i {
   font-size: 1rem;
 }

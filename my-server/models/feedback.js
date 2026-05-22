@@ -12,6 +12,7 @@ const feedbackSchema = new Schema({
     soSao: { type: Number },
     ngayDanhGia: { type: Date },
     trangThai: { type: String },
+    helpful: { type: Number, default: 0 },
 },
     {
         timestamps: true
