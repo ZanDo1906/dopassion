@@ -231,6 +231,40 @@ textarea.form-control {
   opacity: 0.8;
 }
 
+/* Required asterisk */
+.required {
+  color: #e53e3e;
+  font-weight: 700;
+}
+
+/* Validation error messages */
+.validation-error {
+  display: block;
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Invalid field border */
+.form-control.is-invalid {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+/* Validation summary under submit button */
+.validation-summary {
+  display: block;
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.validation-summary i {
+  margin-right: 4px;
+}
+
 /* Location Section */
 .location-wrapper {
   background: #ffffff;

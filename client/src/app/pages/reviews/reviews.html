@@ -183,25 +183,32 @@
         <form [formGroup]="reviewFormGroup" (ngSubmit)="onSubmitReview()" class="review-form">
           
           <div class="form-group">
-            <label class="form-label">Họ và tên học viên</label>
+            <label class="form-label">Họ và tên học viên <span class="required">*</span></label>
             <input 
               type="text" 
               formControlName="studentName" 
               class="form-control" 
-              placeholder="Nhập họ và tên của bạn..." 
-              required>
+              [class.is-invalid]="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched"
+              placeholder="Nhập họ và tên của bạn...">
+            <small class="validation-error" *ngIf="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched">
+              Vui lòng nhập họ và tên
+            </small>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Lớp học</label>
-            <select formControlName="class" class="form-control">
+            <label class="form-label">Lớp học <span class="required">*</span></label>
+            <select formControlName="class" class="form-control"
+              [class.is-invalid]="reviewFormGroup.get('class')?.invalid && reviewFormGroup.get('class')?.touched">
               <option value="">-- Chọn lớp học --</option>
               <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
             </select>
+            <small class="validation-error" *ngIf="reviewFormGroup.get('class')?.invalid && reviewFormGroup.get('class')?.touched">
+              Vui lòng chọn lớp học
+            </small>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Đánh giá</label>
+            <label class="form-label">Đánh giá <span class="required">*</span></label>
             <div class="star-picker">
               <button 
                 type="button"
@@ -216,26 +223,38 @@
 
 
           <div class="form-group">
-            <label class="form-label">Nội dung đánh giá</label>
+            <label class="form-label">Nội dung đánh giá <span class="required">*</span></label>
             <textarea 
               formControlName="content" 
               class="form-control review-textarea" 
+              [class.is-invalid]="reviewFormGroup.get('content')?.invalid && reviewFormGroup.get('content')?.touched"
               rows="6"
-              placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."
-              required></textarea>
-            <small class="text-muted">Tối thiểu 20 ký tự</small>
+              placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."></textarea>
+            <small class="text-muted" *ngIf="!(reviewFormGroup.get('content')?.invalid && reviewFormGroup.get('content')?.touched)">Tối thiểu 20 ký tự</small>
+            <small class="validation-error" *ngIf="reviewFormGroup.get('content')?.hasError('required') && reviewFormGroup.get('content')?.touched">
+              Vui lòng nhập nội dung đánh giá
+            </small>
+            <small class="validation-error" *ngIf="reviewFormGroup.get('content')?.hasError('minlength') && reviewFormGroup.get('content')?.touched">
+              Nội dung đánh giá phải có ít nhất 20 ký tự
+            </small>
           </div>
 
           <div class="form-group checkbox-group">
             <label class="form-check">
               <input type="checkbox" formControlName="agreeToTerms" class="form-check-input">
-              <span class="form-check-label">Tôi đồng ý với điều khoản đăng bình luận</span>
+              <span class="form-check-label">Tôi đồng ý với điều khoản đăng bình luận <span class="required">*</span></span>
             </label>
+            <small class="validation-error" *ngIf="reviewFormGroup.get('agreeToTerms')?.invalid && reviewFormGroup.get('agreeToTerms')?.touched">
+              Bạn cần đồng ý với điều khoản để gửi đánh giá
+            </small>
           </div>
 
           <button type="submit" class="btn btn-primary btn-submit" [disabled]="!reviewFormGroup.valid">
             Gửi đánh giá
           </button>
+          <small class="validation-summary" *ngIf="reviewFormGroup.invalid">
+            <i class="bi bi-info-circle"></i> Vui lòng điền đầy đủ tất cả các trường có dấu (*) để gửi đánh giá
+          </small>
         </form>
       </div>
 
@@ -260,48 +279,3 @@
   </div>
 </section>
 
-<!-- Overall Ratings Summary -->
-<section class="overall-ratings-section">
-  <div class="container">
-    <h2 class="section-title">Đánh giá chung</h2>
-    
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="overall-stats">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="bi bi-star-fill"></i>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Đánh giá trung bình</p>
-              <p class="stat-value">{{ averageRating }}/5</p>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="bi bi-people-fill"></i>
-            </div>
-            <div class="stat-info">
-              <p class="stat-label">Tổng số đánh giá</p>
-              <p class="stat-value">{{ totalReviews }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="overall-details">
-          <div class="detail-item">
-            <span class="detail-label">Phần trăm đánh giá 5 sao</span>
-            <span class="detail-value">{{ fiveStarPercentage }}%</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Tỷ lệ phản hồi</span>
-            <span class="detail-value">{{ responseRatePercentage }}%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
