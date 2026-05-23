@@ -1,4 +1,4 @@
-<div class="confirm-dialog-overlay" *ngIf="isOpen" (click)="onCancel()">
+<div class="confirm-dialog-overlay" *ngIf="isOpen">
     <div class="confirm-dialog-box" (click)="$event.stopPropagation()">
         <div class="dialog-header">
             <h2 class="dialog-title">{{ title }}</h2>

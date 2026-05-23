@@ -2,6 +2,171 @@ const express = require('express');
 const router = express.Router();
 
 const Payment = require('../models/payment');
+const Client = require('../models/client');
+const Registration = require('../models/registration');
+
+// Helper to get day/month/year code
+function getCurrentDateCode() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2);
+    return `${day}${month}${year}`;
+}
+
+// POST checkout
+router.post('/checkout', async (req, res) => {
+    try {
+        const {
+            email,
+            tenKhachHang,
+            maLop,
+            tenLop,
+            chiNhanh,
+            hocPhi,
+            remainingAmount,
+            voucherCode,
+            discountAmount
+        } = req.body;
+
+        if (!email || !tenKhachHang || !maLop) {
+            return res.status(400).json({ message: 'Email, tên khách hàng và mã lớp là bắt buộc.' });
+        }
+
+        const dateCode = getCurrentDateCode();
+
+        // 1. Check or Create Client
+        let client = await Client.findOne({ email: email.trim().toLowerCase() });
+        let isNewClient = false;
+
+        if (!client) {
+            isNewClient = true;
+            // Generate maKh
+            const pattern = new RegExp(`^KH-${dateCode}-\\d{3}$`, 'i');
+            const existingClients = await Client.find({ maKh: pattern });
+            let maxSeq = 0;
+            existingClients.forEach(c => {
+                const match = c.maKh.match(/-(\d{3})$/);
+                if (match) {
+                    maxSeq = Math.max(maxSeq, parseInt(match[1], 10));
+                }
+            });
+            const nextSeq = maxSeq + 1;
+            const maKh = `KH-${dateCode}-${String(nextSeq).padStart(3, '0')}`;
+
+            // Get highest STT
+            const lastClient = await Client.findOne().sort({ stt: -1 });
+            const nextStt = lastClient && lastClient.stt ? lastClient.stt + 1 : 1;
+
+            client = new Client({
+                stt: nextStt,
+                maKh,
+                tenKhachHang,
+                email: email.trim().toLowerCase(),
+                ngayDangKy: new Date(),
+                trangThai: 'Chờ thanh toán',
+                active: true
+            });
+            await client.save();
+        } else {
+            // Update existing client to 'Chờ thanh toán'
+            client.trangThai = 'Chờ thanh toán';
+            await client.save();
+        }
+
+        // 2. Generate Registration
+        const patternDk = new RegExp(`^DK-${dateCode}-\\d{3}$`, 'i');
+        const existingRegistrations = await Registration.find({ maDangKy: patternDk });
+        let maxSeqDk = 0;
+        existingRegistrations.forEach(r => {
+            const match = r.maDangKy.match(/-(\d{3})$/);
+            if (match) {
+                maxSeqDk = Math.max(maxSeqDk, parseInt(match[1], 10));
+            }
+        });
+        const nextSeqDk = maxSeqDk + 1;
+        const maDangKy = `DK-${dateCode}-${String(nextSeqDk).padStart(3, '0')}`;
+
+        const lastReg = await Registration.findOne().sort({ stt: -1 });
+        const nextRegStt = lastReg && lastReg.stt ? lastReg.stt + 1 : 1;
+
+        const registration = new Registration({
+            stt: nextRegStt,
+            maDangKy,
+            maKh: client.maKh,
+            tenKh: client.tenKhachHang,
+            maLop,
+            tenLopHoc: tenLop,
+            khoaHoc: maLop.split('-')[0] || 'TOEIC',
+            tenKhoa: tenLop,
+            chiNhanh,
+            ngayDangKy: new Date(),
+            trangThai: 'Chờ thanh toán'
+        });
+        await registration.save();
+
+        // 3. Generate Payment (Debt)
+        const lastPay = await Payment.findOne().sort({ stt: -1 });
+        const nextPayStt = lastPay && lastPay.stt ? lastPay.stt + 1 : 1;
+
+        const payment = new Payment({
+            stt: nextPayStt,
+            maDangKy,
+            maKh: client.maKh,
+            tenKh: client.tenKhachHang,
+            maLop,
+            tenLopHoc: tenLop,
+            khoaHoc: maLop.split('-')[0] || 'TOEIC',
+            tenKhoa: tenLop,
+            chiNhanh,
+            ngayDangKy: new Date(),
+            hocPhi,
+            voucher: voucherCode || '',
+            thongSoGiam: discountAmount || 0,
+            soTienCanThanhToan: remainingAmount,
+            soTienConLai: remainingAmount,
+            trangThaiThanhToan: 'Chờ thanh toán'
+        });
+        await payment.save();
+
+        // 4. Set 10 minutes timeout to update status to 'Chưa thanh toán'
+        setTimeout(async () => {
+            try {
+                const currentPayment = await Payment.findById(payment._id);
+                if (currentPayment && currentPayment.trangThaiThanhToan === 'Chờ thanh toán') {
+                    currentPayment.trangThaiThanhToan = 'Chưa thanh toán';
+                    await currentPayment.save();
+
+                    await Registration.findOneAndUpdate(
+                        { maDangKy: currentPayment.maDangKy },
+                        { trangThai: 'Chưa thanh toán' }
+                    );
+
+                    await Client.findOneAndUpdate(
+                        { maKh: currentPayment.maKh },
+                        { trangThai: 'Chưa thanh toán' }
+                    );
+
+                    console.log(`[TIMEOUT expired] Updated registration, payment, client for ${currentPayment.maDangKy} to Chưa thanh toán`);
+                }
+            } catch (err) {
+                console.error('Error in checkout timeout update:', err);
+            }
+        }, 10 * 60 * 1000); // 10 minutes
+
+        res.status(201).json({
+            success: true,
+            client,
+            registration,
+            payment
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+});
 
 // GET all
 router.get('/', async (req, res) => {

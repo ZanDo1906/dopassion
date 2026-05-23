@@ -202,7 +202,8 @@ export class Staff implements OnInit {
           vaiTro: staff.vaiTro || '',
           maVaiTro: staff.maVaiTro || this.roleCodeMap[staff.vaiTro] || '',
           cccdImage: staff.anhCccd || '',
-          trangThai: 'Đang hoạt động' // Default status
+          trangThai: staff.active === false ? 'Đã khóa' : 'Đang hoạt động',
+          _id: staff._id || ''
         }));
         this.filteredData = [...this.allStaffs];
         this.updatePagination();
@@ -462,19 +463,35 @@ export class Staff implements OnInit {
     }
 
     const currentStatus = this.confirmLockItem?.trangThai;
-    const staffCode = this.confirmLockItem?.maNhanVien;
+    const staffId = this.confirmLockItem?._id;
 
-    // Cập nhật trạng thái theo mã nhân viên để tránh khóa sai dòng.
-    const staffToUpdate = this.allStaffs.find((staff) => staff.maNhanVien === staffCode);
-    if (staffToUpdate) {
-      staffToUpdate.trangThai = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-      // Cập nhật filtered và paginated data
-      this.filteredData = [...this.allStaffs];
-      this.updatePagination();
-      this.cdr.markForCheck();
+    if (!staffId) {
+      console.error('[Staff] No _id found for lock/unlock');
+      return;
     }
-    this.isConfirmLockDialogOpen = false;
-    this.confirmLockItem = null;
+
+    const newActive = currentStatus === 'Đang hoạt động' ? false : true;
+    const newStatus = newActive ? 'Đang hoạt động' : 'Đã khóa';
+
+    // Gọi API cập nhật trạng thái active vào database
+    this.staffService.updateStaff(staffId, { active: newActive }).subscribe({
+      next: () => {
+        const staffToUpdate = this.allStaffs.find(s => s.maNhanVien === this.confirmLockItem?.maNhanVien);
+        if (staffToUpdate) {
+          staffToUpdate.trangThai = newStatus;
+          this.filteredData = [...this.allStaffs];
+          this.updatePagination();
+          this.cdr.markForCheck();
+        }
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
+      },
+      error: (err) => {
+        console.error('[Staff] Lỗi cập nhật trạng thái:', err);
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
+      }
+    });
   }
 
   /**

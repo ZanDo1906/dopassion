@@ -12,8 +12,9 @@ const contactSchema = new Schema({
     gmail: { type: String },
     soDienThoai: { type: String },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

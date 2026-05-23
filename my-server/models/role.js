@@ -9,9 +9,10 @@ const roleSchema = new Schema({
     moTa: { type: String },
     active: { type: Boolean },
 },
-{
-    timestamps: true
-});
+{ 
+        timestamps: true,
+        versionKey: false
+    });
 
 module.exports = mongoose.model(
     'Role',

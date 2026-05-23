@@ -92,10 +92,15 @@
   <!-- Empty State -->
   <div class="empty-state" *ngIf="!courses || courses.length === 0">
     <div class="empty-state-content">
-      <i class="bi bi-search empty-state-icon"></i>
-      <h5 class="empty-state-title">Không tìm thấy khóa học nào</h5>
-      <p class="empty-state-text text-muted">Vui lòng điều chỉnh lại điều kiện lọc hoặc xóa bộ lọc.</p>
-      <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+      <i class="bi bi-search empty-state-icon" *ngIf="!noClassAvailable"></i>
+      <i class="bi bi-exclamation-circle empty-state-icon text-warning" *ngIf="noClassAvailable"></i>
+      <h5 class="empty-state-title" *ngIf="!noClassAvailable">Không tìm thấy khóa học nào</h5>
+      <h5 class="empty-state-title" *ngIf="noClassAvailable">Không còn khóa học phù hợp</h5>
+      
+      <p class="empty-state-text text-muted" *ngIf="!noClassAvailable">Vui lòng điều chỉnh lại điều kiện lọc hoặc xóa bộ lọc.</p>
+      <p class="empty-state-text text-danger fw-medium" *ngIf="noClassAvailable">{{ noClassMessage }}</p>
+      
+      <button class="btn btn-outline-primary mt-3" (click)="resetFilters()" *ngIf="!noClassAvailable">
         <i class="bi bi-arrow-counterclockwise me-2"></i>Xóa bộ lọc
       </button>
     </div>
@@ -189,7 +194,7 @@
   <!-- Registration Popup -->
   <div class="register-overlay" *ngIf="isRegisterModalOpen">
     <div class="register-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="register-close" (click)="closeRegisterModal()" aria-label="Đóng">
+      <button type="button" class="register-close" (click)="closeAllModals()" aria-label="Đóng">
         <i class="bi bi-x-lg"></i>
       </button>
 
@@ -224,10 +229,6 @@
             <div class="register-item">
               <span class="register-label">Tên lớp học</span>
               <strong>{{ selectedClassDetail?.tenLop }}</strong>
-            </div>
-            <div class="register-item">
-              <span class="register-label">Khóa học</span>
-              <strong>{{ selectedClassDetail?.tenKhoaHoc }}</strong>
             </div>
             <div class="register-item">
               <span class="register-label">Chi nhánh</span>
@@ -284,6 +285,143 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal Overlay -->
+  <div class="payment-overlay" *ngIf="isPaymentModalOpen">
+    <div class="payment-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Close Button -->
+      <button type="button" class="payment-close" (click)="closePaymentModal()" aria-label="Đóng">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="payment-header">
+        <div class="payment-tag"><i class="bi bi-shield-check me-1"></i>Thanh toán bảo mật</div>
+        <h3>Thanh toán học phí lớp học</h3>
+        <p>Vui lòng quét mã QR hoặc chuyển khoản chính xác thông tin bên dưới để hoàn tất đăng ký.</p>
+      </div>
+
+      <!-- Live Expiration Timer Panel (Header countdown) -->
+      <div class="payment-timer-panel" [class.timer-alert]="paymentTimer <= 60">
+        <div class="timer-spinner"></div>
+        <div class="timer-text-wrap">
+          <span class="timer-label">Thời gian còn lại để hoàn tất</span>
+          <strong class="timer-countdown">{{ paymentCountdownString }}</strong>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="payment-body" *ngIf="!isPaymentExpired">
+        <div class="payment-grid-container">
+          
+          <!-- Left side: QR code -->
+          <div class="payment-qr-col">
+            <div class="qr-wrapper">
+              <img [src]="getQrUrl()" alt="VietQR Payment Code" class="payment-qr-image" />
+              <div class="qr-pulse-ring"></div>
+            </div>
+            <div class="qr-instruction">
+              <i class="bi bi-qr-code-scan text-primary"></i>
+              <span>Sử dụng ứng dụng ngân hàng quét mã QR</span>
+            </div>
+          </div>
+
+          <!-- Right side: Bank Details -->
+          <div class="payment-details-col">
+            <h4 class="payment-section-title">Thông tin chuyển khoản</h4>
+            
+            <div class="detail-bank-card">
+              
+              <!-- Bank Name -->
+              <div class="bank-row">
+                <div class="bank-row-label">Ngân hàng</div>
+                <div class="bank-row-value-wrap">
+                  <span class="bank-row-value">MB Bank (Ngân hàng Quân Đội)</span>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('MB Bank', 'bank')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'bank'" [class.bi-check-lg]="copiedField === 'bank'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Account Number -->
+              <div class="bank-row">
+                <div class="bank-row-label">Số tài khoản</div>
+                <div class="bank-row-value-wrap">
+                  <span class="bank-row-value highlighted">19062026</span>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('19062026', 'account')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'account'" [class.bi-check-lg]="copiedField === 'account'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Account Name -->
+              <div class="bank-row">
+                <div class="bank-row-label">Chủ tài khoản</div>
+                <div class="bank-row-value-wrap">
+                  <span class="bank-row-value">CONG TY CO PHAN DOPASSION</span>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('CONG TY CO PHAN DOPASSION', 'name')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'name'" [class.bi-check-lg]="copiedField === 'name'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Amount -->
+              <div class="bank-row">
+                <div class="bank-row-label">Số tiền cần thanh toán</div>
+                <div class="bank-row-value-wrap">
+                  <span class="bank-row-value price-highlight">{{ formatCurrency(mockPaymentAmount) }} VND</span>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard(mockPaymentAmount.toString(), 'amount')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'amount'" [class.bi-check-lg]="copiedField === 'amount'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Transfer Description -->
+              <div class="bank-row">
+                <div class="bank-row-label">Nội dung chuyển khoản</div>
+                <div class="bank-row-value-wrap">
+                  <span class="bank-row-value highlighted-desc">DOPASSION {{ mockMaDangKy }}</span>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('DOPASSION ' + mockMaDangKy, 'description')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'description'" [class.bi-check-lg]="copiedField === 'description'"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="payment-alert-box">
+              <i class="bi bi-info-circle-fill text-warning me-2"></i>
+              <span>Vui lòng chuyển khoản chính xác số tiền và nội dung chuyển khoản để hệ thống tự động ghi nhận học phí.</span>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Payment Expiration Overlay Inside Modal -->
+      <div class="payment-expired-panel" *ngIf="isPaymentExpired">
+        <div class="expired-icon-wrap">
+          <i class="bi bi-clock-history text-danger"></i>
+        </div>
+        <h4>Giao dịch đã hết hạn!</h4>
+        <p>Thời gian đếm ngược 10 phút đã kết thúc. Trạng thái công nợ trong đăng ký lớp học đã chuyển thành <strong>Chưa thanh toán</strong>.</p>
+        <p class="expired-help-text">Vui lòng liên hệ bộ phận hỗ trợ học viên hoặc thực hiện đăng ký lại.</p>
+        <button type="button" class="btn btn-expired-action" (click)="closePaymentModal()">
+          Quay lại danh sách
+        </button>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="payment-footer" *ngIf="!isPaymentExpired">
+        <button type="button" class="btn btn-payment-cancel" (click)="closePaymentModal()">
+          Hủy giao dịch & Quay lại
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

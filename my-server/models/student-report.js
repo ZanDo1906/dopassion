@@ -10,8 +10,9 @@ const studentreportSchema = new Schema({
     soHocVienDangKy: { type: Number },
     soHocVienHuyDangKy: { type: Number },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

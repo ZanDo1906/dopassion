@@ -11,8 +11,9 @@ const salesreportSchema = new Schema({
     hoanTien: { type: Number },
     tongThu: { type: Number },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(
