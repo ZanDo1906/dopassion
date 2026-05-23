@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { RegistrationService } from '../../services/registration';
 interface CalendarDay {
   date: number;
   isCurrentMonth: boolean;
@@ -57,7 +58,7 @@ interface PaymentDetail {
   styleUrl: './account.css',
 })
 export class Account implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private registrationService: RegistrationService) {}
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
   fullName: string = '';
   phoneNumber: string = '';
@@ -166,40 +167,19 @@ avatarPreview: string | null = null;
   ];
   
   // Mock class data
-  classes: ClassDetail[] = [
-    {
-      id: 1,
-      name: 'LỚP TOEIC LR108',
-      code: 'DNN24925',
-      instructor: 'Mr. ĐÔNG TRƯỜNG',
-      startDate: '22/12/2025',
-      endDate: '28/02/2026',
-      status: 'upcoming',
-      branch: 'Chi nhánh Quận 1',
-      room: 'Phòng 305',
-      schedule: 'Thứ 2, 4, 6',
-      startTime: '09:00',
-      endTime: '11:30'
-    },
-    {
-      id: 2,
-      name: 'LỚP TOEIC SW108',
-      code: 'DNN24926',
-      instructor: 'Mr. ĐÔNG TRƯỜNG',
-      startDate: '22/12/2025',
-      endDate: '25/02/2026',
-      status: 'ongoing',
-      branch: 'Chi nhánh Quận 3',
-      room: 'Phòng 201',
-      schedule: 'Thứ 3, 5, 7',
-      startTime: '14:00',
-      endTime: '16:30'
-    }
-  ];
-
+  classes: ClassDetail[] = [];
   switchView(view: 'info' | 'classes' | 'payment' | 'schedule') {
-    this.currentView = view;
+
+  this.currentView = view;
+
+  // LOAD LẠI DANH SÁCH LỚP
+  if (view === 'classes') {
+
+    this.loadRegisteredClasses(this.customerCode);
+
   }
+
+}
 
   ngOnInit() {
 
@@ -238,7 +218,9 @@ this.customerCode =
   user.maKh ||
   user.maKhachHang ||
   '';
-
+  console.log('CUSTOMER CODE:', this.customerCode);
+// LOAD LỚP HỌC ĐÃ ĐĂNG KÝ
+this.loadRegisteredClasses(this.customerCode);
 
 // FIX NGÀY SINH
 if (user.ngaySinh) {
@@ -263,7 +245,72 @@ if (user.ngayDangKy) {
 
   this.joinDate = `tháng ${month} năm ${year}`;
 
-}}
+}
+
+  }
+
+  loadRegisteredClasses(maKh: string) {
+
+  this.registrationService.getRegistrations().subscribe({
+
+    next: (registrations) => {
+
+      // FILTER THEO MÃ KHÁCH HÀNG
+      const myRegistrations = registrations.filter(
+
+        r => r.maKh === maKh
+
+      );
+
+      // MAP DỮ LIỆU
+      this.classes = myRegistrations.map((item, index) => {
+
+        return {
+
+          id: index + 1,
+
+          name: item.tenLopHoc || 'Chưa có tên lớp',
+
+          code: item.maLop || '',
+
+          instructor: 'Chưa cập nhật',
+
+          startDate: item.ngayDangKy
+            ? new Date(item.ngayDangKy).toLocaleDateString('vi-VN')
+            : '',
+
+          endDate: 'Chưa cập nhật',
+
+          status: 'ongoing',
+
+          branch: item.chiNhanh || 'Chưa cập nhật',
+
+          room: 'Chưa cập nhật',
+
+          schedule: 'Chưa cập nhật',
+
+          startTime: '--:--',
+
+          endTime: '--:--'
+
+        };
+
+      });
+
+      console.log('CLASSES:', this.classes);
+
+    },
+
+    error: (err) => {
+
+      console.error('Lỗi load lớp học:', err);
+
+    }
+
+  });
+
+}
+
   generateCalendar() {
     const firstDayOfMonth = new Date(this.selectedYear, this.selectedMonth - 1, 1);
     const lastDayOfMonth = new Date(this.selectedYear, this.selectedMonth, 0);
