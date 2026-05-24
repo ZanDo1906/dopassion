@@ -337,21 +337,36 @@ export class Customer implements OnInit {
     }
 
     const currentStatus = this.confirmLockItem?.trangThai;
-    const customerId = this.confirmLockItem?.maKhachHang;
+    const customerId = this.confirmLockItem?.rawData?._id || this.confirmLockItem?._id;
 
-    // Cập nhật trạng thái trong local data (mock, sau này gọi API)
-    const customerToUpdate = this.allCustomers.find(c => c.maKhachHang === customerId);
-    if (customerToUpdate) {
-      // Nếu đã khóa rồi thì mở khóa (=> Chưa đăng ký khóa), ngược lại thì khóa (=> Đã khóa)
-      customerToUpdate.trangThai = currentStatus === 'Đã khóa' ? 'Chưa đăng ký khóa' : 'Đã khóa';
-        this.allCustomers = this.sortCustomersNewestFirst(this.allCustomers);
-      // Cập nhật filtered và paginated data
-      this.filteredCustomers = [...this.allCustomers];
-      this.updatePagination();
-      this.cdr.markForCheck();
+    if (!customerId) {
+      console.error('[Customer] No _id found for lock/unlock');
+      return;
     }
-    this.isConfirmLockDialogOpen = false;
-    this.confirmLockItem = null;
+
+    const newStatus = currentStatus === 'Đã khóa' ? 'Chưa đăng ký khóa' : 'Đã khóa';
+
+    // Gọi API cập nhật trạng thái vào database
+    this.clientService.updateClient(customerId, { trangThai: newStatus }).subscribe({
+      next: () => {
+        // Cập nhật local data sau khi DB thành công
+        const customerToUpdate = this.allCustomers.find(c => c.maKhachHang === this.confirmLockItem?.maKhachHang);
+        if (customerToUpdate) {
+          customerToUpdate.trangThai = newStatus;
+          this.allCustomers = this.sortCustomersNewestFirst(this.allCustomers);
+          this.filteredCustomers = [...this.allCustomers];
+          this.updatePagination();
+          this.cdr.markForCheck();
+        }
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
+      },
+      error: (err) => {
+        console.error('[Customer] Lỗi cập nhật trạng thái:', err);
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
+      }
+    });
   }
 
   /**

@@ -16,8 +16,9 @@ const classSchema = new Schema({
     ngayKetThuc: { type: Date },
     active: { type: Boolean },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

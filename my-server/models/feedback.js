@@ -14,8 +14,9 @@ const feedbackSchema = new Schema({
     trangThai: { type: String },
     helpful: { type: Number, default: 0 },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

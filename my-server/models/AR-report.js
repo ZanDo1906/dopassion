@@ -13,8 +13,9 @@ const ARreportSchema = new Schema({
     soTienChuaThu: { type: Number },
     soTienHoan: { type: Number },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

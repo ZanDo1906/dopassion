@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, DoCheck, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnChanges, DoCheck, OnDestroy, SimpleChanges, TemplateRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -15,9 +15,17 @@ import { NgSelectModule } from '@ng-select/ng-select';
   templateUrl: './form-dialog.html',
   styleUrls: ['./form-dialog.css']
 })
-export class FormDialogComponent implements OnChanges, DoCheck {
+export class FormDialogComponent implements OnInit, OnChanges, DoCheck, OnDestroy {
 
   constructor(private elementRef: ElementRef<HTMLElement>) {}
+
+  ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+  }
 
   @Input() title: string = '';
   @Input() sections: any[] = [];

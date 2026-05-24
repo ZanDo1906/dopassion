@@ -119,9 +119,12 @@
 </app-form-dialog>
 
 <app-confirm-dialog [isOpen]="isConfirmLockDialogOpen"
-    [title]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa vai trò' : 'Khóa vai trò'"
-    [message]="confirmLockMessage" [confirmText]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
-    cancelText="Hủy"
-    [confirmIcon]="confirmLockItem && isRoleLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
-    cancelIcon="bi bi-x-circle" (confirm)="onConfirmLock()" (cancel)="onCancelLock()">
-</app-confirm-dialog>
+    [title]="isLockWarningOnly ? 'Không thể khóa vai trò' : (confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa vai trò' : 'Khóa vai trò')"
+    [message]="confirmLockMessage"
+    [confirmText]="isLockWarningOnly ? 'Đã hiểu' : (confirmLockItem && isRoleLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa')"
+    [cancelText]="isLockWarningOnly ? 'Đóng' : 'Hủy'"
+    [confirmIcon]="isLockWarningOnly ? 'bi bi-exclamation-triangle-fill' : (confirmLockItem && isRoleLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill')"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="isLockWarningOnly ? onCancelLock() : onConfirmLock()"
+    (cancel)="onCancelLock()">
+</app-confirm-dialog>

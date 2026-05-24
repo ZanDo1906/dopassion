@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
@@ -21,7 +21,7 @@ import { iPayment } from '../../../interfaces/payment';
   templateUrl: './registration-stepper-dialog.html',
   styleUrl: './registration-stepper-dialog.css'
 })
-export class RegistrationStepperDialog implements OnInit {
+export class RegistrationStepperDialog implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<any>();
 
@@ -49,6 +49,7 @@ export class RegistrationStepperDialog implements OnInit {
   existingRegistrations: iRegistration[] = [];
   customerExistingCourseTypes: string[] = []; // 'LR' or 'SW'
   customerExistingClasses: iClass[] = [];
+  private allowedBaseClasses: iClass[] = []; // Cached base classes filtered by course type restriction
 
   // Step 3: Review & Submit
   reviewForm: FormGroup | null = null;
@@ -72,11 +73,16 @@ export class RegistrationStepperDialog implements OnInit {
   }
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
     this.loadCustomers();
     this.loadClasses();
     this.loadCourses();
     this.loadExistingRegistrations();
     this.initializeStep1();
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
   }
 
   /**
@@ -587,11 +593,13 @@ export class RegistrationStepperDialog implements OnInit {
       this.mainForm.addControl('customerData', new FormControl(customerData));
       this.mainForm.addControl('isNewCustomer', new FormControl(isActuallyNew));
       this.mainForm.addControl('selectedCustomerId', new FormControl(this.selectedCustomer?._id || null));
+      this.mainForm.addControl('selectedCustomerMaKh', new FormControl(this.selectedCustomer?.maKh || null));
     } else {
       // Update existing controls with latest values
       this.mainForm.get('customerData')?.patchValue(customerData);
       this.mainForm.get('isNewCustomer')?.setValue(isActuallyNew);
       this.mainForm.get('selectedCustomerId')?.setValue(this.selectedCustomer?._id || null);
+      this.mainForm.get('selectedCustomerMaKh')?.setValue(this.selectedCustomer?.maKh || null);
     }
 
     // 4. Cho qua bước 2
@@ -655,11 +663,11 @@ export class RegistrationStepperDialog implements OnInit {
     console.log('Filter config:', this.classFilterConfig);
 
     // === Filter classes based on available courses ===
-    let baseClasses = this.classes.filter(cls =>
+    this.allowedBaseClasses = this.classes.filter(cls =>
       availableCourses.some(c => c.maKhoaHoc === cls.maKhoa)
     );
 
-    this.filteredClasses = this.dedupeClasses([...baseClasses]);
+    this.filteredClasses = this.dedupeClasses([...this.allowedBaseClasses]);
     this.selectedClass = null;
     this.selectedClassKey = '';
 
@@ -680,7 +688,8 @@ export class RegistrationStepperDialog implements OnInit {
     const selectedDate = normalizeText(criteria.ngayBatDau);
     const selectedBranches = Array.isArray(criteria.chiNhanh) ? criteria.chiNhanh : [];
 
-    this.filteredClasses = this.dedupeClasses(this.classes.filter(cls => {
+    // Use allowedBaseClasses (already restricted by course type) instead of this.classes
+    this.filteredClasses = this.dedupeClasses(this.allowedBaseClasses.filter(cls => {
       const matchesCourse = !selectedCourse || normalizeText(cls.maKhoa).includes(selectedCourse) || normalizeText(cls.tenKhoaHoc).includes(selectedCourse);
       const matchesDate = !selectedDate || normalizeText(cls.ngayBatDau).startsWith(selectedDate);
       const matchesBranch = selectedBranches.length === 0 || selectedBranches.includes(cls.chiNhanh);
@@ -692,10 +701,10 @@ export class RegistrationStepperDialog implements OnInit {
   }
 
   /**
-   * Reset lọc lớp học
+   * Reset lọc lớp học - chỉ reset về danh sách đã lọc theo loại khóa (không phải ALL classes)
    */
   handleClassFilterReset(): void {
-    this.filteredClasses = this.dedupeClasses([...this.classes]);
+    this.filteredClasses = this.dedupeClasses([...this.allowedBaseClasses]);
     this.selectedClass = null;
     this.selectedClassKey = '';
   }
@@ -915,32 +924,38 @@ export class RegistrationStepperDialog implements OnInit {
     const classData = this.mainForm.get('classData')?.value;
     const isNewCustomer = this.mainForm.get('isNewCustomer')?.value ?? this.isNewCustomer;
     const selectedCustomerId = this.mainForm.get('selectedCustomerId')?.value;
+    const selectedCustomerMaKh = this.mainForm.get('selectedCustomerMaKh')?.value;
 
-    let customerId = selectedCustomerId || this.selectedCustomer?._id || null;
+    // _id dùng cho API calls (updateClient)
+    let customerMongoId = selectedCustomerId || this.selectedCustomer?._id || null;
+    // maKh dùng cho data records (registration, payment)
+    let customerMaKh = selectedCustomerMaKh || this.selectedCustomer?.maKh || null;
 
     // ========== Step 1: Tạo Customer (nếu khách mới) ==========
     if (isNewCustomer) {
+      const generatedMaKh = this.generateCustomerCode();
       const newClientPayload: iClient = {
         stt: 0,
-        maKh: this.generateCustomerCode(),
+        maKh: generatedMaKh,
         tenKhachHang: customerData.tenKhachHang,
         gioiTinh: customerData.gioiTinh,
         ngaySinh: customerData.ngaySinh,
         sdt: customerData.sdt,
         email: customerData.email,
         ngayDangKy: new Date().toISOString().split('T')[0],
-        trangThai: 'Chưa đăng ký khóa',  // Khách mới luôn có trạng thái "Chưa đăng ký khóa"
+        trangThai: 'Chưa đăng ký khóa',
         active: true
       };
 
       this.clientService.addClient(newClientPayload).subscribe({
         next: (createdCustomer) => {
-          customerId = createdCustomer._id || createdCustomer.maKh || customerId;
+          customerMongoId = createdCustomer._id || customerMongoId;
+          customerMaKh = createdCustomer.maKh || generatedMaKh;
           // refresh local customers list and put the new customer on top
           this.loadCustomers();
           this.customers = [createdCustomer, ...this.customers.filter(c => c._id !== createdCustomer._id)];
           // Sau khi tạo Customer, tạo Registration
-          this.createRegistration(customerId, customerData, classData);
+          this.createRegistration(customerMongoId, customerMaKh, customerData, classData);
         },
         error: (err) => {
           this.isLoading = false;
@@ -949,19 +964,21 @@ export class RegistrationStepperDialog implements OnInit {
       });
     } else {
       // Khách cũ, tiếp tục tạo Registration
-      this.createRegistration(customerId, customerData, classData);
+      this.createRegistration(customerMongoId, customerMaKh, customerData, classData);
     }
   }
 
   /**
    * Tạo Registration record
+   * @param customerMongoId - MongoDB _id (dùng cho API updateClient)
+   * @param customerMaKh - Mã khách hàng KH-ddmmyy-NNN (dùng cho data records)
    */
-  private createRegistration(customerId: string, customerData: any, classData: any): void {
+  private createRegistration(customerMongoId: string, customerMaKh: string, customerData: any, classData: any): void {
     // ========== Step 2: Tạo Registration ==========
     const registrationPayload: iRegistration = {
       stt: 0,
       maDangKy: this.generateRegistrationCode(),
-      maKh: customerId,
+      maKh: customerMaKh,  // Dùng mã KH (KH-ddmmyy-NNN), KHÔNG dùng _id
       tenKh: customerData.tenKhachHang,
       maLop: classData.maLop,
       tenLopHoc: classData.tenLop,
@@ -972,6 +989,8 @@ export class RegistrationStepperDialog implements OnInit {
       trangThai: 'Đang hoạt động'
     };
 
+    console.log('[createRegistration] maKh used:', customerMaKh, '(mongoId:', customerMongoId, ')');
+
     this.registrationService.addRegistration(registrationPayload).subscribe({
       next: (createdRegistration) => {
         this.existingRegistrations = [
@@ -979,10 +998,10 @@ export class RegistrationStepperDialog implements OnInit {
           ...this.existingRegistrations.filter(reg => reg.maDangKy !== createdRegistration.maDangKy)
         ];
 
-        // Sau khi tạo Registration, cập nhật trạng thái khách hàng rồi tạo Payment (Debt)
-        this.markCustomerAsRegistered(customerId).subscribe({
+        // Dùng _id để gọi API cập nhật trạng thái khách hàng
+        this.markCustomerAsRegistered(customerMongoId).subscribe({
           next: () => {
-            this.createDebtRecord(customerId, customerData, classData, createdRegistration);
+            this.createDebtRecord(customerMaKh, customerData, classData, createdRegistration);
           },
           error: (err) => {
             this.isLoading = false;
@@ -999,13 +1018,14 @@ export class RegistrationStepperDialog implements OnInit {
 
   /**
    * Tạo Payment record (dùng làm Debt/Invoice)
+   * @param customerMaKh - Mã khách hàng KH-ddmmyy-NNN (dùng cho data records)
    */
-  private createDebtRecord(customerId: string, customerData: any, classData: any, registrationObj: any): void {
+  private createDebtRecord(customerMaKh: string, customerData: any, classData: any, registrationObj: any): void {
     // ========== Step 3: Tạo Payment (Debt/Invoice) ==========
     const debtPayload: iPayment = {
       stt: 0,
       maDangKy: (registrationObj && registrationObj.maDangKy) || 'PENDING',
-      maKh: customerId,
+      maKh: customerMaKh,  // Dùng mã KH (KH-ddmmyy-NNN), KHÔNG dùng _id
       tenKh: customerData.tenKhachHang,
       maLop: classData.maLop,
       tenLopHoc: classData.tenLop,
@@ -1052,22 +1072,32 @@ export class RegistrationStepperDialog implements OnInit {
 
   private generateSequentialCode(prefix: 'KH' | 'DK', existingCodes: string[]): string {
     const dateCode = this.getCurrentDateCode();
-    const pattern = new RegExp(`^${prefix}-${dateCode}-(\\d{3})$`, 'i');
 
-    let maxSequence = 0;
+    // First: check codes from the SAME date to get same-day max
+    const sameDayPattern = new RegExp(`^${prefix}-${dateCode}-(\\d{3})$`, 'i');
+
+    let maxSameDay = 0;
+
     for (const existingCode of existingCodes) {
-      const match = `${existingCode ?? ''}`.trim().match(pattern);
-      if (match) {
-        maxSequence = Math.max(maxSequence, Number(match[1]));
+      const code = `${existingCode ?? ''}`.trim();
+
+      // Check same day
+      const sameDayMatch = code.match(sameDayPattern);
+      if (sameDayMatch) {
+        maxSameDay = Math.max(maxSameDay, Number(sameDayMatch[1]));
       }
     }
 
-    const nextSequence = maxSequence + 1;
+    // Mỗi ngày mới sẽ reset lại từ 001
+    const nextSequence = maxSameDay + 1;
+
     if (nextSequence > 999) {
-      throw new Error(`Đã vượt quá giới hạn mã ${prefix} trong ngày ${dateCode}`);
+      throw new Error(`Đã vượt quá giới hạn mã ${prefix} (999)`);
     }
 
-    return `${prefix}-${dateCode}-${String(nextSequence).padStart(3, '0')}`;
+    const result = `${prefix}-${dateCode}-${String(nextSequence).padStart(3, '0')}`;
+    console.log(`[generateSequentialCode] prefix=${prefix}, sameDay max=${maxSameDay}, next=${nextSequence}, result=${result}`);
+    return result;
   }
 
   private getCurrentDateCode(date = new Date()): string {

@@ -6,7 +6,9 @@ import { PaginationComponent } from '../../../../components/pagination/paginatio
 import { FormDialogComponent } from '../../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dialog';
 import { RoleService } from '../../../../services/role';
+import { Staff as StaffService } from '../../../../services/staff';
 import { iRole } from '../../../../interfaces/role';
+import { iStaff } from '../../../../interfaces/staff';
 
 type RoleViewFormGroup = {
   maVaiTro: FormControl<string>;
@@ -85,10 +87,12 @@ export class Role implements OnInit {
   isConfirmLockDialogOpen = false;
   confirmLockItem: iRole | null = null;
   confirmLockMessage = '';
+  isLockWarningOnly = false; // true = chỉ thông báo cảnh báo (không cho khóa)
 
   constructor(
     private formBuilder: FormBuilder,
     private roleService: RoleService,
+    private staffService: StaffService,
     private cdr: ChangeDetectorRef
   ) {
     this.addRoleForm = this.formBuilder.group({
@@ -309,54 +313,85 @@ export class Role implements OnInit {
 
   /**
    * Khởi tạo dialog xác nhận khóa/mở khóa vai trò
-   * @param item Vai trò cần khóa/mở khóa
+   * Rule: Chỉ được khóa role khi TẤT CẢ nhân viên có vai trò đó đã bị khóa
    */
   toggleLockStatus(item: iRole): void {
-    this.confirmLockItem = item;
-    const currentStatus = Boolean(item.active);
-    const action = currentStatus ? 'khóa' : 'mở khóa';
-    const newStatusLabel = currentStatus ? 'Đã khóa' : 'Đang hoạt động';
+    const isCurrentlyActive = Boolean(item.active);
 
-    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} vai trò "${item.tenVaiTro}" và đổi trạng thái thành "${newStatusLabel}"?`;
-    this.isConfirmLockDialogOpen = true;
+    // Nếu đang muốn KHÓA role => kiểm tra tất cả nhân viên của role đó
+    if (isCurrentlyActive) {
+      this.staffService.getStaffs().subscribe({
+        next: (staffList: iStaff[]) => {
+          const staffOfRole = staffList.filter(
+            s => s.maVaiTro === item.maVaiTro || s.vaiTro === item.tenVaiTro
+          );
+
+          // Nếu có nhân viên và còn bất kỳ ai active => không cho khóa
+          const activeStaff = staffOfRole.filter(s => s.active !== false);
+          if (activeStaff.length > 0) {
+            const names = activeStaff.map(s => s.tenNhanVien || s.maNv).join(', ');
+            this.confirmLockMessage = `Không thể khóa vai trò "${item.tenVaiTro}"! Còn ${activeStaff.length} nhân viên đang hoạt động: ${names}. Vui lòng khóa tất cả nhân viên trước.`;
+            this.confirmLockItem = null;
+            this.isLockWarningOnly = true; // Chỉ hiện cảnh báo
+            this.isConfirmLockDialogOpen = true;
+            return;
+          }
+
+          // Tất cả nhân viên đã khóa hoặc không có ai => cho khóa role
+          this.confirmLockItem = item;
+          this.isLockWarningOnly = false;
+          this.confirmLockMessage = `Bạn có chắc chắn muốn khóa vai trò "${item.tenVaiTro}" và đổi trạng thái thành "Đã khóa"?`;
+          this.isConfirmLockDialogOpen = true;
+        },
+        error: () => {
+          // Fallback: cho khóa nếu không load được staff
+          this.confirmLockItem = item;
+          this.confirmLockMessage = `Bạn có chắc chắn muốn khóa vai trò "${item.tenVaiTro}"?`;
+          this.isConfirmLockDialogOpen = true;
+        }
+      });
+    } else {
+      // Mở khóa role => không cần kiểm tra
+      this.confirmLockItem = item;
+      this.isLockWarningOnly = false;
+      this.confirmLockMessage = `Bạn có chắc chắn muốn mở khóa vai trò "${item.tenVaiTro}" và đổi trạng thái thành "Đang hoạt động"?`;
+      this.isConfirmLockDialogOpen = true;
+    }
   }
 
   /**
-   * Xác nhận khóa/mở khóa và cập nhật dữ liệu
+   * Xác nhận khóa/mở khóa và cập nhật database
    */
   onConfirmLock(): void {
     if (!this.confirmLockItem) {
+      // Không có item => đây là dialog thông báo lỗi, chỉ đóng
+      this.isConfirmLockDialogOpen = false;
       return;
     }
 
-    const currentStatus = Boolean(this.confirmLockItem.active);
-    const roleId = (this.confirmLockItem._id || this.confirmLockItem.maVaiTro || '') as string;
+    const roleId = (this.confirmLockItem._id || '') as string;
+    const newActive = !Boolean(this.confirmLockItem.active);
 
     if (!roleId) {
-      console.error('Invalid role data for lock/unlock');
+      console.error('[Role] No _id found for lock/unlock');
       return;
     }
 
-    // Gọi service để cập nhật trạng thái
-    // endpoint: để trống sẽ mock, sau này thêm API endpoint
-    this.roleService.toggleLockStatus(roleId, currentStatus ? 'Đang hoạt động' : 'Đã khóa', '').subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Cập nhật trạng thái trong local data
-          const roleToUpdate = this.roles.find(r => r.maVaiTro === this.confirmLockItem?.maVaiTro);
-          if (roleToUpdate) {
-            roleToUpdate.active = !currentStatus;
-            // Cập nhật filtered và paginated data
-            this.filteredData = [...this.roles];
-            this.updatePagination();
-            this.cdr.markForCheck();
-          }
-          this.isConfirmLockDialogOpen = false;
-          this.confirmLockItem = null;
+    // Gọi API cập nhật active vào database
+    this.roleService.updateRole(roleId, { active: newActive }).subscribe({
+      next: () => {
+        const roleToUpdate = this.roles.find(r => r.maVaiTro === this.confirmLockItem?.maVaiTro);
+        if (roleToUpdate) {
+          roleToUpdate.active = newActive;
+          this.filteredData = [...this.roles];
+          this.updatePagination();
+          this.cdr.markForCheck();
         }
+        this.isConfirmLockDialogOpen = false;
+        this.confirmLockItem = null;
       },
-      error: (error) => {
-        console.error('Không thể cập nhật trạng thái:', error);
+      error: (err) => {
+        console.error('[Role] Lỗi cập nhật trạng thái:', err);
         this.isConfirmLockDialogOpen = false;
         this.confirmLockItem = null;
       }
@@ -369,6 +404,7 @@ export class Role implements OnInit {
   onCancelLock(): void {
     this.isConfirmLockDialogOpen = false;
     this.confirmLockItem = null;
+    this.isLockWarningOnly = false;
   }
 
   /**

@@ -21,6 +21,10 @@ export class Payment {
     return this.http.post<iPayment>(this.apiUrl, data);
   }
 
+  checkout(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/checkout`, data);
+  }
+
   updatePayment(id: string, data: Partial<iPayment>): Observable<iPayment> {
     return this.http.put<iPayment>(`${this.apiUrl}/${id}`, data);
   }

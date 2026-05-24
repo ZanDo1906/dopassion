@@ -20,8 +20,9 @@ const refundSchema = new Schema({
     lyDoTuChoi: { type: String },
     trangThai: { type: String },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(

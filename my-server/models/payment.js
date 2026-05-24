@@ -20,8 +20,9 @@ const paymentSchema = new Schema({
     soTienConLai: { type: Number },
     trangThaiThanhToan: { type: String },
 },
-    {
-        timestamps: true
+    { 
+        timestamps: true,
+        versionKey: false
     });
 
 module.exports = mongoose.model(
