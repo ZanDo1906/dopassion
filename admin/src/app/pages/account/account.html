@@ -2,9 +2,9 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="profile-section">
-      <img src="/avatar.jpg" alt="Profile" class="profile-avatar">
-      <h2 class="profile-name">Dương Trọng Nhân</h2>
-      <p class="profile-date">Đã tham gia từ tháng 12 năm 2025</p>
+      <img [src]="avatar" alt="Profile" class="profile-avatar">
+      <h2 class="profile-name"> {{ tenNhanVien }}</h2>
+      <p class="profile-date"> {{ updatedAt }}</p>
     </div>
 
     <nav class="menu">
@@ -24,28 +24,49 @@
   <div class="main-content">
     <div class="form-section">
       <h3 class="section-title">THÔNG TIN CÁ NHÂN</h3>
-      <form class="info-form">
+      <form class="info-form" (ngSubmit)="saveProfile()">
         <div class="form-row">
           <div class="form-group">
             <label for="fullname">Họ và tên</label>
-            <input type="text" id="fullname" [(ngModel)]="fullName" name="fullName">
+            <input
+              type="text"
+              id="fullname"
+              [(ngModel)]="tenNhanVien"
+              name="tenNhanVien"
+              [disabled]="!isEditMode"
+            >
           </div>
           <div class="form-group">
             <label for="phone">Số điện thoại</label>
-            <input type="tel" id="phone" [(ngModel)]="phoneNumber" name="phoneNumber">
+            <input type="tel" id="phone" [(ngModel)]="sdt" name="sdt" [disabled]="!isEditMode">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="dob">Ngày sinh</label>
-            <input type="date" id="dob" value="2005-06-16">
+            <input type="date" id="dob" [(ngModel)]="ngaySinh" name="ngaySinh" [disabled]="!isEditMode">
           </div>
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" placeholder="nhandt234@st.uel.edu.vn">
+            <input type="email" id="email" [(ngModel)]="email" name="email" [disabled]="!isEditMode">
           </div>
         </div>
-        <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
+        <button
+          *ngIf="!isEditMode"
+          type="button"
+          class="btn-save"
+          (click)="enableEdit()"
+        >
+          CHỈNH SỬA THÔNG TIN
+        </button>
+
+        <button
+          *ngIf="isEditMode"
+          type="submit"
+          class="btn-save"
+        >
+          LƯU THÔNG TIN
+        </button>
       </form>
     </div>
 
@@ -74,7 +95,7 @@
             <input type="password" id="confirm-password" placeholder="••••••••">
           </div>
 
-          <button type="submit" class="btn-save">LƯU THÔNG TIN</button>
+          
         </form>
       </div>
     </div>

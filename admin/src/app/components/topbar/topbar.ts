@@ -16,6 +16,8 @@ type Breadcrumb = {
 })
 export class Topbar {
   breadcrumbs: Breadcrumb[] = [];
+  currentUserName: string = 'Người dùng';
+  currentUserRole: string = 'STAFF';
 
   private readonly labelMap: Record<string, string> = {
     account: 'Tài khoản',
@@ -47,6 +49,21 @@ export class Topbar {
   };
 
   constructor(private readonly router: Router) {
+
+    const currentUser =
+      localStorage.getItem('currentStaff');
+
+    if (currentUser) {
+
+      const user = JSON.parse(currentUser);
+
+      this.currentUserName =
+        user.tenNhanVien || 'Người dùng';
+
+      this.currentUserRole =
+        user.vaiTro || 'STAFF';
+
+    }
     this.updateBreadcrumbs(this.router.url);
 
     this.router.events
@@ -55,6 +72,7 @@ export class Topbar {
         const navEnd = event as NavigationEnd;
         this.updateBreadcrumbs(navEnd.urlAfterRedirects);
       });
+
   }
 
   private updateBreadcrumbs(url: string): void {

@@ -27,61 +27,88 @@ export class Login {
   constructor(private router: Router, private staffService: Staff) { }
 
   submit() {
-    this.errorMessage = '';
 
-    const usernameTrim = this.username.trim();
-    const passwordTrim = this.password.trim();
+  this.errorMessage = '';
 
-    if (!usernameTrim || !passwordTrim) {
-      this.errorMessage = 'Vui lòng nhập đầy đủ mã nhân viên và mật khẩu.';
-      return;
+  const usernameTrim =
+    this.username.trim();
+
+  const passwordTrim =
+    this.password.trim();
+
+  // CHECK RỖNG
+  if (!usernameTrim || !passwordTrim) {
+
+    this.errorMessage =
+      'Vui lòng nhập đầy đủ thông tin';
+
+    return;
+  }
+
+  // CALL API
+  this.staffService.getStaff().subscribe({
+
+    next: (staffList: iStaff[]) => {
+
+      console.log('STAFF LIST', staffList);
+
+      // TÌM USER
+      const user = staffList.find(
+
+        (staff: any) =>
+
+          String(staff.maNv)
+            .trim()
+            .toLowerCase()
+
+          ===
+
+          usernameTrim.toLowerCase()
+
+      );
+
+      console.log('USER FOUND', user);
+
+      // KHÔNG TÌM THẤY
+      if (!user) {
+
+        this.errorMessage =
+          'Sai mã nhân viên';
+
+        return;
+      }
+
+      // CHECK PASSWORD
+      if (passwordTrim !== '123456') {
+
+        this.errorMessage =
+          'Sai mật khẩu';
+
+        return;
+      }
+
+      // LƯU USER
+      localStorage.setItem(
+        'currentStaff',
+        JSON.stringify(user)
+      );
+
+      // CHUYỂN TRANG
+      this.router.navigate([  '/report/student-report']);
+    },
+
+    error: (error) => {
+
+      console.error(error);
+
+      this.errorMessage =
+        'Không thể kết nối server';
+
     }
 
-    const userId = this.normalizeStaffId(usernameTrim);
-    console.log('Login attempt', { userId, passwordTrim });
-    this.staffService.getStaff().subscribe(
-      (staffList: iStaff[]) => {
-        console.log('Staff list loaded', staffList.length);
-        const user = staffList.find(
-          (staff) => String(staff.maNv).toUpperCase() === userId
-        );
-        if (!user) {
-          console.log('User not found for', userId);
-          this.errorMessage = 'Sai tên đăng nhập.';
-          return;
-        }
+  });
 
-        // Lấy password mới nếu đã đổi
-        const savedPassword = localStorage.getItem(
-          `password_${user.maNv}`
-        );
-
-        // Nếu chưa đổi thì dùng password gốc trong JSON
-        const currentPassword =
-          savedPassword || user.password;
-
-        if (currentPassword !== passwordTrim) {
-
-          console.log(
-            'Wrong password for',
-            userId,
-            'expected',
-            currentPassword
-          );
-
-          this.errorMessage = 'Sai mật khẩu.';
-
-          return;
-        }
-
-        this.router.navigate(['/report/student-report']);
-      },
-      (error) => {
-        console.error('Failed loading staff.json', error);
-        this.errorMessage = 'Không thể kiểm tra đăng nhập. Vui lòng thử lại.';
-      }
-    );
-  }
+}
 
   private normalizeStaffId(value: string): string {
     const normalized = value.toUpperCase().trim();

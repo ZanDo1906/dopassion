@@ -795,15 +795,31 @@ calculatePaymentByVoucher(voucherCode: string): void {
     soTienCanThanhToan = 0;
   }
 
-  this.detailForm.patchValue({
+  const soTienDaDong =
+  Number(
+    this.detailForm.get(
+      'soTienDaDong'
+    )?.value || 0
+  );
 
-    soTienCanThanhToan:
-      Math.round(soTienCanThanhToan),
+let soTienConLai =
+  soTienCanThanhToan - soTienDaDong;
 
-    soTienConLai:
-      Math.round(soTienCanThanhToan)
+if (soTienConLai < 0) {
 
-  });
+  soTienConLai = 0;
+
+}
+
+this.detailForm.patchValue({
+
+  soTienCanThanhToan:
+    Math.round(soTienCanThanhToan),
+
+  soTienConLai:
+    Math.round(soTienConLai)
+
+});
 
 }
 

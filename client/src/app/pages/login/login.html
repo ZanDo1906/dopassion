@@ -31,10 +31,16 @@
       <div class="col-lg-6 right-panel">
         <div class="login-card">
 
-          <h3>Đăng nhập</h3>
+          <h3>
+            {{ isRegisterMode ? 'Đăng ký' : 'Đăng nhập' }}
+          </h3>
 
           <p class="login-subtitle">
-            Chào mừng quay trở lại! Vui lòng đăng nhập vào tài khoản của bạn.
+            {{
+              isRegisterMode
+                ? 'Tạo tài khoản mới để sử dụng hệ thống.'
+                : 'Chào mừng quay trở lại! Vui lòng đăng nhập vào tài khoản của bạn.'
+            }}
           </p>
 
           <form>
@@ -75,6 +81,28 @@
               </div>
             </div>
 
+            <!-- CONFIRM PASSWORD -->
+            <div
+              class="form-group"
+              *ngIf="isRegisterMode"
+            >
+
+              <label>Xác nhận mật khẩu</label>
+
+              <div class="input-group-custom">
+
+                <i class="bi bi-shield-lock"></i>
+
+                <input
+                  type="password"
+                  placeholder="Nhập lại mật khẩu"
+                  [(ngModel)]="confirmPassword"
+                  name="confirmPassword"
+                >
+
+              </div>
+
+            </div>
             <!-- OPTIONS -->
             <div class="login-options">
 
@@ -90,9 +118,9 @@
             </div>
 
             <!-- LOGIN BTN -->
-            <button class="btn-login" type="button" (click)="onLogin()">
+            <button  class="btn-login"  type="button"  (click)=" isRegisterMode ? onRegister() : onLogin()">
               <i class="bi bi-box-arrow-in-right"></i>
-              Đăng nhập
+              {{ isRegisterMode ? 'Đăng ký' : 'Đăng nhập' }}
             </button>
 
             <!-- GOOGLE -->
@@ -107,8 +135,33 @@
           </form>
 
           <div class="bottom-text">
-            Chưa có tài khoản?
-            <a href="#">Đăng ký ngay</a>
+
+            <ng-container *ngIf="!isRegisterMode">
+
+              Chưa có tài khoản?
+
+              <a
+                href="javascript:void(0)"
+                (click)="isRegisterMode = true"
+              >
+                Đăng ký ngay
+              </a>
+
+            </ng-container>
+
+            <ng-container *ngIf="isRegisterMode">
+
+              Đã có tài khoản?
+
+              <a
+                href="javascript:void(0)"
+                (click)="isRegisterMode = false"
+              >
+                Đăng nhập
+              </a>
+
+            </ng-container>
+
           </div>
 
         </div>

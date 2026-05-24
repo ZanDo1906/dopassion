@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Client } from '../../services/client';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -14,7 +14,8 @@ export class Login {
 
   loginValue: string = '';
   password: string = '';
-
+  isRegisterMode: boolean = false;
+  confirmPassword: string = '';
   constructor(
     private router: Router,
     private clientService: Client
@@ -84,4 +85,39 @@ export class Login {
 
   }
 
+onRegister() {
+
+  // CHECK RỖNG
+  if (
+    !this.loginValue ||
+    !this.password ||
+    !this.confirmPassword
+  ) {
+
+    alert('Vui lòng nhập đầy đủ thông tin');
+
+    return;
+
+  }
+
+  // CHECK PASSWORD
+  if (this.password !== this.confirmPassword) {
+
+    alert('Mật khẩu xác nhận không khớp');
+
+    return;
+
+  }
+
+  alert('Đăng ký thành công');
+
+  // RESET
+  this.loginValue = '';
+  this.password = '';
+  this.confirmPassword = '';
+
+  // QUAY VỀ LOGIN
+  this.isRegisterMode = false;
+
+}
 }
