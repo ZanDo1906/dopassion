@@ -88,10 +88,12 @@
               <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên"
                 formControlName="fullName"
                 [class.is-invalid]="contactForm.get('fullName')?.invalid && contactForm.get('fullName')?.touched">
-              <small class="validation-error" *ngIf="contactForm.get('fullName')?.hasError('required') && contactForm.get('fullName')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('fullName')?.hasError('required') && contactForm.get('fullName')?.touched">
                 Vui lòng nhập họ và tên
               </small>
-              <small class="validation-error" *ngIf="contactForm.get('fullName')?.hasError('minlength') && contactForm.get('fullName')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('fullName')?.hasError('minlength') && contactForm.get('fullName')?.touched">
                 Họ và tên phải có ít nhất 2 ký tự
               </small>
             </div>
@@ -101,10 +103,12 @@
               <label for="phone" class="form-label">Số điện thoại <span class="required">*</span></label>
               <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" formControlName="phone"
                 [class.is-invalid]="contactForm.get('phone')?.invalid && contactForm.get('phone')?.touched">
-              <small class="validation-error" *ngIf="contactForm.get('phone')?.hasError('required') && contactForm.get('phone')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('phone')?.hasError('required') && contactForm.get('phone')?.touched">
                 Vui lòng nhập số điện thoại
               </small>
-              <small class="validation-error" *ngIf="contactForm.get('phone')?.hasError('pattern') && contactForm.get('phone')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('phone')?.hasError('pattern') && contactForm.get('phone')?.touched">
                 Số điện thoại phải có ít nhất 10 chữ số
               </small>
             </div>
@@ -114,10 +118,12 @@
               <label for="email" class="form-label">Email <span class="required">*</span></label>
               <input type="email" class="form-control" id="email" placeholder="Nhập email" formControlName="email"
                 [class.is-invalid]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
-              <small class="validation-error" *ngIf="contactForm.get('email')?.hasError('required') && contactForm.get('email')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('email')?.hasError('required') && contactForm.get('email')?.touched">
                 Vui lòng nhập email
               </small>
-              <small class="validation-error" *ngIf="contactForm.get('email')?.hasError('email') && contactForm.get('email')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('email')?.hasError('email') && contactForm.get('email')?.touched">
                 Vui lòng nhập email hợp lệ (VD: abc&#64;domain.com)
               </small>
             </div>
@@ -127,10 +133,12 @@
               <label for="subject" class="form-label">Tiêu đề <span class="required">*</span></label>
               <input type="text" class="form-control" id="subject" placeholder="Nhập tiêu đề" formControlName="subject"
                 [class.is-invalid]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched">
-              <small class="validation-error" *ngIf="contactForm.get('subject')?.hasError('required') && contactForm.get('subject')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('subject')?.hasError('required') && contactForm.get('subject')?.touched">
                 Vui lòng nhập tiêu đề
               </small>
-              <small class="validation-error" *ngIf="contactForm.get('subject')?.hasError('minlength') && contactForm.get('subject')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('subject')?.hasError('minlength') && contactForm.get('subject')?.touched">
                 Tiêu đề phải có ít nhất 5 ký tự
               </small>
             </div>
@@ -140,10 +148,12 @@
               <label for="message" class="form-label">Tin nhắn <span class="required">*</span></label>
               <textarea class="form-control" id="message" rows="5" placeholder="Nhập tin nhắn" formControlName="message"
                 [class.is-invalid]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"></textarea>
-              <small class="validation-error" *ngIf="contactForm.get('message')?.hasError('required') && contactForm.get('message')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('message')?.hasError('required') && contactForm.get('message')?.touched">
                 Vui lòng nhập tin nhắn
               </small>
-              <small class="validation-error" *ngIf="contactForm.get('message')?.hasError('minlength') && contactForm.get('message')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('message')?.hasError('minlength') && contactForm.get('message')?.touched">
                 Tin nhắn phải có ít nhất 10 ký tự
               </small>
             </div>
@@ -154,7 +164,8 @@
               <label class="form-check-label" for="agreeCheckbox">
                 Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật <span class="required">*</span>
               </label>
-              <small class="validation-error" *ngIf="contactForm.get('agreeToTerms')?.invalid && contactForm.get('agreeToTerms')?.touched">
+              <small class="validation-error"
+                *ngIf="contactForm.get('agreeToTerms')?.invalid && contactForm.get('agreeToTerms')?.touched">
                 Bạn cần đồng ý với điều khoản để gửi yêu cầu
               </small>
             </div>
