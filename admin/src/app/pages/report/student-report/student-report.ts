@@ -1,9 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, BarController } from 'chart.js';
+import {
+    FilterConfig,
+    FilterDataPicker
+} from '../../../components/filter-data-picker/filter-data-picker';
+
+import {
+    Chart,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    BarController
+} from 'chart.js';
+
 import { StudentReportService } from '../../../services/student-report';
 import { iStudentReport } from '../../../interfaces/student-report';
+
 @Component({
     selector: 'app-student-report',
     standalone: true,
@@ -15,7 +30,11 @@ import { iStudentReport } from '../../../interfaces/student-report';
     styleUrls: ['./student-report.css']
 })
 export class StudentReport implements OnInit {
-    constructor(private studentReportService: StudentReportService) {
+
+    constructor(
+        private studentReportService: StudentReportService
+    ) {
+
         Chart.register(
             CategoryScale,
             LinearScale,
@@ -26,12 +45,15 @@ export class StudentReport implements OnInit {
             BarController
         );
     }
+
     filterConfig: FilterConfig[] = [
+
         {
             key: 'ngay',
             label: 'Ngày',
             type: 'date-range'
         },
+
         {
             key: 'chiNhanh',
             label: 'Chi nhánh',
@@ -70,7 +92,7 @@ export class StudentReport implements OnInit {
 
     ];
 
-    allData: iStudentReport[] = [];
+    allData: any[] = [];
 
     filteredData: any[] = [];
 
@@ -89,19 +111,32 @@ export class StudentReport implements OnInit {
             .subscribe({
 
                 next: (data: any) => {
-                    console.log('DATA REPORT', data);
 
                     console.log('DATA REPORT', data);
 
                     this.allData = data.map((item: any) => ({
-                        ngay: item.ngay,
-                        chiNhanh: item.chiNhanh,
-                        khoaHoc: item.khoaHoc,
-                        lopHoc: item.lopHoc,
-                        soHocVienDangKy: item.soHocVienDangKy,
-                        soHocVienHuy: item.soHocVienHuyDangKy
+
+                        ngay:
+                            item.ngay,
+
+                        chiNhanh:
+                            item.chiNhanh,
+
+                        khoaHoc:
+                            item.khoaHoc,
+
+                        lopHoc:
+                            item.lopHoc,
+
+                        soHocVienDangKy:
+                            Number(item.soHocVienDangKy || 0),
+
+                        soHocVienHuy:
+                            Number(item.soHocVienHuyDangKy || 0)
 
                     }));
+
+                    console.log('ALL DATA', this.allData);
 
                     this.filteredData = [...this.allData];
 
@@ -152,6 +187,7 @@ export class StudentReport implements OnInit {
                     fromDate &&
                     itemDate < fromDate
                 ) {
+
                     matchDate = false;
                 }
 
@@ -159,6 +195,7 @@ export class StudentReport implements OnInit {
                     toDate &&
                     itemDate > toDate
                 ) {
+
                     matchDate = false;
                 }
             }
@@ -218,6 +255,8 @@ export class StudentReport implements OnInit {
         this.currentPage = 1;
 
         this.updatePagination();
+
+        this.renderChart();
     }
 
     get totalPages(): number {
@@ -247,6 +286,7 @@ export class StudentReport implements OnInit {
             page < 1 ||
             page > this.totalPages
         ) {
+
             return;
         }
 
@@ -280,7 +320,6 @@ export class StudentReport implements OnInit {
             this.filteredData.slice(start, end);
     }
 
-
     renderChart(): void {
 
         const canvas =
@@ -300,50 +339,104 @@ export class StudentReport implements OnInit {
 
         Chart.getChart(canvas)?.destroy();
 
-        // LABEL CHI NHÁNH
+        // ======================
+        // LABEL
+        // ======================
+
         const labels = [
             'CN1',
             'CN2',
             'CN3'
         ];
 
-        // SW
+        // ======================
+        // DATA
+        // ======================
+
         const swDangKy = [0, 0, 0];
+
         const swHuy = [0, 0, 0];
 
-        // LR
         const lrDangKy = [0, 0, 0];
+
         const lrHuy = [0, 0, 0];
+
+        // ======================
+        // LOOP DATA
+        // ======================
 
         this.filteredData.forEach((item: any) => {
 
             const index =
-                labels.indexOf(item.chiNhanh);
+                labels.indexOf(
+                    item.chiNhanh
+                );
 
             if (index === -1) {
                 return;
             }
 
+            // ======================
+            // CHUẨN HÓA KHÓA HỌC
+            // ======================
+
+            const khoaHoc =
+                String(item.khoaHoc || '')
+                    .trim()
+                    .toUpperCase();
+
+            console.log(
+                'KHÓA:',
+                khoaHoc,
+                'CHI NHÁNH:',
+                item.chiNhanh
+            );
+
+            // ======================
             // SW
-            if (item.khoaHoc === 'SW') {
+            // ======================
+
+            if (
+                khoaHoc === 'SW' ||
+                khoaHoc.includes('SPEAKING')
+            ) {
 
                 swDangKy[index] +=
-                    item.soHocVienDangKy;
+                    Number(item.soHocVienDangKy || 0);
 
                 swHuy[index] +=
-                    item.soHocVienHuy;
+                    Number(item.soHocVienHuy || 0);
             }
 
+            // ======================
             // LR
-            if (item.khoaHoc === 'LR') {
+            // ======================
+
+            else if (
+                khoaHoc === 'LR' ||
+                khoaHoc.includes('LISTENING')
+            ) {
 
                 lrDangKy[index] +=
-                    item.soHocVienDangKy;
+                    Number(item.soHocVienDangKy || 0);
 
                 lrHuy[index] +=
-                    item.soHocVienHuy;
+                    Number(item.soHocVienHuy || 0);
             }
+
         });
+
+        console.log('SW ĐĂNG KÝ', swDangKy);
+
+        console.log('SW HỦY', swHuy);
+
+        console.log('LR ĐĂNG KÝ', lrDangKy);
+
+        console.log('LR HỦY', lrHuy);
+
+        // ======================
+        // CHART
+        // ======================
 
         new Chart(ctx, {
 
@@ -386,6 +479,7 @@ export class StudentReport implements OnInit {
 
                         backgroundColor: '#e5a568'
                     }
+
                 ]
             },
 
