@@ -104,15 +104,23 @@
 
             </div>
             <!-- OPTIONS -->
-            <div class="login-options">
+            <div
+              class="login-options"
+              *ngIf="!isRegisterMode"
+            >
 
               <label class="remember-me">
+
                 <input type="checkbox">
+
                 <span>Ghi nhớ đăng nhập</span>
+
               </label>
 
               <a href="#" class="forgot-password">
+
                 Quên mật khẩu?
+
               </a>
 
             </div>

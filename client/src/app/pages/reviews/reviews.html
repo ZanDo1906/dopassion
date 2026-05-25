@@ -188,6 +188,7 @@
               type="text" 
               formControlName="studentName" 
               class="form-control" 
+              [readonly]="isLoggedIn"
               [class.is-invalid]="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched"
               placeholder="Nhập họ và tên của bạn...">
             <small class="validation-error" *ngIf="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched">
@@ -196,15 +197,15 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Lớp học <span class="required">*</span></label>
+            <label class="form-label">Lớp học</label>
             <select formControlName="class" class="form-control"
               [class.is-invalid]="reviewFormGroup.get('class')?.invalid && reviewFormGroup.get('class')?.touched">
               <option value="">-- Chọn lớp học --</option>
               <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
             </select>
-            <small class="validation-error" *ngIf="reviewFormGroup.get('class')?.invalid && reviewFormGroup.get('class')?.touched">
+            <!-- <small class="validation-error" *ngIf="reviewFormGroup.get('class')?.invalid && reviewFormGroup.get('class')?.touched">
               Vui lòng chọn lớp học
-            </small>
+            </small> -->
           </div>
 
           <div class="form-group">

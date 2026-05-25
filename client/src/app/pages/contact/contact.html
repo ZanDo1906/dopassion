@@ -85,7 +85,7 @@
             <!-- Full Name -->
             <div class="mb-3">
               <label for="fullName" class="form-label">Họ và tên <span class="required">*</span></label>
-              <input type="text" class="form-control" id="fullName" placeholder="Nhập họ và tên"
+              <input type="text" class="form-control" id="fullName"  [readonly]="isLoggedIn" placeholder="Nhập họ và tên"
                 formControlName="fullName"
                 [class.is-invalid]="contactForm.get('fullName')?.invalid && contactForm.get('fullName')?.touched">
               <small class="validation-error"
@@ -101,7 +101,7 @@
             <!-- Phone -->
             <div class="mb-3">
               <label for="phone" class="form-label">Số điện thoại <span class="required">*</span></label>
-              <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" formControlName="phone"
+              <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" [readonly]="isLoggedIn" formControlName="phone"
                 [class.is-invalid]="contactForm.get('phone')?.invalid && contactForm.get('phone')?.touched">
               <small class="validation-error"
                 *ngIf="contactForm.get('phone')?.hasError('required') && contactForm.get('phone')?.touched">
@@ -116,7 +116,7 @@
             <!-- Email -->
             <div class="mb-3">
               <label for="email" class="form-label">Email <span class="required">*</span></label>
-              <input type="email" class="form-control" id="email" placeholder="Nhập email" formControlName="email"
+              <input type="email" class="form-control" id="email" placeholder="Nhập email" [readonly]="isLoggedIn" formControlName="email"
                 [class.is-invalid]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
               <small class="validation-error"
                 *ngIf="contactForm.get('email')?.hasError('required') && contactForm.get('email')?.touched">

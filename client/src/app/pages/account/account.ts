@@ -74,6 +74,7 @@ constructor(
   dateOfBirth: string = '';
   joinDate: string = '';
   showPasswordForm: boolean = false;
+  showLogoutPopup: boolean = false;
 
   // PROFILE EDIT
 isEditingProfile: boolean = false;
@@ -436,7 +437,19 @@ onAvatarChange(event: any) {
 
   reader.readAsDataURL(file);
 }
-logout(){
+openLogoutPopup() {
+
+  this.showLogoutPopup = true;
+
+}
+
+closeLogoutPopup() {
+
+  this.showLogoutPopup = false;
+
+}
+
+logout() {
 
   localStorage.removeItem('currentUser');
 

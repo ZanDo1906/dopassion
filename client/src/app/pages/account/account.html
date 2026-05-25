@@ -69,7 +69,7 @@
       </ul>
     </nav>
 
-    <button class="logout-btn" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+    <button class="logout-btn" (click)="openLogoutPopup()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
   </div>
 
   <!-- Main Content -->
@@ -634,5 +634,38 @@
       </div>
     </div>
   </div>
+<!-- LOGOUT POPUP -->
+<div
+  class="logout-popup-overlay"
+  *ngIf="showLogoutPopup"
+>
+
+  <div class="logout-popup">
+
+    <h3>
+      Bạn có muốn đăng xuất không?
+    </h3>
+
+    <div class="logout-popup-actions">
+
+      <button
+        class="btn-confirm"
+        (click)="logout()"
+      >
+        Có
+      </button>
+
+      <button
+        class="btn-cancel"
+        (click)="closeLogoutPopup()"
+      >
+        Không
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 </div>

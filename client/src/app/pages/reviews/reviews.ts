@@ -7,6 +7,7 @@ import 'iconify-icon';
 // Services
 import { Feedback as FeedbackService } from '../../services/feedback';
 import { Class as ClassService } from '../../services/class';
+import { RegistrationService } from '../../services/registration';
 
 // Interfaces
 export interface Review {
@@ -81,6 +82,8 @@ export class Reviews implements OnInit {
   selectedSort = 'newest';
   searchQuery = '';
   formRating = 5;
+  isLoggedIn: boolean = false;
+  customerCode: string = '';
 
   // Reactive Form
   reviewFormGroup: FormGroup;
@@ -88,11 +91,12 @@ export class Reviews implements OnInit {
   constructor(
     private fb: FormBuilder,
     private feedbackService: FeedbackService,
-    private classService: ClassService
+    private classService: ClassService,
+    private registrationService: RegistrationService
   ) {
     this.reviewFormGroup = this.fb.group({
       studentName: ['', Validators.required],
-      class: ['', Validators.required],
+      class: [''],
       rating: [5, Validators.required],
       content: ['', [Validators.required, Validators.minLength(20)]],
       agreeToTerms: [false, Validators.requiredTrue]
@@ -100,9 +104,40 @@ export class Reviews implements OnInit {
   }
 
   ngOnInit() {
+
+  const userData = localStorage.getItem('currentUser');
+
+  if (userData) {
+
+    this.isLoggedIn = true;
+
+    const user = JSON.parse(userData);
+
+    this.customerCode =
+      user.maKh ||
+      user.maKhachHang ||
+      '';
+
+    this.reviewFormGroup.patchValue({
+
+      studentName:
+        user.tenKhachHang ||
+        user.fullName ||
+        ''
+
+    });
+
+    this.loadRegisteredClasses(this.customerCode);
+
+  } else {
+
     this.loadClasses();
-    this.loadFeedbacks();
+
   }
+
+  this.loadFeedbacks();
+
+}
 
   loadClasses() {
     this.classService.getClasses().subscribe({
@@ -122,6 +157,47 @@ export class Reviews implements OnInit {
       }
     });
   }
+  loadRegisteredClasses(maKh: string) {
+  this.registrationService.getRegistrations().subscribe({
+    next: (registrations: any[]) => {
+      const myRegistrations = registrations.filter(
+        r => r.maKh === maKh
+      );
+      this.classService.getClasses().subscribe({
+        next: (classList: any[]) => {
+          const myClasses = myRegistrations.map(reg => {
+            const classInfo = classList.find(
+              c => c.maLop === reg.maLop
+            );
+            return (
+              classInfo?.tenLop ||
+              reg.tenLopHoc
+            );
+          });
+          this.categories = Array.from(
+            new Set(myClasses.filter(Boolean))
+          );
+        },
+
+        error: (err) => {
+
+          console.error('Lỗi load class:', err);
+
+        }
+
+      });
+
+    },
+
+    error: (err) => {
+
+      console.error('Lỗi registration:', err);
+
+    }
+
+  });
+
+}
 
   loadFeedbacks() {
     this.feedbackService.getFeedback().subscribe({
@@ -272,7 +348,7 @@ export class Reviews implements OnInit {
         maDanhGia: maDanhGia,
         maDangKy: maDangKy,
         tenKhachHang: formValues.studentName,
-        tenLopHoc: formValues.class,
+        tenLopHoc: formValues.class || 'Chưa chọn lớp',
         noiDungDanhGia: formValues.content,
         soSao: Number(formValues.rating),
         ngayDanhGia: new Date().toISOString(),
