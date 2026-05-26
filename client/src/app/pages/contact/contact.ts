@@ -2,6 +2,7 @@ import { Component, OnInit  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Contact as ContactService } from '../../services/contact';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-contact',
@@ -15,7 +16,8 @@ export class Contact implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private contactService: ContactService
+    private contactService: ContactService,
+    private notification: NotificationService
   ) {
 
     this.contactForm = this.fb.group({
@@ -66,7 +68,7 @@ export class Contact implements OnInit {
 
       this.contactService.addContact(newContact).subscribe({
         next: () => {
-          alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.');
+          this.notification.show('Thành công', 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.', 'success');
           this.contactForm.reset({
 
   fullName: this.isLoggedIn
@@ -91,7 +93,7 @@ export class Contact implements OnInit {
         },
         error: (err) => {
           console.error('Lỗi khi gửi yêu cầu liên hệ:', err);
-          alert('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
+          this.notification.show('Lỗi', 'Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.', 'error');
         }
       });
     }

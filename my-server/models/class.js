@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -12,8 +11,8 @@ const classSchema = new Schema({
     giangVien: { type: String },
     maNhanVien: { type: String },
     khungGio: { type: String },
-    ngayBatDau: { type: Date },
-    ngayKetThuc: { type: Date },
+    ngayBatDau: { type: String },
+    ngayKetThuc: { type: String },
     active: { type: Boolean },
 },
     { 

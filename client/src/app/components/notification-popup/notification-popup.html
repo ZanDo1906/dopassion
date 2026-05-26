@@ -1,0 +1,17 @@
+<div class="notification-overlay" *ngIf="state.isOpen" (click)="close()">
+  <div class="notification-modal" (click)="$event.stopPropagation()">
+    <i class="bi" [ngClass]="getIconClass()" [ngStyle]="{'font-size': '3.5rem', 'color': getIconColor(), 'margin-bottom': '20px', 'display': 'block'}"></i>
+    
+    <h3 class="notification-title" [ngStyle]="{'color': '#4C70AD', 'margin-bottom': '15px'}">{{ state.title }}</h3>
+    
+    <p class="notification-message" [ngStyle]="{'color': '#666', 'margin-bottom': '30px', 'font-size': '1.05rem', 'white-space': 'pre-line'}">
+      {{ state.message }}
+    </p>
+    
+    <div class="notification-actions">
+      <button type="button" class="btn-notification-close" (click)="close()">
+        Đóng
+      </button>
+    </div>
+  </div>
+</div>

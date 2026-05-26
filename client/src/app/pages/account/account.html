@@ -221,7 +221,7 @@
         <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Hoàn
           thành</button>
       </div>
-      <div class="classes-list">
+      <div class="classes-list" *ngIf="filteredClasses && filteredClasses.length > 0">
         <div class="class-card" *ngFor="let classItem of filteredClasses">
           <div class="class-header">
             <h3 class="class-name">{{ classItem.name }}</h3>
@@ -261,6 +261,11 @@
           <button class="btn-view" (click)="openClassPopup(classItem)">Xem lớp học</button>
         </div>
       </div>
+      
+      <div *ngIf="!filteredClasses || filteredClasses.length === 0" style="text-align: center; padding: 40px 20px; color: #666; background: white; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <i class="bi bi-journal-x" style="font-size: 48px; color: #e0e0e0; margin-bottom: 15px; display: block;"></i>
+        <p style="font-size: 16px; font-weight: 500; color: #757575;">Bạn chưa có lớp học nào.</p>
+      </div>
     </div>
 
     <!-- View 3: Quản lý thanh toán -->
@@ -298,7 +303,7 @@
       </div>
 
       <!-- PAYMENT LIST -->
-      <div class="payment-list">
+      <div class="payment-list" *ngIf="filteredPayments && filteredPayments.length > 0">
 
         <div class="payment-card" *ngFor="let payment of filteredPayments">
 
@@ -320,15 +325,18 @@
             <span class="payment-status" [ngClass]="{
                 'status-pending': payment.status === 'pending',
                 'status-completed': payment.status === 'completed',
-                'status-postponed': payment.status === 'postponed'
+                'status-postponed': payment.status === 'postponed',
+                'status-cancelled': payment.status === 'cancelled'
               }">
 
               {{
               payment.status === 'pending'
-              ? 'Đang chờ hoàn tiền'
+              ? 'Chờ thanh toán'
               : payment.status === 'completed'
               ? 'Đã thanh toán'
-              : 'Đã thanh toán ghi danh'
+              : payment.status === 'postponed'
+              ? 'Đã thanh toán ghi danh'
+              : 'Đã hủy'
               }}
 
             </span>
@@ -387,23 +395,30 @@
                 </span>
 
                 <span class="price-value">
-                  {{ payment.amountPaid | number }} VND
+                  {{ payment.amountAfterVoucher | number }} VND
                 </span>
 
               </div>
 
-              <button class="btn-detail" (click)="openPaymentPopup(payment)">
-
-                Xem chi tiết
-
-              </button>
+              <div style="display: flex; gap: 10px; margin-top: 10px; align-items: flex-end;">
+                <button *ngIf="payment.status === 'pending'" class="btn-payment-cancel" (click)="cancelPayment(payment)">
+                  Hủy giao dịch
+                </button>
+                <button class="btn-detail" (click)="openPaymentPopup(payment)">
+                  Xem chi tiết
+                </button>
+              </div>
 
             </div>
 
           </div>
 
         </div>
+      </div>
 
+      <div *ngIf="!filteredPayments || filteredPayments.length === 0" style="text-align: center; padding: 40px 20px; color: #666; background: white; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <i class="bi bi-wallet2" style="font-size: 48px; color: #e0e0e0; margin-bottom: 15px; display: block;"></i>
+        <p style="font-size: 16px; font-weight: 500; color: #757575;">Bạn chưa có giao dịch thanh toán nào.</p>
       </div>
 
     </div>
@@ -631,6 +646,151 @@
 
         <!-- Close Button -->
         <button class="btn-popup-close" (click)="closeClassPopup()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Detail Popup -->
+  <div *ngIf="showPaymentPopup" class="class-popup-overlay" (click)="closePaymentPopup()" style="padding: 20px;">
+    <div class="class-popup payment-detail-popup" (click)="$event.stopPropagation()" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="class-popup-header" style="flex-shrink: 0;">
+        <h2 class="class-popup-title">CHI TIẾT THANH TOÁN</h2>
+        <button class="class-popup-close" (click)="closePaymentPopup()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      
+      <div class="class-popup-content" *ngIf="selectedPayment" style="overflow-y: auto; flex-grow: 1; padding: 24px;">
+        <!-- Common Info -->
+        <div class="popup-section" style="margin-bottom: 15px;">
+          <label class="popup-label" style="display: block; font-size: 12px; color: #666; margin-bottom: 4px;">Lớp học</label>
+          <p class="popup-value" style="font-weight: 500; font-size: 16px;">{{ selectedPayment.className }}</p>
+        </div>
+        <div class="popup-section" style="margin-bottom: 15px;">
+          <label class="popup-label" style="display: block; font-size: 12px; color: #666; margin-bottom: 4px;">Mã giao dịch</label>
+          <p class="popup-value" style="font-weight: 500; font-size: 16px;">{{ selectedPayment.paymentCode }}</p>
+        </div>
+        <div class="popup-section" style="margin-bottom: 15px;">
+          <label class="popup-label" style="display: block; font-size: 12px; color: #666; margin-bottom: 4px;">Số tiền</label>
+          <p class="popup-value" style="font-weight: 600; color: #e53935; font-size: 18px;">{{ selectedPayment.amountAfterVoucher | number }} VND</p>
+        </div>
+        <div class="popup-section" style="margin-bottom: 15px;">
+          <label class="popup-label" style="display: block; font-size: 12px; color: #666; margin-bottom: 8px;">Lịch sử trạng thái</label>
+          
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+            
+            <!-- TH1: Đang chờ thanh toán (chỉ hiện 1 box màu vàng) -->
+            <div *ngIf="selectedPayment.status === 'pending'" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffe0b2; background-color: #fff8e1;">
+               <div style="display: flex; align-items: center; gap: 10px;">
+                 <i class="bi bi-clock-fill" style="color: #ff9800; font-size: 18px;"></i>
+                 <span style="font-weight: 600; color: #e65100; font-size: 14px;">Chờ thanh toán <span *ngIf="remainingTime" style="font-weight: normal; font-size: 13px;">(Còn {{ remainingTime }})</span></span>
+               </div>
+               <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
+            </div>
+
+            <!-- TH2: Đã xử lý (Thành công hoặc Huỷ) -->
+            <ng-container *ngIf="selectedPayment.status !== 'pending'">
+              <!-- Box 1: Chờ thanh toán (luôn màu vàng) -->
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffe0b2; background-color: #fff8e1;">
+                 <div style="display: flex; align-items: center; gap: 10px;">
+                   <i class="bi bi-clock-fill" style="color: #ff9800; font-size: 18px;"></i>
+                   <span style="font-weight: 600; color: #e65100; font-size: 14px;">Chờ thanh toán</span>
+                 </div>
+                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
+              </div>
+              
+              <div style="width: 2px; height: 12px; background-color: #e0e0e0; margin: -4px auto;"></div>
+
+              <!-- Box 2: Đã thanh toán -->
+              <div *ngIf="selectedPayment.status === 'completed'" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #c8e6c9; background-color: #e8f5e9;">
+                 <div style="display: flex; align-items: center; gap: 10px;">
+                   <i class="bi bi-check-circle-fill" style="color: #4caf50; font-size: 18px;"></i>
+                   <span style="font-weight: 600; color: #2e7d32; font-size: 14px;">Đã thanh toán</span>
+                 </div>
+                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
+              </div>
+
+              <!-- Box 2: Đã thanh toán ghi danh -->
+              <div *ngIf="selectedPayment.status === 'postponed'" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #bbdefb; background-color: #e3f2fd;">
+                 <div style="display: flex; align-items: center; gap: 10px;">
+                   <i class="bi bi-check-circle-fill" style="color: #2196f3; font-size: 18px;"></i>
+                   <span style="font-weight: 600; color: #1565c0; font-size: 14px;">Đã thanh toán ghi danh</span>
+                 </div>
+                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
+              </div>
+
+              <!-- Box 2: Đã hủy -->
+              <div *ngIf="selectedPayment.status === 'cancelled'" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffcdd2; background-color: #ffebee;">
+                 <div style="display: flex; align-items: center; gap: 10px;">
+                   <i class="bi bi-x-circle-fill" style="color: #f44336; font-size: 18px;"></i>
+                   <span style="font-weight: 600; color: #c62828; font-size: 14px;">Đã hủy</span>
+                 </div>
+                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
+              </div>
+            </ng-container>
+
+          </div>
+        </div>
+
+        <!-- Pending (QR code section) -->
+        <div *ngIf="selectedPayment.status === 'pending'" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+          <h4 style="text-align: center; margin-bottom: 15px; font-size: 16px; color: #333;">Quét mã QR để thanh toán</h4>
+          <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+            <img [src]="getQrUrl(selectedPayment)" alt="QR Code" style="width: 250px; height: 250px; border: 1px solid #ddd; border-radius: 8px;">
+          </div>
+          
+          <div style="text-align: center; margin-bottom: 15px;">
+            <button (click)="simulatePaymentSuccess()" style="background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              Test thanh toán thành công
+            </button>
+          </div>
+          
+          <div style="background-color: #f5f7fa; padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="color: #666;">Ngân hàng:</span>
+              <strong style="color: #333;">MB Bank</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="color: #666;">Số tài khoản:</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong style="color: #333;">19062026</strong>
+                <button (click)="copyToClipboard('19062026', 'stk')" style="background: none; border: none; cursor: pointer; color: #4361ee; font-size: 16px;">
+                  <i class="bi bi-copy"></i>
+                </button>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="color: #666;">Tên tài khoản:</span>
+              <strong style="color: #333;">CONG TY CO PHAN DOPASSION</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span style="color: #666;">Số tiền:</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong style="color: #e53935;">{{ selectedPayment.amountAfterVoucher | number }} VND</strong>
+                <button (click)="copyToClipboard(selectedPayment.amountAfterVoucher.toString(), 'amount')" style="background: none; border: none; cursor: pointer; color: #4361ee; font-size: 16px;">
+                  <i class="bi bi-copy"></i>
+                </button>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #666;">Nội dung:</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong style="color: #333;">DOPASSION {{ selectedPayment.paymentCode }}</strong>
+                <button (click)="copyToClipboard('DOPASSION ' + selectedPayment.paymentCode, 'content')" style="background: none; border: none; cursor: pointer; color: #4361ee; font-size: 16px;">
+                  <i class="bi bi-copy"></i>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="copiedField" style="text-align: center; color: #4caf50; margin-top: 12px; font-size: 13px; font-weight: 500;">
+              Đã sao chép thành công!
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancelled message -->
+        <div *ngIf="selectedPayment.status === 'cancelled'" style="margin-top: 20px; padding: 15px; background-color: #ffebee; border-radius: 8px; text-align: center;">
+          <p style="color: #c62828; margin: 0; font-size: 14px;">Giao dịch đã quá hạn 10 phút và bị tự động hủy. Vui lòng đăng ký lại khóa học nếu bạn vẫn muốn tham gia.</p>
+        </div>
       </div>
     </div>
   </div>

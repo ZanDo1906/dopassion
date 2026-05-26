@@ -168,7 +168,7 @@
             </div>
           <div class="detail-item">
             <span class="detail-label">Học phí</span>
-            <span class="detail-value meta-value-highlight">{{ formatCurrency(selectedClassDetail?.hocPhi) }} VND</span>
+            <span class="detail-value meta-value-highlight">{{ formatCurrency(selectedClassDetail.hocPhi) }} VND</span>
           </div>
         </div>
 
@@ -396,6 +396,12 @@
               <i class="bi bi-info-circle-fill text-warning me-2"></i>
               <span>Vui lòng chuyển khoản chính xác số tiền và nội dung chuyển khoản để hệ thống tự động ghi nhận học phí.</span>
             </div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+              <button (click)="simulatePaymentSuccess()" style="background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                Test thanh toán thành công
+              </button>
+            </div>
 
           </div>
 
@@ -417,11 +423,30 @@
 
       <!-- Modal Footer -->
       <div class="payment-footer" *ngIf="!isPaymentExpired">
-        <button type="button" class="btn btn-payment-cancel" (click)="closePaymentModal()">
+        <button type="button" class="btn btn-payment-cancel" (click)="cancelTransaction()">
           Hủy giao dịch & Quay lại
         </button>
       </div>
 
     </div>
   </div>
+
+  <!-- Login Prompt Modal -->
+  <div class="register-overlay" *ngIf="isLoginPromptModalOpen">
+    <div class="register-modal" style="max-width: 400px; text-align: center; padding: 40px 20px;">
+      <i class="bi bi-person-lock" style="font-size: 3rem; color: #EC7E16; margin-bottom: 20px; display: block;"></i>
+      <h3 style="color: #4C70AD; margin-bottom: 15px;">Yêu cầu đăng nhập</h3>
+      <p style="color: #666; margin-bottom: 30px; font-size: 1.05rem;">Bạn cần đăng nhập để đăng ký lớp học. Bạn có muốn chuyển đến trang đăng nhập không?</p>
+      
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button type="button" class="btn btn-outline-secondary" (click)="isLoginPromptModalOpen = false" style="padding: 10px 30px; border-radius: 8px; font-weight: 500;">
+          Không
+        </button>
+        <button type="button" class="btn btn-primary" (click)="redirectToLogin()" style="background-color: #4C70AD; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 500;">
+          Có
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

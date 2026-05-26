@@ -8,6 +8,7 @@ import 'iconify-icon';
 import { Feedback as FeedbackService } from '../../services/feedback';
 import { Class as ClassService } from '../../services/class';
 import { RegistrationService } from '../../services/registration';
+import { NotificationService } from '../../services/notification.service';
 
 // Interfaces
 export interface Review {
@@ -92,7 +93,8 @@ export class Reviews implements OnInit {
     private fb: FormBuilder,
     private feedbackService: FeedbackService,
     private classService: ClassService,
-    private registrationService: RegistrationService
+    private registrationService: RegistrationService,
+    private notification: NotificationService
   ) {
     this.reviewFormGroup = this.fb.group({
       studentName: ['', Validators.required],
@@ -357,7 +359,7 @@ export class Reviews implements OnInit {
 
       this.feedbackService.addFeedback(newFeedback).subscribe({
         next: () => {
-          alert('Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.');
+          this.notification.show('Thành công', 'Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.', 'success');
           this.reviewFormGroup.reset({
             studentName: '',
             class: '',
@@ -370,7 +372,7 @@ export class Reviews implements OnInit {
         },
         error: (err) => {
           console.error('Lỗi khi gửi đánh giá:', err);
-          alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.');
+          this.notification.show('Lỗi', 'Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.', 'error');
         }
       });
     }

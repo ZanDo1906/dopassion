@@ -1,6 +1,6 @@
 export interface iPayment {
     _id?: string;
-    stt: number;
+    stt?: number;
     maDangKy: string;
     maKh: string;
     tenKh: string;

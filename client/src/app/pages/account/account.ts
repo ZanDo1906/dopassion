@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { RegistrationService } from '../../services/registration';
 import { Class } from '../../services/class';
 import { Payment } from '../../services/payment';
+import { NotificationService } from '../../services/notification.service';
 interface CalendarDay {
   date: number;
   isCurrentMonth: boolean;
@@ -47,9 +48,12 @@ interface PaymentDetail {
   amountPaid: number;
   refundAmount: number;
   paymentMethod: string;
-  status: 'pending' | 'completed' | 'postponed';
+  status: 'pending' | 'completed' | 'postponed' | 'cancelled';
   paymentDate: string;
+  paymentDateTime: string;
+  updatedDateTime: string;
   note: string;
+  rawPayment?: any;
 }
 
 @Component({
@@ -64,8 +68,11 @@ constructor(
   private router: Router,
   private registrationService: RegistrationService,
   private classService: Class,
-  private paymentService: Payment
-) {}
+  private paymentService: Payment,
+  private notification: NotificationService
+) {
+  this.currentDate = new Date();
+}
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
   fullName: string = '';
   phoneNumber: string = '';
@@ -75,12 +82,15 @@ constructor(
   joinDate: string = '';
   showPasswordForm: boolean = false;
   showLogoutPopup: boolean = false;
+  currentDate: Date;
 
   // PROFILE EDIT
 isEditingProfile: boolean = false;
 isChangingPassword: boolean = false;
 
 avatarPreview: string | null = null;
+isUploading: boolean = false;
+selectedFile: File | null = null;
 
   // BIẾN QUẢN LÝ BỘ LỌC
   classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
@@ -103,6 +113,8 @@ avatarPreview: string | null = null;
   // Payment Detail Popup properties
   showPaymentPopup: boolean = false;
   selectedPayment: PaymentDetail | null = null;
+  remainingTime: string = '';
+  timerInterval: any;
 
   // Mock payment data
   payments: PaymentDetail[] = [];
@@ -207,12 +219,10 @@ if (user.ngayDangKy) {
 
       console.log('ALL REGISTRATIONS:', registrations);
 
-      // lọc đăng ký theo khách hàng
+      // Lọc đăng ký theo khách hàng và trạng thái đang hoạt động, đảo ngược mảng để cái mới nhất lên trên
       const myRegistrations = registrations.filter(
-
-        r => r.maKh === maKh
-
-      );
+        r => r.maKh === maKh && r.trangThai === 'Đang hoạt động'
+      ).reverse();
 
       console.log('MY REGISTRATIONS:', myRegistrations);
 
@@ -312,10 +322,8 @@ loadPayments(maKhachHang: string) {
       console.log('ALL PAYMENTS:', data);
 
       const myPayments = data.filter(
-
         p => p.maKh === maKhachHang
-
-      );
+      ).reverse();
 
       this.payments = myPayments.map((item, index) => {
 
@@ -341,17 +349,45 @@ loadPayments(maKhachHang: string) {
 
           paymentMethod: 'Chưa cập nhật',
 
-          status:
-            item.trangThaiThanhToan === 'Đã thanh toán'
-              ? 'completed'
-              : 'pending',
+          status: (() => {
+            if (item.trangThaiThanhToan === 'Đã thanh toán') return 'completed';
+            if (item.trangThaiThanhToan === 'Đã hủy') return 'cancelled';
+            
+            // Check 10 minutes expiry
+            if (item.ngayDangKy) {
+              const diffMs = new Date().getTime() - new Date(item.ngayDangKy).getTime();
+              const diffMins = diffMs / 60000;
+              if (diffMins > 10) {
+                // Should be cancelled if not already paid and > 10 mins
+                this.cancelExpiredPaymentAndRegistration(item);
+                return 'cancelled';
+              }
+            }
+            return 'pending';
+          })(),
 
           paymentDate: item.ngayDangKy
             ? new Date(item.ngayDangKy).toLocaleDateString('vi-VN')
             : '',
+          
+          paymentDateTime: item.ngayDangKy
+            ? (() => {
+                const d = new Date(item.ngayDangKy);
+                const pad = (n: number) => n.toString().padStart(2, '0');
+                return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+              })()
+            : '',
 
-          note: ''
+          updatedDateTime: item.updatedAt || item.ngayDangKy
+            ? (() => {
+                const d = new Date(item.updatedAt || item.ngayDangKy);
+                const pad = (n: number) => n.toString().padStart(2, '0');
+                return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+              })()
+            : '',
 
+          note: '',
+          rawPayment: item
         };
 
       });
@@ -383,11 +419,156 @@ loadPayments(maKhachHang: string) {
   openPaymentPopup(payment: PaymentDetail) {
     this.selectedPayment = payment;
     this.showPaymentPopup = true;
+    this.startTimer();
   }
 
   closePaymentPopup() {
     this.showPaymentPopup = false;
     this.selectedPayment = null;
+    this.copiedField = null;
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+
+  startTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+    if (this.selectedPayment && this.selectedPayment.status === 'pending' && this.selectedPayment.rawPayment?.ngayDangKy) {
+      const createdTime = new Date(this.selectedPayment.rawPayment.ngayDangKy).getTime();
+      const expiryTime = createdTime + 10 * 60000;
+      
+      this.updateTimer(expiryTime);
+      this.timerInterval = setInterval(() => {
+        this.updateTimer(expiryTime);
+      }, 1000);
+    } else {
+      this.remainingTime = '';
+    }
+  }
+
+  updateTimer(expiryTime: number) {
+    const now = new Date().getTime();
+    const diff = expiryTime - now;
+    if (diff <= 0) {
+      this.remainingTime = '00:00';
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+      }
+      // HẾT THỜI GIAN -> HỦY GIAO DỊCH VÀ XÓA ĐĂNG KÝ
+      if (this.selectedPayment && this.selectedPayment.rawPayment) {
+        this.selectedPayment.status = 'cancelled';
+        this.cancelExpiredPaymentAndRegistration(this.selectedPayment.rawPayment);
+      }
+    } else {
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      this.remainingTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+  }
+
+  private cancelExpiredPaymentAndRegistration(rawPayment: any) {
+    if (rawPayment._id && rawPayment.trangThaiThanhToan !== 'Đã hủy') {
+      // Cập nhật payment thành Đã hủy
+      this.paymentService.updatePayment(rawPayment._id, { trangThaiThanhToan: 'Đã hủy' }).subscribe({
+        next: () => {
+          rawPayment.trangThaiThanhToan = 'Đã hủy'; // Update local memory
+        }
+      });
+      
+      // Xóa bản ghi registration
+      this.registrationService.getRegistrations().subscribe(regs => {
+        const reg = regs.find(r => r.maDangKy === rawPayment.maDangKy);
+        if (reg && reg._id) {
+          this.registrationService.deleteRegistration(reg._id).subscribe({
+            next: () => {
+              this.loadRegisteredClasses(this.customerCode); // Cập nhật lại UI lớp học
+            }
+          });
+        }
+      });
+    }
+  }
+
+  cancelPayment(payment: PaymentDetail) {
+    if (!confirm('Bạn có chắc chắn muốn hủy giao dịch này không?')) return;
+
+    if (payment.rawPayment && payment.rawPayment._id) {
+      this.paymentService.updatePayment(payment.rawPayment._id, {
+        trangThaiThanhToan: 'Đã hủy'
+      }).subscribe({
+        next: () => {
+          payment.rawPayment.trangThaiThanhToan = 'Đã hủy';
+          this.cancelExpiredPaymentAndRegistration(payment.rawPayment);
+          if ((this as any).closeCancelConfirmModal) {
+             (this as any).closeCancelConfirmModal();
+          }
+          this.loadPayments(this.customerCode);
+        },
+        error: () => this.notification.show('Lỗi', 'Hủy thanh toán thất bại!', 'error')
+      });
+    }
+  }
+
+  simulatePaymentSuccess() {
+    if (!this.selectedPayment || !this.selectedPayment.rawPayment || !this.selectedPayment.rawPayment._id) {
+      return;
+    }
+    
+    // Update Payment
+    this.paymentService.updatePayment(this.selectedPayment.rawPayment._id, {
+      trangThaiThanhToan: 'Đã thanh toán',
+      soTienConLai: 0
+    }).subscribe({
+      next: () => {
+        // Find Registration and Update
+        this.registrationService.getRegistrations().subscribe({
+          next: (regs) => {
+            const reg = regs.find(r => r.maDangKy === this.selectedPayment!.paymentCode);
+            if (reg && reg._id) {
+              this.registrationService.updateRegistration(reg._id, { trangThai: 'Đang hoạt động' }).subscribe({
+                next: () => {
+                  this.notification.show('Thành công', 'Test thanh toán thành công!', 'success');
+                  this.loadPayments(this.customerCode); // Reload data
+                  this.closePaymentPopup();
+                }
+              });
+            } else {
+              this.notification.show('Thành công', 'Test thanh toán thành công (không tìm thấy đăng ký tương ứng)!', 'success');
+              this.loadPayments(this.customerCode);
+              this.closePaymentPopup();
+            }
+          }
+        });
+      },
+      error: () => this.notification.show('Lỗi', 'Test thanh toán thất bại!', 'error')
+    });
+  }
+
+  copiedField: string | null = null;
+
+  getQrUrl(payment: PaymentDetail): string {
+    if (!payment) return '';
+    const bankId = 'mbbank';
+    const accountNo = '19062026';
+    const template = 'qr_only';
+    const accountName = encodeURIComponent('CONG TY CO PHAN DOPASSION');
+    const amount = payment.amountAfterVoucher || 0;
+    const addInfo = encodeURIComponent(`DOPASSION ${payment.paymentCode}`);
+    return `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${amount}&addInfo=${addInfo}&accountName=${accountName}`;
+  }
+
+  copyToClipboard(text: string, field: string): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.copiedField = field;
+      setTimeout(() => {
+        if (this.copiedField === field) {
+          this.copiedField = null;
+        }
+      }, 2000);
+    });
   }
   toggleEditProfile() {
 
@@ -412,7 +593,7 @@ loadPayments(maKhachHang: string) {
   this.isChangingPassword = !this.isChangingPassword;
 }
 
-onAvatarChange(event: any) {
+  onAvatarChange(event: any) {
 
   const file = event.target.files[0];
 
@@ -421,7 +602,7 @@ onAvatarChange(event: any) {
   // check file ảnh
   if (!file.type.startsWith('image/')) {
 
-    alert('Vui lòng chọn file ảnh');
+    this.notification.show('Lỗi', 'Vui lòng chọn file ảnh', 'error');
 
     return;
   }
