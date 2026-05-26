@@ -6,7 +6,7 @@ const ARreportSchema = new Schema({
     ngay: { type: Date },
     chiNhanh: { type: String },
     khoaHoc: { type: String },
-    lopHoc: { type: Date },
+    lopHoc: { type: String },
     soTienHocPhi: { type: Number },
     soTienGiamGia: { type: Number },
     soTienDaThu: { type: Number },

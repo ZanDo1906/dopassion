@@ -141,14 +141,12 @@ export class Role implements OnInit {
         // Fallback to sample data
         this.roles = [
           {
-            stt: 1,
             maVaiTro: 'ADMIN',
             tenVaiTro: 'Admin',
             moTa: 'Quản trị hệ thống',
             active: true
           },
           {
-            stt: 2,
             maVaiTro: 'KETOAN',
             tenVaiTro: 'Kế toán',
             moTa: 'Quản lý tài chính',
@@ -207,12 +205,9 @@ export class Role implements OnInit {
     const normalizedTenVaiTro = `${formValue.tenVaiTro ?? ''}`.trim();
     const normalizedMoTa = `${formValue.moTa ?? ''}`.trim();
 
-    const nextStt = this.roles.length > 0
-      ? Math.max(...this.roles.map((item) => Number(item.stt) || 0)) + 1
-      : 1;
+
 
     const newRole: iRole = {
-      stt: nextStt,
       maVaiTro: normalizedMaVaiTro,
       tenVaiTro: normalizedTenVaiTro,
       moTa: normalizedMoTa,

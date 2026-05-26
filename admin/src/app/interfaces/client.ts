@@ -1,14 +1,15 @@
 export interface iClient {
     _id?: string;
-    stt: number;
     maKh: string;
     tenKhachHang: string;
     gioiTinh: string;
     ngaySinh: string;
     sdt: number;
     email: string;
+    matKhau: string;
     ngayDangKy: string;
     trangThai: string;
+    avatar: string;
     active: boolean;
 
     createdAt?: string;

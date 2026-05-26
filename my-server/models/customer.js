@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const customerSchema = new Schema({
-    stt: { type: Number },
     maKh: { type: String },
     tenKhachHang: { type: String },
     gioiTinh: { type: String },
@@ -14,7 +13,7 @@ const customerSchema = new Schema({
     trangThai: { type: String },
     active: { type: Boolean },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });

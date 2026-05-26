@@ -1,6 +1,5 @@
 export interface iVoucher {
     _id?: string;
-    stt: number;
     maVoucher: string;
     tenChuongTrinh: string;
     donViGiam: string;

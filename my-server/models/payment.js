@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const paymentSchema = new Schema({
-    stt: { type: Number },
     maDangKy: { type: String },
     maKh: { type: String },
     tenKh: { type: String },
@@ -20,7 +19,7 @@ const paymentSchema = new Schema({
     soTienConLai: { type: Number },
     trangThaiThanhToan: { type: String },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });

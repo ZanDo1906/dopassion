@@ -19,7 +19,7 @@ export class Setting {
 configData = [
 {
 tenThietLap:'Thời gian cho phép đợi thanh toán',
-giaTri:5,
+giaTri:10,
 donVi:'Phút'
 },
 {

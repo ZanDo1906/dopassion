@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
+import {
+    FilterConfig,
+    FilterDataPicker
+} from '../../../components/filter-data-picker/filter-data-picker';
+
 import {
     Chart,
     ArcElement,
@@ -9,6 +13,7 @@ import {
     Title,
     PieController
 } from 'chart.js';
+
 import { RevenueReportService } from '../../../services/sales-report';
 import { iRevenueReport } from '../../../interfaces/sales-report';
 
@@ -27,6 +32,7 @@ export class RevenueReport implements OnInit {
     constructor(
         private revenueReportService: RevenueReportService
     ) {
+
         Chart.register(
             ArcElement,
             Tooltip,
@@ -37,11 +43,13 @@ export class RevenueReport implements OnInit {
     }
 
     filterConfig: FilterConfig[] = [
+
         {
             key: 'ngay',
             label: 'Ngày',
             type: 'date-range'
         },
+
         {
             key: 'chiNhanh',
             label: 'Chi nhánh',
@@ -61,6 +69,7 @@ export class RevenueReport implements OnInit {
                 }
             ]
         },
+
         {
             key: 'khoaHoc',
             label: 'Khóa học',
@@ -76,6 +85,7 @@ export class RevenueReport implements OnInit {
                 }
             ]
         }
+
     ];
 
     allData: iRevenueReport[] = [];
@@ -98,15 +108,36 @@ export class RevenueReport implements OnInit {
 
                 next: (data: any) => {
 
+                    console.log('REVENUE DATA', data);
+
                     this.allData = data.map((item: any) => ({
-                        ngay: item.ngay,
-                        chiNhanh: item.chiNhanh,
-                        khoaHoc: item.khoaHoc,
-                        lopHoc: item.lopHoc,
-                        doanhThu: item.doanhThu,
-                        hoanTien: item.hoanTien,
-                        tongThu: item.tongThu
+
+                        ngay:
+                            item.ngay,
+
+                        chiNhanh:
+                            item.chiNhanh,
+
+                        khoaHoc:
+                            String(item.khoaHoc || '')
+                                .trim()
+                                .toUpperCase(),
+
+                        lopHoc:
+                            item.lopHoc,
+
+                        doanhThu:
+                            Number(item.doanhThu || 0),
+
+                        hoanTien:
+                            Number(item.hoanTien || 0),
+
+                        tongThu:
+                            Number(item.tongThu || 0)
+
                     }));
+
+                    console.log('ALL DATA', this.allData);
 
                     this.filteredData = [...this.allData];
 
@@ -116,6 +147,7 @@ export class RevenueReport implements OnInit {
                 },
 
                 error: (err) => {
+
                     console.error(err);
                 }
             });
@@ -124,6 +156,10 @@ export class RevenueReport implements OnInit {
     handleSearch(filterValues: any): void {
 
         this.filteredData = this.allData.filter((item: any) => {
+
+            // ======================
+            // FILTER NGÀY
+            // ======================
 
             let matchDate = true;
 
@@ -135,23 +171,44 @@ export class RevenueReport implements OnInit {
                 )
             ) {
 
+                // item.ngay = dd/MM/yyyy
+                const parts =
+                    String(item.ngay).split('/');
+
                 const itemDate =
-                    new Date(item.ngay);
+                    new Date(
+                        Number(parts[2]),
+                        Number(parts[1]) - 1,
+                        Number(parts[0])
+                    );
 
-                const fromDate =
-                    filterValues.ngay.fromDate
-                        ? new Date(filterValues.ngay.fromDate)
-                        : null;
+                itemDate.setHours(0, 0, 0, 0);
 
-                const toDate =
-                    filterValues.ngay.toDate
-                        ? new Date(filterValues.ngay.toDate)
-                        : null;
+                let fromDate = null;
+
+                let toDate = null;
+
+                if (filterValues.ngay.fromDate) {
+
+                    fromDate =
+                        new Date(filterValues.ngay.fromDate);
+
+                    fromDate.setHours(0, 0, 0, 0);
+                }
+
+                if (filterValues.ngay.toDate) {
+
+                    toDate =
+                        new Date(filterValues.ngay.toDate);
+
+                    toDate.setHours(23, 59, 59, 999);
+                }
 
                 if (
                     fromDate &&
                     itemDate < fromDate
                 ) {
+
                     matchDate = false;
                 }
 
@@ -159,9 +216,14 @@ export class RevenueReport implements OnInit {
                     toDate &&
                     itemDate > toDate
                 ) {
+
                     matchDate = false;
                 }
             }
+
+            // ======================
+            // FILTER CHI NHÁNH
+            // ======================
 
             let matchChiNhanh = true;
 
@@ -175,6 +237,10 @@ export class RevenueReport implements OnInit {
                         item.chiNhanh
                     );
             }
+
+            // ======================
+            // FILTER KHÓA HỌC
+            // ======================
 
             let matchKhoaHoc = true;
 
@@ -190,10 +256,12 @@ export class RevenueReport implements OnInit {
             }
 
             return (
+
                 matchDate &&
                 matchChiNhanh &&
                 matchKhoaHoc
             );
+
         });
 
         this.currentPage = 1;
@@ -276,11 +344,20 @@ export class RevenueReport implements OnInit {
 
     renderCharts(): void {
 
-        this.renderPieChart('CN1', 'chartCN1');
+        this.renderPieChart(
+            'CN1',
+            'chartCN1'
+        );
 
-        this.renderPieChart('CN2', 'chartCN2');
+        this.renderPieChart(
+            'CN2',
+            'chartCN2'
+        );
 
-        this.renderPieChart('CN3', 'chartCN3');
+        this.renderPieChart(
+            'CN3',
+            'chartCN3'
+        );
     }
 
     renderPieChart(
@@ -311,34 +388,69 @@ export class RevenueReport implements OnInit {
 
         this.filteredData.forEach((item: any) => {
 
-            if (item.chiNhanh !== chiNhanh) {
+            if (
+                item.chiNhanh !== chiNhanh
+            ) {
                 return;
             }
 
-            if (item.khoaHoc === 'SW') {
-                swTongThu += item.tongThu;
+            const khoaHoc =
+                String(item.khoaHoc || '')
+                    .trim()
+                    .toUpperCase();
+
+            // ======================
+            // SW
+            // ======================
+
+            if (
+                khoaHoc === 'SW' ||
+                khoaHoc.includes('SPEAKING')
+            ) {
+
+                swTongThu +=
+                    Number(item.tongThu || 0);
             }
 
-            if (item.khoaHoc === 'LR') {
-                lrTongThu += item.tongThu;
+            // ======================
+            // LR
+            // ======================
+
+            else if (
+                khoaHoc === 'LR' ||
+                khoaHoc.includes('LISTENING')
+            ) {
+
+                lrTongThu +=
+                    Number(item.tongThu || 0);
             }
+
         });
+
+        console.log(
+            chiNhanh,
+            swTongThu,
+            lrTongThu
+        );
 
         new Chart(ctx, {
 
             type: 'pie',
 
             data: {
+
                 labels: [
                     'SW',
                     'LR'
                 ],
+
                 datasets: [
                     {
                         data: [
                             swTongThu,
                             lrTongThu
                         ],
+
                         backgroundColor: [
                             '#4C70AD',
                             '#EC7E16'
@@ -356,12 +468,16 @@ export class RevenueReport implements OnInit {
                 plugins: {
 
                     legend: {
+
                         position: 'bottom'
                     },
 
                     title: {
+
                         display: true,
-                        text: `Doanh thu ${chiNhanh}`
+
+                        text:
+                            `Doanh thu ${chiNhanh}`
                     }
                 }
             }

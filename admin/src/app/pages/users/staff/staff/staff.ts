@@ -338,7 +338,6 @@ export class Staff implements OnInit {
 
     const rawValue = this.addStaffForm.getRawValue();
     const newStaffPayload: iStaff = {
-      stt: this.allStaffs.length + 1,
       maNv: rawValue.employeeId,
       tenNhanVien: rawValue.fullName,
       gioiTinh: rawValue.gender,

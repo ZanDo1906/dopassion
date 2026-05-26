@@ -1,95 +1,222 @@
 const express = require('express');
+
 const router = express.Router();
 
-const ARReport = require('../models/AR-report');
+const Payment =
+    require('../models/payment');
 
-// GET all
+const Refund =
+    require('../models/refund');
+
+// ======================
+// GET REPORT
+// ======================
+
 router.get('/', async (req, res) => {
+
     try {
-        const data = await ARReport.find();
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
+
+        // ======================
+        // LẤY DATA
+        // ======================
+
+        const payments =
+            await Payment.find();
+
+        const refunds =
+            await Refund.find();
+
+        // ======================
+        // RAW DATA
+        // ======================
+
+        const rawData = payments.map((item) => {
+
+            // ======================
+            // REFUND THEO MÃ ĐĂNG KÝ
+            // ======================
+
+            const refundList =
+                refunds.filter(
+
+                    r => r.maDangKy === item.maDangKy
+                );
+
+            // ======================
+            // TỔNG HOÀN
+            // ======================
+
+            const tongHoan =
+                refundList.reduce(
+
+                    (sum, r) =>
+
+                        sum + Number(r.soTienHoan || 0),
+
+                    0
+                );
+
+            // ======================
+            // TIỀN
+            // ======================
+
+            const hocPhi =
+                Number(item.hocPhi || 0);
+
+            const giamGia =
+                Number(item.thongSoGiam || 0);
+
+            const soTienCanThanhToan =
+                Number(item.soTienCanThanhToan || 0);
+
+            const soTienConLai =
+                Number(item.soTienConLai || 0);
+
+            const soTienDaThu =
+                soTienCanThanhToan - soTienConLai;
+
+            // ======================
+            // RETURN RAW
+            // ======================
+
+            return {
+
+                ngay:
+                    item.ngayDangKy,
+
+                chiNhanh:
+                    item.chiNhanh || '',
+
+                khoaHoc:
+                    item.khoaHoc || '',
+
+                lopHoc:
+                    item.tenLopHoc || '',
+
+                soTienHocPhi:
+                    hocPhi,
+
+                soTienGiamGia:
+                    giamGia,
+
+                soTienDaThu:
+                    soTienDaThu,
+
+                soTienChuaThu:
+                    soTienConLai,
+
+                soTienHoan:
+                    tongHoan
+
+            };
+
         });
+
+        // ======================
+        // GROUP DATA
+        // ======================
+
+        const grouped = {};
+
+        rawData.forEach((item) => {
+
+            const ngay =
+                new Date(item.ngay)
+                    .toLocaleDateString('vi-VN');
+
+            const key =
+                `${ngay}_${item.chiNhanh}_${item.khoaHoc}_${item.lopHoc}`;
+
+            // ======================
+            // CHƯA CÓ
+            // ======================
+
+            if (!grouped[key]) {
+
+                grouped[key] = {
+
+                    ngay: ngay,
+
+                    chiNhanh:
+                        item.chiNhanh,
+
+                    khoaHoc:
+                        item.khoaHoc,
+
+                    lopHoc:
+                        item.lopHoc,
+
+                    soTienHocPhi: 0,
+
+                    soTienGiamGia: 0,
+
+                    soTienDaThu: 0,
+
+                    soTienChuaThu: 0,
+
+                    soTienHoan: 0
+
+                };
+
+            }
+
+            // ======================
+            // CỘNG DỒN
+            // ======================
+
+            grouped[key].soTienHocPhi +=
+                Number(item.soTienHocPhi || 0);
+
+            grouped[key].soTienGiamGia +=
+                Number(item.soTienGiamGia || 0);
+
+            grouped[key].soTienDaThu +=
+                Number(item.soTienDaThu || 0);
+
+            grouped[key].soTienChuaThu +=
+                Number(item.soTienChuaThu || 0);
+
+            grouped[key].soTienHoan +=
+                Number(item.soTienHoan || 0);
+
+        });
+
+        // ======================
+        // FINAL DATA
+        // ======================
+
+        const finalData =
+            Object.values(grouped);
+
+        // ======================
+        // DEBUG
+        // ======================
+
+        console.log('RAW DATA');
+        console.log(rawData);
+
+        console.log('GROUPED DATA');
+        console.log(finalData);
+
+        // ======================
+        // RESPONSE
+        // ======================
+
+        res.status(200).json(finalData);
+
     }
-});
+    catch (error) {
 
-// GET by id
-router.get('/:id', async (req, res) => {
-    try {
-        const data = await ARReport.findById(req.params.id);
+        console.error(error);
 
-        if (!data) {
-            return res.status(404).json({
-                message: 'Data not found'
-            });
-        }
-
-        res.status(200).json(data);
-    } catch (error) {
         res.status(500).json({
+
             message: error.message
+
         });
+
     }
-});
 
-// CREATE
-router.post('/', async (req, res) => {
-    try {
-        const newData = new ARReport(req.body);
-        const savedData = await newData.save();
-
-        res.status(201).json(savedData);
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
-    }
-});
-
-// UPDATE
-router.put('/:id', async (req, res) => {
-    try {
-        const updatedData = await ARReport.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
-
-        if (!updatedData) {
-            return res.status(404).json({
-                message: 'Data not found'
-            });
-        }
-
-        res.status(200).json(updatedData);
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
-    }
-});
-
-// DELETE
-router.delete('/:id', async (req, res) => {
-    try {
-        const deletedData = await ARReport.findByIdAndDelete(req.params.id);
-
-        if (!deletedData) {
-            return res.status(404).json({
-                message: 'Data not found'
-            });
-        }
-
-        res.status(200).json({
-            message: 'Deleted successfully'
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
-    }
 });
 
 module.exports = router;

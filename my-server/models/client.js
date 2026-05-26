@@ -10,11 +10,13 @@ const clientSchema = new Schema({
     ngaySinh: { type: Date },
     sdt: { type: Number },
     email: { type: String },
+    matKhau: { type: String },
     ngayDangKy: { type: Date },
     trangThai: { type: String },
+    avatar: { type: String },
     active: { type: Boolean },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });

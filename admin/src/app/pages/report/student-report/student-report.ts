@@ -170,18 +170,39 @@ export class StudentReport implements OnInit {
                 )
             ) {
 
+                // item.ngay = dd/MM/yyyy
+                const parts =
+                    String(item.ngay).split('/');
+
                 const itemDate =
-                    new Date(item.ngay);
+                    new Date(
+                        Number(parts[2]),
+                        Number(parts[1]) - 1,
+                        Number(parts[0])
+                    );
 
-                const fromDate =
-                    filterValues.ngay.fromDate
-                        ? new Date(filterValues.ngay.fromDate)
-                        : null;
+                // RESET GIỜ
+                itemDate.setHours(0, 0, 0, 0);
 
-                const toDate =
-                    filterValues.ngay.toDate
-                        ? new Date(filterValues.ngay.toDate)
-                        : null;
+                let fromDate = null;
+
+                let toDate = null;
+
+                if (filterValues.ngay.fromDate) {
+
+                    fromDate =
+                        new Date(filterValues.ngay.fromDate);
+
+                    fromDate.setHours(0, 0, 0, 0);
+                }
+
+                if (filterValues.ngay.toDate) {
+
+                    toDate =
+                        new Date(filterValues.ngay.toDate);
+
+                    toDate.setHours(23, 59, 59, 999);
+                }
 
                 if (
                     fromDate &&
@@ -228,10 +249,35 @@ export class StudentReport implements OnInit {
                 filterValues.khoaHoc.length > 0
             ) {
 
+                const khoaHoc =
+                    String(item.khoaHoc || '')
+                        .trim()
+                        .toUpperCase();
+
                 matchKhoaHoc =
-                    filterValues.khoaHoc.includes(
-                        item.khoaHoc
-                    );
+                    filterValues.khoaHoc.some((value: string) => {
+
+                        if (
+                            value === 'SW' &&
+                            (
+                                khoaHoc === 'SW' ||
+                                khoaHoc.includes('SPEAKING')
+                            )
+                        ) {
+                            return true;
+                        }
+
+                        if (
+                            value === 'LR' &&
+                            (
+                                khoaHoc === 'LR' ||
+                                khoaHoc.includes('LISTENING')
+                            )
+                        ) {
+                            return true;
+                        }
+                        return false;
+                    });
             }
 
             return (

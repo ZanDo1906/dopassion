@@ -99,11 +99,20 @@ export class DebtReport implements OnInit {
                         chiNhanh: item.chiNhanh,
                         khoaHoc: item.khoaHoc,
                         lopHoc: item.lopHoc,
-                        soTienHocPhi: item.soTienHocPhi,
-                        soTienGiamGia: item.soTienGiamGia,
-                        soTienDaThu: item.soTienDaThu,
-                        soTienChuaThu: item.soTienChuaThu,
-                        soTienHoan: item.soTienHoan
+                        soTienHocPhi:
+                            Number(item.soTienHocPhi || 0),
+
+                        soTienGiamGia:
+                            Number(item.soTienGiamGia || 0),
+
+                        soTienDaThu:
+                            Number(item.soTienDaThu || 0),
+
+                        soTienChuaThu:
+                            Number(item.soTienChuaThu || 0),
+
+                        soTienHoan:
+                            Number(item.soTienHoan || 0)
 
                     }));
 
@@ -137,15 +146,27 @@ export class DebtReport implements OnInit {
                 const itemDate =
                     new Date(item.ngay);
 
-                const fromDate =
-                    filterValues.ngay.fromDate
-                        ? new Date(filterValues.ngay.fromDate)
-                        : null;
+                itemDate.setHours(0, 0, 0, 0);
 
-                const toDate =
-                    filterValues.ngay.toDate
-                        ? new Date(filterValues.ngay.toDate)
-                        : null;
+                let fromDate = null;
+
+                let toDate = null;
+
+                if (filterValues.ngay.fromDate) {
+
+                    fromDate =
+                        new Date(filterValues.ngay.fromDate);
+
+                    fromDate.setHours(0, 0, 0, 0);
+                }
+
+                if (filterValues.ngay.toDate) {
+
+                    toDate =
+                        new Date(filterValues.ngay.toDate);
+
+                    toDate.setHours(23, 59, 59, 999);
+                }
 
                 if (
                     fromDate &&

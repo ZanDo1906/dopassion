@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const contactSchema = new Schema({
-    stt: { type: Number },
     maLienHe: { type: String },
     maKh: { type: String },
     tenKhachHang: { type: String },
@@ -12,7 +11,7 @@ const contactSchema = new Schema({
     gmail: { type: String },
     soDienThoai: { type: String },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });
