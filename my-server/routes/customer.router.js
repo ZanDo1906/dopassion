@@ -37,7 +37,10 @@ router.get('/:id', async (req, res) => {
 // CREATE
 router.post('/', async (req, res) => {
     try {
-        const newData = new Customer(req.body);
+        const newData = new Customer({
+            ...req.body,
+            active: true
+        });
         const savedData = await newData.save();
 
         res.status(201).json(savedData);
@@ -50,11 +53,18 @@ router.post('/', async (req, res) => {
 
 // UPDATE
 router.put('/:id', async (req, res) => {
+    console.log('BODY UPDATE:', req.body);
+    console.log('ID:', req.params.id);
     try {
         const updatedData = await Customer.findByIdAndUpdate(
             req.params.id,
-            req.body,
-            { new: true }
+            {
+                $set: req.body
+            },
+            {
+                new: true,
+                runValidators: true
+            }
         );
 
         if (!updatedData) {

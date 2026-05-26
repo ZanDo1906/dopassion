@@ -23,7 +23,8 @@
                     <th>Mã khách hàng</th>
                     <th>Tên khách hàng</th>
                     <th>SĐT</th>
-                    <th>Trạng thái</th>
+                    <th>Trạng thái hoạt động</th>
+                    <th>Trạng thái đăng ký</th>
                     <th class="col-actions">Tác vụ</th>
                 </tr>
             </thead>
@@ -34,16 +35,31 @@
                     <td>{{ customer.tenKhachHang }}</td>
                     <td>{{ customer.phone }}</td>
                     <td>
-                        <span 
+                        <span
                             class="badge"
                             [ngClass]="{
-                                'badge--success': customer.trangThai === 'Đang học' || customer.trangThai === 'Đã đăng ký khóa',
-                                'badge--danger': customer.trangThai === 'Đã khóa',
-                                'badge--warning': customer.trangThai === 'Chưa đăng ký khóa',
-                                'badge--info': customer.trangThai === 'Đã hoàn thành'
+                                'badge--success':
+                                    customer.trangThaiHoatDong === 'Đang hoạt động',
+
+                                'badge--danger':
+                                    customer.trangThaiHoatDong === 'Đã khóa'
                             }"
                         >
-                            {{ customer.trangThai }}
+                            {{ customer.trangThaiHoatDong }}
+                        </span>
+                    </td>
+                    <td>
+                        <span
+                            class="badge"
+                            [ngClass]="{
+                                'badge--success':
+                                    customer.trangThaiDangKy === 'Đã đăng ký',
+
+                                'badge--warning':
+                                    customer.trangThaiDangKy === 'Chưa đăng ký khóa học này'
+                            }"
+                        >
+                            {{ customer.trangThaiDangKy }}
                         </span>
                     </td>
                     <td>

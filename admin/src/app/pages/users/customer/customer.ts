@@ -7,6 +7,7 @@ import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-
 import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
+import { RegistrationService } from '../../../services/registration';
 
 type CustomerDetailFormGroup = {
   'Mã KH': FormControl<string>;
@@ -42,14 +43,33 @@ export class Customer implements OnInit {
       type: 'text'
     },
     {
-      key: 'trangThai',
-      label: 'Trạng thái',
+      key: 'trangThaiHoatDong',
+      label: 'Trạng thái hoạt động',
       type: 'select',
       options: [
-        { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' },
-        { value: 'Đã đăng ký khóa', label: 'Đã đăng ký khóa' },
-        { value: 'Đã khóa', label: 'Đã khóa' },
-        { value: 'Đang hoạt động', label: 'Đang hoạt động' }
+        {
+          value: 'Đang hoạt động',
+          label: 'Đang hoạt động'
+        },
+        {
+          value: 'Đã khóa',
+          label: 'Đã khóa'
+        }
+      ]
+    },
+    {
+      key: 'trangThaiDangKy',
+      label: 'Trạng thái đăng ký',
+      type: 'select',
+      options: [
+        {
+          value: 'Đã đăng ký',
+          label: 'Đã đăng ký'
+        },
+        {
+          value: 'Chưa đăng ký khóa học này',
+          label: 'Chưa đăng ký khóa học này'
+        }
       ]
     }
   ];
@@ -83,6 +103,7 @@ export class Customer implements OnInit {
   isConfirmLockDialogOpen = false;
   confirmLockItem: any = null;
   confirmLockMessage = '';
+  isLockWarningOnly = false;
 
   genderOptions = [
     { value: 'Nam', label: 'Nam' },
@@ -90,7 +111,7 @@ export class Customer implements OnInit {
     { value: 'Khác', label: 'Khác' }
   ];
 
-  constructor(private clientService: Client, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
+  constructor(private clientService: Client, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder,   private registrationService: RegistrationService,) {
     this.detailForm = this.formBuilder.group<CustomerDetailFormGroup>({
       'Mã KH': this.formBuilder.control('', { nonNullable: true }),
       'Tên khách hàng': this.formBuilder.control('', { nonNullable: true }),
@@ -134,43 +155,53 @@ export class Customer implements OnInit {
   }
 
   loadData(): void {
-    this.clientService.getClients().subscribe({
-      next: (data: iClient[]) => {
-        // Lưu toàn bộ dữ liệu gốc từ API
-        this.allCustomersRaw = data;
-
-        // Normalize data: map API fields to UI fields
-        this.allCustomers = this.sortCustomersNewestFirst(data.map(customer => ({
-          maKhachHang: customer.maKh || '',
-          tenKhachHang: customer.tenKhachHang || '',
-          phone: customer.sdt ? String(customer.sdt) : '',
-          trangThai: customer.trangThai || 'Chưa đăng ký khóa',
-          // Lưu thêm dữ liệu đầy đủ để dùng cho view detail
-          gioiTinh: customer.gioiTinh || '',
-          ngaySinh: this.normalizeDateForInput(customer.ngaySinh),
-          email: customer.email || '',
-          ngayDangKy: this.normalizeDateForInput(customer.ngayDangKy),
-          createdAt: customer.createdAt,
-          updatedAt: customer.updatedAt,
-          // Reference to raw data for view
-          rawData: customer
-        })));
-        this.filteredCustomers = [...this.allCustomers];
-        this.updatePagination();
-      },
-      error: (err) => {
-        console.error('Error loading customer data:', err);
-        // Fallback to sample data
-        this.allCustomers = this.sortCustomersNewestFirst([
-          { maKhachHang: 'KH001', tenKhachHang: 'Dương Trọng Nhân', phone: '0912345678', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1995-01-15', email: 'duong@example.com', ngayDangKy: '2026-05-01', rawData: {} },
-          { maKhachHang: 'KH002', tenKhachHang: 'Cao Thành Thuận', phone: '0912345679', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1998-05-20', email: 'thuan@example.com', ngayDangKy: '2026-05-01', rawData: {} },
-          { maKhachHang: 'KH003', tenKhachHang: 'Nguyễn Văn A', phone: '0912345680', trangThai: 'Chưa đăng ký khóa', gioiTinh: 'Nam', ngaySinh: '1996-03-10', email: 'nguyena@example.com', ngayDangKy: '2026-05-02', rawData: {} },
-        ]);
-        this.filteredCustomers = [...this.allCustomers];
-        this.updatePagination();
-      }
-    });
-  }
+  this.clientService.getClients().subscribe({
+    next: (clients: iClient[]) => {
+      this.registrationService.getRegistrations().subscribe({
+        next: (registrations: any[]) => {
+          // Danh sách mã khách đã đăng ký
+          const registeredCustomerIds = registrations.map(r => r.maKh);
+          this.allCustomersRaw = clients;
+          this.allCustomers = this.sortCustomersNewestFirst(
+            clients.map(customer => {
+              // Kiểm tra khách có tồn tại trong bảng registration không
+              const hasRegistration = registeredCustomerIds.includes(customer.maKh);
+              return {
+                maKhachHang: customer.maKh || '',
+                tenKhachHang: customer.tenKhachHang || '',
+                phone: customer.sdt ? String(customer.sdt) : '',
+                trangThaiHoatDong:
+                  customer.active
+                    ? 'Đang hoạt động'
+                    : 'Đã khóa',
+                // ===== SỬA LOGIC Ở ĐÂY =====
+                trangThaiDangKy:
+                  hasRegistration
+                    ? 'Đã đăng ký'
+                    : 'Chưa đăng ký khóa học này',
+                gioiTinh: customer.gioiTinh || '',
+                ngaySinh: this.normalizeDateForInput(customer.ngaySinh),
+                email: customer.email || '',
+                ngayDangKy: this.normalizeDateForInput(customer.ngayDangKy),
+                createdAt: customer.createdAt,
+                updatedAt: customer.updatedAt,
+                rawData: customer
+              };
+            })
+          );
+          this.filteredCustomers = [...this.allCustomers];
+          this.updatePagination();
+        },
+        error: (err) => {
+          console.error('Error loading registrations:', err);
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Error loading customer data:', err);
+    }
+  });
+}
 
   /**
    * Xử lý sự kiện tìm kiếm từ FilterDataPickerComponent
@@ -193,9 +224,18 @@ export class Customer implements OnInit {
 
         // Thực hiện so sánh (hỗ trợ text substring match)
         if (typeof customerValue === 'string') {
-          return customerValue.toLowerCase().includes(filterValue.toLowerCase());
+        // SELECT
+        if (
+          key === 'trangThaiHoatDong' ||
+          key === 'trangThaiDangKy'
+        ) {
+          return customerValue === filterValue;
         }
-
+        // TEXT
+        return customerValue
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      }
         // Cho các type khác, so sánh bằng
         return customerValue === filterValue;
       });
@@ -230,8 +270,8 @@ export class Customer implements OnInit {
       'SĐT': `${item?.phone ?? ''}`,
       'Email': `${item?.email ?? ''}`,
       'Ngày đăng ký': `${item?.ngayDangKy ?? ''}`,
-      'Trạng thái': `${item?.trangThai ?? ''}`
-    });
+      'Trạng thái':`${item?.trangThaiHoatDong ?? ''}`
+      });
 
     this.detailForm.disable();
     this.isViewCustomerDialogOpen = true;
@@ -316,17 +356,31 @@ export class Customer implements OnInit {
    * @param item Khách hàng cần khóa/mở khóa
    */
   toggleLockStatus(item: any): void {
-    this.confirmLockItem = item;
-    const currentStatus = item?.trangThai;
-
-    // Nếu đã khóa rồi thì mở khóa, ngược lại thì khóa
-    const isCurrentlyLocked = currentStatus === 'Đã khóa';
-    const action = isCurrentlyLocked ? 'mở khóa' : 'khóa';
-    const newStatus = isCurrentlyLocked ? 'Chưa đăng ký khóa' : 'Đã khóa';
-
-    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} khách hàng "${item?.tenKhachHang}" và đổi trạng thái thành "${newStatus}"?`;
-    this.isConfirmLockDialogOpen = true;
+  const currentStatus = item?.trangThaiHoatDong;
+  const isCurrentlyLocked = currentStatus === 'Đã khóa';
+  // Nếu đang hoạt động => chuẩn bị khóa
+  if (!isCurrentlyLocked) {
+    // Đã đăng ký khóa học => không cho khóa
+    if (item?.trangThaiDangKy === 'Đã đăng ký') {
+      this.confirmLockItem = null;
+      this.isLockWarningOnly = true;
+      this.confirmLockMessage =
+        `Không thể khóa khách hàng "${item?.tenKhachHang}" vì khách hàng đã đăng ký khóa học.`;
+      this.isConfirmLockDialogOpen = true;
+      return;
+    }
   }
+  // Bình thường
+  this.confirmLockItem = item;
+  this.isLockWarningOnly = false;
+  const action = isCurrentlyLocked ? 'mở khóa' : 'khóa';
+  const newStatus = isCurrentlyLocked
+    ? 'Đang hoạt động'
+    : 'Đã khóa';
+  this.confirmLockMessage =
+    `Bạn có chắc chắn muốn ${action} khách hàng "${item?.tenKhachHang}" và đổi trạng thái thành "${newStatus}"?`;
+  this.isConfirmLockDialogOpen = true;
+}
 
   /**
    * Xác nhận khóa/mở khóa và cập nhật dữ liệu
@@ -336,7 +390,7 @@ export class Customer implements OnInit {
       return;
     }
 
-    const currentStatus = this.confirmLockItem?.trangThai;
+    const currentStatus = this.confirmLockItem?.trangThaiHoatDong;
     const customerId = this.confirmLockItem?.rawData?._id || this.confirmLockItem?._id;
 
     if (!customerId) {
@@ -344,15 +398,24 @@ export class Customer implements OnInit {
       return;
     }
 
-    const newStatus = currentStatus === 'Đã khóa' ? 'Chưa đăng ký khóa' : 'Đã khóa';
-
+    const isCurrentlyLocked = currentStatus === 'Đã khóa';
+    const newStatus = isCurrentlyLocked
+      ? 'Đang hoạt động'
+      : 'Đã khóa';
+    const newActive = isCurrentlyLocked
+      ? true
+      : false;
     // Gọi API cập nhật trạng thái vào database
-    this.clientService.updateClient(customerId, { trangThai: newStatus }).subscribe({
-      next: () => {
+    this.clientService.updateClient(customerId, {
+      active: newActive
+    }).subscribe({
+      next: (response) => {
+      console.log('UPDATE RESPONSE:', response);
         // Cập nhật local data sau khi DB thành công
         const customerToUpdate = this.allCustomers.find(c => c.maKhachHang === this.confirmLockItem?.maKhachHang);
         if (customerToUpdate) {
-          customerToUpdate.trangThai = newStatus;
+          customerToUpdate.trangThaiHoatDong = newStatus;
+          customerToUpdate.active = newActive;
           this.allCustomers = this.sortCustomersNewestFirst(this.allCustomers);
           this.filteredCustomers = [...this.allCustomers];
           this.updatePagination();
@@ -381,6 +444,6 @@ export class Customer implements OnInit {
    * Kiểm tra xem khách hàng có bị khóa hay không
    */
   isLocked(item: any): boolean {
-    return item?.trangThai === 'Đã khóa';
+    return item?.trangThaiHoatDong === 'Đã khóa';
   }
 }

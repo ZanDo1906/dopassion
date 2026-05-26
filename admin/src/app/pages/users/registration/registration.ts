@@ -1,12 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { RegistrationService } from '../../../services/registration';
 import { RegistrationStepperDialog } from './registration-stepper-dialog';
+import { Payment } from '../../../services/payment';
+import { RefundService } from '../../../services/refund';
 
 type RegistrationDetailFormGroup = {
   'Mã đăng ký': FormControl<string>;
@@ -29,6 +31,9 @@ type RegistrationDetailFormGroup = {
   styleUrl: './registration.css',
 })
 export class Registration implements OnInit {
+  isRefundDialogOpen = false;
+  refundMessage = '';
+  selectedRegistration: any = null;
   /**
    * Cấu hình bộ lọc cho FilterDataPickerComponent
    * Gồm 3 trường: Mã đăng ký, Tên khách hàng, Tên lớp học
@@ -56,8 +61,7 @@ export class Registration implements OnInit {
       options: [
         { value: 'Đang hoạt động', label: 'Đang hoạt động' },
         { value: 'Đã khóa', label: 'Đã khóa' },
-        { value: 'Ngưng hoạt động', label: 'Ngưng hoạt động' },
-        { value: 'Chưa đăng ký khóa', label: 'Chưa đăng ký khóa' }
+
       ]
     }
   ];
@@ -102,7 +106,13 @@ export class Registration implements OnInit {
   // Stepper dialog state
   isStepperDialogOpen = false;
 
-  constructor(private registrationService: RegistrationService, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder) {
+  constructor(
+  private registrationService: RegistrationService,
+  private paymentService: Payment,
+  private refundService: RefundService,
+  private cdr: ChangeDetectorRef,
+  private formBuilder: FormBuilder
+) {
     this.detailForm = this.formBuilder.group<RegistrationDetailFormGroup>({
       'Mã đăng ký': this.formBuilder.control('', { nonNullable: true }),
       'Mã KH': this.formBuilder.control('', { nonNullable: true }),
@@ -141,57 +151,54 @@ export class Registration implements OnInit {
    * Chuẩn hóa dữ liệu: đổi tên các khóa từ Tiếng Việt sang Anh
    */
   loadData(): void {
-    this.registrationService.getRegistrations().subscribe({
-      next: (data) => {
-        // Chuẩn hóa dữ liệu: máp các khóa tiếng Việt thành khóa Anh
-        this.registrations = this.sortRegistrationsNewestFirst(data.map(item => ({
-          id: item.maDangKy || '',
-          customerCode: item.maKh || '',
-          studentName: item.tenKh || '',
-          className: item.tenLopHoc || '',
-          phone: '',
-          registrationDate: this.normalizeDateForInput(item.ngayDangKy),
-          status: item.trangThai || 'Đang hoạt động',
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt,
-          // Full data for view
-          maLop: item.maLop || '',
-          khoaHoc: item.khoaHoc || '',
-          tenKhoa: item.tenKhoa || '',
-          chiNhanh: item.chiNhanh || '',
-          rawData: item
-        })));
-        this.filteredData = [...this.registrations];
-        this.updatePagination();
-      },
-      error: (err) => {
-        console.error('Lỗi tải dữ liệu đăng ký:', err);
-        // Dữ liệu mẫu khi lỗi
-        this.registrations = this.sortRegistrationsNewestFirst([
-          {
-            id: 'DK-020526-001',
-            customerCode: 'KH-010526-001',
-            studentName: 'Nguyễn Minh Anh',
-            className: 'Lớp TOEIC Speaking&Writing CN1-001',
-            phone: '0912345678',
-            registrationDate: '2026-05-02',
-            status: 'Đang hoạt động'
-          },
-          {
-            id: 'DK-020526-002',
-            customerCode: 'KH-010526-002',
-            studentName: 'Trần Quốc Bảo',
-            className: 'Lớp TOEIC Listening&Reading CN1-001',
-            phone: '0912345679',
-            registrationDate: '2026-05-02',
-            status: 'Đang hoạt động'
-          }
-        ]);
-        this.filteredData = [...this.registrations];
-        this.updatePagination();
-      }
-    });
-  }
+  this.registrationService.getRegistrations().subscribe({
+    next: (data) => {
+
+      this.refundService.getRefunds().subscribe({
+        next: (refunds: any[]) => {
+
+          this.registrations = this.sortRegistrationsNewestFirst(
+            data.map(item => {
+
+              // check đã tồn tại refund chưa
+              const hasRefundRequest = refunds.some(
+                r => r.maDangKy === item.maDangKy
+              );
+
+              return {
+                _id: item._id,
+                id: item.maDangKy || '',
+                customerCode: item.maKh || '',
+                studentName: item.tenKh || '',
+                className: item.tenLopHoc || '',
+                registrationDate: this.normalizeDateForInput(item.ngayDangKy),
+                status: item.trangThai || 'Đang hoạt động',
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt,
+
+                maLop: item.maLop || '',
+                khoaHoc: item.khoaHoc || '',
+                tenKhoa: item.tenKhoa || '',
+                chiNhanh: item.chiNhanh || '',
+
+                // QUAN TRỌNG
+                refundRequested: hasRefundRequest,
+
+                rawData: item
+              };
+            })
+          );
+
+          this.filteredData = [...this.registrations];
+          this.updatePagination();
+        }
+      });
+    },
+
+    error: (err) => {
+    }
+  });
+}
 
   /**
    * Xử lý sự kiện tìm kiếm từ FilterDataPickerComponent
@@ -293,7 +300,6 @@ export class Registration implements OnInit {
    * @param page Số trang mới
    */
   onPaginationPageChange(page: number): void {
-    console.log('[Registration] onPaginationPageChange:', { newPage: page, currentPage: this.currentPage });
     this.currentPage = page;
     this.cdr.markForCheck(); // Force change detection
     this.updatePagination();
@@ -305,7 +311,6 @@ export class Registration implements OnInit {
    * @param size Số lượng item mỗi trang
    */
   onPaginationPageSizeChange(size: number): void {
-    console.log('[Registration] onPaginationPageSizeChange:', { newSize: size, oldSize: this.itemsPerPage });
     this.itemsPerPage = size;
     this.currentPage = 1;
     this.cdr.markForCheck(); // Force change detection
@@ -321,21 +326,13 @@ export class Registration implements OnInit {
       itemsPerPage: this.itemsPerPage,
       filteredLength: this.filteredData.length
     });
-
     // Safety check: validate itemsPerPage
     if (this.itemsPerPage <= 0) {
-      console.error('[Registration] itemsPerPage is invalid:', this.itemsPerPage);
       this.itemsPerPage = 10; // Fallback to default
     }
-
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = start + this.itemsPerPage;
-
-    console.log('[Registration] Slice parameters:', { start, end, arrayLength: this.filteredData.length });
-
     this.paginatedData = this.filteredData.slice(start, end);
-
-    console.log('[Registration] Paginated data count:', this.paginatedData.length);
   }
 
   /**
@@ -343,39 +340,131 @@ export class Registration implements OnInit {
    * @param item Đăng ký cần khóa/mở khóa
    */
   toggleLockStatus(item: any): void {
-    this.confirmLockItem = item;
-    const currentStatus = item?.status;
-    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
-    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
 
-    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} đăng ký "${item?.studentName}" và đổi trạng thái thành "${newStatus}"?`;
-    this.isConfirmLockDialogOpen = true;
+  // nếu đã yêu cầu hoàn tiền rồi thì chặn luôn
+  if (item.refundRequested) {
+    alert('Đăng ký này đã có yêu cầu hoàn tiền');
+    return;
   }
+
+  this.selectedRegistration = item;
+
+  this.paymentService.getPayments().subscribe({
+    next: (payments: any[]) => {
+
+      const payment = payments.find(
+        p => p.maDangKy === item.id
+      );
+
+      // KHÔNG CÓ PAYMENT
+      if (!payment) {
+
+        this.confirmLockItem = item;
+
+        this.confirmLockMessage =
+          'Đăng ký này chưa có dữ liệu thanh toán. Bạn có muốn khóa không?';
+
+        this.isConfirmLockDialogOpen = true;
+        return;
+      }
+
+      // ĐÃ THANH TOÁN => CHO HOÀN TIỀN
+      if (payment.trangThaiThanhToan === 'Đã thanh toán') {
+
+        this.refundMessage =
+          'Đăng ký này đã thanh toán rồi. Bạn có muốn yêu cầu hoàn tiền không?';
+
+        this.isRefundDialogOpen = true;
+      }
+
+      // CÁC TRẠNG THÁI KHÁC => CHỈ KHÓA
+      else {
+
+        this.confirmLockItem = item;
+
+        this.confirmLockMessage =
+          'Đăng ký này chưa thanh toán hoàn tất. Bạn có muốn khóa đăng ký không?';
+
+        this.isConfirmLockDialogOpen = true;
+      }
+    },
+
+    error: (err) => {
+      console.error(err);
+    }
+  });
+}
 
   /**
    * Xác nhận khóa/mở khóa và cập nhật dữ liệu
    */
   onConfirmLock(): void {
-    if (!this.confirmLockItem) {
-      return;
-    }
 
-    const currentStatus = this.confirmLockItem?.status;
-    const registrationId = this.confirmLockItem?.id;
-
-    // Cập nhật trạng thái trong local data (mock, sau này gọi API)
-    const registrationToUpdate = this.registrations.find(r => r.id === registrationId);
-    if (registrationToUpdate) {
-      registrationToUpdate.status = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-      this.registrations = this.sortRegistrationsNewestFirst(this.registrations);
-      // Cập nhật filtered và paginated data
-      this.filteredData = [...this.registrations];
-      this.updatePagination();
-      this.cdr.markForCheck();
-    }
-    this.isConfirmLockDialogOpen = false;
-    this.confirmLockItem = null;
+  if (!this.confirmLockItem) {
+    return;
   }
+
+  console.log('FULL ITEM:', this.confirmLockItem);
+
+  const idToUpdate =
+    this.confirmLockItem._id ||
+    this.confirmLockItem.rawData?._id;
+
+  console.log('ID UPDATE:', idToUpdate);
+
+  if (!idToUpdate) {
+    alert('Không tìm thấy _id');
+    return;
+  }
+
+  const currentStatus = this.confirmLockItem.status;
+
+  const newStatus =
+    currentStatus === 'Đang hoạt động'
+      ? 'Đã khóa'
+      : 'Đang hoạt động';
+
+  this.registrationService.updateRegistration(
+    idToUpdate,
+    {
+      trangThai: newStatus
+    }
+  ).subscribe({
+
+    next: (res) => {
+
+      console.log('UPDATE SUCCESS:', res);
+
+      const registrationToUpdate =
+        this.registrations.find(
+          r => r.id === this.confirmLockItem.id
+        );
+
+      if (registrationToUpdate) {
+        registrationToUpdate.status = newStatus;
+      }
+
+      this.filteredData = [...this.registrations];
+
+      this.updatePagination();
+
+      this.isConfirmLockDialogOpen = false;
+
+      this.confirmLockItem = null;
+
+      alert('Cập nhật trạng thái thành công');
+    },
+
+    error: (err) => {
+
+      console.error('UPDATE ERROR:', err);
+
+      console.log('ERROR RESPONSE:', err.error);
+
+      alert('Cập nhật trạng thái thất bại');
+    }
+  });
+}
 
   /**
    * Hủy khóa/mở khóa
@@ -384,6 +473,99 @@ export class Registration implements OnInit {
     this.isConfirmLockDialogOpen = false;
     this.confirmLockItem = null;
   }
+  confirmRefund(): void {
+  if (!this.selectedRegistration) {
+    return;
+  }
+  this.paymentService.getPayments().subscribe({
+    next: (payments: any[]) => {
+      const payment = payments.find(
+        p => p.maDangKy === this.selectedRegistration.id
+      );
+
+      if (!payment) {
+        return;
+      }
+      const refundData = {
+        maDangKy: payment.maDangKy,
+        maKh: payment.maKh,
+        tenKh: payment.tenKh,
+        maLop: payment.maLop,
+        tenLopHoc: payment.tenLopHoc,
+        khoaHoc: payment.khoaHoc,
+        tenKhoa: payment.tenKhoa,
+        chiNhanh: payment.chiNhanh,
+        ngayDangKy: payment.ngayDangKy,
+        daThanhToan:
+          (payment.hocPhi || 0) - (payment.soTienConLai || 0),
+        soTienHoan:
+          (payment.hocPhi || 0) - (payment.soTienConLai || 0),
+        lyDoYeuCauHoanTien: 'Khóa đăng ký',
+        lyDoChapNhanHoanTien: '',
+        lyDoTuChoi: '',
+        trangThai: 'Chờ duyệt'
+      };
+      this.refundService.addRefund(refundData).subscribe({
+        next: () => {
+          // đổi trạng thái local
+          const registration = this.registrations.find(
+            r => r.id === this.selectedRegistration.id
+          );
+          this.registrationService.updateRegistration(
+          this.selectedRegistration._id,
+          {
+            trangThai: 'Đã khóa'
+          })
+        .subscribe({
+          next: () => {
+          const registration = this.registrations.find(
+            r => r.id === this.selectedRegistration.id
+          );
+
+          if (registration) {
+            registration.status = 'Đã khóa';
+            registration.refundRequested = true;
+          }
+
+          this.paginatedData = this.paginatedData.map(item => {
+
+            if (item.id === this.selectedRegistration.id) {
+              return {
+                ...item,
+                status: 'Đã khóa',
+                refundRequested: true
+              };
+            }
+
+            return item;
+          });
+
+          this.filteredData = [...this.registrations];
+
+          this.updatePagination();
+
+          this.isRefundDialogOpen = false;
+
+          this.selectedRegistration = null;
+
+          alert('Đã tạo yêu cầu hoàn tiền và khóa đăng ký');
+        },
+          error: (err) => {
+            console.error(err);
+            alert('Cập nhật trạng thái thất bại');
+          }
+        })
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
+    }
+  });
+}
+cancelRefund(): void {
+  this.isRefundDialogOpen = false;
+}
 
   /**
    * Kiểm tra xem đăng ký có bị khóa hay không
@@ -421,19 +603,26 @@ export class Registration implements OnInit {
     if (result && result.registration && typeof result.registration === 'object') {
       const reg = result.registration;
       const mapped = {
-        id: reg.maDangKy || '',
-        customerCode: reg.maKh || '',
-        studentName: reg.tenKh || '',
-        className: reg.tenLopHoc || '',
-        phone: '',
-        registrationDate: this.normalizeDateForInput(reg.ngayDangKy ? (typeof reg.ngayDangKy === 'string' ? reg.ngayDangKy : new Date(reg.ngayDangKy).toISOString()) : ''),
-        status: reg.trangThai || 'Đang hoạt động',
-        maLop: reg.maLop || '',
-        khoaHoc: reg.khoaHoc || '',
-        tenKhoa: reg.tenKhoa || '',
-        chiNhanh: reg.chiNhanh || '',
-        rawData: reg
-      };
+      _id: reg._id,
+
+      id: reg.maDangKy || '',
+      customerCode: reg.maKh || '',
+      studentName: reg.tenKh || '',
+      className: reg.tenLopHoc || '',
+      registrationDate: this.normalizeDateForInput(
+        reg.ngayDangKy
+          ? (typeof reg.ngayDangKy === 'string'
+              ? reg.ngayDangKy
+              : new Date(reg.ngayDangKy).toISOString())
+          : ''
+      ),
+      status: reg.trangThai || 'Đang hoạt động',
+      maLop: reg.maLop || '',
+      khoaHoc: reg.khoaHoc || '',
+      tenKhoa: reg.tenKhoa || '',
+      chiNhanh: reg.chiNhanh || '',
+      rawData: reg
+    };
 
       // Prepend into arrays
       this.registrations = [mapped, ...this.registrations];

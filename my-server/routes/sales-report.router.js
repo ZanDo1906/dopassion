@@ -14,7 +14,17 @@ router.get('/', async (req, res) => {
         // ======================
 
         const payments =
-            await Payment.find();
+            await Payment.find().lean();
+
+        const paymentsDaThanhToan =
+            payments.filter(item => {
+
+                const doanhThu =
+                    Number(item.soTienCanThanhToan || 0)
+                    - Number(item.soTienConLai || 0);
+
+                return doanhThu > 0;
+            });
 
         const refunds =
             await Refund.find();
@@ -23,7 +33,7 @@ router.get('/', async (req, res) => {
         // RAW DATA
         // ======================
 
-        const rawData = payments.map((item) => {
+        const rawData = paymentsDaThanhToan.map((item) => {
 
             // ======================
             // REFUND

@@ -9,7 +9,7 @@ import { environment } from '../../environments/environments';
   providedIn: 'root',
 })
 export class Client {
-  private apiUrl = `${environment.apiUrl}/client`;
+  private apiUrl = `${environment.apiUrl}/customer`;
   private clientsChanged = new Subject<iClient | null>();
   public clientsChanged$ = this.clientsChanged.asObservable();
 

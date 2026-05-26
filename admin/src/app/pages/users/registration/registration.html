@@ -55,11 +55,12 @@
                                 <i class="bi bi-eye"></i>
                             </button>
                             <button 
+                                *ngIf="item.status !== 'Đã khóa'"
                                 class="icon-btn" 
                                 type="button" 
-                                [title]="isLocked(item) ? 'Mở khóa' : 'Khóa'"
+                                title="Khóa"
                                 (click)="toggleLockStatus(item)">
-                                <i [class]="isLocked(item) ? 'bi bi-lock-fill' : 'bi bi-unlock'"></i>
+                                <i class="bi bi-lock-fill"></i>
                             </button>
                         </div>
                     </td>
@@ -198,3 +199,14 @@
     (close)="closeStepperDialog()"
     (success)="onStepperSuccess($event)">
 </app-registration-stepper-dialog>
+<app-confirm-dialog
+    [isOpen]="isRefundDialogOpen"
+    title="Yêu cầu hoàn tiền"
+    [message]="refundMessage"
+    confirmText="Hoàn tiền"
+    cancelText="Hủy"
+    confirmIcon="bi bi-cash"
+    cancelIcon="bi bi-x-circle"
+    (confirm)="confirmRefund()"
+    (cancel)="cancelRefund()">
+</app-confirm-dialog>

@@ -250,7 +250,16 @@ export class Role implements OnInit {
           return roleValue.toLowerCase().includes(String(filterValue).toLowerCase());
         }
 
-        // Cho các type khác, so sánh bằng
+        // BOOLEAN
+        if (typeof roleValue === 'boolean') {
+
+          return roleValue === (
+            filterValue === true ||
+            filterValue === 'true'
+          );
+        }
+
+        // Cho các type khác
         return roleValue === filterValue;
       });
     });

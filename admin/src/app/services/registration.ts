@@ -8,7 +8,9 @@ import { environment } from '../../environments/environments';
   providedIn: 'root',
 })
 export class RegistrationService {
+  
   private apiUrl = `${environment.apiUrl}/registration`;
+
 
   constructor(private http: HttpClient) { }
 
@@ -30,5 +32,8 @@ export class RegistrationService {
 
   deleteRegistration(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+  getRefunds(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
   }
 }

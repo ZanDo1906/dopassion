@@ -48,14 +48,22 @@ router.post('/', async (req, res) => {
     }
 });
 
-// UPDATE
 router.put('/:id', async (req, res) => {
     try {
+
+        console.log('PARAM ID:', req.params.id);
+        console.log('BODY:', req.body);
+
         const updatedData = await Registration.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { new: true }
+            {
+                new: true,
+                runValidators: true
+            }
         );
+
+        console.log('UPDATED DATA:', updatedData);
 
         if (!updatedData) {
             return res.status(404).json({
@@ -64,13 +72,16 @@ router.put('/:id', async (req, res) => {
         }
 
         res.status(200).json(updatedData);
+
     } catch (error) {
+
+        console.log(error);
+
         res.status(500).json({
             message: error.message
         });
     }
 });
-
 // DELETE
 router.delete('/:id', async (req, res) => {
     try {

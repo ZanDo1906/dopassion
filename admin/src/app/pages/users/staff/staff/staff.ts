@@ -7,6 +7,7 @@ import { FormDialogComponent } from '../../../../components/form-dialog/form-dia
 import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dialog';
 import { Staff as StaffService } from '../../../../services/staff';
 import { iStaff } from '../../../../interfaces/staff';
+import { RoleService } from '../../../../services/role';
 
 type StaffDetailFormGroup = {
   'Mã nhân viên': FormControl<string>;
@@ -140,7 +141,8 @@ export class Staff implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private staffService: StaffService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private roleService: RoleService
   ) {
     this.addStaffForm = this.formBuilder.group({
       employeeId: [{ value: '', disabled: true }],
@@ -444,14 +446,53 @@ export class Staff implements OnInit {
    * @param item Nhân viên cần khóa/mở khóa
    */
   toggleLockStatus(item: any): void {
-    this.confirmLockItem = item;
-    const currentStatus = item?.trangThai;
-    const action = currentStatus === 'Đang hoạt động' ? 'khóa' : 'mở khóa';
-    const newStatus = currentStatus === 'Đang hoạt động' ? 'Đã khóa' : 'Đang hoạt động';
-
-    this.confirmLockMessage = `Bạn có chắc chắn muốn ${action} nhân viên "${item?.tenNhanVien}" và đổi trạng thái thành "${newStatus}"?`;
-    this.isConfirmLockDialogOpen = true;
+  const currentStatus = item?.trangThai;
+  // =========================
+  // NẾU ĐANG MỞ KHÓA NHÂN VIÊN
+  // =========================
+  if (currentStatus === 'Đã khóa') {
+    this.roleService.getRole().subscribe({
+      next: (roles: any[]) => {
+        const role =
+          roles.find(
+            r => r.maVaiTro === item.maVaiTro
+          );
+        // =========================
+        // ROLE ĐANG BỊ KHÓA
+        // =========================
+        if (role && role.active === false) {
+          this.confirmLockItem = null;
+          this.confirmLockMessage =
+            `Không thể mở khóa nhân viên "${item.tenNhanVien}" vì vai trò "${item.vaiTro}" đang bị khóa. Vui lòng mở khóa vai trò trước.`;
+          this.isConfirmLockDialogOpen = true;
+          return;
+        }
+        // =========================
+        // CHO PHÉP MỞ KHÓA
+        // =========================
+        this.confirmLockItem = item;
+        this.confirmLockMessage =
+          `Bạn có chắc chắn muốn mở khóa nhân viên "${item.tenNhanVien}" và đổi trạng thái thành "Đang hoạt động"?`;
+        this.isConfirmLockDialogOpen = true;
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+    return;
   }
+
+  // =========================
+  // KHÓA NHÂN VIÊN
+  // =========================
+
+  this.confirmLockItem = item;
+
+  this.confirmLockMessage =
+    `Bạn có chắc chắn muốn khóa nhân viên "${item.tenNhanVien}" và đổi trạng thái thành "Đã khóa"?`;
+
+  this.isConfirmLockDialogOpen = true;
+}
 
   /**
    * Xác nhận khóa/mở khóa và cập nhật dữ liệu

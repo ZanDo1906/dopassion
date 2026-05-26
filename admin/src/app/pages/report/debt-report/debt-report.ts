@@ -74,16 +74,12 @@ export class DebtReport implements OnInit {
     itemsPerPage = 10;
 
     pageSizeOptions = [10, 20, 50];
-
     tongHocPhi = 0;
-
     tongGiamGia = 0;
-
     tongDaThu = 0;
-
     tongChuaThu = 0;
-
     tongHoan = 0;
+    tongDaHuy = 0;
 
     ngOnInit(): void {
 
@@ -237,26 +233,19 @@ export class DebtReport implements OnInit {
     calculateSummary(): void {
 
         this.tongHocPhi = 0;
-
         this.tongGiamGia = 0;
-
         this.tongDaThu = 0;
-
         this.tongChuaThu = 0;
-
         this.tongHoan = 0;
+        this.tongDaHuy = 0;
 
         this.filteredData.forEach((item: any) => {
-
             this.tongHocPhi += Number(item.soTienHocPhi);
-
             this.tongGiamGia += Number(item.soTienGiamGia);
-
             this.tongDaThu += Number(item.soTienDaThu);
-
             this.tongChuaThu += Number(item.soTienChuaThu);
-
             this.tongHoan += Number(item.soTienHoan);
+            this.tongDaHuy += Number(item.soTienChuaThu);
         });
     }
 
