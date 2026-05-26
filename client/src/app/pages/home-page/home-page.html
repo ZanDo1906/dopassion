@@ -1,7 +1,9 @@
 <!-- Banner Section with Title -->
 <section class="banner-section">
     <div class="banner-wrapper">
-        <img src="/banner.png" alt="DoPassion Banner" class="banner-img" />
+        @for (banner of banners; track $index) {
+        <img [src]="banner" alt="DoPassion Banner" class="banner-img" [class.active]="$index === currentBannerIndex" />
+        }
         <div class="title-ellipse">
             <div class="white-overlay">
                 <h2 class="title-text">CHƯƠNG TRÌNH HỌC</h2>
@@ -14,44 +16,56 @@
 <section class="programs-section">
     <div class="programs-container">
         <div class="cards-grid">
-            <!-- Card 1 -->
+            <!-- Card 1: Foundation -->
             <div class="program-card">
                 <div class="card-image">
-                    <img src="/card.png" alt="Listening Reading" />
+                    <img src="/card-Foudation.jpeg" alt="Foundation" />
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">LISTERNING READING</h3>
+                    <h3 class="card-title">FOUNDATION</h3>
                     <p class="card-description">
-                        Dành cho các bạn bị mất gốc muốn chinh phục chứng chỉ TOEIC 550, 650, 750. Dopassion tự hào là
-                        trung tâm luyện TOEIC Listening hàng đầu tại TP. Thủ Đức<br>
-                        <br>
-                        Dopassion cam kết đầu ra TOEIC 550+, 650+, 750+ bằng hợp đồng đào tạo.
+                        Dành cho các bạn mất gốc hoặc nền tảng tiếng Anh còn yếu, muốn xây dựng lại kiến thức căn bản
+                        trước khi học TOEIC.
+                        <br><br>
+                        Khóa học giúp học viên củng cố từ vựng, ngữ pháp, phát âm và kỹ năng làm bài cơ bản để sẵn sàng
+                        bước vào lộ trình TOEIC.
+                    </p>
+                    <a href="/classes?course=FOUNDATION" class="card-btn">ĐĂNG KÝ NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 2: Speaking & Writing -->
+            <div class="program-card">
+                <div class="card-image">
+                    <img src="/card-SW.jpeg" alt="TOEIC Speaking Writing" />
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">TOEIC SPEAKING & WRITING</h3>
+                    <p class="card-description">
+                        Dành cho học viên muốn cải thiện kỹ năng nói và viết tiếng Anh theo chuẩn bài thi TOEIC Speaking
+                        & Writing.
+                        <br><br>
+                        Khóa học tập trung vào phản xạ giao tiếp, phát triển ý tưởng, trình bày câu trả lời rõ ràng và
+                        viết bài đúng cấu trúc.
+                    </p>
+                    <a href="/classes?course=SW" class="card-btn">ĐĂNG KÝ NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 3: Listening & Reading -->
+            <div class="program-card">
+                <div class="card-image">
+                    <img src="/card-LR.jpeg" alt="TOEIC Listening Reading" />
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">TOEIC LISTENING & READING</h3>
+                    <p class="card-description">
+                        Dành cho học viên muốn chinh phục TOEIC Listening & Reading với các mục tiêu 550+, 650+ và 750+.
+                        <br><br>
+                        Khóa học giúp học viên luyện kỹ năng nghe, đọc hiểu, nắm chiến thuật làm bài và cải thiện điểm
+                        số theo từng giai đoạn.
                     </p>
                     <a href="/classes?course=LR" class="card-btn">ĐĂNG KÝ NGAY</a>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="program-card">
-                <div class="card-image">
-                    <img src="/card.png" alt="TOEIC" />
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">TOEIC SPEAKING</h3>
-                    <p class="card-description">Cải thiện kỹ năng nói trong bài thi TOEIC</p>
-                    <a href="/classes?course=SW" class="card-btn">ĐĂNG KÝ NGAY</a>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="program-card">
-                <div class="card-image">
-                    <img src="/card.png" alt="TOEIC Writing" />
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">TOEIC WRITING</h3>
-                    <p class="card-description">Phát triển kỹ năng viết tiếng Anh chuyên nghiệp</p>
-                    <a href="/classes?course=SW" class="card-btn">ĐĂNG KÝ NGAY</a>
                 </div>
             </div>
         </div>
@@ -79,7 +93,8 @@
             </p>
         </div>
         <div class="about-video">
-            <video class="about-video-player" src="/Video_Homepage.mp4" controls></video>
+            <video #homeVideo class="about-video-player" src="/Video_Homepage.mp4" controls autoplay muted loop
+                playsinline></video>
         </div>
     </div>
 </section>
@@ -94,19 +109,20 @@
 
         <!-- Content Side -->
         <div class="why-choose-content">
+            <span class="why-choose-subtitle">Vì sao là Dopassion?</span>
             <h2 class="why-choose-title">Tại sao nên chọn chúng tôi?</h2>
 
             <div class="stats-grid">
                 <!-- Stat 1 -->
                 <div class="stat-item">
-                    <i class="bi bi-people-fill stat-icon"></i>
+                    <i class="bi bi-mortarboard-fill stat-icon"></i>
                     <div class="stat-number">9,500+</div>
                     <div class="stat-label">Học viên<br>đã đào tạo</div>
                 </div>
 
                 <!-- Stat 2 -->
                 <div class="stat-item">
-                    <i class="bi bi-clock-fill stat-icon"></i>
+                    <i class="bi bi-award-fill stat-icon"></i>
                     <div class="stat-number">8 năm</div>
                     <div class="stat-label">Thành lập</div>
                 </div>
@@ -120,7 +136,7 @@
 
                 <!-- Stat 4 -->
                 <div class="stat-item">
-                    <i class="bi bi-people-fill stat-icon"></i>
+                    <i class="bi bi-trophy-fill stat-icon"></i>
                     <div class="stat-number">95%</div>
                     <div class="stat-label">Học viên đạt<br>mục tiêu</div>
                 </div>
@@ -147,63 +163,98 @@
             <!-- Slider -->
             <div class="lecturers-slider">
 
-                <div
-                    class="lecturers-track"
-                    [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
+                <div class="lecturers-track" [style.transform]="'translateX(-' + currentSlide * 100 + '%)'">
 
                     <!-- Lecturer 1 -->
                     <div class="lecturer-card">
-                        <div class="lecturer-avatar">
-                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-toeic">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Nguyễn Minh Khang" />
+                            </div>
+                            <span class="lecturer-badge badge-toeic">TOEIC 950</span>
+                            <h3 class="lecturer-name">Giảng viên Nguyễn Minh Khang</h3>
+                            <p class="lecturer-desc">
+                                Hơn 5 năm kinh nghiệm giảng dạy TOEIC Listening & Reading, chuyên luyện mục tiêu
+                                650+ và 750+.
+                            </p>
                         </div>
-
-                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-
-                        <p class="lecturer-desc">
-                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
-                        </p>
                     </div>
 
                     <!-- Lecturer 2 -->
                     <div class="lecturer-card">
-                        <div class="lecturer-avatar">
-                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-toeic">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Trần Hoài An" />
+                            </div>
+                            <span class="lecturer-badge badge-toeic">TOEIC 920</span>
+                            <h3 class="lecturer-name">Giảng viên Trần Hoài An</h3>
+                            <p class="lecturer-desc">
+                                Chuyên giảng dạy lớp Foundation cho học viên mất gốc và nền tảng tiếng Anh yếu.
+                            </p>
                         </div>
-
-                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-
-                        <p class="lecturer-desc">
-                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
-                        </p>
                     </div>
 
                     <!-- Lecturer 3 -->
                     <div class="lecturer-card">
-                        <div class="lecturer-avatar">
-                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-ielts">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Lê Quốc Bảo" />
+                            </div>
+                            <span class="lecturer-badge badge-ielts">IELTS 8.0</span>
+                            <h3 class="lecturer-name">Giảng viên Lê Quốc Bảo</h3>
+                            <p class="lecturer-desc">
+                                Hơn 7 năm kinh nghiệm luyện thi TOEIC, thế mạnh về ngữ pháp và chiến thuật đọc
+                                hiểu.
+                            </p>
                         </div>
-
-                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-
-                        <p class="lecturer-desc">
-                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
-                        </p>
                     </div>
 
                     <!-- Lecturer 4 -->
                     <div class="lecturer-card">
-                        <div class="lecturer-avatar">
-                            <img src="/ANH_TRUONG.jpg" alt="Mr. ĐÔNG TRƯỜNG" />
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-toeic">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Phạm Ngọc Mai" />
+                            </div>
+                            <span class="lecturer-badge badge-toeic">TOEIC Speaking 180</span>
+                            <h3 class="lecturer-name">Giảng viên Phạm Ngọc Mai</h3>
+                            <p class="lecturer-desc">
+                                Chuyên đào tạo TOEIC Speaking & Writing, hỗ trợ học viên cải thiện phản
+                                xạ nói.
+                            </p>
                         </div>
-
-                        <h3 class="lecturer-name">Mr. ĐÔNG TRƯỜNG</h3>
-
-                        <p class="lecturer-desc">
-                            IELTS 8.0 overall, kinh nghiệm dạy lớp CE2, Pre-Intermediate
-                        </p>
                     </div>
 
+                    <!-- Lecturer 5 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-toeic">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Võ Anh Tuấn" />
+                            </div>
+                            <span class="lecturer-badge badge-toeic">TOEIC 900</span>
+                            <h3 class="lecturer-name">Giảng viên Võ Anh Tuấn</h3>
+                            <p class="lecturer-desc">
+                                Kinh nghiệm giảng dạy lớp Foundation và Listening cơ bản, tập trung phát âm và
+                                nghe hiểu.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Lecturer 6 -->
+                    <div class="lecturer-card">
+                        <div class="lecturer-card-inner">
+                            <div class="lecturer-avatar avatar-ielts">
+                                <img src="/ANH_TRUONG.jpg" alt="Giảng viên Đặng Thanh Vy" />
+                            </div>
+                            <span class="lecturer-badge badge-ielts">IELTS 7.5</span>
+                            <h3 class="lecturer-name">Giảng viên Đặng Thanh Vy</h3>
+                            <p class="lecturer-desc">
+                                Chuyên luyện TOEIC Writing và hỗ trợ học viên xây dựng câu trả lời rõ ràng, đúng
+                                cấu trúc.
+                            </p>
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
             <!-- Button Right -->
@@ -223,10 +274,8 @@
         <div class="news-grid">
             <!-- News Card 1 -->
             <a class="news-card" href="https://www.facebook.com/share/p/1GgAaad76D/">
-                <img
-                    src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/700431010_1530900252380072_749762062029588432_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH3VzPZn2924TGzrD2364BLI8uxSBu2qUwjy7FIG7apTH_3qodtp63u517zAnUjZ8oFInyriuSE4drLndsm1Nfq&_nc_ohc=VQgx-KUVuBgQ7kNvwGLtHQP&_nc_oc=AdrRGJk-Cbc3Rxvtwd6qY1aS6IiD_d6Q-kUCxvQsGmjJtuG8z3k_36jeXp8dfDGbFoU&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=FxGH7NlW5Pv0qYFiO6j1Kg&_nc_ss=7c2a8&oh=00_Af4Xxuo8VC3cAHJ643rtozZO0cMcWm3Slqd5S0brbKPe5Q&oe=6A14A4C2"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/700431010_1530900252380072_749762062029588432_n.jpg?stp=dst-jpg_s600x600_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH3VzPZn2924TGzrD2364BLI8uxSBu2qUwjy7FIG7apTH_3qodtp63u517zAnUjZ8oFInyriuSE4drLndsm1Nfq&_nc_ohc=VQgx-KUVuBgQ7kNvwGLtHQP&_nc_oc=AdrRGJk-Cbc3Rxvtwd6qY1aS6IiD_d6Q-kUCxvQsGmjJtuG8z3k_36jeXp8dfDGbFoU&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=FxGH7NlW5Pv0qYFiO6j1Kg&_nc_ss=7c2a8&oh=00_Af4Xxuo8VC3cAHJ643rtozZO0cMcWm3Slqd5S0brbKPe5Q&oe=6A14A4C2"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -237,10 +286,8 @@
 
             <!-- News Card 2 -->
             <a class="news-card" href="https://www.facebook.com/share/p/1DytYTsD24/">
-                <img
-                    src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/689863774_1522537879882976_5659284541431969100_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGB7ilYbQMv_eU63znWDz1h3daMCu8wv9nd1owK7zC_2crjszvqH0FkyEBO1QbfN8pQ0Wm8N9bt5kI89ADR5XPE&_nc_ohc=sIH6NtFYAc4Q7kNvwH1MiSt&_nc_oc=Adrj3pH1fj5wJCmxthLv96XfeGbt212NP0NVHkEBNsdqp9jMubNCyL1DHNHDhcm1FOU&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=wbL6fZfW7IJdNtsVgidzJg&_nc_ss=7c2a8&oh=00_Af6u72dDcGTIokoEag23p2i8o_dsz9DVj3RtD-fgRkvtmg&oe=6A149098"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/689863774_1522537879882976_5659284541431969100_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGB7ilYbQMv_eU63znWDz1h3daMCu8wv9nd1owK7zC_2crjszvqH0FkyEBO1QbfN8pQ0Wm8N9bt5kI89ADR5XPE&_nc_ohc=sIH6NtFYAc4Q7kNvwH1MiSt&_nc_oc=Adrj3pH1fj5wJCmxthLv96XfeGbt212NP0NVHkEBNsdqp9jMubNCyL1DHNHDhcm1FOU&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=wbL6fZfW7IJdNtsVgidzJg&_nc_ss=7c2a8&oh=00_Af6u72dDcGTIokoEag23p2i8o_dsz9DVj3RtD-fgRkvtmg&oe=6A149098"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -251,10 +298,8 @@
 
             <!-- News Card 3 -->
             <a class="news-card" href="https://www.facebook.com/share/p/18fQE9N82K/">
-                <img
-                    src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.30808-6/669588199_1500578335412264_3736170642815399833_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFkqNOSGMtSuSHxDAW7s_tYbnRGCjNFkphudEYKM0WSmIEIYYHlnGNO_lmU4jPAKn0TzHYw6ZGTknf7fJTtvOyV&_nc_ohc=kaCPPGnsYfwQ7kNvwG-i9yc&_nc_oc=AdqgvyhwY4FJZD7UyLfHLjZd0rIweu6ZjX7Zs6415Xh_iOY4wa_3QQG0soD9N9aso88&_nc_zt=23&_nc_ht=scontent.fsgn5-9.fna&_nc_gid=-bvh43Sf7Oxxahigey6YQg&_nc_ss=7c2a8&oh=00_Af7oW7EvEosL-P6qne7mTqXIzKQR4nBJ80Q_UJaV29uCJA&oe=6A14AA05"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.30808-6/669588199_1500578335412264_3736170642815399833_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=105&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFkqNOSGMtSuSHxDAW7s_tYbnRGCjNFkphudEYKM0WSmIEIYYHlnGNO_lmU4jPAKn0TzHYw6ZGTknf7fJTtvOyV&_nc_ohc=kaCPPGnsYfwQ7kNvwG-i9yc&_nc_oc=AdqgvyhwY4FJZD7UyLfHLjZd0rIweu6ZjX7Zs6415Xh_iOY4wa_3QQG0soD9N9aso88&_nc_zt=23&_nc_ht=scontent.fsgn5-9.fna&_nc_gid=-bvh43Sf7Oxxahigey6YQg&_nc_ss=7c2a8&oh=00_Af7oW7EvEosL-P6qne7mTqXIzKQR4nBJ80Q_UJaV29uCJA&oe=6A14AA05"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -265,10 +310,8 @@
 
             <!-- News Card 4 -->
             <a class="news-card" href="https://www.facebook.com/share/p/1TL1zJgzzN/">
-                <img
-                    src="https://scontent.fsgn5-13.fna.fbcdn.net/v/t39.30808-6/660489614_1488560836614014_553396693677481457_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHbw9eor8xVVwf7wrRIjuYZBvLVfg9SLisG8tV-D1IuK7ymBEKYl9iXAepaAk2kLjsWmrVxsWLNZ8imu0OVi7CJ&_nc_ohc=gbgMESoY-rUQ7kNvwEyhIM2&_nc_oc=Ado6M4QfJH5RgwwCQ4LhbZuITxd7XM67m5ufX0jWIBdZtSy45QLAmmaBNq1BJNYuuqE&_nc_zt=23&_nc_ht=scontent.fsgn5-13.fna&_nc_gid=07fuxGBPMKSXWjoSJykm6w&_nc_ss=7c2a8&oh=00_Af4Egs9PgYuBrFPCMwZ0ssv4RfquoKbJrCAoafWO_PivXQ&oe=6A14B65D"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-13.fna.fbcdn.net/v/t39.30808-6/660489614_1488560836614014_553396693677481457_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeHbw9eor8xVVwf7wrRIjuYZBvLVfg9SLisG8tV-D1IuK7ymBEKYl9iXAepaAk2kLjsWmrVxsWLNZ8imu0OVi7CJ&_nc_ohc=gbgMESoY-rUQ7kNvwEyhIM2&_nc_oc=Ado6M4QfJH5RgwwCQ4LhbZuITxd7XM67m5ufX0jWIBdZtSy45QLAmmaBNq1BJNYuuqE&_nc_zt=23&_nc_ht=scontent.fsgn5-13.fna&_nc_gid=07fuxGBPMKSXWjoSJykm6w&_nc_ss=7c2a8&oh=00_Af4Egs9PgYuBrFPCMwZ0ssv4RfquoKbJrCAoafWO_PivXQ&oe=6A14B65D"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -279,10 +322,8 @@
 
             <!-- News Card 5 -->
             <a class="news-card" href="https://www.facebook.com/share/p/18sYaBnwQH/">
-                <img
-                    src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/654721375_1478189170984514_8048325110111098782_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEc0Ktb80Qj3U_2xF25-djuR9jZVtWPa9hH2NlW1Y9r2PzHcmKBYzEB-yL4FREL7IpaB9XFb9ZnVfZIB-SfLl2L&_nc_ohc=6rPiDA4v1toQ7kNvwHFtszL&_nc_oc=AdrSnouHahLhwIIr5V3md6c-6jq3f0fjIZFVC2Sd-3CpX9j4iReVc-jBJNv0yJNrQBs&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af4oW_6HyJPgNKmKuwWxnvELk1Y4Faa49MgUQ5onUkE8zg&oe=6A149E47"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/654721375_1478189170984514_8048325110111098782_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=108&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEc0Ktb80Qj3U_2xF25-djuR9jZVtWPa9hH2NlW1Y9r2PzHcmKBYzEB-yL4FREL7IpaB9XFb9ZnVfZIB-SfLl2L&_nc_ohc=6rPiDA4v1toQ7kNvwHFtszL&_nc_oc=AdrSnouHahLhwIIr5V3md6c-6jq3f0fjIZFVC2Sd-3CpX9j4iReVc-jBJNv0yJNrQBs&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af4oW_6HyJPgNKmKuwWxnvELk1Y4Faa49MgUQ5onUkE8zg&oe=6A149E47"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -293,10 +334,8 @@
 
             <!-- News Card 6 -->
             <a class="news-card" href="https://www.facebook.com/share/p/1BLuvSjECY/">
-                <img
-                    src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/650143571_1476744934462271_3759957533388563366_n.jpg?stp=dst-jpg_p552x414_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH_u7vAELyE6dAaUE2A8NdAKRfqoA3Rv0cpF-qgDdG_R14JLGZSDqFGUTkwb8zapoR6RbeBZoF6XbbEwhNaHywi&_nc_ohc=qIJm6oChvhwQ7kNvwHVe0cR&_nc_oc=Adpg0w09ZxqqOMQiFUgFX1wq93qaMpxH_NWwyfcIzyaZr72DqKD31VTgGZIWpCpFS6s&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af6fU4lvRKP6-dBMOnsZQZ7MGxzZ5_C9oubgHGesOIJAPQ&oe=6A14B214"
-                    alt="Tin tức"
-                    class="news-image">
+                <img src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/650143571_1476744934462271_3759957533388563366_n.jpg?stp=dst-jpg_p552x414_tt6&_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeH_u7vAELyE6dAaUE2A8NdAKRfqoA3Rv0cpF-qgDdG_R14JLGZSDqFGUTkwb8zapoR6RbeBZoF6XbbEwhNaHywi&_nc_ohc=qIJm6oChvhwQ7kNvwHVe0cR&_nc_oc=Adpg0w09ZxqqOMQiFUgFX1wq93qaMpxH_NWwyfcIzyaZr72DqKD31VTgGZIWpCpFS6s&_nc_zt=23&_nc_ht=scontent.fsgn5-10.fna&_nc_gid=h0FQl2GV-nB4KVD32D0Rsg&_nc_ss=7c2a8&oh=00_Af6fU4lvRKP6-dBMOnsZQZ7MGxzZ5_C9oubgHGesOIJAPQ&oe=6A14B214"
+                    alt="Tin tức" class="news-image">
 
                 <div class="news-content">
                     <p class="news-text">
@@ -312,18 +351,16 @@
 <section class="consult-section">
     <div class="consult-container">
         <div class="consult-text">
-            <h3>Bạn cần tư vấn nhanh?</h3>
+            <h3><span class="pulse-indicator"></span> Bạn cần tư vấn nhanh?</h3>
             <p>Đội ngũ tư vấn luôn sẵn sàng hỗ trợ bạn chọn khóa học phù hợp, giải đáp học phí và xếp lịch kiểm tra đầu
                 vào.</p>
         </div>
         <div class="consult-actions">
-            <button class="consult-btn consult-call">Gọi ngay</button>
-            <a
-                href="https://www.facebook.com/DoPassionToeic4kynang"
-                target="_blank"
-                class="consult-btn consult-chat"
-            >
-                Chat Messenger
+            <button class="consult-btn consult-call">
+                <i class="bi bi-telephone-fill btn-icon"></i> Gọi ngay
+            </button>
+            <a href="https://www.facebook.com/DoPassionToeic4kynang" target="_blank" class="consult-btn consult-chat">
+                <i class="bi bi-messenger btn-icon"></i> Chat Messenger
             </a>
         </div>
     </div>
