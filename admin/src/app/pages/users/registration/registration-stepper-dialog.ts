@@ -935,15 +935,16 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
     if (isNewCustomer) {
       const generatedMaKh = this.generateCustomerCode();
       const newClientPayload: iClient = {
-        stt: 0,
         maKh: generatedMaKh,
         tenKhachHang: customerData.tenKhachHang,
         gioiTinh: customerData.gioiTinh,
         ngaySinh: customerData.ngaySinh,
         sdt: customerData.sdt,
         email: customerData.email,
+        matKhau: customerData.matKhau,
         ngayDangKy: new Date().toISOString().split('T')[0],
         trangThai: 'Chưa đăng ký khóa',
+        avatar: customerData.avatar || '',
         active: true
       };
 
@@ -976,7 +977,6 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
   private createRegistration(customerMongoId: string, customerMaKh: string, customerData: any, classData: any): void {
     // ========== Step 2: Tạo Registration ==========
     const registrationPayload: iRegistration = {
-      stt: 0,
       maDangKy: this.generateRegistrationCode(),
       maKh: customerMaKh,  // Dùng mã KH (KH-ddmmyy-NNN), KHÔNG dùng _id
       tenKh: customerData.tenKhachHang,
@@ -1023,7 +1023,6 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
   private createDebtRecord(customerMaKh: string, customerData: any, classData: any, registrationObj: any): void {
     // ========== Step 3: Tạo Payment (Debt/Invoice) ==========
     const debtPayload: iPayment = {
-      stt: 0,
       maDangKy: (registrationObj && registrationObj.maDangKy) || 'PENDING',
       maKh: customerMaKh,  // Dùng mã KH (KH-ddmmyy-NNN), KHÔNG dùng _id
       tenKh: customerData.tenKhachHang,

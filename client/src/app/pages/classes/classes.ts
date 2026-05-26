@@ -636,14 +636,14 @@ export class Classes implements OnInit, OnDestroy {
     const dd = String(now.getDate()).padStart(2, '0');
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const yy = String(now.getFullYear()).slice(-2);
-    
+
     const prefix = `DK-${dd}${mm}${yy}`;
-    
+
     // Tìm các mã đăng ký trong ngày hôm nay
     const todayRegs = this.allRegistrations
       .map(r => r.maDangKy)
       .filter(code => code && code.startsWith(prefix));
-      
+
     let nextSeq = 1;
     if (todayRegs.length > 0) {
       // Lấy 3 số cuối của các mã, chuyển thành số, tìm max
@@ -657,7 +657,7 @@ export class Classes implements OnInit, OnDestroy {
       }));
       nextSeq = maxSeq + 1;
     }
-    
+
     const seqStr = String(nextSeq).padStart(3, '0');
     return `${prefix}-${seqStr}`;
   }
@@ -694,7 +694,6 @@ export class Classes implements OnInit, OnDestroy {
 
     // ===== STEP 1: Tạo đăng ký (registration) =====
     const registrationPayload: iRegistration = {
-      stt: 0,
       maDangKy: maDangKy,
       maKh: maKh,               // Trống - sau có login fill vào
       tenKh: tenKh,             // Trống - sau có login fill vào
@@ -716,7 +715,6 @@ export class Classes implements OnInit, OnDestroy {
 
         // ===== STEP 2: Tạo công nợ (payment) với trạng thái 'Chờ thanh toán' =====
         const paymentPayload: iPayment = {
-          stt: 0,
           maDangKy: maDangKy,
           maKh: maKh,             // Trống - sau có login fill vào
           tenKh: tenKh,           // Trống - sau có login fill vào
