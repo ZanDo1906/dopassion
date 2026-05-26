@@ -16,4 +16,13 @@ export interface iClass {
 
     createdAt?: string;
     updatedAt?: string;
+    currentEnrollment?: number;
+}
+
+export interface ClassFilter {
+    courseCode?: string;
+    branch?: string;
+    startDate?: string;
+    endDate?: string;
+    keyword?: string;
 }

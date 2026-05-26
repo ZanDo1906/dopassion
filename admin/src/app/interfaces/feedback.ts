@@ -1,6 +1,5 @@
 export interface iFeedback {
     _id?: string;
-    stt: number;
     maDanhGia: string;
     maDangKy: string;
     tenKhachHang: string;
@@ -9,6 +8,7 @@ export interface iFeedback {
     soSao: number;
     ngayDanhGia: string;
     trangThai: string;
+    helpful?: number;
 
     createdAt?: string;
     updatedAt?: string;

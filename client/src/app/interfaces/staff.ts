@@ -1,6 +1,5 @@
 export interface iStaff {
     _id?: string;
-    stt: number;
     maNv: string;
     tenNhanVien: string;
     gioiTinh: string;

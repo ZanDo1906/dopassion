@@ -1,6 +1,5 @@
 export interface iCustomer {
     _id?: string;
-    stt: number;
     maKh: string;
     tenKhachHang: string;
     gioiTinh: string;

@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const registrationSchema = new Schema({
-    stt: { type: Number },
     maDangKy: { type: String },
     maKh: { type: String },
     tenKh: { type: String },
@@ -15,7 +14,7 @@ const registrationSchema = new Schema({
     ngayDangKy: { type: Date },
     trangThai: { type: String },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });

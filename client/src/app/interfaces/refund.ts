@@ -1,6 +1,5 @@
 export interface iRefund {
     _id?: string;
-    stt: number;
     maDangKy: string;
     maKh: string;
     tenKh: string;

@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const staffSchema = new Schema({
-    stt: { type: Number },
     maNv: { type: String },
     tenNhanVien: { type: String },
     gioiTinh: { type: String },
@@ -17,7 +16,7 @@ const staffSchema = new Schema({
     password: { type: String },
     active: { type: Boolean },
 },
-    { 
+    {
         timestamps: true,
         versionKey: false
     });
