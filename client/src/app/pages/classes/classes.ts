@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Class } from '../../services/class';
 import { iClass, ClassFilter } from '../../interfaces/class';
 import { Course } from '../../services/course';
@@ -11,6 +12,7 @@ import { DateRangePickerComponent, DateRange } from '../../components/date-range
 import { Client } from '../../services/client';
 import { RegistrationService } from '../../services/registration';
 import { Payment } from '../../services/payment';
+import { NotificationService } from '../../services/notification.service';
 import { iPayment } from '../../interfaces/payment';
 import { iRegistration } from '../../interfaces/registration';
 import { iClient } from '../../interfaces/client';
@@ -96,6 +98,7 @@ export class Classes implements OnInit, OnDestroy {
   // Cờ cho biết khách không còn lớp phù hợp (có cả LR + SW)
   noClassAvailable = false;
   noClassMessage = '';
+  isLoginPromptModalOpen = false;
 
   constructor(
     private classService: Class,
@@ -103,7 +106,10 @@ export class Classes implements OnInit, OnDestroy {
     private voucherService: VoucherService,
     private clientService: Client,
     private registrationService: RegistrationService,
-    private paymentService: Payment
+    private paymentService: Payment,
+    private route: ActivatedRoute,
+    private router: Router,
+    private notification: NotificationService
   ) { }
 
   ngOnDestroy() {
@@ -119,6 +125,19 @@ export class Classes implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('Classes component initialized');
+    // Đọc query param ?course=LR hoặc ?course=SW từ URL (khi navigate từ home-page)
+    const courseParam = this.route.snapshot.queryParamMap.get('course');
+    if (courseParam) {
+      this.currentFilters.courseCode = courseParam.toUpperCase();
+    }
+
+    const autoRegisterParam = this.route.snapshot.queryParamMap.get('autoRegister');
+    if (autoRegisterParam) {
+      setTimeout(() => {
+        this.openClassDetail(autoRegisterParam);
+      }, 500);
+    }
+
     this.loadActiveRegistrations();
     this.loadAllClients();
     this.loadCourseCatalog();
@@ -139,20 +158,28 @@ export class Classes implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Tải danh sách đăng ký đang hoạt động từ DB
-   * Sau có login: lọc theo maKh của user đã login
-   * Hiện tại: lấy tất cả đăng ký có maKh rỗng (tạo từ client chưa login)
-   */
   private loadActiveRegistrations(): void {
     this.registrationService.getRegistrations().subscribe({
       next: (regs: iRegistration[]) => {
         this.allRegistrations = regs || [];
-        // TODO: Khi có login, lọc theo maKh của user: regs.filter(r => r.maKh === currentUser.maKh)
-        // Hiện tại: lấy các đăng ký có maKh rỗng (đăng ký từ client chưa login)
-        this.activeRegistrations = this.allRegistrations.filter(
-          r => r.trangThai === 'Đang hoạt động' && (!r.maKh || r.maKh === '')
-        );
+
+        // Lấy thông tin user hiện tại
+        const currentUserStr = localStorage.getItem('currentUser');
+        let currentUser: any = null;
+        if (currentUserStr) {
+          try { currentUser = JSON.parse(currentUserStr); } catch (e) { }
+        }
+
+        // Lọc đơn giản theo user và trạng thái
+        this.activeRegistrations = this.allRegistrations.filter(r => {
+          if (r.trangThai !== 'Đang hoạt động') return false;
+          if (currentUser && currentUser.maKh) {
+            return r.maKh === currentUser.maKh;
+          } else {
+            return !r.maKh || r.maKh === '';
+          }
+        });
+
         console.log('[Registration] Active registrations loaded:', this.activeRegistrations.length);
       },
       error: () => {
@@ -304,6 +331,7 @@ export class Classes implements OnInit, OnDestroy {
   filterByCourse(event: any) {
     this.currentFilters.courseCode = event.target.value;
     console.log('Course filter changed:', this.currentFilters.courseCode);
+    this.loadClasses();
   }
 
   /**
@@ -313,6 +341,7 @@ export class Classes implements OnInit, OnDestroy {
   filterByBranch(event: any) {
     this.currentFilters.branch = event.target.value;
     console.log('Branch filter changed:', this.currentFilters.branch);
+    this.loadClasses();
   }
 
   /**
@@ -326,6 +355,7 @@ export class Classes implements OnInit, OnDestroy {
       startDate: this.currentFilters.startDate,
       endDate: this.currentFilters.endDate
     });
+    this.loadClasses();
   }
 
   /**
@@ -350,76 +380,12 @@ export class Classes implements OnInit, OnDestroy {
   }
 
   /**
-   * Lọc danh sách lớp theo đăng ký hiện có:
-   * - Nếu có cả LR + SW đang hoạt động => không hiển lớp nào
-   * - Nếu có LR => chỉ hiển SW
-   * - Nếu có SW => chỉ hiển LR
-   * - Check không trùng khungGio với đăng ký đang hoạt động
+   * Trả về danh sách lớp học (đã bỏ ràng buộc chỉ hiển thị lớp chưa đăng ký)
    */
   private filterByRegistrations(classes: iClass[]): iClass[] {
-    if (this.activeRegistrations.length === 0) {
-      this.noClassAvailable = false;
-      this.noClassMessage = '';
-      return classes;
-    }
-
-    // Kiểm tra khách hàng đã đăng ký khóa nào
-    const hasLR = this.activeRegistrations.some(r => {
-      const k = (r.khoaHoc || '').toUpperCase();
-      return k === 'LR' || k.includes('LR');
-    });
-    const hasSW = this.activeRegistrations.some(r => {
-      const k = (r.khoaHoc || '').toUpperCase();
-      return k === 'SW' || k.includes('SW');
-    });
-
-    console.log('[Filter] Active courses:', { hasLR, hasSW });
-
-    // Nếu có cả hai => không hiển lớp nào
-    if (hasLR && hasSW) {
-      this.noClassAvailable = true;
-      this.noClassMessage = 'Bạn đã đăng ký cả khóa Listening & Reading và Speaking & Writing. Không còn lớp nào phù hợp.';
-      return [];
-    }
-
     this.noClassAvailable = false;
     this.noClassMessage = '';
-
-    // Lấy danh sách khungGio đã đăng ký để check trùng
-    const registeredSchedules = this.activeRegistrations
-      .map(r => (r.maLop || '').toUpperCase())
-      .filter(Boolean);
-
-    // Lấy khungGio thực tế từ các lớp đã đăng ký
-    const registeredKhungGios: string[] = [];
-    for (const reg of this.activeRegistrations) {
-      const regMaLop = (reg.maLop || '').toUpperCase();
-      // Tìm class tương ứng để lấy khungGio
-      const matchedClass = classes.find(c => (c.maLop || '').toUpperCase() === regMaLop);
-      if (matchedClass && matchedClass.khungGio) {
-        registeredKhungGios.push(matchedClass.khungGio.trim().toLowerCase());
-      }
-    }
-
-    return classes.filter(cls => {
-      const classCourseCode = (cls.maKhoa || '').toUpperCase();
-
-      // Lọc theo khóa học: nếu có LR thì chỉ hiển SW, ngược lại
-      if (hasLR && (classCourseCode === 'LR' || classCourseCode.includes('LR'))) {
-        return false;
-      }
-      if (hasSW && (classCourseCode === 'SW' || classCourseCode.includes('SW'))) {
-        return false;
-      }
-
-      // Check trùng khungGio
-      const classSchedule = (cls.khungGio || '').trim().toLowerCase();
-      if (classSchedule && registeredKhungGios.includes(classSchedule)) {
-        return false;
-      }
-
-      return true;
-    });
+    return classes;
   }
 
   private getTuitionForClass(item: iClass): number {
@@ -495,9 +461,72 @@ export class Classes implements OnInit, OnDestroy {
       return;
     }
 
+    const currentUserStr = localStorage.getItem('currentUser');
+    let currentUser: any = null;
+    if (currentUserStr) {
+      try { currentUser = JSON.parse(currentUserStr); } catch (e) { }
+    }
+
+    if (!currentUser || !currentUser.maKh) {
+      this.isLoginPromptModalOpen = true;
+      return;
+    }
+
+    if (currentUser && currentUser.maKh) {
+      // Lấy mã khoá học của lớp muốn đăng ký
+      const rawClass = this.selectedClassDetail as any;
+      let courseToRegister = `${rawClass.khoaHoc || rawClass.maKhoa || ''}`.trim().toUpperCase();
+      if (!courseToRegister) {
+        const courseName = `${rawClass.tenKhoaHoc || rawClass.tenKhoa || ''}`.trim().toUpperCase();
+        if (courseName.includes('LISTENING')) courseToRegister = 'LR';
+        else if (courseName.includes('SPEAKING')) courseToRegister = 'SW';
+        else if (courseName.includes('COMBO')) courseToRegister = 'CB';
+      }
+
+      console.log('[RegisterNow] Checking course:', courseToRegister, 'for user:', currentUser.maKh);
+
+      // Gọi API lấy toàn bộ registration từ DB
+      this.registrationService.getRegistrations().subscribe({
+        next: (regs) => {
+          // Chỉ cần check: user có registration nào đang hoạt động cho khoá này không
+          const hasRegistered = regs.some(r => {
+            if (r.maKh !== currentUser.maKh) return false;
+            if (r.trangThai !== 'Đang hoạt động') return false;
+
+            let rCode = `${r.khoaHoc || ''}`.trim().toUpperCase();
+            if (!rCode) {
+              const rName = `${r.tenKhoa || r.tenLopHoc || ''}`.trim().toUpperCase();
+              if (rName.includes('LISTENING')) rCode = 'LR';
+              else if (rName.includes('SPEAKING')) rCode = 'SW';
+              else if (rName.includes('COMBO')) rCode = 'CB';
+            }
+
+            console.log('[RegisterNow] Found reg:', r.maDangKy, 'khoaHoc:', rCode, 'trangThai:', r.trangThai);
+            return rCode === courseToRegister;
+          });
+
+          if (hasRegistered) {
+            this.notification.show(
+              'Đăng ký không hợp lệ',
+              `Bạn đã đăng ký khóa học ${courseToRegister} rồi nên không thể đăng ký tiếp khóa học này!`,
+              'warning'
+            );
+            return;
+          }
+
+          this.openRegistrationModal(currentUser);
+        },
+        error: () => this.openRegistrationModal(currentUser)
+      });
+    } else {
+      this.openRegistrationModal(currentUser);
+    }
+  }
+
+  private openRegistrationModal(currentUser: any): void {
     this.registrationPreview = {
-      customerName: 'Nguyễn Minh Đức',
-      email: 'duc.nguyen@gmail.com'
+      customerName: currentUser ? (currentUser.tenKhachHang || currentUser.tenKh || '') : 'Khách',
+      email: currentUser ? (currentUser.email || '') : ''
     };
 
     this.refreshVoucherOptions();
@@ -511,6 +540,18 @@ export class Classes implements OnInit, OnDestroy {
     this.registrationVoucherId = '';
     if (!this.isDetailModalOpen) {
       document.body.style.overflow = '';
+    }
+  }
+
+  redirectToLogin(): void {
+    document.body.style.overflow = '';
+    this.isLoginPromptModalOpen = false;
+
+    const maLop = this.selectedClassDetail?.maLop;
+    if (maLop) {
+      this.router.navigate(['/login'], { queryParams: { returnToClass: maLop } });
+    } else {
+      this.router.navigate(['/login']);
     }
   }
 
@@ -673,9 +714,14 @@ export class Classes implements OnInit, OnDestroy {
     const maDangKy = this.generateMaDangKy();
     const classDetail = this.selectedClassDetail;
 
-    // Thông tin khách hàng - do chưa có login nên để trống
-    const maKh = '';   // TODO: Lấy từ user đã login
-    const tenKh = '';  // TODO: Lấy từ user đã login
+    const currentUserStr = localStorage.getItem('currentUser');
+    let currentUser: any = null;
+    if (currentUserStr) {
+      try { currentUser = JSON.parse(currentUserStr); } catch (e) { }
+    }
+
+    const maKh = currentUser ? (currentUser.maKh || '') : '';
+    const tenKh = currentUser ? (currentUser.tenKhachHang || currentUser.tenKh || '') : '';
 
     // Lấy thông tin khóa học
     const rawClass = classDetail as any;
@@ -752,16 +798,33 @@ export class Classes implements OnInit, OnDestroy {
             this.startPaymentTimer();
           },
           error: (err) => {
-            console.error('[Registration] Error creating payment:', err);
+            console.error(err);
+            this.notification.show('Lỗi', 'Lỗi tạo công nợ. Vui lòng thử lại.', 'error');
             this.isCheckingOut = false;
-            alert('Lỗi tạo công nợ. Vui lòng thử lại.');
           }
         });
       },
       error: (err) => {
-        console.error('[Registration] Error creating registration:', err);
+        console.error(err);
+        this.notification.show('Lỗi', 'Lỗi tạo đăng ký. Vui lòng thử lại.', 'error');
         this.isCheckingOut = false;
-        alert('Lỗi tạo đăng ký. Vui lòng thử lại.');
+      }
+    });
+  }
+
+  simulatePaymentSuccess() {
+    if (!this.createdPayment || !this.createdPayment._id) return;
+    this.paymentService.updatePayment(this.createdPayment._id, {
+      trangThaiThanhToan: 'Đã thanh toán',
+      soTienConLai: 0
+    }).subscribe({
+      next: () => {
+        if (this.createdRegistration && this.createdRegistration._id) {
+          this.registrationService.updateRegistration(this.createdRegistration._id, { trangThai: 'Đang hoạt động' }).subscribe(() => {
+            this.notification.show('Thành công', 'Test thanh toán thành công!', 'success');
+            this.closePaymentModal();
+          });
+        }
       }
     });
   }
@@ -779,13 +842,25 @@ export class Classes implements OnInit, OnDestroy {
         this.clearPaymentTimer();
         this.isPaymentExpired = true;
 
-        // Hết 10 phút → cập nhật trạng thái công nợ thành 'Chưa thanh toán'
+        // Hết 10 phút → cập nhật trạng thái công nợ thành 'Đã hủy'
         if (this.createdPayment?._id) {
           this.paymentService.updatePayment(this.createdPayment._id, {
-            trangThaiThanhToan: 'Chưa thanh toán'
+            trangThaiThanhToan: 'Đã hủy'
           }).subscribe({
-            next: () => console.log('[Payment] Status updated to "Chưa thanh toán"'),
+            next: () => console.log('[Payment] Status updated to "Đã hủy"'),
             error: (err) => console.error('[Payment] Error updating expired status:', err)
+          });
+        }
+
+        // Xóa luôn bản ghi đăng ký vì giao dịch chưa thành công
+        if (this.createdRegistration?._id) {
+          this.registrationService.deleteRegistration(this.createdRegistration._id).subscribe({
+            next: () => {
+              console.log('[Registration] Deleted expired registration');
+              this.allRegistrations = this.allRegistrations.filter(r => r._id !== this.createdRegistration?._id);
+              this.activeRegistrations = this.activeRegistrations.filter(r => r._id !== this.createdRegistration?._id);
+            },
+            error: (err) => console.error('[Registration] Error deleting registration:', err)
           });
         }
       }
@@ -815,25 +890,49 @@ export class Classes implements OnInit, OnDestroy {
   }
 
   closePaymentModal(): void {
-    this.clearPaymentTimer();
+    // Không clear timer ở đây để countdown chạy nền (nếu cần), hoặc có clear thì status vẫn giữ là Chờ thanh toán.
+    // Đóng popup thì giữ nguyên trạng thái chưa thanh toán chứ không tự động huỷ
 
-    // Nếu user đóng modal mà chưa hết hạn → cập nhật trạng thái thành 'Đã hủy'
-    if (!this.isPaymentExpired && this.createdPayment?._id) {
-      this.paymentService.updatePayment(this.createdPayment._id, {
-        trangThaiThanhToan: 'Đã hủy'
-      }).subscribe({
-        next: () => console.log('[Payment] Status updated to "Đã hủy"'),
-        error: (err) => console.error('[Payment] Error updating cancelled status:', err)
-      });
-    }
+    // this.clearPaymentTimer(); // Bỏ comment nếu muốn nó tiếp tục chạy ngầm trong component
 
     this.isPaymentModalOpen = false;
     this.mockPaymentAmount = 0;
     this.mockMaDangKy = '';
-    this.createdPayment = null;
-    this.createdRegistration = null;
+    // LƯU Ý: Không gán null cho createdPayment và createdRegistration ở đây để timer vẫn có tham chiếu
+    // khi hết hạn 10 phút.
     this.createdClient = null;
     this.closeAllModals();
+  }
+
+  cancelTransaction(): void {
+    if (confirm('Bạn có chắc chắn muốn hủy giao dịch này không?')) {
+      this.clearPaymentTimer();
+
+      // Đổi trạng thái payment
+      if (this.createdPayment?._id) {
+        this.paymentService.updatePayment(this.createdPayment._id, {
+          trangThaiThanhToan: 'Đã hủy'
+        }).subscribe();
+      }
+
+      // Xóa bản ghi registration
+      if (this.createdRegistration?._id) {
+        this.registrationService.deleteRegistration(this.createdRegistration._id).subscribe({
+          next: () => {
+            this.allRegistrations = this.allRegistrations.filter(r => r._id !== this.createdRegistration?._id);
+            this.activeRegistrations = this.activeRegistrations.filter(r => r._id !== this.createdRegistration?._id);
+          }
+        });
+      }
+
+      this.isPaymentModalOpen = false;
+      this.mockPaymentAmount = 0;
+      this.mockMaDangKy = '';
+      this.createdPayment = null;
+      this.createdRegistration = null;
+      this.createdClient = null;
+      this.closeAllModals();
+    }
   }
 
 

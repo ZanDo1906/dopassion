@@ -539,8 +539,13 @@
 }
 
 .status-postponed {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-cancelled {
+  background-color: #ffebee;
+  color: #c62828;
 }
 
 .payment-body {
@@ -629,6 +634,25 @@
   background-color: #4a5a85;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(90, 111, 159, 0.3);
+}
+
+.btn-payment-cancel {
+  padding: 10px 20px;
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.btn-payment-cancel:hover {
+  background-color: #ffcdd2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.2);
 }
 
 /* ===== SCHEDULE VIEW ===== */

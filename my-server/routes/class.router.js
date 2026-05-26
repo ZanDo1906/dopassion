@@ -24,11 +24,13 @@ router.get('/', async (req, res) => {
             query.ngayBatDau = {};
 
             if (startDate) {
-                query.ngayBatDau.$gte = new Date(startDate);
+                // Ensure startDate starts from 00:00:00 in Vietnam Time (+07:00)
+                query.ngayBatDau.$gte = new Date(`${startDate}T00:00:00+07:00`).toISOString();
             }
 
             if (endDate) {
-                query.ngayBatDau.$lte = new Date(endDate);
+                // Ensure endDate ends at 23:59:59 in Vietnam Time (+07:00)
+                query.ngayBatDau.$lte = new Date(`${endDate}T23:59:59+07:00`).toISOString();
             }
         }
 

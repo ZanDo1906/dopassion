@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Client } from '../../services/client';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -18,24 +19,26 @@ export class Login {
   confirmPassword: string = '';
   constructor(
     private router: Router,
-    private clientService: Client
+    private route: ActivatedRoute,
+    private clientService: Client,
+    private notification: NotificationService
   ) {}
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
 
   onLogin() {
 
     // CHECK RỖNG
     if (!this.loginValue || !this.password) {
-
-      alert('Vui lòng nhập đầy đủ thông tin');
-
+      this.notification.show('Lỗi đăng nhập', 'Vui lòng nhập đầy đủ thông tin.', 'warning');
       return;
     }
 
     // PASSWORD MẶC ĐỊNH
     if (this.password !== '123456789') {
-
-      alert('Sai mật khẩu');
-
+      this.notification.show('Lỗi đăng nhập', 'Sai mật khẩu.', 'error');
       return;
     }
 
@@ -54,9 +57,7 @@ export class Login {
 
         // KHÔNG TÌM THẤY
         if (!user) {
-
-          alert('Email hoặc số điện thoại không tồn tại');
-
+          this.notification.show('Lỗi đăng nhập', 'Email hoặc số điện thoại không tồn tại.', 'error');
           return;
         }
 
@@ -66,19 +67,21 @@ export class Login {
           JSON.stringify(user)
         );
 
-        alert('Đăng nhập thành công');
+        this.notification.show('Thành công', 'Đăng nhập thành công!', 'success');
 
         // NAVIGATE
-        this.router.navigate(['/account']);
+        const returnToClass = this.route.snapshot.queryParamMap.get('returnToClass');
+        if (returnToClass) {
+          this.router.navigate(['/classes'], { queryParams: { autoRegister: returnToClass } });
+        } else {
+          this.router.navigate(['/account']);
+        }
 
       },
 
       error: (err) => {
-
         console.error(err);
-
-        alert('Lỗi server');
-
+        this.notification.show('Lỗi', 'Lỗi kết nối máy chủ. Vui lòng thử lại sau.', 'error');
       }
 
     });
@@ -93,23 +96,17 @@ onRegister() {
     !this.password ||
     !this.confirmPassword
   ) {
-
-    alert('Vui lòng nhập đầy đủ thông tin');
-
+    this.notification.show('Lỗi đăng ký', 'Vui lòng nhập đầy đủ thông tin.', 'warning');
     return;
-
   }
 
   // CHECK PASSWORD
   if (this.password !== this.confirmPassword) {
-
-    alert('Mật khẩu xác nhận không khớp');
-
+    this.notification.show('Lỗi đăng ký', 'Mật khẩu xác nhận không khớp.', 'error');
     return;
-
   }
 
-  alert('Đăng ký thành công');
+  this.notification.show('Thành công', 'Đăng ký thành công! Vui lòng đăng nhập.', 'success');
 
   // RESET
   this.loginValue = '';
