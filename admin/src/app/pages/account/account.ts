@@ -15,21 +15,17 @@ constructor(
 ) {}
 
   _id: string = '';
-
   isEditMode: boolean = false;
-
   tenNhanVien: string = '';
-
   sdt: string = '';
-
   email: string = '';
-
   ngaySinh: string = '';
-
   updatedAt: string = '';
-
   avatar: string = '/avatar.jpg';
-
+  oldPassword: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+  passwordError: string = '';
   showPasswordForm: boolean = false;
 
   ngOnInit(): void {
@@ -130,5 +126,100 @@ saveProfile(): void {
 
     });
 
+}
+changePassword(): void {
+  this.passwordError = '';
+  // CHECK RỖNG
+  if (
+    !this.oldPassword ||
+    !this.newPassword ||
+    !this.confirmPassword
+  ) {
+    this.passwordError =
+      'Vui lòng nhập đầy đủ thông tin';
+
+    return;
+  }
+  // CHECK ĐỘ DÀI
+  if (this.newPassword.length < 6) {
+    this.passwordError =
+      'Mật khẩu mới phải từ 6 ký tự';
+
+    return;
+  }
+  // CHECK XÁC NHẬN
+  if (
+    this.newPassword !==
+    this.confirmPassword
+  ) {
+    this.passwordError =
+      'Xác nhận mật khẩu không khớp';
+    return;
+  }
+  // LẤY USER MỚI NHẤT TỪ DB
+  this.staffService
+    .getStaff()
+    .subscribe({
+      next: (staffList: any[]) => {
+        const currentUser =
+          staffList.find(
+            staff => staff._id === this._id
+          );
+        if (!currentUser) {
+          this.passwordError =
+            'Không tìm thấy tài khoản';
+          return;
+        }
+        // CHECK PASSWORD CŨ
+        if (
+          currentUser.password !==
+          this.oldPassword
+        ) {
+          this.passwordError =
+            'Mật khẩu hiện tại không đúng';
+          return;
+        }
+        // UPDATE PASSWORD
+        this.staffService
+          .updateStaff(
+            this._id,
+            {
+              password: this.newPassword
+            }
+          )
+          .subscribe({
+            next: (response) => {
+              // UPDATE LOCAL
+              localStorage.setItem(
+                'currentStaff',
+                JSON.stringify({
+                  ...currentUser,
+                  password:
+                    this.newPassword
+                })
+              );
+              alert(
+                'Đổi mật khẩu thành công'
+              );
+              // RESET FORM
+              this.oldPassword = '';
+              this.newPassword = '';
+              this.confirmPassword = '';
+              this.passwordError = '';
+              this.showPasswordForm = false;
+            },
+            error: (error) => {
+              console.error(error);
+              this.passwordError =
+                'Không thể cập nhật mật khẩu';
+            }
+          });
+      },
+      error: (error) => {
+        console.error(error);
+        this.passwordError =
+          'Không thể kiểm tra dữ liệu';
+      }
+    });
 }
 }

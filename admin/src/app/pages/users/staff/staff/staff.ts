@@ -8,6 +8,8 @@ import { ConfirmDialog } from '../../../../components/confirm-dialog/confirm-dia
 import { Staff as StaffService } from '../../../../services/staff';
 import { iStaff } from '../../../../interfaces/staff';
 import { RoleService } from '../../../../services/role';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 type StaffDetailFormGroup = {
   'Mã nhân viên': FormControl<string>;
@@ -19,7 +21,7 @@ type StaffDetailFormGroup = {
   'Chi nhánh': FormControl<string>;
   'Vai trò': FormControl<string>;
   'Mã vai trò': FormControl<string>;
-  'Ảnh CCCD': FormControl<string>;
+  // 'Ảnh CCCD': FormControl<string>;
   'Trạng thái': FormControl<string>;
 };
 
@@ -107,6 +109,8 @@ export class Staff implements OnInit {
   // Dialog + Reactive form
   isAddStaffDialogOpen = false;
   isViewStaffDialogOpen = false;
+  isEditMode = false;
+  editingStaffId = '';
   addStaffForm: FormGroup;
   detailForm: FormGroup<StaffDetailFormGroup>;
 
@@ -121,21 +125,40 @@ export class Staff implements OnInit {
     { value: 'CN3', label: 'Chi nhánh 3' }
   ];
 
-  roleOptions = [
-    { value: 'Quản trị hệ thống', label: 'Quản trị hệ thống', code: 'ADMIN' },
-    { value: 'Nhân viên hành chính', label: 'Nhân viên hành chính', code: 'STAFF' },
-    { value: 'Nhân viên kế toán', label: 'Nhân viên kế toán', code: 'ACCOUNTANT' },
-    { value: 'Giảng viên', label: 'Giảng viên', code: 'INSTRUCTOR' },
-    { value: 'Nhân viên IT', label: 'Nhân viên IT', code: 'IT_SUPPORT' }
-  ];
+  roleOptions: any[] = [];
+  loadRoleOptions(): void {
+    this.roleService.getRole().subscribe({
+      next: (roles: any[]) => {
+        this.roleOptions = roles
+        .filter(role => role.active === true)
+        .map(role => ({
+          value: role.tenVaiTro,
+          label: role.tenVaiTro,
+          code: role.maVaiTro
+        }));
+        // update filter config
+        const roleFilter = this.filterConfig.find(
+          item => item.key === 'vaiTro'
+        );
+        if (roleFilter) {
+          roleFilter.options = this.roleOptions.map(role => ({
+            value: role.value,
+            label: role.label
+          }));
+        }
+        // update roleCodeMap
+        this.roleCodeMap = {};
+        this.roleOptions.forEach(role => {
+          this.roleCodeMap[role.value] = role.code;
+        });
+      },
+      error: (err) => {
+        console.error('Lỗi load role:', err);
+      }
+    });
+  }
 
-  private roleCodeMap: Record<string, string> = {
-    'Quản trị hệ thống': 'ADMIN',
-    'Nhân viên hành chính': 'STAFF',
-    'Nhân viên kế toán': 'ACCOUNTANT',
-    'Giảng viên': 'INSTRUCTOR',
-    'Nhân viên IT': 'IT_SUPPORT'
-  };
+  private roleCodeMap: Record<string, string> = {};
 
   // Inject ChangeDetectorRef để force change detection
   constructor(
@@ -154,9 +177,10 @@ export class Staff implements OnInit {
       branch: ['', [Validators.required]],
       roleName: ['', [Validators.required]],
       roleId: [{ value: '', disabled: true }],
-      cccdImage: ['', [Validators.required]],
+      // cccdImage: ['', [Validators.required]],
       // TODO: Chốt thêm quy tắc Regex/Độ dài với team sau
     });
+    
 
     this.addStaffForm.get('roleName')?.valueChanges.subscribe((roleName) => {
       const mappedRoleId = this.roleCodeMap[roleName] || '';
@@ -173,10 +197,20 @@ export class Staff implements OnInit {
       'Chi nhánh': this.formBuilder.control('', { nonNullable: true }),
       'Vai trò': this.formBuilder.control('', { nonNullable: true }),
       'Mã vai trò': this.formBuilder.control('', { nonNullable: true }),
-      'Ảnh CCCD': this.formBuilder.control('', { nonNullable: true }),
+      // 'Ảnh CCCD': this.formBuilder.control('', { nonNullable: true }),
       'Trạng thái': this.formBuilder.control('', { nonNullable: true })
     });
+        this.detailForm.get('Vai trò')?.valueChanges.subscribe((roleName) => {
+    const mappedRoleId = this.roleCodeMap[roleName] || '';
+    this.detailForm.patchValue(
+      {
+        'Mã vai trò': mappedRoleId
+      },
+      { emitEvent: false }
+    );
+  });
   }
+  
 
   ngOnInit(): void {
     // Initialize pagination state before loading data
@@ -186,6 +220,7 @@ export class Staff implements OnInit {
     this.paginatedData = [];
 
     // Load data
+    this.loadRoleOptions();
     this.loadData();
   }
 
@@ -203,7 +238,7 @@ export class Staff implements OnInit {
           chiNhanh: staff.chiNhanh || '',
           vaiTro: staff.vaiTro || '',
           maVaiTro: staff.maVaiTro || this.roleCodeMap[staff.vaiTro] || '',
-          cccdImage: staff.anhCccd || '',
+          // cccdImage: staff.anhCccd || '',
           trangThai: staff.active === false ? 'Đã khóa' : 'Đang hoạt động',
           _id: staff._id || ''
         }));
@@ -277,7 +312,7 @@ export class Staff implements OnInit {
       branch: '',
       roleName: '',
       roleId: '',
-      cccdImage: ''
+      // cccdImage: ''
     });
     this.isAddStaffDialogOpen = true;
   }
@@ -287,6 +322,7 @@ export class Staff implements OnInit {
   }
 
   viewStaffDetail(item: any): void {
+    this.isEditMode = false;
     this.closeAddStaffDialog();
 
     this.detailForm.patchValue({
@@ -299,11 +335,33 @@ export class Staff implements OnInit {
       'Chi nhánh': `${item?.chiNhanh ?? ''}`,
       'Vai trò': `${item?.vaiTro ?? ''}`,
       'Mã vai trò': `${item?.maVaiTro ?? ''}`,
-      'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
+      // 'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
       'Trạng thái': `${item?.trangThai ?? ''}`
     });
 
     this.detailForm.disable();
+    this.isViewStaffDialogOpen = true;
+  }
+  editStaff(item: any): void {
+    this.isEditMode = true;
+    this.editingStaffId = item._id || '';
+    this.detailForm.enable();
+    this.detailForm.get('Mã nhân viên')?.disable();
+    this.detailForm.get('Mã vai trò')?.disable();
+    this.detailForm.get('Trạng thái')?.disable();
+    this.detailForm.patchValue({
+      'Mã nhân viên': `${item?.maNhanVien ?? ''}`,
+      'Tên nhân viên': `${item?.tenNhanVien ?? ''}`,
+      'Giới tính': `${item?.gioiTinh ?? ''}`,
+      'Ngày sinh': `${item?.ngaySinh ?? ''}`,
+      'SĐT': `${item?.soDienThoai ?? ''}`,
+      'Địa chỉ': `${item?.diaChi ?? ''}`,
+      'Chi nhánh': `${item?.chiNhanh ?? ''}`,
+      'Vai trò': `${item?.vaiTro ?? ''}`,
+      'Mã vai trò': `${item?.maVaiTro ?? ''}`,
+      // 'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
+      'Trạng thái': `${item?.trangThai ?? ''}`
+    });
     this.isViewStaffDialogOpen = true;
   }
 
@@ -320,17 +378,26 @@ export class Staff implements OnInit {
       'Chi nhánh': '',
       'Vai trò': '',
       'Mã vai trò': '',
-      'Ảnh CCCD': '',
+      // 'Ảnh CCCD': '',
       'Trạng thái': ''
     });
   }
 
-  onCccdFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    this.addStaffForm.patchValue({ cccdImage: file ? file.name : '' });
-    this.addStaffForm.get('cccdImage')?.markAsTouched();
-  }
+  // onCccdFileChange(event: Event): void {
+  //   const input =
+  //     event.target as HTMLInputElement;
+  //   const file =
+  //     input.files?.[0];
+  //   if (!file) {
+  //     return;
+  //   }
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     this.addStaffForm.patchValue({ cccdImage: reader.result as string    });
+  //     this.addStaffForm.get('cccdImage')?.markAsTouched();
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
 
   onSubmitAddStaff(): void {
     if (this.addStaffForm.invalid) {
@@ -349,7 +416,7 @@ export class Staff implements OnInit {
       chiNhanh: rawValue.branch,
       vaiTro: rawValue.roleName,
       maVaiTro: rawValue.roleId,
-      anhCccd: rawValue.cccdImage,
+      // anhCccd: rawValue.cccdImage,
       active: true
     };
 
@@ -363,23 +430,117 @@ export class Staff implements OnInit {
       chiNhanh: rawValue.branch,
       vaiTro: rawValue.roleName,
       maVaiTro: rawValue.roleId,
-      cccdImage: rawValue.cccdImage,
+      // cccdImage: rawValue.cccdImage,
       trangThai: 'Đang hoạt động'
     };
 
     this.staffService.addStaff(newStaffPayload).subscribe({
-      next: () => {
-        this.allStaffs.unshift(newStaff);
-        this.filteredData = [...this.allStaffs];
-        this.currentPage = 1;
-        this.updatePagination();
-        this.closeAddStaffDialog();
-        this.cdr.markForCheck();
-      },
+      next: (createdStaff: any) => {
+
+      const mappedStaff = {
+        maNhanVien: createdStaff.maNv || '',
+        tenNhanVien: createdStaff.tenNhanVien || '',
+        gioiTinh: createdStaff.gioiTinh || '',
+        ngaySinh: this.normalizeDateForInput(createdStaff.ngaySinh),
+        diaChi: '',
+        soDienThoai: `${createdStaff.sdt || ''}`,
+        chiNhanh: createdStaff.chiNhanh || '',
+        vaiTro: createdStaff.vaiTro || '',
+        maVaiTro: createdStaff.maVaiTro || '',
+        // cccdImage: createdStaff.anhCccd || '',
+        trangThai: createdStaff.active === false
+          ? 'Đã khóa'
+          : 'Đang hoạt động',
+        _id: createdStaff._id || ''
+      };
+      this.allStaffs.unshift(mappedStaff);
+      this.filteredData = [...this.allStaffs];
+      this.currentPage = 1;
+      this.updatePagination();
+      this.closeAddStaffDialog();
+      this.cdr.markForCheck();
+    },
       error: (error) => {
         console.error('Không thể thêm nhân viên:', error);
       }
     });
+  }
+  onSubmitEditStaff(): void {
+
+    if (!this.editingStaffId) {
+      return;
+    }
+
+    const formValue =
+      this.detailForm.getRawValue();
+
+    const updatePayload: Partial<iStaff> = {
+      tenNhanVien:
+        formValue['Tên nhân viên'],
+
+      gioiTinh:
+        formValue['Giới tính'],
+
+      ngaySinh:
+        formValue['Ngày sinh'],
+      sdt:
+        Number(formValue['SĐT']) || 0,
+
+      chiNhanh:
+        formValue['Chi nhánh'],
+
+      vaiTro:
+        formValue['Vai trò'],
+
+      maVaiTro:
+        formValue['Mã vai trò'],
+
+      // anhCccd:
+      //   formValue['Ảnh CCCD']
+
+    };
+console.log('editingStaffId:', this.editingStaffId);
+console.log('updatePayload:', updatePayload);
+    this.staffService
+      .updateStaff(
+        this.editingStaffId,
+        updatePayload
+      )
+      .subscribe({
+        next: () => {
+          const staff =
+            this.allStaffs.find(
+              s => s._id === this.editingStaffId
+            );
+          if (staff) {
+            staff.tenNhanVien =
+              formValue['Tên nhân viên'];
+            staff.gioiTinh =
+              formValue['Giới tính'];
+            staff.ngaySinh =
+              formValue['Ngày sinh'];
+            staff.soDienThoai =
+              formValue['SĐT'];
+            staff.chiNhanh =
+              formValue['Chi nhánh'];
+            staff.vaiTro =
+              formValue['Vai trò'];
+            staff.maVaiTro =
+              formValue['Mã vai trò'];
+            // staff.cccdImage =
+            //   formValue['Ảnh CCCD'];
+            this.filteredData = [
+              ...this.allStaffs
+            ];
+            this.updatePagination();
+            this.cdr.markForCheck();
+          }
+          this.closeViewStaffDialog();
+        },
+        error: (err) => {
+          console.error(err);
+        }
+      });
   }
 
   private normalizeDateForInput(value: string): string {
@@ -548,4 +709,50 @@ export class Staff implements OnInit {
   isLocked(item: any): boolean {
     return item?.trangThai === 'Đã khóa';
   }
+
+  exportExcel(): void {
+  // Xuất TOÀN BỘ dữ liệu
+  // Không dùng paginatedData
+  const exportData = this.filteredData.map((staff, index) => ({
+    'STT': index + 1,
+    'Mã nhân viên': staff.maNhanVien,
+    'Tên nhân viên': staff.tenNhanVien,
+    'Giới tính': staff.gioiTinh,
+    'Ngày sinh': staff.ngaySinh,
+    'SĐT': staff.soDienThoai,
+    'Địa chỉ': staff.diaChi,
+    'Chi nhánh': staff.chiNhanh,
+    'Vai trò': staff.vaiTro,
+    'Mã vai trò': staff.maVaiTro,
+    'Trạng thái': staff.trangThai
+  }));
+  // Tạo worksheet
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(exportData);
+  // Tạo workbook
+  const workbook: XLSX.WorkBook = {
+    Sheets: {
+      'Danh sách nhân viên': worksheet
+    },
+    SheetNames: ['Danh sách nhân viên']
+  };
+  // Xuất buffer
+  const excelBuffer: any =
+    XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array'
+    });
+  // Tạo file blob
+  const data: Blob = new Blob(
+    [excelBuffer],
+    {
+      type:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+    }
+  );
+  // Tên file
+  const fileName =
+    `DanhSachNhanVien_${new Date().getTime()}.xlsx`;
+  saveAs(data, fileName);
+}
 }

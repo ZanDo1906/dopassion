@@ -16,7 +16,8 @@ import {
 
 import { RevenueReportService } from '../../../services/sales-report';
 import { iRevenueReport } from '../../../interfaces/sales-report';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
     selector: 'app-revenue-report',
     standalone: true,
@@ -483,4 +484,85 @@ export class RevenueReport implements OnInit {
             }
         });
     }
+    exportExcel(): void {
+
+    const exportData = this.filteredData.map(
+        (
+            item: any,
+            index: number
+        ) => ({
+
+            'STT':
+                index + 1,
+
+            'Ngày':
+                item.ngay,
+
+            'Chi nhánh':
+                item.chiNhanh,
+
+            'Khóa học':
+                item.khoaHoc,
+
+            'Lớp học':
+                item.lopHoc,
+
+            'Doanh thu':
+                item.doanhThu,
+
+            'Hoàn tiền':
+                item.hoanTien,
+
+            'Tổng thu':
+                item.tongThu
+
+        })
+    );
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(exportData);
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        'BaoCaoDoanhThu'
+    );
+
+    worksheet['!cols'] = [
+
+        { wch: 8 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 18 }
+
+    ];
+
+    const excelBuffer =
+        XLSX.write(workbook, {
+
+            bookType: 'xlsx',
+
+            type: 'array'
+        });
+
+    const blob = new Blob(
+        [excelBuffer],
+        {
+            type:
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+        }
+    );
+
+    saveAs(
+        blob,
+        `BaoCaoDoanhThu_${new Date().getTime()}.xlsx`
+    );
+}
 }

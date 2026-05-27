@@ -18,6 +18,8 @@ import {
 
 import { StudentReportService } from '../../../services/student-report';
 import { iStudentReport } from '../../../interfaces/student-report';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'app-student-report',
@@ -561,4 +563,85 @@ export class StudentReport implements OnInit {
             }
         });
     }
+
+    exportExcel(): void {
+
+    const exportData = this.filteredData.map(
+        (
+            item: any,
+            index: number
+        ) => ({
+
+            'STT':
+                index + 1,
+
+            'Ngày':
+                item.ngay,
+
+            'Chi nhánh':
+                item.chiNhanh,
+
+            'Khóa học':
+                item.khoaHoc,
+
+            'Lớp học':
+                item.lopHoc,
+
+            'Số học viên đăng ký':
+                item.soHocVienDangKy,
+
+            'Số học viên hủy đăng ký':
+                item.soHocVienHuy
+
+        })
+    );
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(exportData);
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        'BaoCaoHocVien'
+    );
+
+    // AUTO WIDTH
+    const columnWidths = [
+
+        { wch: 8 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 20 },
+        { wch: 25 }
+
+    ];
+
+    worksheet['!cols'] = columnWidths;
+
+    const excelBuffer =
+        XLSX.write(workbook, {
+
+            bookType: 'xlsx',
+
+            type: 'array'
+        });
+
+    const blob = new Blob(
+        [excelBuffer],
+        {
+            type:
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+        }
+    );
+
+    saveAs(
+        blob,
+        `BaoCaoHocVien_${new Date().getTime()}.xlsx`
+    );
+}
 }

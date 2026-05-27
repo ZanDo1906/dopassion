@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FilterConfig, FilterDataPicker } from '../../../components/filter-data-picker/filter-data-picker';
 import { DebtReportService } from '../../../services/ar-report';
 import { iDebtReport } from '../../../interfaces/AR-report';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
     selector: 'app-debt-report',
     standalone: true,
@@ -308,4 +309,109 @@ export class DebtReport implements OnInit {
         this.paginatedData =
             this.filteredData.slice(start, end);
     }
+    exportExcel(): void {
+
+    const exportData = this.filteredData.map(
+        (
+            item: any,
+            index: number
+        ) => ({
+
+            'STT':
+                index + 1,
+
+            'Ngày':
+                item.ngay,
+
+            'Chi nhánh':
+                item.chiNhanh,
+
+            'Khóa học':
+                item.khoaHoc,
+
+            'Lớp học':
+                item.lopHoc,
+
+            'Số tiền học phí':
+                item.soTienHocPhi,
+
+            'Số tiền giảm giá':
+                item.soTienGiamGia,
+
+            'Số tiền đã thu':
+                item.soTienDaThu,
+
+            'Số tiền chưa thu':
+                item.soTienChuaThu,
+
+            'Số tiền hoàn':
+                item.soTienHoan
+
+        })
+    );
+
+    // ======================
+    // TẠO SHEET
+    // ======================
+
+    const worksheet =
+        XLSX.utils.json_to_sheet(exportData);
+
+    // ======================
+    // WIDTH CỘT
+    // ======================
+
+    worksheet['!cols'] = [
+
+        { wch: 8 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 }
+
+    ];
+
+    // ======================
+    // WORKBOOK
+    // ======================
+
+    const workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        'BaoCaoHocPhi'
+    );
+
+    // ======================
+    // EXPORT
+    // ======================
+
+    const excelBuffer =
+        XLSX.write(workbook, {
+
+            bookType: 'xlsx',
+
+            type: 'array'
+        });
+
+    const blob = new Blob(
+        [excelBuffer],
+        {
+            type:
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+        }
+    );
+
+    saveAs(
+        blob,
+        `BaoCaoHocPhi_${new Date().getTime()}.xlsx`
+    );
+}
 }

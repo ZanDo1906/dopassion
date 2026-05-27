@@ -8,6 +8,8 @@ import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { RegistrationService } from '../../../services/registration';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 type CustomerDetailFormGroup = {
   'Mã KH': FormControl<string>;
@@ -446,4 +448,76 @@ export class Customer implements OnInit {
   isLocked(item: any): boolean {
     return item?.trangThaiHoatDong === 'Đã khóa';
   }
+  exportExcel(): void {
+
+  // Xuất theo dữ liệu đang filter
+  // KHÔNG dùng paginatedCustomers
+  const exportData = this.filteredCustomers.map((customer, index) => {
+
+    // Lấy raw data gốc từ DB
+    const raw = customer.rawData || {};
+
+    return {
+      'STT': index + 1,
+      'Mã khách hàng': raw.maKh || '',
+      'Tên khách hàng': raw.tenKhachHang || '',
+      'Giới tính': raw.gioiTinh || '',
+      'Ngày sinh': this.normalizeDateForInput(raw.ngaySinh),
+      'SĐT': raw.sdt || '',
+      'Email': raw.email || '',
+      'Ngày đăng ký': this.normalizeDateForInput(raw.ngayDangKy),
+      'Trạng thái hoạt động':
+        raw.active === true
+          ? 'Đang hoạt động'
+          : 'Đã khóa',
+
+      'Trạng thái đăng ký':
+        customer.trangThaiDangKy || '',
+
+      'Ngày tạo': this.normalizeDateForInput(raw.createdAt),
+      'Ngày cập nhật': this.normalizeDateForInput(raw.updatedAt)
+    };
+  });
+
+  // Tạo worksheet
+  const worksheet: XLSX.WorkSheet =
+    XLSX.utils.json_to_sheet(exportData);
+
+  // Auto width columns
+  const columnWidths = Object.keys(exportData[0] || {}).map(key => ({
+    wch: Math.max(key.length + 5, 20)
+  }));
+
+  worksheet['!cols'] = columnWidths;
+
+  // Tạo workbook
+  const workbook: XLSX.WorkBook = {
+    Sheets: {
+      'Danh sách khách hàng': worksheet
+    },
+    SheetNames: ['Danh sách khách hàng']
+  };
+
+  // Xuất file
+  const excelBuffer: any =
+    XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array'
+    });
+
+  // Blob
+  const data: Blob = new Blob(
+    [excelBuffer],
+    {
+      type:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+    }
+  );
+
+  // File name
+  const fileName =
+    `DanhSachKhachHang_${new Date().getTime()}.xlsx`;
+
+  saveAs(data, fileName);
+}
 }

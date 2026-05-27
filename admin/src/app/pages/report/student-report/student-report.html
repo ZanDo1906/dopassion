@@ -23,7 +23,11 @@
     <!-- TOOLBAR -->
     <div class="toolbar">
 
-        <button class="btn btn-outline" type="button">
+        <button
+            class="btn btn-outline"
+            type="button"
+            (click)="exportExcel()"
+        >
             <i class="bi bi-box-arrow-up"></i>
             Xuất excel
         </button>
@@ -63,7 +67,7 @@
 
                 <tr
                     *ngFor="
-                        let item of paginatedData;
+                        let item of filteredData;
                         let i = index
                     "
                 >

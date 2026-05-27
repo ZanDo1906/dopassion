@@ -7,17 +7,17 @@
       <p class="profile-date"> {{ updatedAt }}</p>
     </div>
 
-    <nav class="menu">
+    <!-- <nav class="menu"> 
       <ul>
         <li>
           <span class="menu-item active">
             <i class="bi bi-person-fill"></i> Thông tin cá nhân
-          </span>
+          </span> 
         </li>
       </ul>
-    </nav>
+    </nav> -->
 
-    <button class="logout-btn"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+    <!-- <button class="logout-btn"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button> -->
   </div>
 
   <!-- Main Content -->
@@ -79,23 +79,69 @@
       </div>
 
       <div *ngIf="showPasswordForm">
-        <form class="password-form">
+        <form class="password-form" (ngSubmit)="changePassword()">
+
           <div class="form-group">
-            <label for="old-password">Mật khẩu cũ <span class="required">*</span></label>
-            <input type="password" id="old-password" placeholder="••••••••">
+            <label for="old-password">
+              Mật khẩu cũ
+              <span class="required">*</span>
+            </label>
+
+            <input
+              type="password"
+              id="old-password"
+              [(ngModel)]="oldPassword"
+              name="oldPassword"
+              placeholder="••••••••"
+            >
           </div>
 
           <div class="form-group">
-            <label for="new-password">Mật khẩu mới <span class="required">*</span></label>
-            <input type="password" id="new-password" placeholder="••••••••">
+            <label for="new-password">
+              Mật khẩu mới
+              <span class="required">*</span>
+            </label>
+
+            <input
+              type="password"
+              id="new-password"
+              [(ngModel)]="newPassword"
+              name="newPassword"
+              placeholder="••••••••"
+            >
           </div>
 
           <div class="form-group">
-            <label for="confirm-password">Xác minh mật khẩu mới <span class="required">*</span></label>
-            <input type="password" id="confirm-password" placeholder="••••••••">
+            <label for="confirm-password">
+              Xác minh mật khẩu mới
+              <span class="required">*</span>
+            </label>
+
+            <input
+              type="password"
+              id="confirm-password"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              placeholder="••••••••"
+            >
           </div>
 
-          
+          <!-- ERROR -->
+          <p
+            *ngIf="passwordError"
+            class="error-text"
+          >
+            {{ passwordError }}
+          </p>
+
+          <!-- BUTTON -->
+          <button
+            type="submit"
+            class="btn-save"
+          >
+            LƯU MẬT KHẨU
+          </button>
+
         </form>
       </div>
     </div>

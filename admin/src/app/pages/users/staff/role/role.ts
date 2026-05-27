@@ -9,7 +9,8 @@ import { RoleService } from '../../../../services/role';
 import { Staff as StaffService } from '../../../../services/staff';
 import { iRole } from '../../../../interfaces/role';
 import { iStaff } from '../../../../interfaces/staff';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 type RoleViewFormGroup = {
   maVaiTro: FormControl<string>;
   tenVaiTro: FormControl<string>;
@@ -78,7 +79,7 @@ export class Role implements OnInit {
       fields: [
         { label: 'Mã Vai trò', name: 'maVaiTro', type: 'text', required: true, placeholder: 'Nhập mã vai trò' },
         { label: 'Tên Vai trò', name: 'tenVaiTro', type: 'text', required: true, placeholder: 'Nhập tên vai trò' },
-        { label: 'Mô tả', name: 'moTa', type: 'textarea', required: true, placeholder: 'Nhập mô tả vai trò' },
+        { label: 'Mô tả', name: 'moTa', type: 'textarea', required: false, placeholder: 'Nhập mô tả vai trò' },
       ]
     }
   ];
@@ -96,9 +97,9 @@ export class Role implements OnInit {
     private cdr: ChangeDetectorRef
   ) {
     this.addRoleForm = this.formBuilder.group({
-      maVaiTro: ['', [Validators.required]], // TODO: Chốt quy tắc ràng buộc/Validators sau
-      tenVaiTro: ['', [Validators.required]], // TODO: Chốt quy tắc ràng buộc/Validators sau
-      moTa: ['', [Validators.required]], // TODO: Chốt quy tắc ràng buộc/Validators sau
+      maVaiTro: ['', [Validators.required]], 
+      tenVaiTro: ['', [Validators.required]], 
+      moTa: [''], // không bắt buộc
     });
 
     this.detailForm = this.formBuilder.group<RoleViewFormGroup>({
@@ -380,6 +381,7 @@ export class Role implements OnInit {
       console.error('[Role] No _id found for lock/unlock');
       return;
     }
+    
 
     // Gọi API cập nhật active vào database
     this.roleService.updateRole(roleId, { active: newActive }).subscribe({
@@ -401,6 +403,59 @@ export class Role implements OnInit {
       }
     });
   }
+  exportExcel(): void {
+  const exportData = this.filteredData.map(
+    (
+      item: iRole,
+      index: number
+    ) => ({
+      'STT':
+        index + 1,
+      'Mã vai trò':
+        item.maVaiTro,
+      'Tên vai trò':
+        item.tenVaiTro,
+      'Mô tả':
+        item.moTa || '',
+      'Trạng thái':
+        item.active
+          ? 'Đang hoạt động'
+          : 'Đã khóa'
+    })
+  );
+  const worksheet =
+    XLSX.utils.json_to_sheet(exportData);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    'DanhSachVaiTro'
+  );
+  worksheet['!cols'] = [
+    { wch: 8 },
+    { wch: 20 },
+    { wch: 25 },
+    { wch: 40 },
+    { wch: 20 }
+  ];
+  const excelBuffer =
+    XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array'
+    });
+  const blob = new Blob(
+    [excelBuffer],
+    {
+      type:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'
+    }
+  );
+  saveAs(
+    blob,
+    `DanhSachVaiTro_${new Date().getTime()}.xlsx`
+  );
+}
 
   /**
    * Hủy khóa/mở khóa

@@ -935,18 +935,18 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
     if (isNewCustomer) {
       const generatedMaKh = this.generateCustomerCode();
       const newClientPayload: iClient = {
-        maKh: generatedMaKh,
-        tenKhachHang: customerData.tenKhachHang,
-        gioiTinh: customerData.gioiTinh,
-        ngaySinh: customerData.ngaySinh,
-        sdt: customerData.sdt,
-        email: customerData.email,
-        matKhau: customerData.matKhau,
-        ngayDangKy: new Date().toISOString().split('T')[0],
-        trangThai: 'Chưa đăng ký khóa',
-        avatar: customerData.avatar || '',
-        active: true
-      };
+      maKh: generatedMaKh,
+      tenKhachHang: customerData.tenKhachHang,
+      gioiTinh: customerData.gioiTinh,
+      ngaySinh: customerData.ngaySinh,
+      sdt: customerData.sdt,
+      email: customerData.email,
+      matKhau: '123456',
+      avatar: null,
+      ngayDangKy: new Date().toISOString().split('T')[0],
+      trangThai: 'Chưa đăng ký khóa',
+      active: true
+  };
 
       this.clientService.addClient(newClientPayload).subscribe({
         next: (createdCustomer) => {

@@ -9,7 +9,7 @@ export interface iClient {
     matKhau: string;
     ngayDangKy: string;
     trangThai: string;
-    avatar: string;
+    avatar: string | null;
     active: boolean;
 
     createdAt?: string;

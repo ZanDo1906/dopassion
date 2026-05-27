@@ -1314,3 +1314,8 @@
   font-size: 18px;
   transition: 0.3s;
 }
+.error-text {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 8px;
+}

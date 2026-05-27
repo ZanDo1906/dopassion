@@ -12,7 +12,7 @@
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="exportExcel()">
             <i class="bi bi-upload"></i>
             Xuất excel
         </button>
@@ -52,6 +52,14 @@
                         <div class="action-group">
                             <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewStaffDetail(staff)">
                                 <i class="bi bi-eye"></i>
+                            </button>
+                            <button
+                                class="icon-btn"
+                                type="button"
+                                title="Chỉnh sửa"
+                                (click)="editStaff(staff)"
+                            >
+                                <i class="bi bi-pencil-square"></i>
                             </button>
                             <button 
                                 class="icon-btn" 
@@ -154,7 +162,7 @@
             </div>
         </div>
 
-        <div class="form-group cccd-upload-group">
+        <!-- <div class="form-group cccd-upload-group">
             <label><span class="required-star">*</span>Ảnh CCCD</label>
             <label class="upload-box" for="cccd-upload-input">
                 <span class="upload-box__text">+ Upload</span>
@@ -164,7 +172,7 @@
             <div class="error-message" *ngIf="addStaffForm.get('cccdImage')?.invalid && addStaffForm.get('cccdImage')?.touched">
                 Trường này là bắt buộc
             </div>
-        </div>
+        </div> -->
     </form>
 </ng-template>
 
@@ -183,14 +191,18 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label>Tên nhân viên</label>
-                    <input class="form-control input-readonly" type="text" formControlName="Tên nhân viên" readonly />
+                    <input
+                        class="form-control"
+                        [ngClass]="{ 'input-readonly': !isEditMode }" type="text" formControlName="Tên nhân viên" [readonly]="!isEditMode" />
                 </div>
             </div>
 
             <div class="col-md-4">
                 <div class="form-group">
                     <label>Giới tính</label>
-                    <select class="form-control input-readonly hide-arrow" formControlName="Giới tính">
+                    <select
+    class="form-control hide-arrow"
+    [ngClass]="{ 'input-readonly': !isEditMode }" formControlName="Giới tính">
                         <option value="">-- Chưa cập nhật --</option>
                         <option value="Nam">Nam</option>
                         <option value="Nữ">Nữ</option>
@@ -202,14 +214,18 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label>Ngày sinh</label>
-                    <input class="form-control input-readonly" type="date" formControlName="Ngày sinh" readonly />
+                    <input
+    class="form-control"
+    [ngClass]="{ 'input-readonly': !isEditMode }" type="date" formControlName="Ngày sinh" [readonly]="!isEditMode" />
                 </div>
             </div>
 
             <div class="col-md-4">
                 <div class="form-group">
                     <label>SĐT</label>
-                    <input class="form-control input-readonly" type="text" formControlName="SĐT" readonly />
+                    <input
+    class="form-control"
+    [ngClass]="{ 'input-readonly': !isEditMode }" type="text" formControlName="SĐT" [readonly]="!isEditMode" />
                 </div>
             </div>
 
@@ -221,9 +237,18 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label>Chi nhánh</label>
-                    <select class="form-control input-readonly hide-arrow" formControlName="Chi nhánh">
+                    <select
+                        class="form-control"
+                        [ngClass]="{ 'input-readonly': !isEditMode }"
+                        formControlName="Chi nhánh"
+                        [disabled]="!isEditMode">
+
                         <option value="">-- Chưa cập nhật --</option>
-                        <option *ngFor="let item of branchOptions" [value]="item.value">{{ item.label }}</option>
+
+                        <option *ngFor="let item of branchOptions" [value]="item.value">
+                            {{ item.label }}
+                        </option>
+
                     </select>
                 </div>
             </div>
@@ -231,9 +256,17 @@
             <div class="col-md-4">
                 <div class="form-group">
                     <label>Vai trò</label>
-                    <select class="form-control input-readonly hide-arrow" formControlName="Vai trò">
+                    <select
+                        class="form-control"
+                        [ngClass]="{ 'input-readonly': !isEditMode }"
+                        formControlName="Vai trò"
+                        [disabled]="!isEditMode">
+
                         <option value="">-- Chưa cập nhật --</option>
-                        <option *ngFor="let item of roleOptions" [value]="item.value">{{ item.label }}</option>
+
+                        <option *ngFor="let item of roleOptions" [value]="item.value">
+                            {{ item.label }}
+                        </option>
                     </select>
                 </div>
             </div>
@@ -261,24 +294,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="form-group cccd-upload-group">
-                    <label>Ảnh CCCD</label>
-                    <div class="upload-box staff-view-image-box" style="overflow: hidden; cursor: default;">
-                        <ng-container *ngIf="detailForm.get('Ảnh CCCD')?.value; else noCccdImage">
-                            <img
-                                [src]="detailForm.get('Ảnh CCCD')?.value"
-                                alt="Ảnh CCCD"
-                                style="width: 100%; height: 100%; object-fit: cover;"
-                            />
-                        </ng-container>
-                        <ng-template #noCccdImage>
-                            <span class="upload-box__text">Chưa có ảnh</span>
-                        </ng-template>
-                    </div>
-                </div>
-            </div>
         </div>
     </form>
 </ng-template>
@@ -298,15 +313,16 @@
 
 <app-form-dialog
     *ngIf="isViewStaffDialogOpen"
-    title="Chi tiết nhân viên"
+    [title]="isEditMode ? 'Chỉnh sửa nhân viên' : 'Chi tiết nhân viên'"
     [bodyTemplate]="viewStaffTemplate"
     [formGroup]="detailForm"
     [cancelText]="viewDialogConfig.cancelText"
-    submitText="Lưu"
+    [submitText]="isEditMode ? 'Lưu' : 'Đóng'"
     cancelIcon="bi bi-x-circle"
     submitIcon="bi bi-save"
-    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
-    (close)="closeViewStaffDialog()">
+    [class.view-only-dialog]="!isEditMode"
+    (close)="closeViewStaffDialog()"
+    (submit)="isEditMode ? onSubmitEditStaff() : null">
 </app-form-dialog>
 
 <app-confirm-dialog

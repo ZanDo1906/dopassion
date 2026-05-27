@@ -9,6 +9,8 @@ const customerSchema = new Schema({
     ngaySinh: { type: Date },
     sdt: { type: Number },
     email: { type: String },
+    matKhau: { type: String, default: '123456' },
+    avatar: { type: String, default: null },
     ngayDangKy: { type: Date },
     trangThai: { type: String },
     active: { type: Boolean },

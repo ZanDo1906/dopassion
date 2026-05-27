@@ -79,13 +79,13 @@ export class Login {
       }
 
       // CHECK PASSWORD
-      if (passwordTrim !== '123456') {
-
-        this.errorMessage =
-          'Sai mật khẩu';
-
-        return;
-      }
+        const dbPassword =
+          String(user.password || '').trim();
+        if (passwordTrim !== dbPassword) {
+          this.errorMessage =
+            'Sai mật khẩu';
+          return;
+        }
 
       // LƯU USER
       localStorage.setItem(
