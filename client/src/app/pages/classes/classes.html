@@ -13,41 +13,37 @@
     </div>
 
     <div class="filter-section">
-    <div class="filter-group">
-      <label class="filter-label">Khóa học</label>
-      <select title="Khóa" class="filter-select filter-select-main" (change)="filterByCourse($event)">
-        <option value="">Tất cả khóa học</option>
-        <option value="LR">TOEIC - LR</option>
-        <option value="SW">TOEIC - SW</option>
-      </select>
-    </div>
+      <div class="filter-group">
+        <label class="filter-label">Khóa học</label>
+        <select title="Khóa" class="filter-select filter-select-main" (change)="filterByCourse($event)">
+          <option value="">Tất cả khóa học</option>
+          <option value="LR">TOEIC - LR</option>
+          <option value="SW">TOEIC - SW</option>
+        </select>
+      </div>
 
-    <div class="filter-group">
-      <app-date-range-picker
-        [label]="'KHOẢNG THỜI GIAN KHAI GIẢNG'"
-        [fromDate]="currentFilters.startDate || ''"
-        [toDate]="currentFilters.endDate || ''"
-        [minDate]="'2026-01-01'"
-        (dateRangeChange)="onDateRangeChange($event)"
-      ></app-date-range-picker>
-    </div>
+      <div class="filter-group">
+        <app-date-range-picker [label]="'KHOẢNG THỜI GIAN KHAI GIẢNG'" [fromDate]="currentFilters.startDate || ''"
+          [toDate]="currentFilters.endDate || ''" [minDate]="'2026-01-01'"
+          (dateRangeChange)="onDateRangeChange($event)"></app-date-range-picker>
+      </div>
 
-    <div class="filter-group">
-      <label class="filter-label">Chi nhánh</label>
-      <select title="Chi" class="filter-select filter-select-main" (change)="filterByBranch($event)">
-        <option value="">Tất cả chi nhánh</option>
-        <option *ngFor="let branch of branchOptions" [value]="branch">{{ branch }}</option>
-      </select>
-    </div>
+      <div class="filter-group">
+        <label class="filter-label">Chi nhánh</label>
+        <select title="Chi" class="filter-select filter-select-main" (change)="filterByBranch($event)">
+          <option value="">Tất cả chi nhánh</option>
+          <option *ngFor="let branch of branchOptions" [value]="branch">{{ branch }}</option>
+        </select>
+      </div>
 
-    <div class="filter-group search-group d-flex flex-row gap-2 align-items-end">
-      <button class="search-btn" (click)="onSearch()" title="Tìm kiếm">
-        <i class="bi bi-search me-1"></i>
-      </button>
-      <button class="reset-btn" (click)="resetFilters()" title="Xóa bộ lọc">
-        <i class="bi bi-arrow-counterclockwise"></i>
-      </button>
-    </div>
+      <div class="filter-group search-group d-flex flex-row gap-2 align-items-end">
+        <button class="search-btn" (click)="onSearch()" title="Tìm kiếm">
+          <i class="bi bi-search me-1"></i>
+        </button>
+        <button class="reset-btn" (click)="resetFilters()" title="Xóa bộ lọc">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -60,7 +56,9 @@
   <div class="courses-grid" *ngIf="courses && courses.length > 0">
     <div *ngFor="let course of courses; trackBy: trackByCourseId" class="course-card">
       <div class="course-image">
-        <img src="/sample.png" alt="{{ course.title }}" />
+        <img
+          [src]="course.raw.maKhoa === 'SW' ? '/card-SW.jpeg' : (course.raw.maKhoa === 'LR' ? '/card-LR.jpeg' : (course.raw.maKhoa === 'FO' ? '/card-Foudation.jpeg' : '/sample.png'))"
+          alt="{{ course.title }}" />
       </div>
       <div class="course-content">
         <h3 class="course-title">{{ course.title }}</h3>
@@ -96,10 +94,11 @@
       <i class="bi bi-exclamation-circle empty-state-icon text-warning" *ngIf="noClassAvailable"></i>
       <h5 class="empty-state-title" *ngIf="!noClassAvailable">Không tìm thấy khóa học nào</h5>
       <h5 class="empty-state-title" *ngIf="noClassAvailable">Không còn khóa học phù hợp</h5>
-      
-      <p class="empty-state-text text-muted" *ngIf="!noClassAvailable">Vui lòng điều chỉnh lại điều kiện lọc hoặc xóa bộ lọc.</p>
+
+      <p class="empty-state-text text-muted" *ngIf="!noClassAvailable">Vui lòng điều chỉnh lại điều kiện lọc hoặc xóa bộ
+        lọc.</p>
       <p class="empty-state-text text-danger fw-medium" *ngIf="noClassAvailable">{{ noClassMessage }}</p>
-      
+
       <button class="btn btn-outline-primary mt-3" (click)="resetFilters()" *ngIf="!noClassAvailable">
         <i class="bi bi-arrow-counterclockwise me-2"></i>Xóa bộ lọc
       </button>
@@ -121,11 +120,9 @@
 
       <div class="class-detail-body" *ngIf="!isDetailLoading && !detailError && selectedClassDetail">
         <div class="class-detail-image-wrap">
-          <img
-            class="class-detail-image"
-            src="/sample.png"
-            alt="Hình ảnh lớp học"
-          />
+          <img class="class-detail-image"
+            [src]="selectedClassDetail.maKhoa === 'SW' ? '/card-SW.jpeg' : (selectedClassDetail.maKhoa === 'LR' ? '/card-LR.jpeg' : (selectedClassDetail.maKhoa === 'FO' ? '/card-Foudation.jpeg' : '/sample.png'))"
+            alt="Hình ảnh lớp học" />
           <div class="class-detail-image-badge">
             <i class="bi bi-people-fill me-1"></i>
             Tối đa {{ selectedClassDetail.maxEnrollment }} học viên
@@ -141,7 +138,8 @@
           <div class="detail-stat">
             <span class="detail-stat-label">Sĩ số hiện tại</span>
             <strong>{{ selectedClassDetail.currentEnrollment }}/{{ selectedClassDetail.maxEnrollment }}</strong>
-            <small>Hiện có {{ selectedClassDetail.currentEnrollment }} học viên trên {{ selectedClassDetail.maxEnrollment }}</small>
+            <small>Hiện có {{ selectedClassDetail.currentEnrollment }} học viên trên {{
+              selectedClassDetail.maxEnrollment }}</small>
           </div>
         </div>
 
@@ -162,10 +160,10 @@
             <span class="detail-label">Ngày kết thúc</span>
             <span class="detail-value">{{ formatDate(selectedClassDetail.ngayKetThuc) }}</span>
           </div>
-            <div class="detail-item">
-              <span class="detail-label">Chi nhánh</span>
-              <span class="detail-value">{{ selectedClassDetail.chiNhanh }}</span>
-            </div>
+          <div class="detail-item">
+            <span class="detail-label">Chi nhánh</span>
+            <span class="detail-value">{{ selectedClassDetail.chiNhanh }}</span>
+          </div>
           <div class="detail-item">
             <span class="detail-label">Học phí</span>
             <span class="detail-value meta-value-highlight">{{ formatCurrency(selectedClassDetail.hocPhi) }} VND</span>
@@ -291,7 +289,7 @@
   <!-- Payment Modal Overlay -->
   <div class="payment-overlay" *ngIf="isPaymentModalOpen">
     <div class="payment-modal" (click)="$event.stopPropagation()">
-      
+
       <!-- Close Button -->
       <button type="button" class="payment-close" (click)="closePaymentModal()" aria-label="Đóng">
         <i class="bi bi-x-lg"></i>
@@ -316,7 +314,7 @@
       <!-- Modal Body -->
       <div class="payment-body" *ngIf="!isPaymentExpired">
         <div class="payment-grid-container">
-          
+
           <!-- Left side: QR code -->
           <div class="payment-qr-col">
             <div class="qr-wrapper">
@@ -332,16 +330,17 @@
           <!-- Right side: Bank Details -->
           <div class="payment-details-col">
             <h4 class="payment-section-title">Thông tin chuyển khoản</h4>
-            
+
             <div class="detail-bank-card">
-              
+
               <!-- Bank Name -->
               <div class="bank-row">
                 <div class="bank-row-label">Ngân hàng</div>
                 <div class="bank-row-value-wrap">
                   <span class="bank-row-value">MB Bank (Ngân hàng Quân Đội)</span>
                   <button type="button" class="copy-btn" (click)="copyToClipboard('MB Bank', 'bank')" title="Sao chép">
-                    <i class="bi" [class.bi-clipboard]="copiedField !== 'bank'" [class.bi-check-lg]="copiedField === 'bank'"></i>
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'bank'"
+                      [class.bi-check-lg]="copiedField === 'bank'"></i>
                   </button>
                 </div>
               </div>
@@ -351,8 +350,10 @@
                 <div class="bank-row-label">Số tài khoản</div>
                 <div class="bank-row-value-wrap">
                   <span class="bank-row-value highlighted">19062026</span>
-                  <button type="button" class="copy-btn" (click)="copyToClipboard('19062026', 'account')" title="Sao chép">
-                    <i class="bi" [class.bi-clipboard]="copiedField !== 'account'" [class.bi-check-lg]="copiedField === 'account'"></i>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('19062026', 'account')"
+                    title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'account'"
+                      [class.bi-check-lg]="copiedField === 'account'"></i>
                   </button>
                 </div>
               </div>
@@ -362,8 +363,10 @@
                 <div class="bank-row-label">Chủ tài khoản</div>
                 <div class="bank-row-value-wrap">
                   <span class="bank-row-value">CONG TY CO PHAN DOPASSION</span>
-                  <button type="button" class="copy-btn" (click)="copyToClipboard('CONG TY CO PHAN DOPASSION', 'name')" title="Sao chép">
-                    <i class="bi" [class.bi-clipboard]="copiedField !== 'name'" [class.bi-check-lg]="copiedField === 'name'"></i>
+                  <button type="button" class="copy-btn" (click)="copyToClipboard('CONG TY CO PHAN DOPASSION', 'name')"
+                    title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'name'"
+                      [class.bi-check-lg]="copiedField === 'name'"></i>
                   </button>
                 </div>
               </div>
@@ -373,8 +376,10 @@
                 <div class="bank-row-label">Số tiền cần thanh toán</div>
                 <div class="bank-row-value-wrap">
                   <span class="bank-row-value price-highlight">{{ formatCurrency(mockPaymentAmount) }} VND</span>
-                  <button type="button" class="copy-btn" (click)="copyToClipboard(mockPaymentAmount.toString(), 'amount')" title="Sao chép">
-                    <i class="bi" [class.bi-clipboard]="copiedField !== 'amount'" [class.bi-check-lg]="copiedField === 'amount'"></i>
+                  <button type="button" class="copy-btn"
+                    (click)="copyToClipboard(mockPaymentAmount.toString(), 'amount')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'amount'"
+                      [class.bi-check-lg]="copiedField === 'amount'"></i>
                   </button>
                 </div>
               </div>
@@ -384,8 +389,10 @@
                 <div class="bank-row-label">Nội dung chuyển khoản</div>
                 <div class="bank-row-value-wrap">
                   <span class="bank-row-value highlighted-desc">DOPASSION {{ mockMaDangKy }}</span>
-                  <button type="button" class="copy-btn" (click)="copyToClipboard('DOPASSION ' + mockMaDangKy, 'description')" title="Sao chép">
-                    <i class="bi" [class.bi-clipboard]="copiedField !== 'description'" [class.bi-check-lg]="copiedField === 'description'"></i>
+                  <button type="button" class="copy-btn"
+                    (click)="copyToClipboard('DOPASSION ' + mockMaDangKy, 'description')" title="Sao chép">
+                    <i class="bi" [class.bi-clipboard]="copiedField !== 'description'"
+                      [class.bi-check-lg]="copiedField === 'description'"></i>
                   </button>
                 </div>
               </div>
@@ -394,11 +401,13 @@
 
             <div class="payment-alert-box">
               <i class="bi bi-info-circle-fill text-warning me-2"></i>
-              <span>Vui lòng chuyển khoản chính xác số tiền và nội dung chuyển khoản để hệ thống tự động ghi nhận học phí.</span>
+              <span>Vui lòng chuyển khoản chính xác số tiền và nội dung chuyển khoản để hệ thống tự động ghi nhận học
+                phí.</span>
             </div>
-            
+
             <div style="text-align: center; margin-top: 15px;">
-              <button (click)="simulatePaymentSuccess()" style="background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              <button (click)="simulatePaymentSuccess()"
+                style="background-color: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
                 Test thanh toán thành công
               </button>
             </div>
@@ -414,7 +423,8 @@
           <i class="bi bi-clock-history text-danger"></i>
         </div>
         <h4>Giao dịch đã hết hạn!</h4>
-        <p>Thời gian đếm ngược 10 phút đã kết thúc. Trạng thái công nợ trong đăng ký lớp học đã chuyển thành <strong>Chưa thanh toán</strong>.</p>
+        <p>Thời gian đếm ngược 10 phút đã kết thúc. Trạng thái công nợ trong đăng ký lớp học đã chuyển thành
+          <strong>Chưa thanh toán</strong>.</p>
         <p class="expired-help-text">Vui lòng liên hệ bộ phận hỗ trợ học viên hoặc thực hiện đăng ký lại.</p>
         <button type="button" class="btn btn-expired-action" (click)="closePaymentModal()">
           Quay lại danh sách
@@ -436,13 +446,16 @@
     <div class="register-modal" style="max-width: 400px; text-align: center; padding: 40px 20px;">
       <i class="bi bi-person-lock" style="font-size: 3rem; color: #EC7E16; margin-bottom: 20px; display: block;"></i>
       <h3 style="color: #4C70AD; margin-bottom: 15px;">Yêu cầu đăng nhập</h3>
-      <p style="color: #666; margin-bottom: 30px; font-size: 1.05rem;">Bạn cần đăng nhập để đăng ký lớp học. Bạn có muốn chuyển đến trang đăng nhập không?</p>
-      
+      <p style="color: #666; margin-bottom: 30px; font-size: 1.05rem;">Bạn cần đăng nhập để đăng ký lớp học. Bạn có muốn
+        chuyển đến trang đăng nhập không?</p>
+
       <div style="display: flex; gap: 15px; justify-content: center;">
-        <button type="button" class="btn btn-outline-secondary" (click)="isLoginPromptModalOpen = false" style="padding: 10px 30px; border-radius: 8px; font-weight: 500;">
+        <button type="button" class="btn btn-outline-secondary" (click)="isLoginPromptModalOpen = false"
+          style="padding: 10px 30px; border-radius: 8px; font-weight: 500;">
           Không
         </button>
-        <button type="button" class="btn btn-primary" (click)="redirectToLogin()" style="background-color: #4C70AD; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 500;">
+        <button type="button" class="btn btn-primary" (click)="redirectToLogin()"
+          style="background-color: #4C70AD; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 500;">
           Có
         </button>
       </div>

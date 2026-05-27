@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environments';
 
 @Component({
   selector: 'app-header',
@@ -19,28 +20,33 @@ export class Header implements AfterViewInit {
   private lastWidth = -1;
 
   constructor(private router: Router) {
-    const userData = localStorage.getItem('currentUser');
-
-if (userData) {
-
-  const user = JSON.parse(userData);
-  this.gender = user.gioiTinh || '';
-
-  // có avatar từ DB
-  if (user.avatar && user.avatar.trim() !== '') {
-
-    this.avatarUrl = user.avatar;
-
-  }
-
-
-}
+    this.loadUserData();
+    
     // Recalculate on route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
+      this.loadUserData();
       setTimeout(() => this.updateIndicator(), 100);
     });
+  }
+
+  loadUserData() {
+    const userData = localStorage.getItem('currentUser');
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.gender = user.gioiTinh || '';
+
+      // có avatar từ DB
+      if (user.avatar && user.avatar.trim() !== '') {
+        this.avatarUrl = user.avatar.startsWith('http') ? user.avatar : environment.apiUrl + user.avatar;
+      } else {
+        this.avatarUrl = '';
+      }
+    } else {
+      this.avatarUrl = '';
+      this.gender = '';
+    }
   }
 
   ngAfterViewInit() {

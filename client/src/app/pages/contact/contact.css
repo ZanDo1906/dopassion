@@ -39,69 +39,111 @@
 
 /* Info Cards Section */
 .info-cards-section {
-  padding: 60px 0;
+  padding: 70px 0;
   background-color: #ffffff;
 }
 
 .info-card {
+  position: relative;
   background: #f8fafc;
-  padding: 30px;
-  border-radius: 12px;
+  padding: 40px 24px;
+  border-radius: 16px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   border: 1px solid #e2e8f0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Subtle top border color on card */
+.info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  transition: background 0.3s ease;
 }
 
 .info-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e0;
+  background: #ffffff;
+  border-color: rgba(76, 112, 173, 0.2);
+  box-shadow: 0 20px 40px rgba(76, 112, 173, 0.08);
+}
+
+/* Specific colored highlights on hover */
+.info-card:has(.bg-primary-light):hover::before {
+  background: linear-gradient(90deg, #EC7E16, #eebc8e);
+}
+.info-card:has(.bg-warning-light):hover::before {
+  background: linear-gradient(90deg, #4C70AD, #8da6d0);
+}
+.info-card:has(.bg-info-light):hover::before {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+.info-card:has(.bg-success-light):hover::before {
+  background: linear-gradient(90deg, #10b981, #34d399);
 }
 
 .card-icon {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  font-size: 1.5rem;
-  color: #ffffff;
+  margin: 0 auto 24px;
+  font-size: 1.6rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.info-card:hover .card-icon {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Custom premium colored glows for icons */
 .bg-primary-light {
-  background: linear-gradient(135deg, #EC7E16 0%, #eebc8e 100%);
-  
+  background: rgba(236, 126, 22, 0.1) !important;
+  color: #EC7E16 !important;
 }
 
 .bg-warning-light {
-  /* background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); */
-  background: linear-gradient(135deg, #EC7E16 0%, #eebc8e 100%);
+  background: rgba(76, 112, 173, 0.1) !important;
+  color: #4C70AD !important;
 }
 
 .bg-info-light {
-  /* background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); */
-  background: linear-gradient(135deg, #EC7E16 0%, #eebc8e 100%);
-
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
 }
 
 .bg-success-light {
-  /* background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); */
-  background: linear-gradient(135deg, #EC7E16 0%, #eebc8e 100%);
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #10b981 !important;
 }
 
 .card-title {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #4C70AD;
-  margin-bottom: 10px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
 }
 
 .card-content {
-  color: #4a5568;
+  color: #64748b;
   margin: 0;
   font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+  word-break: break-word;
 }
 
 /* Main Content Section */
@@ -148,6 +190,12 @@
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
+}
+
+.form-control[readonly],
+.form-control:disabled {
+  cursor: not-allowed !important;
+  background-color: #e9ecef !important;
 }
 
 .form-control:focus {

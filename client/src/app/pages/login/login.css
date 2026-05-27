@@ -165,6 +165,11 @@
   padding: 40px;
 
   box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  transition: max-width 0.3s ease;
+}
+
+.login-card.register-mode {
+  max-width: 540px;
 }
 
 .login-card h3{
@@ -210,7 +215,8 @@
   color: #a0aec0;
 }
 
-.input-group-custom input{
+.input-group-custom input,
+.input-group-custom select{
   width: 100%;
   height: 50px;
   border: 1px solid #e2e8f0;
@@ -219,9 +225,11 @@
   padding-right: 45px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
+  background-color: #ffffff;
 }
 
-.input-group-custom input:focus{
+.input-group-custom input:focus,
+.input-group-custom select:focus{
   outline: none;
 
   border-color: #4C70AD;

@@ -6,6 +6,9 @@ import { RegistrationService } from '../../services/registration';
 import { Class } from '../../services/class';
 import { Payment } from '../../services/payment';
 import { NotificationService } from '../../services/notification.service';
+import { Customer as CustomerService } from '../../services/customer';
+import { environment } from '../../../environments/environments';
+
 interface CalendarDay {
   date: number;
   isCurrentMonth: boolean;
@@ -64,15 +67,16 @@ interface PaymentDetail {
   styleUrl: './account.css',
 })
 export class Account implements OnInit {
-constructor(
-  private router: Router,
-  private registrationService: RegistrationService,
-  private classService: Class,
-  private paymentService: Payment,
-  private notification: NotificationService
-) {
-  this.currentDate = new Date();
-}
+  constructor(
+    private router: Router,
+    private registrationService: RegistrationService,
+    private classService: Class,
+    private paymentService: Payment,
+    private notification: NotificationService,
+    private customerService: CustomerService
+  ) {
+    this.currentDate = new Date();
+  }
   currentView: 'info' | 'classes' | 'payment' | 'schedule' = 'info';
   fullName: string = '';
   phoneNumber: string = '';
@@ -80,17 +84,18 @@ constructor(
   customerCode: string = '';
   dateOfBirth: string = '';
   joinDate: string = '';
+  customerId: string = '';
   showPasswordForm: boolean = false;
   showLogoutPopup: boolean = false;
   currentDate: Date;
 
   // PROFILE EDIT
-isEditingProfile: boolean = false;
-isChangingPassword: boolean = false;
+  isEditingProfile: boolean = false;
+  isChangingPassword: boolean = false;
 
-avatarPreview: string | null = null;
-isUploading: boolean = false;
-selectedFile: File | null = null;
+  avatarPreview: string | null = null;
+  isUploading: boolean = false;
+  selectedFile: File | null = null;
 
   // BIẾN QUẢN LÝ BỘ LỌC
   classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
@@ -101,11 +106,11 @@ selectedFile: File | null = null;
   selectedMonth: number = 12;
   calendarDays: CalendarDay[] = [];
   calendarTitle: string = '';
-  
+
   // Popup properties
   showHolidayPopup: boolean = false;
   selectedHoliday: Holiday | null = null;
-  
+
   // Class Detail Popup properties
   showClassPopup: boolean = false;
   selectedClass: ClassDetail | null = null;
@@ -130,281 +135,283 @@ selectedFile: File | null = null;
     return this.payments.filter(p => p.status === this.paymentFilter);
   }
 
-  
+
   // Mock class data
   classes: ClassDetail[] = [];
   switchView(view: 'info' | 'classes' | 'payment' | 'schedule') {
 
-  this.currentView = view;
+    this.currentView = view;
 
-  // LOAD LẠI DANH SÁCH LỚP
-  if (view === 'classes') {
+    // LOAD LẠI DANH SÁCH LỚP
+    if (view === 'classes') {
 
-    this.loadRegisteredClasses(this.customerCode);
-
-  }
-
-}
-
-  ngOnInit() {
-
-  // LẤY USER LOGIN
-  const userData = localStorage.getItem('currentUser');
-
-  if (!userData) {
-
-    this.router.navigate(['/login']);
-
-    return;
-  }
-
-  const user = JSON.parse(userData);
-
-  console.log('USER LOGIN:', user);
-
-
-  // FILL PROFILE
-this.fullName =
-  user.tenKhachHang ||
-  user.fullName ||
-  '';
-
-this.phoneNumber =
-  user.soDienThoai ||
-  user.sdt ||
-  user.phone ||
-  '';
-
-this.email = user.email || '';
-
-this.customerCode =
-  user.maKh ||
-  user.maKhachHang ||
-  '';
-  console.log('CUSTOMER CODE:', this.customerCode);
-// LOAD LỚP HỌC ĐÃ ĐĂNG KÝ
-this.loadRegisteredClasses(this.customerCode);
-
-this.loadPayments(this.customerCode);
-
-// FIX NGÀY SINH
-if (user.ngaySinh) {
-
-  const ngaySinh = new Date(user.ngaySinh);
-
-  this.dateOfBirth =
-    `${ngaySinh.getUTCFullYear()}-` +
-    `${String(ngaySinh.getUTCMonth() + 1).padStart(2, '0')}-` +
-    `${String(ngaySinh.getUTCDate()).padStart(2, '0')}`;
-
-}
-
-
-// FIX NGÀY THAM GIA
-if (user.ngayDangKy) {
-
-  const ngayDangKy = new Date(user.ngayDangKy);
-
-  const month = ngayDangKy.getUTCMonth() + 1;
-  const year = ngayDangKy.getUTCFullYear();
-
-  this.joinDate = `tháng ${month} năm ${year}`;
-}
-  }
-  loadRegisteredClasses(maKh: string) {
-
-  this.registrationService.getRegistrations().subscribe({
-
-    next: (registrations) => {
-
-      console.log('ALL REGISTRATIONS:', registrations);
-
-      // Lọc đăng ký theo khách hàng và trạng thái đang hoạt động, đảo ngược mảng để cái mới nhất lên trên
-      const myRegistrations = registrations.filter(
-        r => r.maKh === maKh && r.trangThai === 'Đang hoạt động'
-      ).reverse();
-
-      console.log('MY REGISTRATIONS:', myRegistrations);
-
-      // lấy toàn bộ lớp học
-      this.classService.getClasses().subscribe({
-
-        next: (classList) => {
-
-          console.log('ALL CLASSES:', classList);
-
-          this.classes = myRegistrations.map((item, index) => {
-
-            // tìm class theo maLop
-            const classInfo = classList.find(
-
-              c => c.maLop === item.maLop
-
-            );
-
-            return {
-
-              id: index + 1,
-
-              name:
-                classInfo?.tenLop ||
-                item.tenLopHoc ||
-                'Chưa có tên lớp',
-
-              code: item.maLop || '',
-
-              instructor:
-                classInfo?.giangVien ||
-                'Chưa cập nhật',
-
-              startDate:
-                classInfo?.ngayBatDau
-                  ? new Date(classInfo.ngayBatDau)
-                      .toLocaleDateString('vi-VN')
-                  : '',
-
-              endDate:
-                classInfo?.ngayKetThuc
-                  ? new Date(classInfo.ngayKetThuc)
-                      .toLocaleDateString('vi-VN')
-                  : '',
-
-              status: 'ongoing',
-
-              branch:
-                classInfo?.chiNhanh ||
-                item.chiNhanh ||
-                'Chưa cập nhật',
-
-              room: 'Chưa cập nhật',
-
-              schedule:
-                classInfo?.khungGio ||
-                'Chưa cập nhật',
-
-              startTime: '--:--',
-
-              endTime: '--:--'
-
-            };
-
-          });
-
-          console.log('FINAL CLASSES:', this.classes);
-
-        },
-
-        error: (err) => {
-
-          console.error('Lỗi load class:', err);
-
-        }
-
-      });
-
-    },
-
-    error: (err) => {
-
-      console.error('Lỗi load registration:', err);
+      this.loadRegisteredClasses(this.customerCode);
 
     }
 
-  });
+  }
 
-}
-loadPayments(maKhachHang: string) {
+  ngOnInit() {
 
-  this.paymentService.getPayments().subscribe({
+    // LẤY USER LOGIN
+    const userData = localStorage.getItem('currentUser');
 
-    next: (data: any[]) => {
+    if (!userData) {
 
-      console.log('ALL PAYMENTS:', data);
+      this.router.navigate(['/login']);
 
-      const myPayments = data.filter(
-        p => p.maKh === maKhachHang
-      ).reverse();
+      return;
+    }
 
-      this.payments = myPayments.map((item, index) => {
+    const user = JSON.parse(userData);
 
-        return {
+    console.log('USER LOGIN:', user);
 
-          id: index + 1,
+    this.customerId = user._id || '';
+    this.avatarPreview = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : environment.apiUrl + user.avatar) : null;
 
-          className: item.tenLopHoc || '',
+    // FILL PROFILE
+    this.fullName =
+      user.tenKhachHang ||
+      user.fullName ||
+      '';
 
-          paymentCode: item.maDangKy || '',
+    this.phoneNumber =
+      user.soDienThoai ||
+      user.sdt ||
+      user.phone ||
+      '';
 
-          amountBeforeVoucher: item.hocPhi || 0,
+    this.email = user.email || '';
 
-          voucher: item.voucher || '',
+    this.customerCode =
+      user.maKh ||
+      user.maKhachHang ||
+      '';
+    console.log('CUSTOMER CODE:', this.customerCode);
+    // LOAD LỚP HỌC ĐÃ ĐĂNG KÝ
+    this.loadRegisteredClasses(this.customerCode);
 
-          amountAfterVoucher: item.soTienCanThanhToan || 0,
+    this.loadPayments(this.customerCode);
 
-          amountPaid:
-            (item.soTienCanThanhToan || 0)
-            - (item.soTienConLai || 0),
+    // FIX NGÀY SINH
+    if (user.ngaySinh) {
 
-          refundAmount: 0,
+      const ngaySinh = new Date(user.ngaySinh);
 
-          paymentMethod: 'Chưa cập nhật',
+      this.dateOfBirth =
+        `${ngaySinh.getUTCFullYear()}-` +
+        `${String(ngaySinh.getUTCMonth() + 1).padStart(2, '0')}-` +
+        `${String(ngaySinh.getUTCDate()).padStart(2, '0')}`;
 
-          status: (() => {
-            if (item.trangThaiThanhToan === 'Đã thanh toán') return 'completed';
-            if (item.trangThaiThanhToan === 'Đã hủy') return 'cancelled';
-            
-            // Check 10 minutes expiry
-            if (item.ngayDangKy) {
-              const diffMs = new Date().getTime() - new Date(item.ngayDangKy).getTime();
-              const diffMins = diffMs / 60000;
-              if (diffMins > 10) {
-                // Should be cancelled if not already paid and > 10 mins
-                this.cancelExpiredPaymentAndRegistration(item);
-                return 'cancelled';
+    }
+
+
+    // FIX NGÀY THAM GIA
+    if (user.ngayDangKy) {
+
+      const ngayDangKy = new Date(user.ngayDangKy);
+
+      const month = ngayDangKy.getUTCMonth() + 1;
+      const year = ngayDangKy.getUTCFullYear();
+
+      this.joinDate = `tháng ${month} năm ${year}`;
+    }
+  }
+  loadRegisteredClasses(maKh: string) {
+
+    this.registrationService.getRegistrations().subscribe({
+
+      next: (registrations) => {
+
+        console.log('ALL REGISTRATIONS:', registrations);
+
+        // Lọc đăng ký theo khách hàng và trạng thái đang hoạt động, đảo ngược mảng để cái mới nhất lên trên
+        const myRegistrations = registrations.filter(
+          r => r.maKh === maKh && r.trangThai === 'Đang hoạt động'
+        ).reverse();
+
+        console.log('MY REGISTRATIONS:', myRegistrations);
+
+        // lấy toàn bộ lớp học
+        this.classService.getClasses().subscribe({
+
+          next: (classList) => {
+
+            console.log('ALL CLASSES:', classList);
+
+            this.classes = myRegistrations.map((item, index) => {
+
+              // tìm class theo maLop
+              const classInfo = classList.find(
+
+                c => c.maLop === item.maLop
+
+              );
+
+              return {
+
+                id: index + 1,
+
+                name:
+                  classInfo?.tenLop ||
+                  item.tenLopHoc ||
+                  'Chưa có tên lớp',
+
+                code: item.maLop || '',
+
+                instructor:
+                  classInfo?.giangVien ||
+                  'Chưa cập nhật',
+
+                startDate:
+                  classInfo?.ngayBatDau
+                    ? new Date(classInfo.ngayBatDau)
+                      .toLocaleDateString('vi-VN')
+                    : '',
+
+                endDate:
+                  classInfo?.ngayKetThuc
+                    ? new Date(classInfo.ngayKetThuc)
+                      .toLocaleDateString('vi-VN')
+                    : '',
+
+                status: 'ongoing',
+
+                branch:
+                  classInfo?.chiNhanh ||
+                  item.chiNhanh ||
+                  'Chưa cập nhật',
+
+                room: 'Chưa cập nhật',
+
+                schedule:
+                  classInfo?.khungGio ||
+                  'Chưa cập nhật',
+
+                startTime: '--:--',
+
+                endTime: '--:--'
+
+              };
+
+            });
+
+            console.log('FINAL CLASSES:', this.classes);
+
+          },
+
+          error: (err) => {
+
+            console.error('Lỗi load class:', err);
+
+          }
+
+        });
+
+      },
+
+      error: (err) => {
+
+        console.error('Lỗi load registration:', err);
+
+      }
+
+    });
+
+  }
+  loadPayments(maKhachHang: string) {
+
+    this.paymentService.getPayments().subscribe({
+
+      next: (data: any[]) => {
+
+        console.log('ALL PAYMENTS:', data);
+
+        const myPayments = data.filter(
+          p => p.maKh === maKhachHang
+        ).reverse();
+
+        this.payments = myPayments.map((item, index) => {
+
+          return {
+
+            id: index + 1,
+
+            className: item.tenLopHoc || '',
+
+            paymentCode: item.maDangKy || '',
+
+            amountBeforeVoucher: item.hocPhi || 0,
+
+            voucher: item.voucher || '',
+
+            amountAfterVoucher: item.soTienCanThanhToan || 0,
+
+            amountPaid:
+              (item.soTienCanThanhToan || 0)
+              - (item.soTienConLai || 0),
+
+            refundAmount: 0,
+
+            paymentMethod: 'Chưa cập nhật',
+
+            status: (() => {
+              if (item.trangThaiThanhToan === 'Đã thanh toán') return 'completed';
+              if (item.trangThaiThanhToan === 'Đã hủy') return 'cancelled';
+
+              // Check 10 minutes expiry
+              if (item.ngayDangKy) {
+                const diffMs = new Date().getTime() - new Date(item.ngayDangKy).getTime();
+                const diffMins = diffMs / 60000;
+                if (diffMins > 10) {
+                  // Should be cancelled if not already paid and > 10 mins
+                  this.cancelExpiredPaymentAndRegistration(item);
+                  return 'cancelled';
+                }
               }
-            }
-            return 'pending';
-          })(),
+              return 'pending';
+            })(),
 
-          paymentDate: item.ngayDangKy
-            ? new Date(item.ngayDangKy).toLocaleDateString('vi-VN')
-            : '',
-          
-          paymentDateTime: item.ngayDangKy
-            ? (() => {
+            paymentDate: item.ngayDangKy
+              ? new Date(item.ngayDangKy).toLocaleDateString('vi-VN')
+              : '',
+
+            paymentDateTime: item.ngayDangKy
+              ? (() => {
                 const d = new Date(item.ngayDangKy);
                 const pad = (n: number) => n.toString().padStart(2, '0');
                 return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
               })()
-            : '',
+              : '',
 
-          updatedDateTime: item.updatedAt || item.ngayDangKy
-            ? (() => {
+            updatedDateTime: item.updatedAt || item.ngayDangKy
+              ? (() => {
                 const d = new Date(item.updatedAt || item.ngayDangKy);
                 const pad = (n: number) => n.toString().padStart(2, '0');
                 return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
               })()
-            : '',
+              : '',
 
-          note: '',
-          rawPayment: item
-        };
+            note: '',
+            rawPayment: item
+          };
 
-      });
+        });
 
-      console.log('MY PAYMENTS:', this.payments);
+        console.log('MY PAYMENTS:', this.payments);
 
-    },
+      },
 
-    error: (err) => {
+      error: (err) => {
 
-      console.error('Lỗi load payment:', err);
+        console.error('Lỗi load payment:', err);
 
-    }
+      }
 
-  });
+    });
 
-}
+  }
 
   openClassPopup(classItem: ClassDetail) {
     this.selectedClass = classItem;
@@ -438,7 +445,7 @@ loadPayments(maKhachHang: string) {
     if (this.selectedPayment && this.selectedPayment.status === 'pending' && this.selectedPayment.rawPayment?.ngayDangKy) {
       const createdTime = new Date(this.selectedPayment.rawPayment.ngayDangKy).getTime();
       const expiryTime = createdTime + 10 * 60000;
-      
+
       this.updateTimer(expiryTime);
       this.timerInterval = setInterval(() => {
         this.updateTimer(expiryTime);
@@ -476,7 +483,7 @@ loadPayments(maKhachHang: string) {
           rawPayment.trangThaiThanhToan = 'Đã hủy'; // Update local memory
         }
       });
-      
+
       // Xóa bản ghi registration
       this.registrationService.getRegistrations().subscribe(regs => {
         const reg = regs.find(r => r.maDangKy === rawPayment.maDangKy);
@@ -502,7 +509,7 @@ loadPayments(maKhachHang: string) {
           payment.rawPayment.trangThaiThanhToan = 'Đã hủy';
           this.cancelExpiredPaymentAndRegistration(payment.rawPayment);
           if ((this as any).closeCancelConfirmModal) {
-             (this as any).closeCancelConfirmModal();
+            (this as any).closeCancelConfirmModal();
           }
           this.loadPayments(this.customerCode);
         },
@@ -515,7 +522,7 @@ loadPayments(maKhachHang: string) {
     if (!this.selectedPayment || !this.selectedPayment.rawPayment || !this.selectedPayment.rawPayment._id) {
       return;
     }
-    
+
     // Update Payment
     this.paymentService.updatePayment(this.selectedPayment.rawPayment._id, {
       trangThaiThanhToan: 'Đã thanh toán',
@@ -571,72 +578,127 @@ loadPayments(maKhachHang: string) {
     });
   }
   toggleEditProfile() {
-
-  if (this.isEditingProfile) {
-
-    // SAVE API
-    console.log('Đã lưu thông tin');
-
+    if (this.isEditingProfile) {
+      this.saveProfileChanges();
+    } else {
+      this.isEditingProfile = true;
+    }
   }
 
-  this.isEditingProfile = !this.isEditingProfile;
-}
+  saveProfileChanges() {
+    if (!this.customerId) {
+      this.notification.show('Lỗi', 'Không tìm thấy ID người dùng', 'error');
+      return;
+    }
+
+    this.isUploading = true;
+
+    const updateDetails = (avatarUrl?: string) => {
+      const updateData: any = {
+        tenKhachHang: this.fullName,
+        sdt: Number(this.phoneNumber),
+        email: this.email,
+        ngaySinh: this.dateOfBirth ? new Date(this.dateOfBirth) : null
+      };
+
+      if (avatarUrl) {
+        updateData.avatar = avatarUrl;
+      }
+
+      this.customerService.updateCustomer(this.customerId, updateData).subscribe({
+        next: (updatedCustomer) => {
+          const userData = localStorage.getItem('currentUser');
+          if (userData) {
+            const user = JSON.parse(userData);
+            const mergedUser = { ...user, ...updatedCustomer };
+            localStorage.setItem('currentUser', JSON.stringify(mergedUser));
+          }
+
+          this.notification.show('Thành công', 'Cập nhật thông tin thành công', 'success');
+          this.isUploading = false;
+          this.isEditingProfile = false;
+          this.selectedFile = null;
+        },
+        error: (err) => {
+          this.notification.show('Lỗi', err.error?.message || 'Không thể cập nhật thông tin', 'error');
+          this.isUploading = false;
+        }
+      });
+    };
+
+    if (this.selectedFile) {
+      this.customerService.uploadAvatar(this.customerId, this.selectedFile).subscribe({
+        next: (res) => {
+          updateDetails(res.avatar);
+        },
+        error: (err) => {
+          this.notification.show('Lỗi', err.error?.message || 'Không thể tải lên ảnh đại diện', 'error');
+          this.isUploading = false;
+        }
+      });
+    } else {
+      updateDetails();
+    }
+  }
+
   toggleChangePassword() {
 
-  if (this.isChangingPassword) {
+    if (this.isChangingPassword) {
 
-    // SAVE PASSWORD API
-    console.log('Đã đổi mật khẩu');
+      // SAVE PASSWORD API
+      console.log('Đã đổi mật khẩu');
 
+    }
+
+    this.isChangingPassword = !this.isChangingPassword;
   }
-
-  this.isChangingPassword = !this.isChangingPassword;
-}
 
   onAvatarChange(event: any) {
 
-  const file = event.target.files[0];
+    const file = event.target.files[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  // check file ảnh
-  if (!file.type.startsWith('image/')) {
+    // check file ảnh
+    if (!file.type.startsWith('image/')) {
 
-    this.notification.show('Lỗi', 'Vui lòng chọn file ảnh', 'error');
+      this.notification.show('Lỗi', 'Vui lòng chọn file ảnh', 'error');
 
-    return;
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+
+      this.avatarPreview = reader.result as string;
+      this.isEditingProfile = true;
+
+    };
+
+    reader.readAsDataURL(file);
+  }
+  openLogoutPopup() {
+
+    this.showLogoutPopup = true;
+
   }
 
-  const reader = new FileReader();
+  closeLogoutPopup() {
 
-  reader.onload = () => {
+    this.showLogoutPopup = false;
 
-    this.avatarPreview = reader.result as string;
-    this.isEditingProfile = true;
+  }
 
-  };
+  logout() {
 
-  reader.readAsDataURL(file);
-}
-openLogoutPopup() {
+    localStorage.removeItem('currentUser');
 
-  this.showLogoutPopup = true;
+    this.router.navigate(['/login']);
 
-}
-
-closeLogoutPopup() {
-
-  this.showLogoutPopup = false;
-
-}
-
-logout() {
-
-  localStorage.removeItem('currentUser');
-
-  this.router.navigate(['/login']);
-
-}
+  }
 
 }
 

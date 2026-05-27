@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -13,6 +14,7 @@ db.connect();
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 const classRouter = require('./routes/class.router');

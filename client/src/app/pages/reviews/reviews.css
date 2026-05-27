@@ -1032,3 +1032,191 @@
 .text-muted {
   color: #4a5568;
 }
+
+/* Login Required Box */
+.login-required-box {
+  background: white;
+  padding: 50px 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.login-required-box .required-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(236, 126, 22, 0.1);
+  color: #EC7E16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin: 0 auto 25px;
+  transition: all 0.3s ease;
+}
+
+.login-required-box:hover .required-icon {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+.login-required-box .box-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 12px;
+}
+
+.login-required-box .box-description {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-login-now {
+  background: linear-gradient(135deg, #4C70AD 0%, #EC7E16 100%);
+  border: none;
+  color: white;
+  padding: 12px 35px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-login-now:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(236, 126, 22, 0.3);
+}
+
+.btn-login-now i {
+  margin-right: 8px;
+}
+
+/* Custom Modal Overlay */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards ease-out;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Custom Modal Content */
+.custom-modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  position: relative;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transform: translateY(20px) scale(0.95);
+  animation: slideUp 0.3s forwards cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Modal Icon */
+.custom-modal-overlay .modal-icon {
+  width: 70px;
+  height: 70px;
+  background: rgba(236, 126, 22, 0.1);
+  color: #EC7E16;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.custom-modal-content:hover .modal-icon {
+  transform: scale(1.1) rotate(-10deg);
+}
+
+/* Modal Title */
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Modal Description */
+.modal-description {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.modal-actions .btn {
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 8px;
+}
+
+.modal-actions .btn-outline-secondary {
+  background: transparent;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+}
+
+.modal-actions .btn-outline-secondary:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}

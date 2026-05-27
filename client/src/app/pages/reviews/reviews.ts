@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import 'iconify-icon';
 
 // Services
@@ -85,6 +86,7 @@ export class Reviews implements OnInit {
   formRating = 5;
   isLoggedIn: boolean = false;
   customerCode: string = '';
+  showLoginPromptModal: boolean = false;
 
   // Reactive Form
   reviewFormGroup: FormGroup;
@@ -94,7 +96,8 @@ export class Reviews implements OnInit {
     private feedbackService: FeedbackService,
     private classService: ClassService,
     private registrationService: RegistrationService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private router: Router
   ) {
     this.reviewFormGroup = this.fb.group({
       studentName: ['', Validators.required],
@@ -354,14 +357,14 @@ export class Reviews implements OnInit {
         noiDungDanhGia: formValues.content,
         soSao: Number(formValues.rating),
         ngayDanhGia: new Date().toISOString(),
-        trangThai: 'Chưa ẩn'
+        trangThai: 'Đã ẩn'
       };
 
       this.feedbackService.addFeedback(newFeedback).subscribe({
         next: () => {
-          this.notification.show('Thành công', 'Cảm ơn bạn! Đánh giá của bạn đã được gửi thành công.', 'success');
+          this.notification.show('Thành công', 'Đánh giá của bạn sẽ được kiểm duyệt trước khi công bố.', 'success');
           this.reviewFormGroup.reset({
-            studentName: '',
+            studentName: this.isLoggedIn ? formValues.studentName : '',
             class: '',
             rating: 5,
             content: '',
@@ -413,9 +416,26 @@ export class Reviews implements OnInit {
   }
 
   scrollToWriteReview(): void {
+    if (!this.isLoggedIn) {
+      this.showLoginPromptModal = true;
+      return;
+    }
     const el = document.getElementById('write-review-section');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login'], { queryParams: { returnUrl: '/reviews' } });
+  }
+
+  closeLoginPromptModal(): void {
+    this.showLoginPromptModal = false;
+  }
+
+  confirmLoginPrompt(): void {
+    this.showLoginPromptModal = false;
+    this.goToLogin();
   }
 }

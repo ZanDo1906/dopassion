@@ -4,14 +4,15 @@
     <div class="row align-items-start">
       <div class="col-lg-8">
         <h1 class="page-title">Đánh giá từ học viên</h1>
-        <p class="page-description">Xem những đánh giá từ các học viên đã hoàn thành khóa học của chúng tôi. Đây là những phản hồi thực từ những người đã trải nghiệm chất lượng giáo dục của chúng tôi.</p>
-        
+        <p class="page-description">Xem những đánh giá từ các học viên đã hoàn thành khóa học của chúng tôi. Đây là
+          những phản hồi thực từ những người đã trải nghiệm chất lượng giáo dục của chúng tôi.</p>
+
         <div class="rating-summary">
           <div class="rating-score">
             <span class="score-number">{{ averageRating }}</span>
             <span class="score-max">/5</span>
           </div>
-          
+
           <div class="rating-stars">
             <div *ngFor="let star of getRatingStars(Math.ceil(averageRating))" class="star filled">
               <i class="bi bi-star-fill"></i>
@@ -31,7 +32,7 @@
       <div class="col-lg-4">
         <div class="rating-stats-card">
           <h3 class="stats-title">Thống kê đánh giá</h3>
-          
+
           <div class="stat-item">
             <span class="stat-label">Phần trăm tích cực</span>
             <span class="stat-value">{{ fiveStarPercentage }}%</span>
@@ -56,7 +57,7 @@
         <!-- Rating Distribution -->
         <div class="rating-distribution-card">
           <h3 class="card-title">Phân bố đánh giá</h3>
-          
+
           <div *ngFor="let dist of ratingDistribution" class="rating-bar-item">
             <div class="bar-label">
               <span class="stars-count">{{ dist.stars }} sao</span>
@@ -72,7 +73,7 @@
         <!-- Detailed Ratings -->
         <div class="detailed-ratings-card mt-4">
           <h3 class="card-title">Đánh giá chi tiết</h3>
-          
+
           <div *ngFor="let rating of detailedRatings" class="detailed-rating-item">
             <span class="rating-category">{{ rating.category }}</span>
             <div class="mini-stars">
@@ -121,12 +122,8 @@
       <div class="col-lg-9">
         <!-- Search Box -->
         <div class="search-box mb-4">
-          <input 
-            type="text" 
-            class="form-control search-input" 
-            placeholder="Tìm kiếm đánh giá..."
-            [(ngModel)]="searchQuery"
-            (ngModelChange)="onFilterChange()">
+          <input type="text" class="form-control search-input" placeholder="Tìm kiếm đánh giá..."
+            [(ngModel)]="searchQuery" (ngModelChange)="onFilterChange()">
           <i class="bi bi-search search-icon"></i>
         </div>
 
@@ -155,8 +152,10 @@
 
             <!-- Actions -->
             <div class="review-actions">
-              <button class="action-btn" [class.liked]="hasLiked(review._id)" [disabled]="hasLiked(review._id)" (click)="onToggleHelpful(review._id)">
-                <i class="bi" [ngClass]="hasLiked(review._id) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i> Hữu ích ({{ review.helpful }})
+              <button class="action-btn" [class.liked]="hasLiked(review._id)" [disabled]="hasLiked(review._id)"
+                (click)="onToggleHelpful(review._id)">
+                <i class="bi" [ngClass]="hasLiked(review._id) ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'"></i> Hữu
+                ích ({{ review.helpful }})
               </button>
             </div>
           </div>
@@ -177,21 +176,18 @@
 <section id="write-review-section" class="write-review-section">
   <div class="container">
     <h2 class="section-title">Viết đánh giá</h2>
-    
+
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-lg-8" *ngIf="isLoggedIn">
         <form [formGroup]="reviewFormGroup" (ngSubmit)="onSubmitReview()" class="review-form">
-          
+
           <div class="form-group">
             <label class="form-label">Họ và tên học viên <span class="required">*</span></label>
-            <input 
-              type="text" 
-              formControlName="studentName" 
-              class="form-control" 
-              [readonly]="isLoggedIn"
+            <input type="text" formControlName="studentName" class="form-control" [readonly]="isLoggedIn"
               [class.is-invalid]="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched"
               placeholder="Nhập họ và tên của bạn...">
-            <small class="validation-error" *ngIf="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched">
+            <small class="validation-error"
+              *ngIf="reviewFormGroup.get('studentName')?.invalid && reviewFormGroup.get('studentName')?.touched">
               Vui lòng nhập họ và tên
             </small>
           </div>
@@ -211,11 +207,7 @@
           <div class="form-group">
             <label class="form-label">Đánh giá <span class="required">*</span></label>
             <div class="star-picker">
-              <button 
-                type="button"
-                *ngFor="let i of [1, 2, 3, 4, 5]"
-                class="star-btn"
-                [class.active]="formRating >= i"
+              <button type="button" *ngFor="let i of [1, 2, 3, 4, 5]" class="star-btn" [class.active]="formRating >= i"
                 (click)="setRating(i)">
                 <i class="bi bi-star-fill"></i>
               </button>
@@ -225,17 +217,18 @@
 
           <div class="form-group">
             <label class="form-label">Nội dung đánh giá <span class="required">*</span></label>
-            <textarea 
-              formControlName="content" 
-              class="form-control review-textarea" 
+            <textarea formControlName="content" class="form-control review-textarea"
               [class.is-invalid]="reviewFormGroup.get('content')?.invalid && reviewFormGroup.get('content')?.touched"
-              rows="6"
-              placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."></textarea>
-            <small class="text-muted" *ngIf="!(reviewFormGroup.get('content')?.invalid && reviewFormGroup.get('content')?.touched)">Tối thiểu 20 ký tự</small>
-            <small class="validation-error" *ngIf="reviewFormGroup.get('content')?.hasError('required') && reviewFormGroup.get('content')?.touched">
+              rows="6" placeholder="Chia sẻ trải nghiệm của bạn về khóa học..."></textarea>
+            <small class="text-muted"
+              *ngIf="!(reviewFormGroup.get('content')?.invalid && reviewFormGroup.get('content')?.touched)">Tối thiểu 20
+              ký tự</small>
+            <small class="validation-error"
+              *ngIf="reviewFormGroup.get('content')?.hasError('required') && reviewFormGroup.get('content')?.touched">
               Vui lòng nhập nội dung đánh giá
             </small>
-            <small class="validation-error" *ngIf="reviewFormGroup.get('content')?.hasError('minlength') && reviewFormGroup.get('content')?.touched">
+            <small class="validation-error"
+              *ngIf="reviewFormGroup.get('content')?.hasError('minlength') && reviewFormGroup.get('content')?.touched">
               Nội dung đánh giá phải có ít nhất 20 ký tự
             </small>
           </div>
@@ -243,9 +236,11 @@
           <div class="form-group checkbox-group">
             <label class="form-check">
               <input type="checkbox" formControlName="agreeToTerms" class="form-check-input">
-              <span class="form-check-label">Tôi đồng ý với điều khoản đăng bình luận <span class="required">*</span></span>
+              <span class="form-check-label">Tôi đồng ý với điều khoản đăng bình luận <span
+                  class="required">*</span></span>
             </label>
-            <small class="validation-error" *ngIf="reviewFormGroup.get('agreeToTerms')?.invalid && reviewFormGroup.get('agreeToTerms')?.touched">
+            <small class="validation-error"
+              *ngIf="reviewFormGroup.get('agreeToTerms')?.invalid && reviewFormGroup.get('agreeToTerms')?.touched">
               Bạn cần đồng ý với điều khoản để gửi đánh giá
             </small>
           </div>
@@ -259,15 +254,55 @@
         </form>
       </div>
 
+      <div class="col-lg-8" *ngIf="!isLoggedIn">
+        <div class="login-required-box">
+          <div class="required-icon">
+            <i class="bi bi-lock-fill"></i>
+          </div>
+          <h3 class="box-title">Yêu cầu đăng nhập</h3>
+          <p class="box-description">
+            Vui lòng đăng nhập tài khoản học viên để viết đánh giá và chia sẻ trải nghiệm của bạn tại Dopassion nhé!
+          </p>
+          <button class="btn btn-primary btn-login-now" (click)="goToLogin()">
+            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập ngay
+          </button>
+        </div>
+      </div>
+
       <div class="col-lg-4">
         <div class="review-guidelines">
           <h4 class="guidelines-title">Hướng dẫn viết đánh giá</h4>
-          
+
           <ul class="guidelines-list">
-            <li><strong>Hữu ích:</strong> Chia sẻ những điều bạn thích và có thể cải thiện</li>
-            <li><strong>Cụ thể:</strong> Nêu rõ về giảng viên, nội dung, phương pháp dạy</li>
-            <li><strong>Trung thực:</strong> Cho điểm phù hợp với trải nghiệm của bạn</li>
-            <li><strong>Lịch sự:</strong> Tránh sử dụng ngôn từ xúc phạm hoặc không phù hợp</li>
+            <li>
+              <strong>Chia sẻ trải nghiệm thực tế:</strong>
+              Hãy mô tả chân thực cảm nhận của bạn về khóa học, giảng viên, môi trường học tập và chất lượng hỗ trợ tại
+              trung tâm.
+            </li>
+
+            <li>
+              <strong>Đưa ra nhận xét cụ thể:</strong>
+              Một đánh giá hữu ích nên đề cập rõ về nội dung bài học, phương pháp giảng dạy, tài liệu học tập hoặc sự
+              tiến bộ bạn đạt được sau khóa học.
+            </li>
+
+            <li>
+              <strong>Đánh giá trung thực và khách quan:</strong>
+              Vui lòng lựa chọn số sao phù hợp với trải nghiệm thực tế của bạn để giúp trung tâm cải thiện chất lượng
+              đào tạo và hỗ trợ học viên tốt hơn.
+            </li>
+
+            <li>
+              <strong>Sử dụng ngôn ngữ lịch sự:</strong>
+              Không sử dụng từ ngữ xúc phạm, công kích cá nhân, nội dung phản cảm hoặc các thông tin không liên quan đến
+              trải nghiệm học tập.
+            </li>
+
+            <li>
+              <strong>Ưu tiên góp ý mang tính xây dựng:</strong>
+              Những góp ý rõ ràng và tích cực sẽ giúp trung tâm nâng cao chất lượng giảng dạy cũng như mang lại trải
+              nghiệm tốt hơn cho các học viên khác.
+            </li>
           </ul>
 
           <div class="guidelines-note">
@@ -280,3 +315,28 @@
   </div>
 </section>
 
+<!-- Beautiful Custom Login Prompt Modal -->
+<div class="custom-modal-overlay" *ngIf="showLoginPromptModal" (click)="closeLoginPromptModal()">
+  <div class="custom-modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeLoginPromptModal()">
+      <i class="bi bi-x"></i>
+    </button>
+    <div class="modal-body text-center p-4">
+      <div class="modal-icon mb-4">
+        <i class="bi bi-lock-fill"></i>
+      </div>
+      <h3 class="modal-title mb-3">Yêu cầu đăng nhập</h3>
+      <p class="modal-description text-muted mb-4">
+        Bạn cần đăng nhập tài khoản học viên để viết đánh giá cho khóa học. Bạn có muốn đăng nhập ngay bây giờ không?
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-outline-secondary" (click)="closeLoginPromptModal()">
+          Để sau
+        </button>
+        <button class="btn btn-primary" (click)="confirmLoginPrompt()">
+          Đăng nhập ngay
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
