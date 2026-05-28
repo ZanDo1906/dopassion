@@ -7,11 +7,11 @@
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="openImportDialog()">
             <i class="bi bi-download"></i>
             Nhập excel
         </button>
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="exportExcel()">
             <i class="bi bi-upload"></i>
             Xuất excel
         </button>
@@ -97,3 +97,7 @@
     [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData" [columns]="3" [isReadOnly]="isViewMode"
     (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>
+
+<app-import-excel-dialog [isOpen]="showImportDialog" title="Nhập Excel Lớp Học" templateFileName="Template_LopHoc.xlsx"
+    sheetName="Lớp học" [columns]="importColumns" (close)="closeImportDialog()" (imported)="onImportExcel($event)">
+</app-import-excel-dialog>

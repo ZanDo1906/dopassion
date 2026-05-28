@@ -1,0 +1,102 @@
+<div class="import-excel-overlay" *ngIf="isOpen" (click)="onClose()">
+    <div class="import-excel-box" (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="dialog-header">
+            <h2 class="dialog-title">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                {{ title }}
+            </h2>
+            <button class="close-btn" type="button" (click)="onClose()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="dialog-body">
+
+            <!-- Option 1: Download template -->
+            <div class="import-section">
+                <div class="section-header">
+                    <span class="section-number">1</span>
+                    <span class="section-title">Tải template mẫu</span>
+                </div>
+                <p class="section-desc">Tải file mẫu Excel để nhập liệu đúng định dạng yêu cầu.</p>
+                <button class="btn btn-template" type="button" (click)="downloadTemplate()">
+                    <i class="bi bi-download"></i>
+                    Tải template
+                </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Option 2: Upload file -->
+            <div class="import-section">
+                <div class="section-header">
+                    <span class="section-number">2</span>
+                    <span class="section-title">Tải lên file Excel</span>
+                </div>
+                <p class="section-desc">Chọn file Excel đã điền dữ liệu theo template để nhập vào hệ thống.</p>
+
+                <!-- Upload area -->
+                <div class="upload-area" *ngIf="!fileName">
+                    <label class="upload-label" for="excel-file-input">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span>Kéo thả file hoặc <strong>chọn file</strong></span>
+                        <span class="upload-hint">Hỗ trợ: .xlsx, .xls</span>
+                    </label>
+                    <input
+                        id="excel-file-input"
+                        type="file"
+                        accept=".xlsx,.xls"
+                        (change)="onFileSelected($event)"
+                        hidden
+                    />
+                </div>
+
+                <!-- File selected -->
+                <div class="file-info" *ngIf="fileName">
+                    <div class="file-details">
+                        <i class="bi bi-file-earmark-excel file-icon"></i>
+                        <span class="file-name">{{ fileName }}</span>
+                    </div>
+                    <button class="remove-btn" type="button" (click)="removeFile()" title="Xóa file">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+                <!-- Error message -->
+                <div class="error-message" *ngIf="errorMessage">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Preview -->
+                <div class="preview-section" *ngIf="previewData.length > 0">
+                    <p class="preview-title">
+                        <i class="bi bi-check-circle-fill" style="color: #27ae60;"></i>
+                        Nhập dữ liệu thành công!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="dialog-footer">
+            <button class="btn btn-cancel" type="button" (click)="onClose()">
+                <i class="bi bi-x-circle"></i>
+                Đóng
+            </button>
+            <button
+                class="btn btn-import"
+                type="button"
+                [disabled]="!selectedFile || isUploading"
+                (click)="uploadFile()"
+            >
+                <i class="bi bi-upload"></i>
+                {{ isUploading ? 'Đang xử lý...' : 'Nhập dữ liệu' }}
+            </button>
+        </div>
+
+    </div>
+</div>

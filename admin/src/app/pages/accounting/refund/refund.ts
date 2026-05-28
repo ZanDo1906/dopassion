@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DecimalPipe, NgForOf, NgIf, NgClass } from '@angular/common';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { RefundService } from '../../../services/refund';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-refund',
@@ -630,5 +632,52 @@ export class Refund {
 
     this.showDetailDialog = false;
 
+  }
+
+  exportExcel() {
+    const data = this.filteredRefunds;
+    if (!data || data.length === 0) {
+      alert('Không có dữ liệu để xuất!');
+      return;
+    }
+
+    // Export all fields from the detail view sections
+    const excelData = data.map((item: any, index: number) => ({
+      'STT': index + 1,
+      'Mã đăng ký': item.maDangKy ?? '',
+      'Mã khách hàng': item.maKH ?? '',
+      'Tên khách hàng': item.tenKhachHang ?? '',
+      'Mã lớp': item.maLop ?? '',
+      'Khóa học': item.khoaHoc ?? '',
+      'Chi nhánh': item.chiNhanh ?? '',
+      'Ngày đăng ký': item.ngayDangKy ?? '',
+      'Đã thanh toán': item.daThanhToan ?? 0,
+      'Số tiền hoàn': item.soTienHoan ?? 0,
+      'Lý do yêu cầu hoàn tiền': item.lyDoYeuCau ?? '',
+      'Lý do chấp nhận hoàn tiền': item.lyDoChapNhan ?? '',
+      'Lý do từ chối': item.lyDoTuChoi ?? '',
+      'Trạng thái': item.trangThai ?? '',
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Auto-fit column widths
+    const headers = Object.keys(excelData[0]);
+    worksheet['!cols'] = headers.map(key => {
+      const maxLen = Math.max(
+        key.length,
+        ...excelData.map(row => `${(row as any)[key] ?? ''}`.length)
+      );
+      return { wch: maxLen + 2 };
+    });
+
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách hoàn tiền');
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, `DanhSachHoanTien_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 }

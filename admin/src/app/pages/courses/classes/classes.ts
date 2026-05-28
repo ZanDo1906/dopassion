@@ -7,10 +7,13 @@ import { iStaff } from '../../../interfaces/staff';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
+import { ImportExcelDialog, ImportExcelColumn } from '../../../components/import-excel-dialog/import-excel-dialog';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-classes',
-  imports: [CommonModule, GridFormDialog, FilterDataPicker, ConfirmDialog],
+  imports: [CommonModule, GridFormDialog, FilterDataPicker, ConfirmDialog, ImportExcelDialog],
   templateUrl: './classes.html',
   styleUrl: './classes.css',
 })
@@ -19,6 +22,18 @@ export class Classes implements OnInit, DoCheck {
   staffs: iStaff[] = [];
   lastBranch: string = '';
   lastStaffCount = 0;
+
+  // Import Excel
+  showImportDialog = false;
+  importColumns: ImportExcelColumn[] = [
+    { header: 'Tên khóa học', key: 'tenKhoaHoc', example: 'Khóa học TOEIC Listening và Reading' },
+    { header: 'Chi nhánh', key: 'chiNhanh', example: 'CN1' },
+    { header: 'Giảng viên', key: 'giangVien', example: 'Nguyễn Văn A' },
+    { header: 'Mã nhân viên', key: 'maNhanVien', example: 'NV001' },
+    { header: 'Khung giờ', key: 'khungGio', example: '17h45-19h15 (T2-4-6)' },
+    { header: 'Ngày bắt đầu', key: 'ngayBatDau', example: '2025-06-01' },
+    { header: 'Ngày kết thúc', key: 'ngayKetThuc', example: '2025-08-30' },
+  ];
 
   filterValues: Record<string, any> = {};
   filterConfig: FilterConfig[] = [
@@ -106,8 +121,7 @@ export class Classes implements OnInit, DoCheck {
             { label: 'Khóa học TOEIC Speaking và Writing', value: 'Khóa học TOEIC Speaking và Writing' },
             { label: 'Khóa học TOEIC Listening và Reading', value: 'Khóa học TOEIC Listening và Reading' }
           ]
-        },
-        { label: 'STT', name: 'stt', type: 'number', disabled: true }
+        }
       ]
     },
     {
@@ -270,7 +284,7 @@ export class Classes implements OnInit, DoCheck {
     const nextStt = this.classes.length > 0 ? Math.max(...this.classes.map(c => c.stt)) + 1 : 1;
     // Ensure dialogData contains all fields defined in sections with defaults
     const data: any = { stt: nextStt };
-    
+
     // Enable tenKhoaHoc and chiNhanh for add mode
     const courseField = this.dialogSections[0].fields.find(f => f.name === 'tenKhoaHoc');
     if (courseField) courseField.disabled = false;
@@ -377,7 +391,7 @@ export class Classes implements OnInit, DoCheck {
     const data: any = { ...item };
     data.ngayBatDau = this.normalizeDate(item.ngayBatDau);
     data.ngayKetThuc = this.normalizeDate(item.ngayKetThuc);
-    
+
     // Disable tenKhoaHoc and chiNhanh for edit mode
     const courseField = this.dialogSections[0].fields.find(f => f.name === 'tenKhoaHoc');
     if (courseField) courseField.disabled = true;
@@ -532,5 +546,138 @@ export class Classes implements OnInit, DoCheck {
     const target = event.target as HTMLSelectElement;
     this.itemsPerPage = Number(target.value);
     this.currentPage = 1;
+  }
+
+  exportExcel() {
+    const data = this.filteredClasses;
+    if (!data || data.length === 0) {
+      alert('Không có dữ liệu để xuất!');
+      return;
+    }
+
+    // Map all fields from the detail view (dialogSections)
+    const excelData = data.map((item: iClass, index: number) => ({
+      'STT': item.stt ?? (index + 1),
+      'Mã lớp': item.maLop ?? '',
+      'Tên lớp': item.tenLop ?? '',
+      'Mã khóa': item.maKhoa ?? '',
+      'Tên khóa học': item.tenKhoaHoc ?? '',
+      'Chi nhánh': item.chiNhanh ?? '',
+      'Giảng viên': item.giangVien ?? '',
+      'Mã nhân viên': item.maNhanVien ?? '',
+      'Khung giờ': item.khungGio ?? '',
+      'Ngày bắt đầu': item.ngayBatDau ? this.normalizeDate(item.ngayBatDau) : '',
+      'Ngày kết thúc': item.ngayKetThuc ? this.normalizeDate(item.ngayKetThuc) : '',
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Auto-fit column widths
+    const headers = Object.keys(excelData[0]);
+    worksheet['!cols'] = headers.map(key => {
+      const maxLen = Math.max(
+        key.length,
+        ...excelData.map(row => `${(row as any)[key] ?? ''}`.length)
+      );
+      return { wch: maxLen + 2 };
+    });
+
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách lớp học');
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, `DanhSachLopHoc_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  openImportDialog(): void {
+    this.showImportDialog = true;
+  }
+
+  closeImportDialog(): void {
+    this.showImportDialog = false;
+  }
+
+  onImportExcel(data: any[]): void {
+    if (!data || data.length === 0) {
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    data.forEach((row, index) => {
+      // Determine maKhoa from tenKhoaHoc
+      let maKhoa = '';
+      const tenKhoaHoc = `${row.tenKhoaHoc ?? ''}`.trim();
+      if (tenKhoaHoc.includes('Speaking') && tenKhoaHoc.includes('Writing')) {
+        maKhoa = 'SW';
+      } else if (tenKhoaHoc.includes('Listening') && tenKhoaHoc.includes('Reading')) {
+        maKhoa = 'LR';
+      }
+
+      const chiNhanh = `${row.chiNhanh ?? ''}`.trim();
+      let branchCode = '';
+      if (chiNhanh === 'CN1') branchCode = '01';
+      else if (chiNhanh === 'CN2') branchCode = '02';
+      else if (chiNhanh === 'CN3') branchCode = '03';
+
+      // Auto-generate maLop and tenLop
+      const filteredClasses = this.classes.filter(c => c.maKhoa === maKhoa && c.chiNhanh === chiNhanh);
+      let maxSeq = 0;
+      for (const c of filteredClasses) {
+        const parts = c.maLop.split('-');
+        if (parts.length === 3) {
+          const seq = parseInt(parts[2], 10);
+          if (seq > maxSeq) maxSeq = seq;
+        }
+      }
+      const nextSeq = (maxSeq + index + 1).toString().padStart(3, '0');
+      const maLop = maKhoa && branchCode ? `${maKhoa}-${branchCode}-${nextSeq}` : '';
+
+      let tenLop = '';
+      if (maKhoa === 'SW') tenLop = `Lớp TOEIC Speaking&Writing ${chiNhanh}-${nextSeq}`;
+      else if (maKhoa === 'LR') tenLop = `Lớp TOEIC Listening&Reading ${chiNhanh}-${nextSeq}`;
+
+      const nextStt = this.classes.length + index + 1;
+
+      const payload: any = {
+        stt: nextStt,
+        maLop,
+        tenLop,
+        maKhoa,
+        tenKhoaHoc,
+        chiNhanh,
+        giangVien: `${row.giangVien ?? ''}`.trim(),
+        maNhanVien: `${row.maNhanVien ?? ''}`.trim(),
+        khungGio: `${row.khungGio ?? ''}`.trim(),
+        ngayBatDau: `${row.ngayBatDau ?? ''}`.trim(),
+        ngayKetThuc: `${row.ngayKetThuc ?? ''}`.trim(),
+        active: true
+      };
+
+      this.classService.addClass(payload as iClass).subscribe({
+        next: (created) => {
+          successCount++;
+          this.classes.push(created as iClass);
+          if (successCount + errorCount === data.length) {
+            this.classes = [...this.classes];
+            alert(`Nhập thành công ${successCount}/${data.length} lớp học.`);
+            this.showImportDialog = false;
+          }
+        },
+        error: (err) => {
+          errorCount++;
+          console.error(`Lỗi nhập lớp dòng ${index + 1}:`, err);
+          if (successCount + errorCount === data.length) {
+            this.classes = [...this.classes];
+            alert(`Nhập thành công ${successCount}/${data.length} lớp học. Lỗi: ${errorCount} dòng.`);
+            this.showImportDialog = false;
+          }
+        }
+      });
+    });
   }
 }

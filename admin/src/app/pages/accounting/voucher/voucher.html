@@ -9,11 +9,11 @@
             <i class="bi bi-plus-circle"></i>
             Thêm mới
         </button>
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="openImportDialog()">
             <i class="bi bi-box-arrow-in-down"></i>
             Nhập excel
         </button>
-        <button class="btn btn-outline" type="button">
+        <button class="btn btn-outline" type="button" (click)="exportExcel()">
             <i class="bi bi-box-arrow-up"></i>
             Xuất excel
         </button>
@@ -164,3 +164,13 @@
     (cancel)="closeConfirmDialog()"
 >
 </app-confirm-dialog>
+
+<app-import-excel-dialog
+    [isOpen]="showImportDialog"
+    title="Nhập Excel Voucher"
+    templateFileName="Template_Voucher.xlsx"
+    sheetName="Voucher"
+    [columns]="importColumns"
+    (close)="closeImportDialog()"
+    (imported)="onImportExcel($event)">
+</app-import-excel-dialog>

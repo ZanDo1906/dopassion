@@ -1,74 +1,68 @@
 <div class="role-page">
-    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
-        (onReset)="handleReset()"></app-filter-data-picker>
+  <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
+    (onReset)="handleReset()"></app-filter-data-picker>
 
-    <div class="toolbar">
-        <button class="btn btn-outline" type="button">
+  <div class="toolbar">
+    <!-- <button class="btn btn-outline" type="button">
             <i class="bi bi-upload"></i>
             Xuất excel
-        </button>
-    </div>
+        </button> -->
+  </div>
 
-    <div class="table-card">
-        <table class="role-table">
-            <thead>
-                <tr>
-                    <th class="col-stt">STT</th>
-                    <th>Mã đánh giá</th>
-                    <th>Học viên</th>
-                    <th>Lớp học</th>
-                    <th>Đánh giá</th>
-                    <th>Ngày đánh giá</th>
-                    <th>Trạng thái</th>
-                    <th class="col-actions">Tác vụ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of paginatedFeedbacks; let i = index">
-                    <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-                    <td class="text-primary" style="font-weight: 600;">{{ item.maDanhGia }}</td>
-                    <td style="font-weight: 500;">{{ item.khachHang }}</td>
-                    <td style="text-align: left; max-width: 220px;">{{ item.lopHoc }}</td>
-                    
-                    <td class="rating-stars">
-                        <i *ngFor="let isFilled of getStars(item.soSao)" 
-                           class="bi" 
-                           [ngClass]="isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'">
-                        </i>
-                    </td>
-                    
-                    <td>{{ item.ngayDanhGia }}</td>
-                    <td>
-                        <span class="badge" [ngClass]="{
+  <div class="table-card">
+    <table class="role-table">
+      <thead>
+        <tr>
+          <th class="col-stt">STT</th>
+          <th>Mã đánh giá</th>
+          <th>Học viên</th>
+          <th>Lớp học</th>
+          <th>Đánh giá</th>
+          <th>Ngày đánh giá</th>
+          <th>Trạng thái</th>
+          <th class="col-actions">Tác vụ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedFeedbacks; let i = index">
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td class="text-primary" style="font-weight: 600;">{{ item.maDanhGia }}</td>
+          <td style="font-weight: 500;">{{ item.khachHang }}</td>
+          <td style="text-align: left; max-width: 220px;">{{ item.lopHoc }}</td>
+
+          <td class="rating-stars">
+            <i *ngFor="let isFilled of getStars(item.soSao)" class="bi"
+              [ngClass]="isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'">
+            </i>
+          </td>
+
+          <td>{{ item.ngayDanhGia }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
                             'badge--success': item.trangThai === 'Chưa ẩn',
                             'badge--danger': item.trangThai === 'Đã ẩn'
                         }">{{ item.trangThai }}</span>
-                    </td>
-                    <td>
-                        <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="openDetailDialog(item)">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <tr *ngIf="paginatedFeedbacks.length === 0">
-                    <td colspan="8" style="padding: 24px; color: #7f8c8d; font-style: italic; text-align: center;">
-                        Không tìm thấy dữ liệu đánh giá học viên phù hợp.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+          </td>
+          <td>
+            <div class="action-group">
+              <button class="icon-btn" type="button" title="Xem chi tiết" (click)="openDetailDialog(item)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedFeedbacks.length === 0">
+          <td colspan="8" style="padding: 24px; color: #7f8c8d; font-style: italic; text-align: center;">
+            Không tìm thấy dữ liệu đánh giá học viên phù hợp.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <app-pagination
-        [totalItems]="filteredFeedbacks.length"
-        [currentPage]="currentPage"
-        [itemsPerPage]="itemsPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPaginationPageChange($event)"
-        (pageSizeChange)="onPaginationPageSizeChange($event)"
-    ></app-pagination>
+  <app-pagination [totalItems]="filteredFeedbacks.length" [currentPage]="currentPage" [itemsPerPage]="itemsPerPage"
+    [pageSizeOptions]="pageSizeOptions" (pageChange)="onPaginationPageChange($event)"
+    (pageSizeChange)="onPaginationPageSizeChange($event)"></app-pagination>
 </div>
 
 <ng-template #viewFeedbackTemplate>
@@ -111,15 +105,8 @@
   </div>
 </ng-template>
 
-<app-form-dialog 
-    *ngIf="isDialogOpen" 
-    title="Chi tiết đánh giá học viên" 
-    [bodyTemplate]="viewFeedbackTemplate" 
-    cancelText="Thoát"
-    [submitText]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'Bỏ ẩn' : 'Ẩn'"
-    cancelIcon="bi bi-x-circle"
-    [submitIcon]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill'"
-    [isViewOnly]="false"
-    (close)="closeDialog()" 
-    (submit)="onSubmitDialog()">
+<app-form-dialog *ngIf="isDialogOpen" title="Chi tiết đánh giá học viên" [bodyTemplate]="viewFeedbackTemplate"
+  cancelText="Thoát" [submitText]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'Bỏ ẩn' : 'Ẩn'" cancelIcon="bi bi-x-circle"
+  [submitIcon]="selectedFeedback?.trangThai === 'Đã ẩn' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill'"
+  [isViewOnly]="false" (close)="closeDialog()" (submit)="onSubmitDialog()">
 </app-form-dialog>

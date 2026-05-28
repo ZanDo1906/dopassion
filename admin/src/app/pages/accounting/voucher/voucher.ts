@@ -7,6 +7,9 @@ import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import {FilterConfig,FilterDataPicker} from '../../../components/filter-data-picker/filter-data-picker';
 import { iVoucher } from '../../../interfaces/voucher';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
+import { ImportExcelDialog, ImportExcelColumn } from '../../../components/import-excel-dialog/import-excel-dialog';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 const BRANCHES = [
   { label: 'Chi nhánh 1', value: 'CN1' },
   { label: 'Chi nhánh 2', value: 'CN2' },
@@ -22,7 +25,7 @@ const COURSE_OPTIONS = [
 @Component({
 selector: 'app-voucher',
 standalone: true,
-imports: [FormsModule,ReactiveFormsModule,NgIf,NgForOf,NgClass,NgSelectModule,GridFormDialog,FilterDataPicker, ConfirmDialog],
+imports: [FormsModule,ReactiveFormsModule,NgIf,NgForOf,NgClass,NgSelectModule,GridFormDialog,FilterDataPicker, ConfirmDialog, ImportExcelDialog],
 templateUrl: './voucher.html',
 styleUrls: ['./voucher.css'],
 })
@@ -35,6 +38,18 @@ export class Voucher implements OnInit {
     confirmTitle = '';
 
     confirmMessage = '';
+
+  // Import Excel
+  showImportDialog = false;
+  importColumns: ImportExcelColumn[] = [
+    { header: 'Mã Voucher', key: 'maVoucher', example: 'VC001' },
+    { header: 'Tên Chương Trình', key: 'tenChuongTrinh', example: 'Giảm giá khai giảng' },
+    { header: 'Đơn vị giảm', key: 'donViGiam', example: 'VNĐ' },
+    { header: 'Thông số giảm', key: 'thongSo', example: '500000' },
+    { header: 'Chi nhánh áp dụng', key: 'chiNhanh', example: 'CN1, CN2' },
+    { header: 'Khóa học áp dụng', key: 'khoaHocApDung', example: 'LR, SW' },
+  ];
+
 
 filterConfig: FilterConfig[] = [
 { key: 'maVoucher', label: 'Mã Voucher', type: 'text' },
@@ -814,4 +829,96 @@ error
 
 }
 
+  exportExcel() {
+    const data = this.filteredData;
+    if (!data || data.length === 0) {
+      alert('Không có dữ liệu để xuất!');
+      return;
+    }
+
+    const excelData = data.map((item: any, index: number) => ({
+      'STT': index + 1,
+      'Mã voucher': item.maVoucher ?? '',
+      'Tên chương trình': item.tenChuongTrinh ?? '',
+      'Khóa học áp dụng': Array.isArray(item.khoaHocApDung) ? item.khoaHocApDung.join(', ') : (item.khoaHocApDung ?? ''),
+      'Đơn vị giảm': item.donViGiam ?? '',
+      'Thông số giảm': item.thongSoGiam ?? 0,
+      'Chi nhánh áp dụng': Array.isArray(item.chiNhanh) ? item.chiNhanh.join(', ') : (item.chiNhanh ?? ''),
+      'Trạng thái': item.active ? 'Đang hoạt động' : 'Ngưng hoạt động',
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+    const headers = Object.keys(excelData[0]);
+    worksheet['!cols'] = headers.map(key => {
+      const maxLen = Math.max(
+        key.length,
+        ...excelData.map(row => `${(row as any)[key] ?? ''}`.length)
+      );
+      return { wch: maxLen + 2 };
+    });
+
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách voucher');
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, `DanhSachVoucher_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
+  openImportDialog(): void {
+    this.showImportDialog = true;
+  }
+
+  closeImportDialog(): void {
+    this.showImportDialog = false;
+  }
+
+  onImportExcel(data: any[]): void {
+    if (!data || data.length === 0) {
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    data.forEach((row, index) => {
+      const payload: any = {
+        stt: this.allData.length + index + 1,
+        maVoucher: `${row.maVoucher ?? ''}`.trim(),
+        tenChuongTrinh: `${row.tenChuongTrinh ?? ''}`.trim(),
+        donViGiam: `${row.donViGiam ?? 'VNĐ'}`.trim(),
+        thongSo: Number(row.thongSo) || 0,
+        chiNhanh: typeof row.chiNhanh === 'string'
+          ? row.chiNhanh.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        khoaHocApDung: typeof row.khoaHocApDung === 'string'
+          ? row.khoaHocApDung.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        active: true
+      };
+
+      this.voucherService.addVoucher(payload).subscribe({
+        next: () => {
+          successCount++;
+          if (successCount + errorCount === data.length) {
+            alert(`Nhập thành công ${successCount}/${data.length} voucher.`);
+            this.loadVouchers();
+            this.showImportDialog = false;
+          }
+        },
+        error: (err) => {
+          errorCount++;
+          console.error(`Lỗi nhập voucher dòng ${index + 1}:`, err);
+          if (successCount + errorCount === data.length) {
+            alert(`Nhập thành công ${successCount}/${data.length} voucher. Lỗi: ${errorCount} dòng.`);
+            this.loadVouchers();
+            this.showImportDialog = false;
+          }
+        }
+      });
+    });
+  }
 }

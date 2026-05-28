@@ -8,6 +8,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { VoucherService } from '../../../services/voucher';
 import { Observable } from 'rxjs/internal/Observable';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-debt',
   standalone: true,
@@ -33,6 +35,8 @@ export class Debt {
   showDetailDialog = false;
   dialogMode: 'view' | 'payment' = 'view';
   detailForm!: FormGroup;
+
+  private originalPaymentDetailSections: any[] = [];
 
   paymentDetailSections = [
 
@@ -178,6 +182,7 @@ export class Debt {
     private voucherService: VoucherService,
     private fb: FormBuilder
   ) {
+    this.originalPaymentDetailSections = JSON.parse(JSON.stringify(this.paymentDetailSections));
     this.loadPayments();
     this.loadCourses();
     this.initForm();
@@ -465,6 +470,23 @@ export class Debt {
 
   viewPaymentDetail(item: any): void {
 
+    this.dialogMode = 'view';
+
+    // Dynamically adjust sections for view mode
+    const registrationSection = this.paymentDetailSections[0];
+    const debtSection = this.paymentDetailSections[1];
+
+    const baseFields = debtSection.fields.filter(
+      (f: any) => f.name !== 'nhapSoTienThanhToan'
+    );
+
+    let viewFields: any[] = baseFields;
+
+    this.paymentDetailSections = [
+      registrationSection,
+      { ...debtSection, fields: viewFields }
+    ];
+
     this.detailForm.patchValue({
 
       maDangKy: item.maDangKy,
@@ -479,6 +501,7 @@ export class Debt {
       voucher: item.voucher,
       soTienCanThanhToan: item.soTienCanThanhToan,
       soTienDaDong: item.soTienDaDong,
+      nhapSoTienThanhToan: '',
       soTienConLai: item.soTienConLai,
       trangThai: item.trangThai
 
@@ -493,6 +516,9 @@ export class Debt {
   paymentDebt(item: any): void {
 
     this.dialogMode = 'payment';
+
+    // Restore original sections with 'Nhập số tiền thanh toán'
+    this.paymentDetailSections = JSON.parse(JSON.stringify(this.originalPaymentDetailSections));
 
     this.detailForm.patchValue({
 
@@ -718,25 +744,29 @@ loadVouchers() {
         (x: any) => x.active === true
       );
 
+      const options = this.vouchers.map((voucher: any) => ({
+        value: voucher.maVoucher,
+        label: voucher.maVoucher + ' - ' + voucher.tenChuongTrinh
+      }));
+
+      // Update the active sections
       const voucherField: any =
         this.paymentDetailSections[1].fields.find(
           (x: any) => x.name === 'voucher'
         );
 
       if (voucherField) {
+        voucherField.options = options;
+      }
 
-        voucherField.options =
-          this.vouchers.map((voucher: any) => ({
+      // Update the backup sections so when paymentDebt restores them, options are preserved
+      const origVoucherField: any =
+        this.originalPaymentDetailSections[1].fields.find(
+          (x: any) => x.name === 'voucher'
+        );
 
-            value: voucher.maVoucher,
-
-            label:
-              voucher.maVoucher +
-              ' - ' +
-              voucher.tenChuongTrinh
-
-          }));
-
+      if (origVoucherField) {
+        origVoucherField.options = options;
       }
 
     },
@@ -823,5 +853,48 @@ this.detailForm.patchValue({
 
 }
 
-}
+  exportExcel() {
+    const data = this.filteredPayments;
+    if (!data || data.length === 0) {
+      alert('Không có dữ liệu để xuất!');
+      return;
+    }
 
+    const excelData = data.map((item: any, index: number) => ({
+      'STT': index + 1,
+      'Mã đăng ký': item.maDangKy ?? '',
+      'Mã khách hàng': item.maKH ?? '',
+      'Tên khách hàng': item.tenKhachHang ?? '',
+      'Mã lớp': item.maLop ?? '',
+      'Khóa học': item.khoaHoc ?? '',
+      'Chi nhánh': item.chiNhanh ?? '',
+      'Ngày đăng ký': item.ngayDangKy ?? '',
+      'Học phí': item.hocPhi ?? 0,
+      'Voucher': item.voucher ?? '',
+      'Số tiền cần thanh toán': item.soTienCanThanhToan ?? 0,
+      'Số tiền đã đóng': item.soTienDaDong ?? 0,
+      'Số tiền còn lại': item.soTienConLai ?? 0,
+      'Trạng thái': item.trangThai ?? '',
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+    const headers = Object.keys(excelData[0]);
+    worksheet['!cols'] = headers.map(key => {
+      const maxLen = Math.max(
+        key.length,
+        ...excelData.map(row => `${(row as any)[key] ?? ''}`.length)
+      );
+      return { wch: maxLen + 2 };
+    });
+
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách công nợ');
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, `DanhSachCongNo_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+}
