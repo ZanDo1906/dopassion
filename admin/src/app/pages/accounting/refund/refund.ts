@@ -266,7 +266,7 @@ export class Refund {
           lyDoYeuCau: item.lyDoYeuCauHoanTien || '',
           lyDoChapNhan: item.lyDoChapNhanHoanTien || '',
           lyDoTuChoi: item.lyDoTuChoi,
-          trangThai: item.trangThai
+          trangThai: item.trangThai === 'Đã hoàn tiền' ? 'Đã duyệt' : item.trangThai
         }));
         this.filteredRefunds = [...this.refunds];
         this.loading = false;
@@ -585,14 +585,8 @@ export class Refund {
     this.selectedRefund._id,
     updatedData
   ).subscribe({
-    next: (res) => {
-      const index = this.refunds.findIndex(
-        x => x._id === this.selectedRefund._id
-      );
-      if (index !== -1) {
-        this.refunds[index] = res; // lấy từ backend
-      }
-      this.filteredRefunds = [...this.refunds];
+    next: () => {
+      this.loadRefunds();
       this.showRejectDialog = false;
       this.selectedRefund = null;
     },
@@ -607,28 +601,36 @@ export class Refund {
     const formValue =
       this.detailForm.getRawValue();
 
-    const index =
-      this.refunds.findIndex(
+    const item =
+      this.refunds.find(
         x => x.maDangKy === formValue.maDangKy
       );
 
-    if (index !== -1) {
-
-      this.refunds[index].soTienHoan =
-        formValue.soTienHoan;
-
-      this.refunds[index].lyDoChapNhan =
-        formValue.lyDoChapNhan;
-
-      this.refunds[index].trangThai =
-        'Đã duyệt';
-
-      this.filteredRefunds = [
-        ...this.refunds
-      ];
+    if (!item || !item._id) {
+      console.error('Không tìm thấy ID của bản ghi hoàn tiền.');
+      alert('Không tìm thấy ID của bản ghi hoàn tiền. Vui lòng thử lại.');
+      return;
     }
 
-    this.showDetailDialog = false;
+    const updatedData = {
+      soTienHoan: formValue.soTienHoan,
+      lyDoChapNhanHoanTien: formValue.lyDoChapNhan,
+      trangThai: 'Đã duyệt'
+    };
+
+    this.refundService.updateRefund(
+      item._id,
+      updatedData
+    ).subscribe({
+      next: () => {
+        this.loadRefunds();
+        this.showDetailDialog = false;
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Lỗi khi duyệt hoàn tiền. Vui lòng thử lại.');
+      }
+    });
 
   }
 }
