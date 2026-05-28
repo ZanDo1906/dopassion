@@ -15,10 +15,9 @@
     <div class="filter-section">
       <div class="filter-group">
         <label class="filter-label">Khóa học</label>
-        <select title="Khóa" class="filter-select filter-select-main" (change)="filterByCourse($event)">
+        <select title="Khóa" class="filter-select filter-select-main" [ngModel]="currentFilters.courseCode" (change)="filterByCourse($event)">
           <option value="">Tất cả khóa học</option>
-          <option value="LR">TOEIC - LR</option>
-          <option value="SW">TOEIC - SW</option>
+          <option *ngFor="let course of courseOptions" [value]="course.maKhoaHoc">{{ course.tenKhoaHoc }}</option>
         </select>
       </div>
 
@@ -30,7 +29,7 @@
 
       <div class="filter-group">
         <label class="filter-label">Chi nhánh</label>
-        <select title="Chi" class="filter-select filter-select-main" (change)="filterByBranch($event)">
+        <select title="Chi" class="filter-select filter-select-main" [ngModel]="currentFilters.branch" (change)="filterByBranch($event)">
           <option value="">Tất cả chi nhánh</option>
           <option *ngFor="let branch of branchOptions" [value]="branch">{{ branch }}</option>
         </select>
@@ -254,7 +253,7 @@
             </div>
             <div class="register-item register-voucher-item">
               <span class="register-label">Voucher hiện tại của trung tâm</span>
-              <select class="register-select" [ngModel]="registrationVoucherId" (change)="onVoucherChange($event)">
+              <select class="register-select" [(ngModel)]="registrationVoucherId">
                 <option value="">Không chọn voucher</option>
                 <option *ngFor="let voucher of voucherOptions" [value]="voucher.id">{{ voucher.label }}</option>
               </select>

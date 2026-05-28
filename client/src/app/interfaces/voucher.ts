@@ -4,8 +4,8 @@ export interface iVoucher {
     tenChuongTrinh: string;
     donViGiam: string;
     thongSo: number;
-    chiNhanh: string;
-    khoaHocApDung: string;
+    chiNhanh: string | string[];
+    khoaHocApDung: string | string[];
     active: boolean;
 
     createdAt?: string;
