@@ -5,7 +5,7 @@ export interface iStaff {
     gioiTinh: string;
     ngaySinh: string;
     sdt: number;
-    email: string;
+    email: string | null;
     chiNhanh: string;
     vaiTro: string;
     maVaiTro: string;

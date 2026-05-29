@@ -25,7 +25,7 @@
         : dialogMode === 'edit'
         ? 'CHỈNH SỬA VOUCHER'
         : 'THÊM MỚI VOUCHER'
-    " [sections]="voucherFormSections" [columns]="3" [formGroup]="dialogMode === 'view'
+    " [sections]="currentFormSections" [columns]="3" [formGroup]="dialogMode === 'view'
         ? detailForm
         : voucherForm" [isReadOnly]="dialogMode === 'view'" (close)="closeDialog()" (submit)="onSaveVoucher()">
     </app-form-dialog>
@@ -83,31 +83,19 @@
                                 (click)="viewVoucherDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button
-                                *ngIf="item.active"
-                                class="icon-btn"
-                                type="button"
-                                title="Chỉnh sửa"
-                                (click)="editVoucher(item)"
-                            >
+                            <button *ngIf="item.active" class="icon-btn" type="button" title="Chỉnh sửa"
+                                (click)="editVoucher(item)">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button
-                                class="icon-btn"
-                                type="button"
-                                (click)="toggleVoucherStatus(item)"
+                            <button class="icon-btn" type="button" (click)="toggleVoucherStatus(item)"
                                 [title]="item.active ? 'Ngưng hoạt động' : 'Kích hoạt lại'"
-                                [style.color]="item.active ? '#4C70AD': '#4C70AD'"
-                            >
+                                [style.color]="item.active ? '#4C70AD': '#4C70AD'">
 
-                                <i
-                                    class="bi"
-                                    [ngClass]="
+                                <i class="bi" [ngClass]="
                                         item.active
                                         ? 'bi bi-unlock'
                                         : 'bi bi-lock-fill'
-                                    "
-                                ></i>
+                                    "></i>
                             </button>
                         </div>
                     </td>
@@ -152,25 +140,11 @@
         </div>
     </div>
 </div>
-<app-confirm-dialog
-    [isOpen]="showConfirmDialog"
-    [title]="confirmTitle"
-    [message]="confirmMessage"
-    confirmText="Xác nhận"
-    cancelText="Hủy"
-    confirmIcon="bi bi-check-circle"
-    cancelIcon="bi bi-x-circle"
-    (confirm)="confirmToggleVoucherStatus()"
-    (cancel)="closeConfirmDialog()"
->
+<app-confirm-dialog [isOpen]="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+    confirmText="Xác nhận" cancelText="Hủy" confirmIcon="bi bi-check-circle" cancelIcon="bi bi-x-circle"
+    (confirm)="confirmToggleVoucherStatus()" (cancel)="closeConfirmDialog()">
 </app-confirm-dialog>
 
-<app-import-excel-dialog
-    [isOpen]="showImportDialog"
-    title="Nhập Excel Voucher"
-    templateFileName="Template_Voucher.xlsx"
-    sheetName="Voucher"
-    [columns]="importColumns"
-    (close)="closeImportDialog()"
-    (imported)="onImportExcel($event)">
+<app-import-excel-dialog [isOpen]="showImportDialog" title="Nhập Excel Voucher" templateFileName="Template_Voucher.xlsx"
+    sheetName="Voucher" [columns]="importColumns" (close)="closeImportDialog()" (imported)="onImportExcel($event)">
 </app-import-excel-dialog>
