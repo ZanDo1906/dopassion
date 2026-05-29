@@ -412,11 +412,12 @@ export class Staff implements OnInit {
       gioiTinh: rawValue.gender,
       ngaySinh: rawValue.dob,
       sdt: Number(rawValue.phone) || 0,
-      email: '',
+      email: null,
       chiNhanh: rawValue.branch,
       vaiTro: rawValue.roleName,
       maVaiTro: rawValue.roleId,
-      // anhCccd: rawValue.cccdImage,
+      anhCccd: null,
+      password: '123456',
       active: true
     };
 
