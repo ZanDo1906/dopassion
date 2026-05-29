@@ -553,6 +553,11 @@
   color: #c62828;
 }
 
+.status-rejected-refund {
+  background-color: #fbe9e7;
+  color: #d84315;
+}
+
 .payment-body {
   display: grid;
   grid-template-columns: 2fr 1fr;

@@ -2,8 +2,33 @@ const express = require('express');
 const router = express.Router();
 
 const Refund = require('../models/refund');
+const Payment = require('../models/payment');
+const Registration = require('../models/registration');
 
 // GET all
+router.get('/fix-legacy-data', async (req, res) => {
+    try {
+        const completedRefunds = await Refund.find({ trangThai: 'Đã hoàn tiền' });
+        let count = 0;
+        for (const refund of completedRefunds) {
+            if (refund.maDangKy) {
+                await Payment.findOneAndUpdate(
+                    { maDangKy: refund.maDangKy },
+                    { trangThaiThanhToan: 'Đã hoàn tiền' }
+                );
+                await Registration.findOneAndUpdate(
+                    { maDangKy: refund.maDangKy },
+                    { trangThai: 'Đã khóa' }
+                );
+                count++;
+            }
+        }
+        res.status(200).json({ message: `Fixed ${count} records` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.get('/', async (req, res) => {
     try {
         const data = await Refund.find().lean();
@@ -65,6 +90,27 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({
                 message: 'Data not found'
             });
+        }
+
+        // Khi refund được duyệt (Đã hoàn tiền) → cập nhật Payment & khóa Registration
+        if (req.body.trangThai === 'Đã hoàn tiền' && updatedData.maDangKy) {
+            try {
+                // Cập nhật trạng thái Payment sang "Đã hoàn tiền"
+                await Payment.findOneAndUpdate(
+                    { maDangKy: updatedData.maDangKy },
+                    { trangThaiThanhToan: 'Đã hoàn tiền' }
+                );
+
+                // Khóa Registration tương ứng
+                await Registration.findOneAndUpdate(
+                    { maDangKy: updatedData.maDangKy },
+                    { trangThai: 'Đã khóa' }
+                );
+
+                console.log(`[REFUND APPROVED] Updated payment & registration for ${updatedData.maDangKy}`);
+            } catch (syncErr) {
+                console.error('Error syncing payment/registration after refund approval:', syncErr);
+            }
         }
 
         res.status(200).json(updatedData);
