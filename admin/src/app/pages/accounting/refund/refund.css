@@ -193,19 +193,19 @@
     border: 1px solid transparent;
 }
 
-.badge--refund-success {
+.badge--success {
     background: #e2f6e7;
     color: #1d7a37;
     border-color: #bfe8c9;
 }
 
-.badge--refund-pending {
+.badge--warning {
     background: #fff4e5;
     color: #c47d1a;
     border-color: #f2d0a9;
 }
 
-.badge--refund-rejected {
+.badge--danger {
     background: #fde5e5;
     color: #c03d3d;
     border-color: #f2bcbc;
