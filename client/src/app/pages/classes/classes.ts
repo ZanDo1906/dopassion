@@ -9,13 +9,13 @@ import { iCourse } from '../../interfaces/course';
 import { VoucherService } from '../../services/voucher';
 import { iVoucher } from '../../interfaces/voucher';
 import { DateRangePickerComponent, DateRange } from '../../components/date-range-picker/date-range-picker';
-import { Client } from '../../services/client';
+import { Customer } from '../../services/customer';
 import { RegistrationService } from '../../services/registration';
 import { Payment } from '../../services/payment';
 import { NotificationService } from '../../services/notification.service';
 import { iPayment } from '../../interfaces/payment';
 import { iRegistration } from '../../interfaces/registration';
-import { iClient } from '../../interfaces/client';
+import { iCustomer } from '../../interfaces/customer';
 
 interface ClassDetailView extends iClass {
   currentEnrollment: number;
@@ -86,7 +86,7 @@ export class Classes implements OnInit, OnDestroy {
   paymentInterval: any = null;
   createdPayment: iPayment | null = null;
   createdRegistration: iRegistration | null = null;
-  createdClient: iClient | null = null;
+  createdClient: iCustomer | null = null;
   copiedField: string | null = null;
   isPaymentExpired = false;
   isCheckingOut = false;
@@ -94,7 +94,7 @@ export class Classes implements OnInit, OnDestroy {
   // Đăng ký hiện có của khách hàng (từ DB + session)
   activeRegistrations: iRegistration[] = [];
   allRegistrations: iRegistration[] = [];
-  allClients: iClient[] = [];
+  allClients: iCustomer[] = [];
   // Cờ cho biết khách không còn lớp phù hợp (có cả LR + SW)
   noClassAvailable = false;
   noClassMessage = '';
@@ -104,7 +104,7 @@ export class Classes implements OnInit, OnDestroy {
     private classService: Class,
     private courseService: Course,
     private voucherService: VoucherService,
-    private clientService: Client,
+    private customerService: Customer,
     private registrationService: RegistrationService,
     private paymentService: Payment,
     private route: ActivatedRoute,
@@ -148,8 +148,8 @@ export class Classes implements OnInit, OnDestroy {
    * Tải toàn bộ danh sách khách hàng để phục vụ việc sinh mã KH tự động
    */
   private loadAllClients(): void {
-    this.clientService.getClients().subscribe({
-      next: (clients: iClient[]) => {
+    this.customerService.getCustomers().subscribe({
+      next: (clients: iCustomer[]) => {
         this.allClients = clients || [];
       },
       error: () => {

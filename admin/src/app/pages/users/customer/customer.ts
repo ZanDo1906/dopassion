@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Client } from '../../../services/client';
-import { iClient } from '../../../interfaces/client';
+import { Customer as CustomerService } from '../../../services/customer';
+import { iCustomer } from '../../../interfaces/customer';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { PaginationComponent } from '../../../components/pagination/pagination';
 import { FormDialogComponent } from '../../../components/form-dialog/form-dialog';
@@ -113,7 +113,7 @@ export class Customer implements OnInit {
     { value: 'Khác', label: 'Khác' }
   ];
 
-  constructor(private clientService: Client, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder,   private registrationService: RegistrationService,) {
+  constructor(private customerService: CustomerService, private cdr: ChangeDetectorRef, private formBuilder: FormBuilder,   private registrationService: RegistrationService,) {
     this.detailForm = this.formBuilder.group<CustomerDetailFormGroup>({
       'Mã KH': this.formBuilder.control('', { nonNullable: true }),
       'Tên khách hàng': this.formBuilder.control('', { nonNullable: true }),
@@ -144,21 +144,21 @@ export class Customer implements OnInit {
     // Load data
     this.loadData();
 
-    // Subscribe to client changes so the list refreshes when new clients are added elsewhere
+    // Subscribe to customer changes so the list refreshes when new customers are added elsewhere
     try {
-      this.clientService.clientsChanged$.subscribe((client) => {
-        console.log('[Customer] clientsChanged event received:', client);
-        // reload list to ensure newly created clients are shown
+      this.customerService.customersChanged$.subscribe((customer) => {
+        console.log('[Customer] customersChanged event received:', customer);
+        // reload list to ensure newly created customers are shown
         this.loadData();
       });
     } catch (e) {
-      console.warn('Failed to subscribe to clientsChanged$', e);
+      console.warn('Failed to subscribe to customersChanged$', e);
     }
   }
 
   loadData(): void {
-  this.clientService.getClients().subscribe({
-    next: (clients: iClient[]) => {
+  this.customerService.getCustomers().subscribe({
+    next: (clients: iCustomer[]) => {
       this.registrationService.getRegistrations().subscribe({
         next: (registrations: any[]) => {
           // Danh sách mã khách đã đăng ký
@@ -408,7 +408,7 @@ export class Customer implements OnInit {
       ? true
       : false;
     // Gọi API cập nhật trạng thái vào database
-    this.clientService.updateClient(customerId, {
+    this.customerService.updateCustomer(customerId, {
       active: newActive
     }).subscribe({
       next: (response) => {

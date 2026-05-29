@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const Payment = require('../models/payment');
-const Client = require('../models/client');
+const Customer = require('../models/customer');
 const Registration = require('../models/registration');
 
 // Helper to get day/month/year code
@@ -35,31 +35,28 @@ router.post('/checkout', async (req, res) => {
 
         const dateCode = getCurrentDateCode();
 
-        // 1. Check or Create Client
-        let client = await Client.findOne({ email: email.trim().toLowerCase() });
-        let isNewClient = false;
+        // 1. Check or Create Customer
+        let customer = await Customer.findOne({ email: email.trim().toLowerCase() });
+        let isNewCustomer = false;
 
-        if (!client) {
-            isNewClient = true;
+        if (!customer) {
+            isNewCustomer = true;
             // Generate maKh
             const pattern = new RegExp(`^KH-${dateCode}-\\d{3}$`, 'i');
-            const existingClients = await Client.find({ maKh: pattern });
+            const existingCustomers = await Customer.find({ maKh: pattern });
             let maxSeq = 0;
-            existingClients.forEach(c => {
-                const match = c.maKh.match(/-(\d{3})$/);
-                if (match) {
-                    maxSeq = Math.max(maxSeq, parseInt(match[1], 10));
+            existingCustomers.forEach(c => {
+                if (c.maKh) {
+                    const match = c.maKh.match(/-(\d{3})$/);
+                    if (match) {
+                        maxSeq = Math.max(maxSeq, parseInt(match[1], 10));
+                    }
                 }
             });
             const nextSeq = maxSeq + 1;
             const maKh = `KH-${dateCode}-${String(nextSeq).padStart(3, '0')}`;
 
-            // Get highest STT
-            const lastClient = await Client.findOne().sort({ stt: -1 });
-            const nextStt = lastClient && lastClient.stt ? lastClient.stt + 1 : 1;
-
-            client = new Client({
-                stt: nextStt,
+            customer = new Customer({
                 maKh,
                 tenKhachHang,
                 email: email.trim().toLowerCase(),
@@ -67,11 +64,11 @@ router.post('/checkout', async (req, res) => {
                 trangThai: 'Chờ thanh toán',
                 active: true
             });
-            await client.save();
+            await customer.save();
         } else {
-            // Update existing client to 'Chờ thanh toán'
-            client.trangThai = 'Chờ thanh toán';
-            await client.save();
+            // Update existing customer to 'Chờ thanh toán'
+            customer.trangThai = 'Chờ thanh toán';
+            await customer.save();
         }
 
         // 2. Generate Registration
@@ -93,8 +90,8 @@ router.post('/checkout', async (req, res) => {
         const registration = new Registration({
             stt: nextRegStt,
             maDangKy,
-            maKh: client.maKh,
-            tenKh: client.tenKhachHang,
+            maKh: customer.maKh,
+            tenKh: customer.tenKhachHang,
             maLop,
             tenLopHoc: tenLop,
             khoaHoc: maLop.split('-')[0] || 'TOEIC',
@@ -112,8 +109,8 @@ router.post('/checkout', async (req, res) => {
         const payment = new Payment({
             stt: nextPayStt,
             maDangKy,
-            maKh: client.maKh,
-            tenKh: client.tenKhachHang,
+            maKh: customer.maKh,
+            tenKh: customer.tenKhachHang,
             maLop,
             tenLopHoc: tenLop,
             khoaHoc: maLop.split('-')[0] || 'TOEIC',
@@ -142,12 +139,12 @@ router.post('/checkout', async (req, res) => {
                         { trangThai: 'Chưa thanh toán' }
                     );
 
-                    await Client.findOneAndUpdate(
+                    await Customer.findOneAndUpdate(
                         { maKh: currentPayment.maKh },
                         { trangThai: 'Chưa thanh toán' }
                     );
 
-                    console.log(`[TIMEOUT expired] Updated registration, payment, client for ${currentPayment.maDangKy} to Chưa thanh toán`);
+                    console.log(`[TIMEOUT expired] Updated registration, payment, customer for ${currentPayment.maDangKy} to Chưa thanh toán`);
                 }
             } catch (err) {
                 console.error('Error in checkout timeout update:', err);
@@ -156,7 +153,7 @@ router.post('/checkout', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            client,
+            customer,
             registration,
             payment
         });
