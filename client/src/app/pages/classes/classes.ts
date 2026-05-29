@@ -66,6 +66,7 @@ export class Classes implements OnInit, OnDestroy {
   }> = [];
 
   private courseCatalogMap: Record<string, iCourse> = {};
+  courseOptions: iCourse[] = [];
   branchOptions: string[] = [];
   private voucherCatalog: iVoucher[] = [];
   voucherOptions: VoucherPreviewOption[] = [];
@@ -192,6 +193,7 @@ export class Classes implements OnInit, OnDestroy {
   private loadCourseCatalog(): void {
     this.courseService.getCourses().subscribe({
       next: (courses: iCourse[]) => {
+        this.courseOptions = courses || [];
         this.courseCatalogMap = (courses || []).reduce((map, course) => {
           const normalizedCode = `${course.maKhoaHoc || ''}`.trim().toUpperCase();
           map[normalizedCode] = course;
@@ -252,21 +254,18 @@ export class Classes implements OnInit, OnDestroy {
     }
 
     const branch = `${this.selectedClassDetail.chiNhanh || ''}`.trim().toLowerCase();
-    const courseCode = `${this.selectedClassDetail.maKhoa || ''}`.trim().toLowerCase();
-    const courseName = `${this.selectedClassDetail.tenKhoaHoc || ''}`.trim().toLowerCase();
 
     const matchedVouchers = this.voucherCatalog.filter((voucher) => {
-      const voucherBranch = `${voucher.chiNhanh || ''}`.trim().toLowerCase();
-      const voucherCourse = `${voucher.khoaHocApDung || ''}`.trim().toLowerCase();
+      let branchMatch = false;
+      if (Array.isArray(voucher.chiNhanh)) {
+        const branches = voucher.chiNhanh.map(b => b.trim().toLowerCase());
+        branchMatch = branches.length === 0 || branches.some(b => !b || b === 'tất cả' || b === 'tat ca' || b === branch);
+      } else {
+        const voucherBranch = `${voucher.chiNhanh || ''}`.trim().toLowerCase();
+        branchMatch = !voucherBranch || voucherBranch === 'tất cả' || voucherBranch === 'tat ca' || voucherBranch === branch;
+      }
 
-      const branchMatch = !voucherBranch || voucherBranch === 'tất cả' || voucherBranch === 'tat ca' || voucherBranch === branch;
-      const courseMatch = !voucherCourse || voucherCourse === 'tất cả' || voucherCourse === 'tat ca'
-        || voucherCourse === courseCode
-        || voucherCourse.includes(courseCode)
-        || voucherCourse.includes(courseName)
-        || courseName.includes(voucherCourse);
-
-      return voucher.active && branchMatch && courseMatch;
+      return voucher.active && branchMatch;
     });
 
     this.voucherOptions = matchedVouchers.map((voucher) => ({

@@ -5,9 +5,12 @@ import { Router } from '@angular/router';
 import { RegistrationService } from '../../services/registration';
 import { Class } from '../../services/class';
 import { Payment } from '../../services/payment';
+import { RefundService } from '../../services/refund';
+import { iRefund } from '../../interfaces/refund';
 import { NotificationService } from '../../services/notification.service';
 import { Customer as CustomerService } from '../../services/customer';
 import { environment } from '../../../environments/environments';
+import { forkJoin } from 'rxjs';
 
 interface CalendarDay {
   date: number;
@@ -51,7 +54,7 @@ interface PaymentDetail {
   amountPaid: number;
   refundAmount: number;
   paymentMethod: string;
-  status: 'pending' | 'completed' | 'postponed' | 'cancelled';
+  status: 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund';
   paymentDate: string;
   paymentDateTime: string;
   updatedDateTime: string;
@@ -72,6 +75,7 @@ export class Account implements OnInit {
     private registrationService: RegistrationService,
     private classService: Class,
     private paymentService: Payment,
+    private refundService: RefundService,
     private notification: NotificationService,
     private customerService: CustomerService
   ) {
@@ -99,7 +103,17 @@ export class Account implements OnInit {
 
   // BIẾN QUẢN LÝ BỘ LỌC
   classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
-  paymentFilter: 'all' | 'pending' | 'completed' | 'postponed' = 'all';
+  paymentFilter: 'all' | 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund' = 'all';
+
+  // REFUND POPUP
+  showRefundConfirmPopup: boolean = false;
+  refundTargetPayment: PaymentDetail | null = null;
+  refundCalculatedAmount: number = 0;
+  refundSessionsTotal: number = 0;
+  refundSessionsAttended: number = 0;
+  refundSessionsRemaining: number = 0;
+  isProcessingRefund: boolean = false;
+  userRefundReason: string = '';
 
   // Calendar properties
   selectedYear: number = 2025;
@@ -322,17 +336,25 @@ export class Account implements OnInit {
   }
   loadPayments(maKhachHang: string) {
 
-    this.paymentService.getPayments().subscribe({
+    forkJoin({
+      payments: this.paymentService.getPayments(),
+      refunds: this.refundService.getRefunds()
+    }).subscribe({
 
-      next: (data: any[]) => {
+      next: (data) => {
 
-        console.log('ALL PAYMENTS:', data);
+        console.log('ALL PAYMENTS:', data.payments);
+        console.log('ALL REFUNDS:', data.refunds);
 
-        const myPayments = data.filter(
+        const myPayments = data.payments.filter(
           p => p.maKh === maKhachHang
         ).reverse();
 
+        const myRefunds = data.refunds.filter(r => r.maKh === maKhachHang);
+
         this.payments = myPayments.map((item, index) => {
+
+          const matchedRefund = myRefunds.find(r => r.maDangKy === item.maDangKy);
 
           return {
 
@@ -352,20 +374,26 @@ export class Account implements OnInit {
               (item.soTienCanThanhToan || 0)
               - (item.soTienConLai || 0),
 
-            refundAmount: 0,
+            refundAmount: matchedRefund ? matchedRefund.soTienHoan : 0,
 
             paymentMethod: 'Chưa cập nhật',
 
             status: (() => {
+              // Nếu có bản ghi refund, trạng thái phụ thuộc vào refund
+              if (matchedRefund) {
+                if (matchedRefund.trangThai === 'Chờ duyệt') return 'pending_refund' as const;
+                if (matchedRefund.trangThai === 'Đã hoàn tiền') return 'refunded' as const;
+              }
+
+              // Nếu không, trả về trạng thái của payment
               if (item.trangThaiThanhToan === 'Đã thanh toán') return 'completed';
               if (item.trangThaiThanhToan === 'Đã hủy') return 'cancelled';
 
-              // Check 10 minutes expiry
+              // Check 10 minutes expiry cho trạng thái pending
               if (item.ngayDangKy) {
                 const diffMs = new Date().getTime() - new Date(item.ngayDangKy).getTime();
                 const diffMins = diffMs / 60000;
-                if (diffMins > 10) {
-                  // Should be cancelled if not already paid and > 10 mins
+                if (diffMins > 10 && item.trangThaiThanhToan !== 'Đã thanh toán') {
                   this.cancelExpiredPaymentAndRegistration(item);
                   return 'cancelled';
                 }
@@ -385,13 +413,17 @@ export class Account implements OnInit {
               })()
               : '',
 
-            updatedDateTime: item.updatedAt || item.ngayDangKy
+            updatedDateTime: (matchedRefund && matchedRefund.updatedAt) ? (() => {
+                const d = new Date(matchedRefund.updatedAt);
+                const pad = (n: number) => n.toString().padStart(2, '0');
+                return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+              })() : (item.updatedAt || item.ngayDangKy
               ? (() => {
                 const d = new Date(item.updatedAt || item.ngayDangKy);
                 const pad = (n: number) => n.toString().padStart(2, '0');
                 return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
               })()
-              : '',
+              : ''),
 
             note: '',
             rawPayment: item
@@ -416,23 +448,27 @@ export class Account implements OnInit {
   openClassPopup(classItem: ClassDetail) {
     this.selectedClass = classItem;
     this.showClassPopup = true;
+    document.body.style.overflow = 'hidden';
   }
 
   closeClassPopup() {
     this.showClassPopup = false;
     this.selectedClass = null;
+    document.body.style.overflow = '';
   }
 
   openPaymentPopup(payment: PaymentDetail) {
     this.selectedPayment = payment;
     this.showPaymentPopup = true;
     this.startTimer();
+    document.body.style.overflow = 'hidden';
   }
 
   closePaymentPopup() {
     this.showPaymentPopup = false;
     this.selectedPayment = null;
     this.copiedField = null;
+    document.body.style.overflow = '';
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
@@ -476,26 +512,28 @@ export class Account implements OnInit {
   }
 
   private cancelExpiredPaymentAndRegistration(rawPayment: any) {
-    if (rawPayment._id && rawPayment.trangThaiThanhToan !== 'Đã hủy') {
+    if (!rawPayment || !rawPayment._id) return;
+
+    if (rawPayment.trangThaiThanhToan !== 'Đã hủy') {
       // Cập nhật payment thành Đã hủy
       this.paymentService.updatePayment(rawPayment._id, { trangThaiThanhToan: 'Đã hủy' }).subscribe({
         next: () => {
           rawPayment.trangThaiThanhToan = 'Đã hủy'; // Update local memory
         }
       });
-
-      // Xóa bản ghi registration
-      this.registrationService.getRegistrations().subscribe(regs => {
-        const reg = regs.find(r => r.maDangKy === rawPayment.maDangKy);
-        if (reg && reg._id) {
-          this.registrationService.deleteRegistration(reg._id).subscribe({
-            next: () => {
-              this.loadRegisteredClasses(this.customerCode); // Cập nhật lại UI lớp học
-            }
-          });
-        }
-      });
     }
+
+    // Khóa bản ghi registration (thay vì xóa) để học viên có thể đăng ký lại mà không bị lỗi
+    this.registrationService.getRegistrations().subscribe(regs => {
+      const reg = regs.find(r => r.maDangKy === rawPayment.maDangKy);
+      if (reg && reg._id && reg.trangThai !== 'Đã khóa') {
+        this.registrationService.updateRegistration(reg._id, { trangThai: 'Đã khóa' }).subscribe({
+          next: () => {
+            this.loadRegisteredClasses(this.customerCode); // Cập nhật lại UI lớp học
+          }
+        });
+      }
+    });
   }
 
   cancelPayment(payment: PaymentDetail) {
@@ -700,5 +738,208 @@ export class Account implements OnInit {
 
   }
 
+  // ===== REFUND FEATURE =====
+
+  /**
+   * Mở popup xác nhận hoàn tiền.
+   * Tính số buổi đã học dựa trên lịch học (khungGio) từ ngày khai giảng đến hôm nay.
+   */
+  openRefundConfirm(payment: PaymentDetail): void {
+    this.refundTargetPayment = payment;
+    const rawPayment = payment.rawPayment;
+    if (!rawPayment) return;
+
+    // Tìm thông tin lớp học để lấy ngayBatDau, ngayKetThuc, khungGio
+    this.classService.getClasses().subscribe({
+      next: (classList) => {
+        const classInfo = classList.find(c => c.maLop === rawPayment.maLop);
+        if (!classInfo) {
+          this.notification.show('Lỗi', 'Không tìm thấy thông tin lớp học', 'error');
+          return;
+        }
+
+        const startDate = new Date(classInfo.ngayBatDau);
+        const endDate = new Date(classInfo.ngayKetThuc);
+        const today = new Date();
+        const schedule = classInfo.khungGio || '';
+
+        // Parse lịch học để đếm số ngày học trong tuần
+        // VD khungGio: "T2, T4, T6 (18:00-20:00)" hoặc "Thứ 2 - Thứ 4 - Thứ 6"
+        const daysPerWeek = this.countScheduleDaysPerWeek(schedule);
+
+        // Tính tổng số buổi = số tuần * số buổi/tuần
+        // Yêu cầu: "mỗi khóa có 2 tháng là 8 tuần", tức là 1 tháng = 4 tuần.
+        const diffDays = (endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000);
+        const diffMonths = Math.round(diffDays / 30);
+        let totalWeeks = Math.round(diffDays / 7);
+        
+        // Nếu số ngày xấp xỉ số tháng tròn (sai số <= 7 ngày), ép về quy tắc 1 tháng = 4 tuần
+        if (diffMonths > 0 && Math.abs(diffDays - diffMonths * 30) <= 7) {
+            totalWeeks = diffMonths * 4;
+        } else {
+            totalWeeks = Math.max(1, Math.round(diffDays / 7));
+        }
+        
+        const totalSessions = totalWeeks * daysPerWeek;
+
+        // Tính số buổi đã học từ ngày khai giảng đến hôm nay
+        const elapsedWeeks = Math.max(0, Math.floor((today.getTime() - startDate.getTime()) / (7 * 24 * 3600 * 1000)));
+        const elapsedDaysInPartialWeek = Math.max(0, Math.ceil(((today.getTime() - startDate.getTime()) % (7 * 24 * 3600 * 1000)) / (24 * 3600 * 1000)));
+
+        // Đếm chính xác hơn: tính số buổi đã trôi qua
+        let attendedSessions = this.countSessionsBetween(startDate, today, schedule);
+        if (attendedSessions < 0) attendedSessions = 0;
+        if (attendedSessions > totalSessions) attendedSessions = totalSessions;
+
+        const remainingSessions = Math.max(0, totalSessions - attendedSessions);
+
+        // Tính số tiền hoàn lại
+        const amountPaid = payment.amountAfterVoucher || 0;
+        const refundAmount = totalSessions > 0 ? Math.round((amountPaid / totalSessions) * remainingSessions) : 0;
+
+        this.refundSessionsTotal = totalSessions;
+        this.refundSessionsAttended = attendedSessions;
+        this.refundSessionsRemaining = remainingSessions;
+        this.refundCalculatedAmount = refundAmount;
+        this.showRefundConfirmPopup = true;
+        document.body.style.overflow = 'hidden';
+      },
+      error: () => {
+        this.notification.show('Lỗi', 'Không thể tải thông tin lớp học', 'error');
+      }
+    });
+  }
+
+  closeRefundConfirm(): void {
+    this.showRefundConfirmPopup = false;
+    this.refundTargetPayment = null;
+    this.refundCalculatedAmount = 0;
+    this.userRefundReason = '';
+    document.body.style.overflow = '';
+  }
+
+  /**
+   * Đếm số ngày học trong tuần dựa trên chuỗi lịch học
+   * VD: "T2, T4, T6 (18:00-20:00)" → 3
+   */
+  private countScheduleDaysPerWeek(schedule: string): number {
+    if (!schedule) return 3; // mặc định 3 buổi/tuần
+
+    const s = schedule.toUpperCase();
+    const dayPatterns = [
+      /T2|THỨ\s*2|THỨ\s*HAI/gi,
+      /T3|THỨ\s*3|THỨ\s*BA/gi,
+      /T4|THỨ\s*4|THỨ\s*TƯ/gi,
+      /T5|THỨ\s*5|THỨ\s*NĂM/gi,
+      /T6|THỨ\s*6|THỨ\s*SÁU/gi,
+      /T7|THỨ\s*7|THỨ\s*BẢY/gi,
+      /CN|CHỦ\s*NHẬT/gi
+    ];
+
+    let count = 0;
+    for (const pattern of dayPatterns) {
+      if (pattern.test(s)) count++;
+    }
+
+    return count > 0 ? count : 3; // fallback 3
+  }
+
+  /**
+   * Đếm chính xác số buổi học giữa 2 ngày dựa trên lịch học
+   */
+  private countSessionsBetween(from: Date, to: Date, schedule: string): number {
+    const s = schedule.toUpperCase();
+
+    // Mapping JS day (0=CN, 1=T2, ..., 6=T7)
+    const scheduleDays: number[] = [];
+    if (/T2|THỨ\s*2|THỨ\s*HAI/i.test(s)) scheduleDays.push(1);
+    if (/T3|THỨ\s*3|THỨ\s*BA/i.test(s)) scheduleDays.push(2);
+    if (/T4|THỨ\s*4|THỨ\s*TƯ/i.test(s)) scheduleDays.push(3);
+    if (/T5|THỨ\s*5|THỨ\s*NĂM/i.test(s)) scheduleDays.push(4);
+    if (/T6|THỨ\s*6|THỨ\s*SÁU/i.test(s)) scheduleDays.push(5);
+    if (/T7|THỨ\s*7|THỨ\s*BẢY/i.test(s)) scheduleDays.push(6);
+    if (/CN|CHỦ\s*NHẬT/i.test(s)) scheduleDays.push(0);
+
+    if (scheduleDays.length === 0) {
+      // Fallback: T2, T4, T6
+      scheduleDays.push(1, 3, 5);
+    }
+
+    let count = 0;
+    const cursor = new Date(from);
+    cursor.setHours(0, 0, 0, 0);
+    const end = new Date(to);
+    end.setHours(0, 0, 0, 0);
+
+    while (cursor <= end) {
+      if (scheduleDays.includes(cursor.getDay())) {
+        count++;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return count;
+  }
+
+  /**
+   * Xác nhận hoàn tiền: cập nhật payment, registration, tạo refund record
+   */
+  confirmRefund(): void {
+    if (!this.refundTargetPayment || !this.refundTargetPayment.rawPayment || this.isProcessingRefund) return;
+
+    if (!this.userRefundReason || !this.userRefundReason.trim()) {
+      this.notification.show('Lỗi', 'Vui lòng nhập lý do hoàn tiền', 'warning');
+      return;
+    }
+
+    this.isProcessingRefund = true;
+    const rawPayment = this.refundTargetPayment.rawPayment;
+
+    // Không cập nhật Payment, chỉ tạo bản ghi Refund
+    this.createRefundRecord(rawPayment);
+  }
+
+  private createRefundRecord(rawPayment: any): void {
+    const refundData: iRefund = {
+      maDangKy: rawPayment.maDangKy || '',
+      maKh: rawPayment.maKh || '',
+      tenKh: rawPayment.tenKh || '',
+      maLop: rawPayment.maLop || '',
+      tenLopHoc: rawPayment.tenLopHoc || '',
+      khoaHoc: rawPayment.khoaHoc || '',
+      tenKhoa: rawPayment.tenKhoa || '',
+      chiNhanh: rawPayment.chiNhanh || '',
+      ngayDangKy: rawPayment.ngayDangKy || '',
+      daThanhToan: this.refundTargetPayment?.amountAfterVoucher || 0,
+      soTienHoan: this.refundCalculatedAmount,
+      lyDoYeuCauHoanTien: `${this.userRefundReason.trim()} (Hệ thống ghi nhận: Học viên yêu cầu hủy lớp. Đã học ${this.refundSessionsAttended}/${this.refundSessionsTotal} buổi, còn lại ${this.refundSessionsRemaining} buổi.)`,
+      lyDoChapNhanHoanTien: 'Hệ thống tự động xử lý',
+      lyDoTuChoi: '',
+      trangThai: 'Chờ duyệt'
+    };
+
+    this.refundService.addRefund(refundData).subscribe({
+      next: () => {
+        this.isProcessingRefund = false;
+        this.closeRefundConfirm();
+        this.notification.show(
+          'Yêu cầu hoàn tiền đã được gửi',
+          `Yêu cầu hoàn ${this.formatCurrency(this.refundCalculatedAmount)} VND đang chờ duyệt. Bạn sẽ được thông báo khi yêu cầu được xử lý.`,
+          'success'
+        );
+        // Reload dữ liệu
+        this.loadPayments(this.customerCode);
+        this.loadRegisteredClasses(this.customerCode);
+      },
+      error: () => {
+        this.isProcessingRefund = false;
+        this.notification.show('Lỗi', 'Không thể tạo bản ghi hoàn tiền', 'error');
+      }
+    });
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('vi-VN').format(amount || 0);
+  }
 }
 
