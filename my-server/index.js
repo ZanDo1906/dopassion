@@ -47,7 +47,9 @@ app.use('/sales-report', salesreportSchema);
 app.use('/staff', staffSchema);
 app.use('/student-report', studentreportSchema);
 app.use('/voucher', voucherSchema);
-
+app.get('/', (req, res) => {
+    res.send('Backend is running');
+});
 
 // Start server
 app.listen(port, () => {
