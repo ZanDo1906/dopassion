@@ -10,7 +10,7 @@ const customerSchema = new Schema({
     sdt: { type: Number },
     email: { type: String },
     matKhau: { type: String, default: '123456' },
-    avatar: { type: String, default: null },
+    avatar: { type: String, default: '/uploads/avatar-client/default-avatar.png' },
     ngayDangKy: { type: Date },
     trangThai: { type: String },
     active: { type: Boolean },

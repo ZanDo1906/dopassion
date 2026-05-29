@@ -2,13 +2,13 @@ import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
-import { Client } from '../../../services/client';
+import { Customer as CustomerService } from '../../../services/customer';
 import { Course } from '../../../services/course';
 import { Class } from '../../../services/class';
 import { RegistrationService } from '../../../services/registration';
 import { Payment } from '../../../services/payment';
 import { tap } from 'rxjs/operators';
-import { iClient } from '../../../interfaces/client';
+import { iCustomer } from '../../../interfaces/customer';
 import { iCourse } from '../../../interfaces/course';
 import { iClass } from '../../../interfaces/class';
 import { iRegistration } from '../../../interfaces/registration';
@@ -33,8 +33,8 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
 
   // Step 1: Customer search & info
   searchQuery = '';
-  customers: iClient[] = [];
-  selectedCustomer: iClient | null = null;
+  customers: iCustomer[] = [];
+  selectedCustomer: iCustomer | null = null;
   customerForm: FormGroup | null = null;
   isNewCustomer = false;
 
@@ -63,7 +63,7 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
 
   constructor(
     private formBuilder: FormBuilder,
-    private clientService: Client,
+    private customerService: CustomerService,
     private courseService: Course,
     private classService: Class,
     private registrationService: RegistrationService,
@@ -248,7 +248,7 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
    */
 
   private loadCustomers(): void {
-    this.clientService.getClients().subscribe({
+    this.customerService.getCustomers().subscribe({
       next: (data) => {
         this.customers = data;
       },
@@ -498,7 +498,7 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
   /**
    * Điền dữ liệu khách hàng tìm thấy vào form
    */
-  private populateCustomerForm(customer: iClient): void {
+  private populateCustomerForm(customer: iCustomer): void {
     if (this.customerForm) {
       console.log('=== FORM BEFORE PATCH ===');
       console.log('Form controls:', Object.keys(this.customerForm.controls));
@@ -934,7 +934,7 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
     // ========== Step 1: Tạo Customer (nếu khách mới) ==========
     if (isNewCustomer) {
       const generatedMaKh = this.generateCustomerCode();
-      const newClientPayload: iClient = {
+      const newClientPayload: iCustomer = {
       maKh: generatedMaKh,
       tenKhachHang: customerData.tenKhachHang,
       gioiTinh: customerData.gioiTinh,
@@ -948,7 +948,7 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
       active: true
   };
 
-      this.clientService.addClient(newClientPayload).subscribe({
+      this.customerService.addCustomer(newClientPayload).subscribe({
         next: (createdCustomer) => {
           customerMongoId = createdCustomer._id || customerMongoId;
           customerMaKh = createdCustomer.maKh || generatedMaKh;
@@ -1109,8 +1109,8 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
   private markCustomerAsRegistered(customerId: string) {
     const updatedStatus = 'Đã đăng ký khóa';
 
-    return this.clientService.updateClient(customerId, { trangThai: updatedStatus }).pipe(
-      tap((updatedCustomer: iClient) => {
+    return this.customerService.updateCustomer(customerId, { trangThai: updatedStatus }).pipe(
+      tap((updatedCustomer: iCustomer) => {
         const localId = updatedCustomer._id || customerId;
         this.selectedCustomer = this.selectedCustomer && (this.selectedCustomer._id === localId || this.selectedCustomer.maKh === localId)
           ? { ...this.selectedCustomer, trangThai: updatedStatus }

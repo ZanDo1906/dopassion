@@ -19,7 +19,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 const classRouter = require('./routes/class.router');
 const ARreportSchema = require('./routes/AR-report.router');
-const clientSchema = require('./routes/client.router');
 const contactSchema = require('./routes/contact.router');
 const courseSchema = require('./routes/course.router');
 const customerSchema = require('./routes/customer.router');
@@ -36,7 +35,6 @@ const voucherSchema = require('./routes/voucher.router');
 
 app.use('/class', classRouter);
 app.use('/AR-report', ARreportSchema);
-app.use('/client', clientSchema);
 app.use('/contact', contactSchema);
 app.use('/course', courseSchema);
 app.use('/customer', customerSchema);

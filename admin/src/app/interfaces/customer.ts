@@ -9,6 +9,8 @@ export interface iCustomer {
     ngayDangKy: string;
     trangThai: string;
     active: boolean;
+    avatar?: string | null;
+    matKhau?: string;
 
     createdAt?: string;
     updatedAt?: string;

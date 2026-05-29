@@ -234,7 +234,7 @@
 
         <button class="filter-btn" [class.active]="paymentFilter === 'pending'" (click)="paymentFilter = 'pending'">
 
-          Đang chờ hoàn tiền
+          Đang chờ thanh toán
 
         </button>
 
@@ -244,9 +244,21 @@
 
         </button>
 
-        <button class="filter-btn" [class.active]="paymentFilter === 'postponed'" (click)="paymentFilter = 'postponed'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'cancelled'" (click)="paymentFilter = 'cancelled'">
 
-          Đã thanh toán ghi danh
+          Đã hủy
+
+        </button>
+
+        <button class="filter-btn" [class.active]="paymentFilter === 'pending_refund'" (click)="paymentFilter = 'pending_refund'">
+
+          Chờ duyệt
+
+        </button>
+
+        <button class="filter-btn" [class.active]="paymentFilter === 'refunded'" (click)="paymentFilter = 'refunded'">
+
+          Đã hoàn tiền
 
         </button>
 
@@ -275,8 +287,9 @@
             <span class="payment-status" [ngClass]="{
                 'status-pending': payment.status === 'pending',
                 'status-completed': payment.status === 'completed',
-                'status-postponed': payment.status === 'postponed',
-                'status-cancelled': payment.status === 'cancelled'
+                'status-cancelled': payment.status === 'cancelled',
+                'status-refunded': payment.status === 'refunded',
+                'status-pending-refund': payment.status === 'pending_refund'
               }">
 
               {{
@@ -284,8 +297,10 @@
               ? 'Chờ thanh toán'
               : payment.status === 'completed'
               ? 'Đã thanh toán'
-              : payment.status === 'postponed'
-              ? 'Đã thanh toán ghi danh'
+              : payment.status === 'pending_refund'
+              ? 'Chờ duyệt'
+              : payment.status === 'refunded'
+              ? 'Đã hoàn tiền'
               : 'Đã hủy'
               }}
 
@@ -354,6 +369,10 @@
                 <button *ngIf="payment.status === 'pending'" class="btn-payment-cancel"
                   (click)="cancelPayment(payment)">
                   Hủy giao dịch
+                </button>
+                <button *ngIf="payment.status === 'completed'" class="btn-refund"
+                  (click)="openRefundConfirm(payment)">
+                  <i class="bi bi-arrow-return-left me-1"></i> Hoàn tiền
                 </button>
                 <button class="btn-detail" (click)="openPaymentPopup(payment)">
                   Xem chi tiết
@@ -649,7 +668,7 @@
               <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
             </div>
 
-            <!-- TH2: Đã xử lý (Thành công hoặc Huỷ) -->
+            <!-- TH2: Đã xử lý (Thành công hoặc Huỷ hoặc Hoàn tiền) -->
             <ng-container *ngIf="selectedPayment.status !== 'pending'">
               <!-- Box 1: Chờ thanh toán (luôn màu vàng) -->
               <div
@@ -673,15 +692,7 @@
                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
               </div>
 
-              <!-- Box 2: Đã thanh toán ghi danh -->
-              <div *ngIf="selectedPayment.status === 'postponed'"
-                style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #bbdefb; background-color: #e3f2fd;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <i class="bi bi-check-circle-fill" style="color: #2196f3; font-size: 18px;"></i>
-                  <span style="font-weight: 600; color: #1565c0; font-size: 14px;">Đã thanh toán ghi danh</span>
-                </div>
-                <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
-              </div>
+
 
               <!-- Box 2: Đã hủy -->
               <div *ngIf="selectedPayment.status === 'cancelled'"
@@ -692,6 +703,69 @@
                 </div>
                 <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
               </div>
+
+              <!-- TH Đặc biệt: Chờ duyệt hoàn tiền (hiện 3 bước: Chờ TT → Đã TT → Chờ duyệt) -->
+              <ng-container *ngIf="selectedPayment.status === 'pending_refund'">
+                <!-- Box 2: Đã thanh toán -->
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #c8e6c9; background-color: #e8f5e9;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check-circle-fill" style="color: #4caf50; font-size: 18px;"></i>
+                    <span style="font-weight: 600; color: #2e7d32; font-size: 14px;">Đã thanh toán</span>
+                  </div>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
+                </div>
+
+                <div style="width: 2px; height: 12px; background-color: #e0e0e0; margin: -4px auto;"></div>
+
+                <!-- Box 3: Chờ duyệt hoàn tiền -->
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffe0b2; background-color: #fff8e1;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-hourglass-split" style="color: #ff9800; font-size: 18px;"></i>
+                    <span style="font-weight: 600; color: #e65100; font-size: 14px;">Chờ duyệt</span>
+                  </div>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
+                </div>
+              </ng-container>
+
+              <!-- TH Đặc biệt: Đã hoàn tiền (hiện 3 bước: Chờ TT → Đã TT → Đã hoàn tiền) -->
+              <ng-container *ngIf="selectedPayment.status === 'refunded'">
+                <!-- Box 2: Đã thanh toán -->
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #c8e6c9; background-color: #e8f5e9;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check-circle-fill" style="color: #4caf50; font-size: 18px;"></i>
+                    <span style="font-weight: 600; color: #2e7d32; font-size: 14px;">Đã thanh toán</span>
+                  </div>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
+                </div>
+
+                <div style="width: 2px; height: 12px; background-color: #e0e0e0; margin: -4px auto;"></div>
+
+                <!-- Box 3: Chờ duyệt -->
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #ffe0b2; background-color: #fff8e1;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-hourglass-split" style="color: #ff9800; font-size: 18px;"></i>
+                    <span style="font-weight: 600; color: #e65100; font-size: 14px;">Chờ duyệt</span>
+                  </div>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.paymentDateTime }}</span>
+                </div>
+
+                <div style="width: 2px; height: 12px; background-color: #e0e0e0; margin: -4px auto;"></div>
+
+                <!-- Box 4: Đã hoàn tiền -->
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 8px; border: 1px solid #e1bee7; background-color: #f3e5f5;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-arrow-return-left" style="color: #9c27b0; font-size: 18px;"></i>
+                    <span style="font-weight: 600; color: #6a1b9a; font-size: 14px;">Đã hoàn tiền</span>
+                  </div>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.updatedDateTime }}</span>
+                </div>
+              </ng-container>
+
             </ng-container>
 
           </div>
@@ -760,15 +834,84 @@
           </div>
         </div>
 
-        <!-- Cancelled message -->
-        <div *ngIf="selectedPayment.status === 'cancelled'"
-          style="margin-top: 20px; padding: 15px; background-color: #ffebee; border-radius: 8px; text-align: center;">
-          <p style="color: #c62828; margin: 0; font-size: 14px;">Giao dịch đã quá hạn 10 phút và bị tự động hủy. Vui
-            lòng đăng ký lại khóa học nếu bạn vẫn muốn tham gia.</p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Refund Confirmation Popup -->
+  <div *ngIf="showRefundConfirmPopup" class="refund-popup-overlay" (click)="closeRefundConfirm()">
+    <div class="refund-popup" (click)="$event.stopPropagation()">
+      <div class="refund-popup-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size: 24px; color: #ff9800;"></i>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Xác nhận hủy lớp & hoàn tiền</h3>
+        </div>
+        <button class="refund-popup-close" (click)="closeRefundConfirm()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="refund-popup-body" *ngIf="refundTargetPayment">
+
+
+        <div class="refund-info-card">
+          <div class="refund-info-row">
+            <span class="refund-info-label">Lớp học</span>
+            <span class="refund-info-value">{{ refundTargetPayment.className }}</span>
+          </div>
+          <div class="refund-info-row">
+            <span class="refund-info-label">Mã giao dịch</span>
+            <span class="refund-info-value">{{ refundTargetPayment.paymentCode }}</span>
+          </div>
+          <div class="refund-info-row">
+            <span class="refund-info-label">Đã thanh toán</span>
+            <span class="refund-info-value" style="color: #e53935; font-weight: 700;">{{ refundTargetPayment.amountAfterVoucher | number }} VND</span>
+          </div>
+        </div>
+
+        <div class="refund-calc-card">
+          <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #333;"><i class="bi bi-calculator me-2"></i>Chi tiết tính hoàn tiền</h4>
+          <div class="refund-calc-row">
+            <span>Tổng số buổi học</span>
+            <strong>{{ refundSessionsTotal }} buổi</strong>
+          </div>
+          <div class="refund-calc-row">
+            <span>Số buổi đã học</span>
+            <strong style="color: #e53935;">{{ refundSessionsAttended }} buổi</strong>
+          </div>
+          <div class="refund-calc-row">
+            <span>Số buổi còn lại</span>
+            <strong style="color: #4caf50;">{{ refundSessionsRemaining }} buổi</strong>
+          </div>
+          <div class="refund-calc-divider"></div>
+          <div class="refund-calc-row refund-total-row">
+            <span>Số tiền hoàn lại</span>
+            <strong>{{ refundCalculatedAmount | number }} VND</strong>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">Lý do yêu cầu hoàn tiền <span style="color: red;">*</span></label>
+          <textarea [(ngModel)]="userRefundReason" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; font-size: 14px; outline: none;" placeholder="Vui lòng nhập lý do hủy lớp và hoàn tiền..."></textarea>
+        </div>
+
+
+
+        <div class="refund-actions">
+          <button class="btn-refund-cancel" (click)="closeRefundConfirm()" [disabled]="isProcessingRefund">
+            Không, quay lại
+          </button>
+          <button class="btn-refund-confirm" (click)="confirmRefund()" [disabled]="isProcessingRefund">
+            <i class="bi bi-check-lg me-1" *ngIf="!isProcessingRefund"></i>
+            <span *ngIf="!isProcessingRefund">Xác nhận hoàn tiền</span>
+            <span *ngIf="isProcessingRefund">Đang xử lý...</span>
+          </button>
         </div>
       </div>
     </div>
   </div>
+
   <!-- LOGOUT POPUP -->
   <div class="logout-popup-overlay" *ngIf="showLogoutPopup">
 
