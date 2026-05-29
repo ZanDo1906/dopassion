@@ -67,9 +67,10 @@ router.get('/detail/:maLop', async (req, res) => {
             });
         }
 
-        // Count registration records that reference the same class code
+        // Count registration records that reference the same class code and are active
         const currentEnrollment = await Registration.countDocuments({
-            maLop: classData.maLop
+            maLop: classData.maLop,
+            trangThai: 'Đang hoạt động'
         });
 
         res.status(200).json({

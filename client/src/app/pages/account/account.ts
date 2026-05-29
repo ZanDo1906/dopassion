@@ -54,11 +54,14 @@ interface PaymentDetail {
   amountPaid: number;
   refundAmount: number;
   paymentMethod: string;
-  status: 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund';
+  status: 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund' | 'rejected_refund';
   paymentDate: string;
   paymentDateTime: string;
   updatedDateTime: string;
   note: string;
+  rejectReason?: string;
+  showReason?: boolean;
+  refundRequestedDateTime?: string;
   rawPayment?: any;
 }
 
@@ -103,7 +106,7 @@ export class Account implements OnInit {
 
   // BIẾN QUẢN LÝ BỘ LỌC
   classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
-  paymentFilter: 'all' | 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund' = 'all';
+  paymentFilter: 'all' | 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund' | 'rejected_refund' = 'all';
 
   // REFUND POPUP
   showRefundConfirmPopup: boolean = false;
@@ -153,16 +156,14 @@ export class Account implements OnInit {
   // Mock class data
   classes: ClassDetail[] = [];
   switchView(view: 'info' | 'classes' | 'payment' | 'schedule') {
-
     this.currentView = view;
 
-    // LOAD LẠI DANH SÁCH LỚP
+    // Tự động reload data khi chuyển tab
     if (view === 'classes') {
-
       this.loadRegisteredClasses(this.customerCode);
-
+    } else if (view === 'payment') {
+      this.loadPayments(this.customerCode);
     }
-
   }
 
   ngOnInit() {
@@ -382,7 +383,8 @@ export class Account implements OnInit {
               // Nếu có bản ghi refund, trạng thái phụ thuộc vào refund
               if (matchedRefund) {
                 if (matchedRefund.trangThai === 'Chờ duyệt') return 'pending_refund' as const;
-                if (matchedRefund.trangThai === 'Đã hoàn tiền') return 'refunded' as const;
+                if (matchedRefund.trangThai === 'Đã hoàn tiền' || matchedRefund.trangThai === 'Đã duyệt') return 'refunded' as const;
+                if (matchedRefund.trangThai === 'Đã hủy') return 'rejected_refund' as const;
               }
 
               // Nếu không, trả về trạng thái của payment
@@ -426,6 +428,13 @@ export class Account implements OnInit {
               : ''),
 
             note: '',
+            rejectReason: matchedRefund ? matchedRefund.lyDoTuChoi : '',
+            showReason: false,
+            refundRequestedDateTime: (matchedRefund && matchedRefund.createdAt) ? (() => {
+                const d = new Date(matchedRefund.createdAt);
+                const pad = (n: number) => n.toString().padStart(2, '0');
+                return `${pad(d.getHours())}:${pad(d.getMinutes())} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+              })() : '',
             rawPayment: item
           };
 

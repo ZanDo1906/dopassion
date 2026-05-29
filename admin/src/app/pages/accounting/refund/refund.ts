@@ -268,8 +268,8 @@ export class Refund {
           lyDoYeuCau: item.lyDoYeuCauHoanTien || '',
           lyDoChapNhan: item.lyDoChapNhanHoanTien || '',
           lyDoTuChoi: item.lyDoTuChoi,
-          trangThai: item.trangThai === 'Đã hoàn tiền' ? 'Đã duyệt' : item.trangThai
-        }));
+          trangThai: item.trangThai
+        })).reverse();
         this.filteredRefunds = [...this.refunds];
         this.loading = false;
       },
@@ -617,7 +617,7 @@ export class Refund {
     const updatedData = {
       soTienHoan: formValue.soTienHoan,
       lyDoChapNhanHoanTien: formValue.lyDoChapNhan,
-      trangThai: 'Đã duyệt'
+      trangThai: 'Đã hoàn tiền'
     };
 
     this.refundService.updateRefund(

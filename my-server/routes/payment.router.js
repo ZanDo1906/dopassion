@@ -225,6 +225,19 @@ router.put('/:id', async (req, res) => {
             });
         }
 
+        // Khóa Registration nếu Payment bị hủy
+        if (req.body.trangThaiThanhToan === 'Đã hủy' && updatedData.maDangKy) {
+            try {
+                await Registration.findOneAndUpdate(
+                    { maDangKy: updatedData.maDangKy },
+                    { trangThai: 'Đã khóa' }
+                );
+                console.log(`[PAYMENT CANCELLED] Locked registration for ${updatedData.maDangKy}`);
+            } catch (syncErr) {
+                console.error('Error locking registration after payment cancel:', syncErr);
+            }
+        }
+
         res.status(200).json(updatedData);
     } catch (error) {
         res.status(500).json({
