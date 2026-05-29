@@ -172,6 +172,16 @@ required: true
 }
 ];
 
+get currentFormSections() {
+  if (this.dialogMode === 'add' || this.dialogMode === 'edit') {
+    return this.voucherFormSections.map(section => ({
+      ...section,
+      fields: section.fields.filter(f => f.name !== 'active')
+    }));
+  }
+  return this.voucherFormSections;
+}
+
 constructor(
 private fb: FormBuilder,
 private voucherService: VoucherService
