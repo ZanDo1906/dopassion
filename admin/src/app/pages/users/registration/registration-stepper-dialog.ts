@@ -338,19 +338,6 @@ export class RegistrationStepperDialog implements OnInit, OnDestroy {
       console.log('Customer existing course types:', this.customerExistingCourseTypes);
       console.log('Customer existing classes count:', this.customerExistingClasses.length);
 
-      // === RULE: If customer has both LR and SW registrations, show error ===
-      if (this.customerExistingCourseTypes.length >= 2) {
-        this.errorMessage = `Khách hàng này đã đăng ký cả 2 khóa (LR và SW). Không thể đăng ký thêm!`;
-        console.warn('VALIDATION FAILED: Customer has both LR and SW courses');
-        this.selectedCustomer = null;
-        this.isNewCustomer = false;
-        this.customerExistingCourseTypes = [];
-        this.customerExistingClasses = [];
-        this.initializeStep1();
-        this.clearCustomerForm();
-        return;
-      }
-
       // Reinitialize form trước khi populate
       this.initializeStep1();
       this.populateCustomerForm(found);

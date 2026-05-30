@@ -487,27 +487,21 @@ export class Classes implements OnInit, OnDestroy {
       // Gọi API lấy toàn bộ registration từ DB
       this.registrationService.getRegistrations().subscribe({
         next: (regs) => {
-          // Chỉ cần check: user có registration nào đang hoạt động cho khoá này không
-          const hasRegistered = regs.some(r => {
+          // Check: user có registration nào đang hoạt động cho cùng lớp này không
+          const classToRegister = `${rawClass.maLop || ''}`.trim();
+          const hasDuplicateClass = regs.some(r => {
             if (r.maKh !== currentUser.maKh) return false;
             if (r.trangThai !== 'Đang hoạt động') return false;
 
-            let rCode = `${r.khoaHoc || ''}`.trim().toUpperCase();
-            if (!rCode) {
-              const rName = `${r.tenKhoa || r.tenLopHoc || ''}`.trim().toUpperCase();
-              if (rName.includes('LISTENING')) rCode = 'LR';
-              else if (rName.includes('SPEAKING')) rCode = 'SW';
-              else if (rName.includes('COMBO')) rCode = 'CB';
-            }
-
-            console.log('[RegisterNow] Found reg:', r.maDangKy, 'khoaHoc:', rCode, 'trangThai:', r.trangThai);
-            return rCode === courseToRegister;
+            const existingClass = `${r.maLop || ''}`.trim();
+            console.log('[RegisterNow] Comparing classes:', existingClass, 'vs', classToRegister);
+            return existingClass === classToRegister;
           });
 
-          if (hasRegistered) {
+          if (hasDuplicateClass) {
             this.notification.show(
               'Đăng ký không hợp lệ',
-              `Bạn đã đăng ký khóa học ${courseToRegister} rồi nên không thể đăng ký tiếp khóa học này!`,
+              `Bạn đã đăng ký lớp này rồi. Không thể đăng ký tiếp!`,
               'warning'
             );
             return;
