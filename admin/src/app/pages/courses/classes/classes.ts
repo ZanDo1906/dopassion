@@ -4,6 +4,8 @@ import { Class } from '../../../services/class';
 import { iClass } from '../../../interfaces/class';
 import { Staff } from '../../../services/staff';
 import { iStaff } from '../../../interfaces/staff';
+import { Course } from '../../../services/course';
+import { iCourse } from '../../../interfaces/course';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
 import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
@@ -20,6 +22,7 @@ import { saveAs } from 'file-saver';
 export class Classes implements OnInit, DoCheck {
   classes: iClass[] = [];
   staffs: iStaff[] = [];
+  courses: iCourse[] = [];
   lastBranch: string = '';
   lastStaffCount = 0;
 
@@ -81,7 +84,13 @@ export class Classes implements OnInit, DoCheck {
   isDialogOpen = false;
   dialogMode: 'add' | 'edit' | 'view' = 'add';
   isConfirmOpen = false;
+  confirmTitle = '';
+  confirmMessage = '';
+  confirmText = '';
+  confirmIcon = '';
+  confirmAction: 'submit' | 'toggle' = 'submit';
   pendingSubmitData: any = null;
+  toggleItem: any = null;
   dialogData: any = {};
   dialogTitle: string = 'Thêm lớp học';
   dialogSections = [
@@ -145,7 +154,7 @@ export class Classes implements OnInit, DoCheck {
     }
   ];
 
-  constructor(private classService: Class, private staffService: Staff) { }
+  constructor(private classService: Class, private staffService: Staff, private courseService: Course) { }
 
   get isViewMode(): boolean {
     return this.dialogMode === 'view';
@@ -159,16 +168,30 @@ export class Classes implements OnInit, DoCheck {
       this.staffs = data;
       this.updateTeacherOptions();
     });
+    this.courseService.getCourses().subscribe((data) => {
+      this.courses = data;
+      this.updateCourseOptions();
+    });
+  }
+
+  private updateCourseOptions() {
+    const courseField = this.dialogSections[0].fields.find(f => f.name === 'tenKhoaHoc');
+    if (courseField) {
+      // Create options from DB
+      const dbOptions = this.courses.map(c => ({ label: c.tenKhoaHoc, value: c.tenKhoaHoc }));
+      courseField.options = [{ label: 'Chọn khóa học...', value: '' }, ...dbOptions];
+    }
   }
 
   ngDoCheck() {
     if (this.isDialogOpen && this.dialogData) {
       if (this.dialogMode === 'add') {
         // Đảo ngược logic: Dựa vào Tên khóa học để tính Mã khóa
-        if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Speaking và Writing' && this.dialogData.maKhoa !== 'SW') {
-          this.dialogData.maKhoa = 'SW';
-        } else if (this.dialogData.tenKhoaHoc === 'Khóa học TOEIC Listening và Reading' && this.dialogData.maKhoa !== 'LR') {
-          this.dialogData.maKhoa = 'LR';
+        if (this.dialogData.tenKhoaHoc) {
+          const selectedCourse = this.courses.find(c => c.tenKhoaHoc === this.dialogData.tenKhoaHoc);
+          if (selectedCourse && this.dialogData.maKhoa !== selectedCourse.maKhoaHoc) {
+            this.dialogData.maKhoa = selectedCourse.maKhoaHoc;
+          }
         } else if (!this.dialogData.tenKhoaHoc && this.dialogData.maKhoa) {
           this.dialogData.maKhoa = '';
         }
@@ -199,8 +222,13 @@ export class Classes implements OnInit, DoCheck {
           }
 
           let prefix = '';
-          if (maKhoa === 'SW') prefix = 'Lớp TOEIC Speaking&Writing';
-          else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
+          const foundCourse = this.courses.find(c => c.maKhoaHoc === maKhoa);
+          if (foundCourse) {
+            // Lấy từ nào đó đại diện, hoặc cứ lấy "Lớp <tên khóa>"
+            if (maKhoa === 'SW') prefix = 'Lớp TOEIC Speaking&Writing';
+            else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
+            else prefix = `Lớp ${foundCourse.tenKhoaHoc}`;
+          }
 
           const expectedTenLop = `${prefix} ${chiNhanh}-${nextSeq}`;
           if (this.dialogData.tenLop !== expectedTenLop) {
@@ -232,7 +260,7 @@ export class Classes implements OnInit, DoCheck {
         const giangVienField = this.dialogSections[1].fields.find(f => f.name === 'giangVien');
         if (giangVienField) {
           if (chiNhanh) {
-            const filteredStaffs = this.staffs.filter(s => s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
+            const filteredStaffs = this.staffs.filter(s => (s.chiNhanh === chiNhanh || s.chiNhanh === 'Tất cả') && (s.maVaiTro === 'INSTRUCTOR' || s.maVaiTro === 'Giảng viên'));
             giangVienField.options = [
               { label: 'Chọn giảng viên...', value: '' },
               ...filteredStaffs.map(s => ({ label: s.tenNhanVien, value: s.tenNhanVien }))
@@ -266,7 +294,7 @@ export class Classes implements OnInit, DoCheck {
       // Cập nhật Mã nhân viên khi chọn Giảng viên
       if (this.dialogMode !== 'view') {
         if (this.dialogData.giangVien) {
-          const selectedTeacher = this.staffs.find(s => s.tenNhanVien === this.dialogData.giangVien && s.chiNhanh === chiNhanh && s.maVaiTro === 'INSTRUCTOR');
+          const selectedTeacher = this.staffs.find(s => s.tenNhanVien === this.dialogData.giangVien && (s.chiNhanh === chiNhanh || s.chiNhanh === 'Tất cả') && (s.maVaiTro === 'INSTRUCTOR' || s.maVaiTro === 'Giảng viên'));
           if (selectedTeacher && this.dialogData.maNhanVien !== selectedTeacher.maNv) {
             this.dialogData.maNhanVien = selectedTeacher.maNv;
           }
@@ -317,10 +345,32 @@ export class Classes implements OnInit, DoCheck {
       return;
     }
     this.pendingSubmitData = { ...data, _id: this.dialogData?._id };
-    this.confirmSubmit();
+    // Mở dialog confirm cho submit
+    this.confirmTitle = 'Xác nhận';
+    this.confirmMessage = this.dialogMode === 'add' ? 'Bạn có chắc chắn muốn thêm lớp học này không?' : 'Bạn có chắc chắn muốn cập nhật lớp học này không?';
+    this.confirmText = 'Đồng ý';
+    this.confirmIcon = 'bi bi-check-circle';
+    this.confirmAction = 'submit';
+    this.isConfirmOpen = true;
+  }
+
+  toggleStatus(item: iClass) {
+    this.toggleItem = item;
+    const isCurrentlyActive = item.active !== false;
+    this.confirmTitle = isCurrentlyActive ? 'Khóa lớp học' : 'Mở khóa lớp học';
+    this.confirmMessage = isCurrentlyActive ? `Bạn có chắc chắn muốn ngưng hoạt động lớp ${item.maLop}?` : `Bạn có chắc chắn muốn mở lại lớp ${item.maLop}?`;
+    this.confirmText = isCurrentlyActive ? 'Ngưng hoạt động' : 'Mở hoạt động';
+    this.confirmIcon = isCurrentlyActive ? 'bi bi-lock-fill' : 'bi bi-unlock-fill';
+    this.confirmAction = 'toggle';
+    this.isConfirmOpen = true;
   }
 
   confirmSubmit() {
+    if (this.confirmAction === 'toggle') {
+      this.executeToggleStatus();
+      return;
+    }
+
     const data = this.pendingSubmitData;
     if (!data) {
       this.isConfirmOpen = false;
@@ -381,9 +431,34 @@ export class Classes implements OnInit, DoCheck {
     });
   }
 
+  executeToggleStatus() {
+    if (!this.toggleItem) return;
+    const classId = this.toggleItem._id;
+    if (!classId) return;
+
+    const newStatus = this.toggleItem.active === false ? true : false;
+    this.classService.updateClass(classId, { active: newStatus }).subscribe({
+      next: (updated) => {
+        const idx = this.classes.findIndex(c => c._id === classId);
+        if (idx !== -1) {
+          this.classes[idx].active = newStatus;
+          this.classes = [...this.classes];
+        }
+        this.isConfirmOpen = false;
+        this.toggleItem = null;
+        alert(`Đã ${newStatus ? 'mở' : 'ngưng'} hoạt động lớp học thành công!`);
+      },
+      error: (err) => {
+        console.error('Lỗi cập nhật trạng thái lớp học:', err);
+        alert('Lỗi cập nhật trạng thái lớp học: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
   cancelConfirm() {
     this.isConfirmOpen = false;
     this.pendingSubmitData = null;
+    this.toggleItem = null;
   }
 
   openEdit(item: iClass) {

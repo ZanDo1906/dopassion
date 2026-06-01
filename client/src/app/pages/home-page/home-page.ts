@@ -1,8 +1,12 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Course } from '../../services/course';
+import { iCourse } from '../../interfaces/course';
 
 @Component({
   selector: 'app-home-page',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css',
 })
@@ -14,8 +18,12 @@ export class HomePage implements AfterViewInit, OnInit, OnDestroy {
   banners: string[] = ['/banner1.png', '/banner2.png', '/banner3.png', '/banner4.png'];
   currentBannerIndex = 0;
   bannerInterval: any;
+  courses: iCourse[] = [];
+
+  constructor(private courseService: Course, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
+    this.fetchCourses();
     this.bannerInterval = setInterval(() => {
       this.currentBannerIndex = (this.currentBannerIndex + 1) % this.banners.length;
     }, 2000);
@@ -32,6 +40,19 @@ export class HomePage implements AfterViewInit, OnInit, OnDestroy {
       this.homeVideo.nativeElement.muted = true;
       this.homeVideo.nativeElement.play().catch(error => console.log('Autoplay prevented:', error));
     }
+  }
+
+  fetchCourses() {
+    this.courseService.getCourses().subscribe({
+      next: (data) => {
+        // filter active courses if necessary, or just use all
+        this.courses = data.filter(course => course.active !== false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching courses', err);
+      }
+    });
   }
 
   nextSlide(): void {

@@ -9,6 +9,8 @@ import { RegistrationService } from '../../../services/registration';
 import { RegistrationStepperDialog } from './registration-stepper-dialog';
 import { Payment } from '../../../services/payment';
 import { RefundService } from '../../../services/refund';
+import { Class } from '../../../services/class';
+import { forkJoin } from 'rxjs';
 
 type RegistrationDetailFormGroup = {
   'Mã đăng ký': FormControl<string>;
@@ -59,9 +61,11 @@ export class Registration implements OnInit {
       label: 'Trạng thái',
       type: 'select',
       options: [
-        { value: 'Đang hoạt động', label: 'Đang hoạt động' },
-        { value: 'Đã khóa', label: 'Đã khóa' },
-
+        { value: 'Đang chờ ghi danh', label: 'Đang chờ ghi danh' },
+        { value: 'Chưa diễn ra', label: 'Chưa diễn ra' },
+        { value: 'Đã diễn ra', label: 'Đã diễn ra' },
+        { value: 'Đã kết thúc', label: 'Đã kết thúc' },
+        { value: 'Đã hủy', label: 'Đã hủy' }
       ]
     }
   ];
@@ -110,6 +114,7 @@ export class Registration implements OnInit {
   private registrationService: RegistrationService,
   private paymentService: Payment,
   private refundService: RefundService,
+  private classService: Class,
   private cdr: ChangeDetectorRef,
   private formBuilder: FormBuilder
 ) {
@@ -151,19 +156,47 @@ export class Registration implements OnInit {
    * Chuẩn hóa dữ liệu: đổi tên các khóa từ Tiếng Việt sang Anh
    */
   loadData(): void {
-  this.registrationService.getRegistrations().subscribe({
-    next: (data) => {
-
-      this.refundService.getRefunds().subscribe({
-        next: (refunds: any[]) => {
+  forkJoin({
+    registrations: this.registrationService.getRegistrations(),
+    refunds: this.refundService.getRefunds(),
+    payments: this.paymentService.getPayments(),
+    classes: this.classService.getClasses()
+  }).subscribe({
+    next: ({ registrations, refunds, payments, classes }) => {
 
           this.registrations = this.sortRegistrationsNewestFirst(
-            data.map(item => {
+            registrations.map(item => {
 
               // check đã tồn tại refund chưa
               const hasRefundRequest = refunds.some(
                 r => r.maDangKy === item.maDangKy
               );
+
+              const classInfo = classes.find(c => c.maLop === item.maLop);
+              const paymentInfo = payments.find(p => p.maDangKy === item.maDangKy);
+              
+              let statusText = 'Đang chờ ghi danh';
+
+              if (paymentInfo?.trangThaiThanhToan === 'Đã hủy' || item.trangThai === 'Đã khóa') {
+                statusText = 'Đã hủy';
+              } else if (paymentInfo?.trangThaiThanhToan === 'Đã thanh toán') {
+                const now = new Date().getTime();
+                const startDate = classInfo?.ngayBatDau ? new Date(classInfo.ngayBatDau).getTime() : 0;
+                let endDateTime = 0;
+                if (classInfo?.ngayKetThuc) {
+                  const d = new Date(classInfo.ngayKetThuc);
+                  d.setHours(23, 59, 59, 999);
+                  endDateTime = d.getTime();
+                }
+
+                if (startDate > 0 && now < startDate) {
+                  statusText = 'Chưa diễn ra';
+                } else if (endDateTime > 0 && now > endDateTime) {
+                  statusText = 'Đã kết thúc';
+                } else {
+                  statusText = 'Đã diễn ra';
+                }
+              }
 
               return {
                 _id: item._id,
@@ -172,7 +205,7 @@ export class Registration implements OnInit {
                 studentName: item.tenKh || '',
                 className: item.tenLopHoc || '',
                 registrationDate: this.normalizeDateForInput(item.ngayDangKy),
-                status: item.trangThai || 'Đang hoạt động',
+                status: statusText,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
 
@@ -191,8 +224,6 @@ export class Registration implements OnInit {
 
           this.filteredData = [...this.registrations];
           this.updatePagination();
-        }
-      });
     },
 
     error: (err) => {
@@ -441,7 +472,9 @@ export class Registration implements OnInit {
         );
 
       if (registrationToUpdate) {
-        registrationToUpdate.status = newStatus;
+        registrationToUpdate.status = newStatus === 'Đã khóa' ? 'Đã hủy' : 'Đang chờ ghi danh'; // Simple fallback for UI update
+        // It's better to call loadData() here to get accurate calculation
+        this.loadData();
       }
 
       this.filteredData = [...this.registrations];
@@ -523,7 +556,7 @@ export class Registration implements OnInit {
           );
 
           if (registration) {
-            registration.status = 'Đã khóa';
+            registration.status = 'Đã hủy';
             registration.refundRequested = true;
           }
 
@@ -532,7 +565,7 @@ export class Registration implements OnInit {
             if (item.id === this.selectedRegistration.id) {
               return {
                 ...item,
-                status: 'Đã khóa',
+                status: 'Đã hủy',
                 refundRequested: true
               };
             }
@@ -571,7 +604,7 @@ cancelRefund(): void {
    * Kiểm tra xem đăng ký có bị khóa hay không
    */
   isLocked(item: any): boolean {
-    return item?.status === 'Đã khóa';
+    return item?.status === 'Đã hủy' || item?.rawData?.trangThai === 'Đã khóa';
   }
 
   /**
@@ -616,7 +649,7 @@ cancelRefund(): void {
               : new Date(reg.ngayDangKy).toISOString())
           : ''
       ),
-      status: reg.trangThai || 'Đang hoạt động',
+      status: 'Đang chờ ghi danh',
       maLop: reg.maLop || '',
       khoaHoc: reg.khoaHoc || '',
       tenKhoa: reg.tenKhoa || '',

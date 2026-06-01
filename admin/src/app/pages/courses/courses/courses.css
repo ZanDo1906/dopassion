@@ -129,29 +129,36 @@
     background: #ffffff;
     border-radius: 10px;
     border: 1px solid var(--border);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     box-shadow: var(--shadow);
+    max-width: 100%;
 }
 
 .role-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 12px;
+    min-width: 1100px;
 }
 
 .role-table thead th {
     background: var(--primary-100);
     color: var(--primary-600);
     font-weight: 600;
-    padding: 10px 12px;
+    padding: 12px 14px;
     border-bottom: 1px solid #e2e7f4;
+    white-space: nowrap;
 }
 
 .role-table tbody td {
-    padding: 10px 12px;
+    padding: 12px 14px;
     border-bottom: 1px solid #edf1fa;
     text-align: center;
     color: var(--text);
+    white-space: nowrap;
+    background: #ffffff;
 }
 
 .role-table tbody tr:nth-child(even) {
@@ -162,21 +169,47 @@
     background: #f2f6ff;
 }
 
-.col-stt {
-    width: 60px;
+/* Ghim cột STT (Cột 1) */
+.role-table th:nth-child(1),
+.role-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 50px;
+    background: #ffffff; /* Cho td */
+}
+.role-table th:nth-child(1) {
+    background: var(--primary-100);
+    z-index: 11;
 }
 
-.col-actions {
-    width: 140px;
+/* Ghim cột Mã khóa học (Cột 2) */
+.role-table th:nth-child(2),
+.role-table td:nth-child(2) {
+    position: sticky;
+    left: 50px;
+    z-index: 2;
+    border-right: 1px solid #e2e7f4;
+    background: #ffffff;
+}
+.role-table th:nth-child(2) {
+    background: var(--primary-100);
+    z-index: 11;
 }
 
-.badge {
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-    display: inline-block;
-    border: 1px solid transparent;
+/* Ghim cột Tác vụ (Cột cuối) */
+.role-table th:last-child,
+.role-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    width: 100px;
+    border-left: 1px solid #e2e7f4;
+    background: #ffffff;
+}
+.role-table th:last-child {
+    background: var(--primary-100);
+    z-index: 11;
 }
 
 .badge--active {

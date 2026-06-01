@@ -26,6 +26,7 @@
                     <th>Tên khóa học</th>
                     <th>Học phí</th>
                     <th>Mô tả</th>
+                    <th>Trạng thái</th>
                     <th class="col-actions">Tác vụ</th>
                 </tr>
             </thead>
@@ -37,11 +38,20 @@
                     <td>{{ item.hocPhi | number:'1.0-0' }}</td>
                     <td>{{item.moTa || '--'}}</td>
                     <td>
+                        <span class="badge" [ngClass]="item.active ? 'badge--active' : 'badge--inactive'">
+                            {{ item.active ? 'Đang hoạt động' : 'Ngưng hoạt động' }}
+                        </span>
+                    </td>
+                    <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" (click)="openView(item)"><i
+                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="openView(item)"><i
                                     class="bi bi-eye"></i></button>
-                            <button class="icon-btn" type="button" (click)="openEdit(item)"><i
+                            <button class="icon-btn" type="button" title="Sửa" (click)="openEdit(item)"><i
                                     class="bi bi-pencil-square"></i></button>
+                            <button class="icon-btn" type="button"
+                                [title]="item.active ? 'Ngưng hoạt động' : 'Mở hoạt động'" (click)="toggleStatus(item)">
+                                <i class="bi" [ngClass]="item.active ? 'bi-unlock-fill' : 'bi-lock-fill'"></i>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -85,3 +95,8 @@
     [title]="dialogTitle" [sections]="dialogSections" [formData]="dialogData" [columns]="2" [isReadOnly]="isViewMode"
     (close)="closeDialog()" (submit)="onSubmitDialog($event)">
 </app-form-dialog>
+
+<app-confirm-dialog [isOpen]="isConfirmOpen" [title]="confirmTitle" [message]="confirmMessage"
+    [confirmText]="confirmText" cancelText="Hủy" [confirmIcon]="confirmIcon" cancelIcon="bi bi-x-circle"
+    (confirm)="confirmSubmit()" (cancel)="cancelConfirm()">
+</app-confirm-dialog>
