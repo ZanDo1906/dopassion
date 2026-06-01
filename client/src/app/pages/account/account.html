@@ -163,24 +163,32 @@
 
       <div class="filter-bar">
         <button class="filter-btn" [class.active]="classFilter === 'all'" (click)="classFilter = 'all'">Tất cả</button>
-        <button class="filter-btn" [class.active]="classFilter === 'upcoming'" (click)="classFilter = 'upcoming'">Sắp
+        <button class="filter-btn" [class.active]="classFilter === 'pending_enrollment'"
+          (click)="classFilter = 'pending_enrollment'">Đang chờ ghi danh</button>
+        <button class="filter-btn" [class.active]="classFilter === 'upcoming'" (click)="classFilter = 'upcoming'">Chưa
           diễn ra</button>
-        <button class="filter-btn" [class.active]="classFilter === 'ongoing'" (click)="classFilter = 'ongoing'">Đang
-          diễn ra</button>
-        <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Hoàn
-          thành</button>
+        <button class="filter-btn" [class.active]="classFilter === 'ongoing'" (click)="classFilter = 'ongoing'">Đã diễn
+          ra</button>
+        <button class="filter-btn" [class.active]="classFilter === 'completed'" (click)="classFilter = 'completed'">Đã
+          kết thúc</button>
+        <button class="filter-btn" [class.active]="classFilter === 'cancelled'" (click)="classFilter = 'cancelled'">Đã
+          hủy</button>
       </div>
       <div class="classes-list" *ngIf="filteredClasses && filteredClasses.length > 0">
         <div class="class-card" *ngFor="let classItem of filteredClasses">
           <div class="class-header">
             <h3 class="class-name">{{ classItem.name }}</h3>
             <span class="class-status" [ngClass]="{
+                'status-pending': classItem.status === 'pending_enrollment',
                 'status-upcoming': classItem.status === 'upcoming',
                 'status-ongoing': classItem.status === 'ongoing',
-                'status-completed': classItem.status === 'completed'
+                'status-completed': classItem.status === 'completed',
+                'status-cancelled': classItem.status === 'cancelled'
               }">
-              {{ classItem.status === 'upcoming' ? 'Sắp diễn ra' : classItem.status === 'ongoing' ? 'Đang diễn ra' :
-              'Hoàn thành' }}
+              {{ classItem.status === 'pending_enrollment' ? 'Đang chờ ghi danh' :
+              classItem.status === 'upcoming' ? 'Chưa diễn ra' :
+              classItem.status === 'ongoing' ? 'Đã diễn ra' :
+              classItem.status === 'completed' ? 'Đã kết thúc' : 'Đã hủy' }}
             </span>
           </div>
           <div class="class-code">Mã lớp học: {{ classItem.code }}</div>
@@ -250,7 +258,8 @@
 
         </button>
 
-        <button class="filter-btn" [class.active]="paymentFilter === 'pending_refund'" (click)="paymentFilter = 'pending_refund'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'pending_refund'"
+          (click)="paymentFilter = 'pending_refund'">
 
           Chờ duyệt
 
@@ -262,7 +271,8 @@
 
         </button>
 
-        <button class="filter-btn" [class.active]="paymentFilter === 'rejected_refund'" (click)="paymentFilter = 'rejected_refund'">
+        <button class="filter-btn" [class.active]="paymentFilter === 'rejected_refund'"
+          (click)="paymentFilter = 'rejected_refund'">
 
           Hoàn tiền bị hủy
 
@@ -379,8 +389,7 @@
                   (click)="cancelPayment(payment)">
                   Hủy giao dịch
                 </button>
-                <button *ngIf="payment.status === 'completed'" class="btn-refund"
-                  (click)="openRefundConfirm(payment)">
+                <button *ngIf="payment.status === 'completed'" class="btn-refund" (click)="openRefundConfirm(payment)">
                   <i class="bi bi-arrow-return-left me-1"></i> Hoàn tiền
                 </button>
                 <button class="btn-detail" (click)="openPaymentPopup(payment)">
@@ -394,11 +403,13 @@
 
           <!-- DROPDOWN CHO LÝ DO TỪ CHỐI HOÀN TIỀN -->
           <div *ngIf="payment.status === 'rejected_refund'" style="margin-top: 15px;">
-            <div (click)="payment.showReason = !payment.showReason" style="cursor: pointer; padding: 10px 15px; border-top: 1px dashed #ddd; color: #f44336; display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 14px;">
+            <div (click)="payment.showReason = !payment.showReason"
+              style="cursor: pointer; padding: 10px 15px; border-top: 1px dashed #ddd; color: #f44336; display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 14px;">
               <span><i class="bi bi-info-circle me-1"></i> Lý do từ chối hoàn tiền</span>
               <i class="bi" [ngClass]="payment.showReason ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
             </div>
-            <div *ngIf="payment.showReason" style="padding: 10px 15px 15px 15px; background-color: #fff1f0; color: #d32f2f; font-size: 14px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+            <div *ngIf="payment.showReason"
+              style="padding: 10px 15px 15px 15px; background-color: #fff1f0; color: #d32f2f; font-size: 14px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
               {{ payment.rejectReason || 'Không có lý do cụ thể' }}
             </div>
           </div>
@@ -807,7 +818,8 @@
                     <i class="bi bi-hourglass-split" style="color: #ff9800; font-size: 18px;"></i>
                     <span style="font-weight: 600; color: #e65100; font-size: 14px;">Chờ duyệt</span>
                   </div>
-                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.refundRequestedDateTime || selectedPayment.paymentDateTime }}</span>
+                  <span style="font-size: 12px; color: #666;">{{ selectedPayment.refundRequestedDateTime ||
+                    selectedPayment.paymentDateTime }}</span>
                 </div>
 
                 <div style="width: 2px; height: 12px; background-color: #e0e0e0; margin: -4px auto;"></div>
@@ -823,7 +835,8 @@
                 </div>
 
                 <!-- Lý do từ chối -->
-                <div style="margin-top: 10px; padding: 10px; background-color: #f5f5f5; border-radius: 6px; font-size: 13px; color: #555;">
+                <div
+                  style="margin-top: 10px; padding: 10px; background-color: #f5f5f5; border-radius: 6px; font-size: 13px; color: #555;">
                   <strong>Lý do từ chối:</strong> {{ selectedPayment.rejectReason || 'Không có' }}
                 </div>
               </ng-container>
@@ -928,12 +941,14 @@
           </div>
           <div class="refund-info-row">
             <span class="refund-info-label">Đã thanh toán</span>
-            <span class="refund-info-value" style="color: #e53935; font-weight: 700;">{{ refundTargetPayment.amountAfterVoucher | number }} VND</span>
+            <span class="refund-info-value" style="color: #e53935; font-weight: 700;">{{
+              refundTargetPayment.amountAfterVoucher | number }} VND</span>
           </div>
         </div>
 
         <div class="refund-calc-card">
-          <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #333;"><i class="bi bi-calculator me-2"></i>Chi tiết tính hoàn tiền</h4>
+          <h4 style="margin: 0 0 12px 0; font-size: 15px; color: #333;"><i class="bi bi-calculator me-2"></i>Chi tiết
+            tính hoàn tiền</h4>
           <div class="refund-calc-row">
             <span>Tổng số buổi học</span>
             <strong>{{ refundSessionsTotal }} buổi</strong>
@@ -954,8 +969,11 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">Lý do yêu cầu hoàn tiền <span style="color: red;">*</span></label>
-          <textarea [(ngModel)]="userRefundReason" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; font-size: 14px; outline: none;" placeholder="Vui lòng nhập lý do hủy lớp và hoàn tiền..."></textarea>
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333; font-size: 14px;">Lý do yêu
+            cầu hoàn tiền <span style="color: red;">*</span></label>
+          <textarea [(ngModel)]="userRefundReason" rows="3"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; font-size: 14px; outline: none;"
+            placeholder="Vui lòng nhập lý do hủy lớp và hoàn tiền..."></textarea>
         </div>
 
 

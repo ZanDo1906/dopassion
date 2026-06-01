@@ -2,17 +2,21 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Course } from '../../../services/course';
 import { iCourse } from '../../../interfaces/course';
+import { Class } from '../../../services/class';
+import { iClass } from '../../../interfaces/class';
 import { FilterDataPicker, FilterConfig } from '../../../components/filter-data-picker/filter-data-picker';
 import { GridFormDialog } from '../../../components/form-dialog/form-dialog';
+import { ConfirmDialog } from '../../../components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-courses',
-  imports: [CommonModule, FilterDataPicker, GridFormDialog],
+  imports: [CommonModule, FilterDataPicker, GridFormDialog, ConfirmDialog],
   templateUrl: './courses.html',
   styleUrl: './courses.css',
 })
 export class Courses implements OnInit {
   courses: iCourse[] = [];
+  classes: iClass[] = [];
 
   filterValues: Record<string, any> = {};
   filterConfig: FilterConfig[] = [
@@ -29,6 +33,13 @@ export class Courses implements OnInit {
   pageSizeOptions = [10, 20, 50];
 
   isDialogOpen = false;
+  isConfirmOpen = false;
+  confirmTitle = '';
+  confirmMessage = '';
+  confirmText = '';
+  confirmIcon = '';
+  toggleItem: any = null;
+
   dialogMode: 'add' | 'edit' | 'view' = 'add';
   dialogTitle: string = 'Thêm khóa học';
   dialogData: any = {};
@@ -44,15 +55,24 @@ export class Courses implements OnInit {
     }
   ];
 
-  constructor(private courseService: Course, private cdr: ChangeDetectorRef) { }
+  constructor(
+    private courseService: Course, 
+    private classService: Class, 
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
     this.courseService.getCourse().subscribe((data) => {
       this.courses = data;
       this.cdr.detectChanges();
-      console.log('Courses loaded:', this.courses.length, this.courses);
     }, (error) => {
       console.error('Error loading courses:', error);
+    });
+    
+    this.classService.getClasses().subscribe((data) => {
+      this.classes = data;
+    }, (error) => {
+      console.error('Error loading classes:', error);
     });
   }
 
@@ -130,6 +150,59 @@ export class Courses implements OnInit {
         }
       });
     }
+  }
+
+  toggleStatus(item: iCourse) {
+    this.toggleItem = item;
+    const isCurrentlyActive = item.active !== false;
+
+    if (isCurrentlyActive) {
+      // Trying to deactivate. Check if any classes are active.
+      // Class mapping: class.maKhoaHoc or class.maKhoa usually stores the course's maKhoaHoc. Let's check maKhoa or tenKhoaHoc
+      const activeClasses = this.classes.filter(c => c.active !== false && (c.maKhoa === item.maKhoaHoc || c.tenKhoaHoc === item.tenKhoaHoc));
+      
+      if (activeClasses.length > 0) {
+        alert(`Không thể ngưng hoạt động khóa học này vì đang có ${activeClasses.length} lớp học hoạt động thuộc khóa này. Vui lòng ngưng hoạt động các lớp học đó trước.`);
+        this.toggleItem = null;
+        return;
+      }
+    }
+
+    this.confirmTitle = isCurrentlyActive ? 'Khóa khóa học' : 'Mở khóa khóa học';
+    this.confirmMessage = isCurrentlyActive ? `Bạn có chắc chắn muốn ngưng hoạt động khóa học ${item.tenKhoaHoc}?` : `Bạn có chắc chắn muốn mở lại khóa học ${item.tenKhoaHoc}?`;
+    this.confirmText = isCurrentlyActive ? 'Ngưng hoạt động' : 'Mở hoạt động';
+    this.confirmIcon = isCurrentlyActive ? 'bi bi-lock-fill' : 'bi bi-unlock-fill';
+    this.isConfirmOpen = true;
+  }
+
+  confirmSubmit() {
+    if (!this.toggleItem) return;
+    const courseId = this.toggleItem._id;
+    if (!courseId) return;
+
+    const newStatus = this.toggleItem.active === false ? true : false;
+    this.courseService.updateCourse(courseId, { active: newStatus }).subscribe({
+      next: (updated) => {
+        const idx = this.courses.findIndex(c => c._id === courseId);
+        if (idx !== -1) {
+          this.courses[idx].active = newStatus;
+          this.courses = [...this.courses];
+        }
+        this.isConfirmOpen = false;
+        this.toggleItem = null;
+        this.cdr.detectChanges();
+        alert(`Đã ${newStatus ? 'mở' : 'ngưng'} hoạt động khóa học thành công!`);
+      },
+      error: (err) => {
+        console.error('Lỗi cập nhật trạng thái khóa học:', err);
+        alert('Lỗi cập nhật trạng thái khóa học: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  cancelConfirm() {
+    this.isConfirmOpen = false;
+    this.toggleItem = null;
   }
 
   openEdit(item: iCourse) {

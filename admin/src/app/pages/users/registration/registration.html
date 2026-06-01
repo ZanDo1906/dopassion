@@ -1,10 +1,7 @@
 <div class="role-page">
     <!-- Filter Component -->
-    <app-filter-data-picker
-        [config]="filterConfig"
-        (onSearch)="handleSearch($event)"
-        (onReset)="handleReset()"
-    ></app-filter-data-picker>
+    <app-filter-data-picker [config]="filterConfig" (onSearch)="handleSearch($event)"
+        (onReset)="handleReset()"></app-filter-data-picker>
 
     <!-- Action Bar -->
     <div class="toolbar">
@@ -38,27 +35,21 @@
                     <td>{{ item.studentName }}</td>
                     <td>{{ item.className }}</td>
                     <td>
-                        <span
-                            class="badge"
-                            [ngClass]="{
-                                'badge--success': item.status === 'Đang hoạt động',
-                                'badge--danger': item.status === 'Đã khóa' || item.status === 'Ngưng hoạt động',
-                                'badge--warning': item.status === 'Chưa đăng ký khóa'
-                            }"
-                        >
+                        <span class="badge" [ngClass]="{
+                                'badge--success': item.status === 'Đã diễn ra' || item.status === 'Đã kết thúc',
+                                'badge--danger': item.status === 'Đã hủy',
+                                'badge--warning': item.status === 'Đang chờ ghi danh' || item.status === 'Chưa diễn ra'
+                            }">
                             {{ item.status }}
                         </span>
                     </td>
                     <td>
                         <div class="action-group">
-                            <button class="icon-btn" type="button" title="Xem chi tiết" (click)="viewRegistrationDetail(item)">
+                            <button class="icon-btn" type="button" title="Xem chi tiết"
+                                (click)="viewRegistrationDetail(item)">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button 
-                                *ngIf="item.status !== 'Đã khóa'"
-                                class="icon-btn" 
-                                type="button" 
-                                title="Khóa"
+                            <button *ngIf="!isLocked(item)" class="icon-btn" type="button" title="Khóa"
                                 (click)="toggleLockStatus(item)">
                                 <i class="bi bi-lock-fill"></i>
                             </button>
@@ -70,14 +61,9 @@
     </div>
 
     <!-- Pagination -->
-    <app-pagination
-        [totalItems]="filteredData.length"
-        [currentPage]="currentPage"
-        [itemsPerPage]="itemsPerPage"
-        [pageSizeOptions]="pageSizeOptions"
-        (pageChange)="onPaginationPageChange($event)"
-        (pageSizeChange)="onPaginationPageSizeChange($event)"
-    ></app-pagination>
+    <app-pagination [totalItems]="filteredData.length" [currentPage]="currentPage" [itemsPerPage]="itemsPerPage"
+        [pageSizeOptions]="pageSizeOptions" (pageChange)="onPaginationPageChange($event)"
+        (pageSizeChange)="onPaginationPageSizeChange($event)"></app-pagination>
 </div>
 
 <ng-template #viewRegistrationTemplate>
@@ -152,14 +138,11 @@
                 <div class="form-group">
                     <label>Trạng thái</label>
                     <div class="registration-view-status-wrap">
-                        <span
-                            class="badge"
-                            [ngClass]="{
+                        <span class="badge" [ngClass]="{
                                 'badge--success': detailForm.get('Trạng thái')?.value === 'Đang hoạt động',
                                 'badge--danger': detailForm.get('Trạng thái')?.value === 'Đã khóa' || detailForm.get('Trạng thái')?.value === 'Ngưng hoạt động',
                                 'badge--warning': detailForm.get('Trạng thái')?.value === 'Chưa đăng ký khóa'
-                            }"
-                        >
+                            }">
                             {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
                         </span>
                     </div>
@@ -169,44 +152,24 @@
     </form>
 </ng-template>
 
-<app-form-dialog
-    *ngIf="isViewRegistrationDialogOpen"
-    title="Chi tiết đăng ký"
-    [bodyTemplate]="viewRegistrationTemplate"
-    [cancelText]="viewDialogConfig.cancelText"
-    submitText="Lưu"
-    cancelIcon="bi bi-x-circle"
-    submitIcon="bi bi-save"
-    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton"
-    (close)="closeViewRegistrationDialog()">
+<app-form-dialog *ngIf="isViewRegistrationDialogOpen" title="Chi tiết đăng ký" [bodyTemplate]="viewRegistrationTemplate"
+    [cancelText]="viewDialogConfig.cancelText" submitText="Lưu" cancelIcon="bi bi-x-circle" submitIcon="bi bi-save"
+    [class.view-only-dialog]="viewDialogConfig.hideSubmitButton" (close)="closeViewRegistrationDialog()">
 </app-form-dialog>
 
-<app-confirm-dialog
-    [isOpen]="isConfirmLockDialogOpen"
+<app-confirm-dialog [isOpen]="isConfirmLockDialogOpen"
     [title]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa đăng ký' : 'Khóa đăng ký'"
-    [message]="confirmLockMessage"
-    [confirmText]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
+    [message]="confirmLockMessage" [confirmText]="confirmLockItem && isLocked(confirmLockItem) ? 'Mở khóa' : 'Khóa'"
     cancelText="Hủy"
     [confirmIcon]="confirmLockItem && isLocked(confirmLockItem) ? 'bi bi-unlock-fill' : 'bi bi-lock-fill'"
-    cancelIcon="bi bi-x-circle"
-    (confirm)="onConfirmLock()"
-    (cancel)="onCancelLock()">
+    cancelIcon="bi bi-x-circle" (confirm)="onConfirmLock()" (cancel)="onCancelLock()">
 </app-confirm-dialog>
 
 <!-- Registration Stepper Dialog -->
-<app-registration-stepper-dialog
-    *ngIf="isStepperDialogOpen"
-    (close)="closeStepperDialog()"
+<app-registration-stepper-dialog *ngIf="isStepperDialogOpen" (close)="closeStepperDialog()"
     (success)="onStepperSuccess($event)">
 </app-registration-stepper-dialog>
-<app-confirm-dialog
-    [isOpen]="isRefundDialogOpen"
-    title="Yêu cầu hoàn tiền"
-    [message]="refundMessage"
-    confirmText="Hoàn tiền"
-    cancelText="Hủy"
-    confirmIcon="bi bi-cash"
-    cancelIcon="bi bi-x-circle"
-    (confirm)="confirmRefund()"
-    (cancel)="cancelRefund()">
+<app-confirm-dialog [isOpen]="isRefundDialogOpen" title="Yêu cầu hoàn tiền" [message]="refundMessage"
+    confirmText="Hoàn tiền" cancelText="Hủy" confirmIcon="bi bi-cash" cancelIcon="bi bi-x-circle"
+    (confirm)="confirmRefund()" (cancel)="cancelRefund()">
 </app-confirm-dialog>

@@ -16,58 +16,22 @@
 <section class="programs-section">
     <div class="programs-container">
         <div class="cards-grid">
-            <!-- Card 1: Foundation -->
+            @for (course of courses; track course._id) {
             <div class="program-card">
                 <div class="card-image">
-                    <img src="/card-Foudation.jpeg" alt="Foundation" />
+                    <!-- Sử dụng một ảnh mặc định chung như yêu cầu -->
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiCnSJQzAHaz_anv24EBzpEPFN3wjayo0DbtLPgFjDKcAr4W8UqSFqMZEUYys6D8k8NmR4AshnVGeiTaM9b7kAA6btkKOQObpq12IryrLOK-WQZlId_VYKnh6gjtYq0bRBg8Yqjwh3Jvzw/s400/best_english_courses_0.jpg"
+                        [alt]="course.tenKhoaHoc" />
                 </div>
                 <div class="card-content">
-                    <h3 class="card-title">FOUNDATION</h3>
-                    <p class="card-description">
-                        Dành cho các bạn mất gốc hoặc nền tảng tiếng Anh còn yếu, muốn xây dựng lại kiến thức căn bản
-                        trước khi học TOEIC.
-                        <br><br>
-                        Khóa học giúp học viên củng cố từ vựng, ngữ pháp, phát âm và kỹ năng làm bài cơ bản để sẵn sàng
-                        bước vào lộ trình TOEIC.
+                    <h3 class="card-title">{{ course.tenKhoaHoc }}</h3>
+                    <p class="card-description" style="white-space: pre-line;">
+                        {{ course.moTa || 'Chưa có mô tả cho khóa học này.' }}
                     </p>
-                    <a href="/classes?course=FOUNDATION" class="card-btn">ĐĂNG KÝ NGAY</a>
+                    <a [href]="'/classes?course=' + course.maKhoaHoc" class="card-btn">ĐĂNG KÝ NGAY</a>
                 </div>
             </div>
-
-            <!-- Card 2: Speaking & Writing -->
-            <div class="program-card">
-                <div class="card-image">
-                    <img src="/card-SW.jpeg" alt="TOEIC Speaking Writing" />
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">TOEIC SPEAKING & WRITING</h3>
-                    <p class="card-description">
-                        Dành cho học viên muốn cải thiện kỹ năng nói và viết tiếng Anh theo chuẩn bài thi TOEIC Speaking
-                        & Writing.
-                        <br><br>
-                        Khóa học tập trung vào phản xạ giao tiếp, phát triển ý tưởng, trình bày câu trả lời rõ ràng và
-                        viết bài đúng cấu trúc.
-                    </p>
-                    <a href="/classes?course=SW" class="card-btn">ĐĂNG KÝ NGAY</a>
-                </div>
-            </div>
-
-            <!-- Card 3: Listening & Reading -->
-            <div class="program-card">
-                <div class="card-image">
-                    <img src="/card-LR.jpeg" alt="TOEIC Listening Reading" />
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">TOEIC LISTENING & READING</h3>
-                    <p class="card-description">
-                        Dành cho học viên muốn chinh phục TOEIC Listening & Reading với các mục tiêu 550+, 650+ và 750+.
-                        <br><br>
-                        Khóa học giúp học viên luyện kỹ năng nghe, đọc hiểu, nắm chiến thuật làm bài và cải thiện điểm
-                        số theo từng giai đoạn.
-                    </p>
-                    <a href="/classes?course=LR" class="card-btn">ĐĂNG KÝ NGAY</a>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </section>

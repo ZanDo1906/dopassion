@@ -35,7 +35,7 @@ interface ClassDetail {
   instructor: string;
   startDate: string;
   endDate: string;
-  status: 'upcoming' | 'ongoing' | 'completed';
+  status: 'pending_enrollment' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   branch: string;
   room: string;
   schedule: string;
@@ -105,7 +105,7 @@ export class Account implements OnInit {
   selectedFile: File | null = null;
 
   // BIẾN QUẢN LÝ BỘ LỌC
-  classFilter: 'all' | 'upcoming' | 'ongoing' | 'completed' = 'all';
+  classFilter: 'all' | 'pending_enrollment' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled' = 'all';
   paymentFilter: 'all' | 'pending' | 'completed' | 'cancelled' | 'refunded' | 'pending_refund' | 'rejected_refund' = 'all';
 
   // REFUND POPUP
@@ -241,17 +241,19 @@ export class Account implements OnInit {
 
         console.log('ALL REGISTRATIONS:', registrations);
 
-        // Lọc đăng ký theo khách hàng và trạng thái đang hoạt động, đảo ngược mảng để cái mới nhất lên trên
+        // Lọc đăng ký theo khách hàng, đảo ngược mảng để cái mới nhất lên trên
         const myRegistrations = registrations.filter(
-          r => r.maKh === maKh && r.trangThai === 'Đang hoạt động'
+          r => r.maKh === maKh
         ).reverse();
 
         console.log('MY REGISTRATIONS:', myRegistrations);
 
-        // lấy toàn bộ lớp học
-        this.classService.getClasses().subscribe({
+        forkJoin({
+          classList: this.classService.getClasses(),
+          payments: this.paymentService.getPayments()
+        }).subscribe({
 
-          next: (classList) => {
+          next: ({ classList, payments }) => {
 
             console.log('ALL CLASSES:', classList);
 
@@ -263,6 +265,34 @@ export class Account implements OnInit {
                 c => c.maLop === item.maLop
 
               );
+
+              // tìm payment theo maDangKy
+              const paymentInfo = payments.find(
+                p => p.maDangKy === item.maDangKy
+              );
+
+              let statusText: 'pending_enrollment' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled' = 'pending_enrollment';
+
+              if (paymentInfo?.trangThaiThanhToan === 'Đã hủy' || item.trangThai === 'Đã khóa') {
+                statusText = 'cancelled';
+              } else if (paymentInfo?.trangThaiThanhToan === 'Đã thanh toán') {
+                const now = new Date().getTime();
+                const startDate = classInfo?.ngayBatDau ? new Date(classInfo.ngayBatDau).getTime() : 0;
+                let endDateTime = 0;
+                if (classInfo?.ngayKetThuc) {
+                  const d = new Date(classInfo.ngayKetThuc);
+                  d.setHours(23, 59, 59, 999);
+                  endDateTime = d.getTime();
+                }
+
+                if (startDate > 0 && now < startDate) {
+                  statusText = 'upcoming';
+                } else if (endDateTime > 0 && now > endDateTime) {
+                  statusText = 'completed';
+                } else {
+                  statusText = 'ongoing';
+                }
+              }
 
               return {
 
@@ -291,7 +321,7 @@ export class Account implements OnInit {
                       .toLocaleDateString('vi-VN')
                     : '',
 
-                status: 'ongoing',
+                status: statusText,
 
                 branch:
                   classInfo?.chiNhanh ||
@@ -318,7 +348,7 @@ export class Account implements OnInit {
 
           error: (err) => {
 
-            console.error('Lỗi load class:', err);
+            console.error('Lỗi load class or payment:', err);
 
           }
 
