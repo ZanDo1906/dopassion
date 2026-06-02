@@ -224,10 +224,20 @@ export class Classes implements OnInit, DoCheck {
           let prefix = '';
           const foundCourse = this.courses.find(c => c.maKhoaHoc === maKhoa);
           if (foundCourse) {
-            // Lấy từ nào đó đại diện, hoặc cứ lấy "Lớp <tên khóa>"
             if (maKhoa === 'SW') prefix = 'Lớp TOEIC Speaking&Writing';
             else if (maKhoa === 'LR') prefix = 'Lớp TOEIC Listening&Reading';
-            else prefix = `Lớp ${foundCourse.tenKhoaHoc}`;
+            else {
+              let courseName = foundCourse.tenKhoaHoc || '';
+              if (/^Khóa\s*học/i.test(courseName)) {
+                prefix = courseName.replace(/^Khóa\s*học/i, 'Lớp học');
+              } else if (/^Khóa/i.test(courseName)) {
+                prefix = courseName.replace(/^Khóa/i, 'Lớp');
+              } else if (!/^Lớp/i.test(courseName)) {
+                prefix = `Lớp ${courseName}`;
+              } else {
+                prefix = courseName;
+              }
+            }
           }
 
           const expectedTenLop = `${prefix} ${chiNhanh}-${nextSeq}`;

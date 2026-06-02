@@ -306,7 +306,7 @@ export class Classes implements OnInit, OnDestroy {
         this.courses = filteredByReg.map((item) => ({
           id: item._id,
           code: item.maLop || '',
-          title: this.getCourseByClass(item)?.tenKhoaHoc || item.tenKhoaHoc || item.tenLop || item.maLop || '',
+          title: item.tenLop || item.tenKhoaHoc || this.getCourseByClass(item)?.tenKhoaHoc || item.maLop || '',
           startDate: item.ngayBatDau || '',
           branch: item.chiNhanh || '',
           schedule: item.khungGio || '',

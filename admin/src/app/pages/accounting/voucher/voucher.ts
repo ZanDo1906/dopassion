@@ -172,14 +172,17 @@ required: true
 }
 ];
 
-get currentFormSections() {
+currentFormSections: any[] = [];
+
+private updateFormSections() {
   if (this.dialogMode === 'add' || this.dialogMode === 'edit') {
-    return this.voucherFormSections.map(section => ({
+    this.currentFormSections = this.voucherFormSections.map(section => ({
       ...section,
       fields: section.fields.filter(f => f.name !== 'active')
     }));
+  } else {
+    this.currentFormSections = this.voucherFormSections;
   }
-  return this.voucherFormSections;
 }
 
 constructor(
@@ -558,6 +561,7 @@ khoaHocApDung: []
 });
 
 this.showAddDialog = true;
+this.updateFormSections();
 
 }
 
@@ -592,8 +596,8 @@ active: item.active
 this.detailForm.disable();
 
 this.dialogMode = 'view';
-
 this.showAddDialog = true;
+this.updateFormSections();
 
 }
 
@@ -629,6 +633,7 @@ khoaHocApDung: Array.isArray(item.khoaHocApDung)
 });
 
 this.showAddDialog = true;
+this.updateFormSections();
 
 }
 
