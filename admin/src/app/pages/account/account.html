@@ -28,13 +28,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="fullname">Họ và tên</label>
-            <input
-              type="text"
-              id="fullname"
-              [(ngModel)]="tenNhanVien"
-              name="tenNhanVien"
-              [disabled]="!isEditMode"
-            >
+            <input type="text" id="fullname" [(ngModel)]="tenNhanVien" name="tenNhanVien" [disabled]="!isEditMode">
           </div>
           <div class="form-group">
             <label for="phone">Số điện thoại</label>
@@ -51,20 +45,11 @@
             <input type="email" id="email" [(ngModel)]="email" name="email" [disabled]="!isEditMode">
           </div>
         </div>
-        <button
-          *ngIf="!isEditMode"
-          type="button"
-          class="btn-save"
-          (click)="enableEdit()"
-        >
+        <button *ngIf="!isEditMode" type="button" class="btn-save" (click)="enableEdit()">
           CHỈNH SỬA THÔNG TIN
         </button>
 
-        <button
-          *ngIf="isEditMode"
-          type="submit"
-          class="btn-save"
-        >
+        <button *ngIf="isEditMode" type="submit" class="btn-save">
           LƯU THÔNG TIN
         </button>
       </form>
@@ -87,13 +72,8 @@
               <span class="required">*</span>
             </label>
 
-            <input
-              type="password"
-              id="old-password"
-              [(ngModel)]="oldPassword"
-              name="oldPassword"
-              placeholder="••••••••"
-            >
+            <input type="password" id="old-password" [(ngModel)]="oldPassword" name="oldPassword"
+              placeholder="••••••••">
           </div>
 
           <div class="form-group">
@@ -102,13 +82,8 @@
               <span class="required">*</span>
             </label>
 
-            <input
-              type="password"
-              id="new-password"
-              [(ngModel)]="newPassword"
-              name="newPassword"
-              placeholder="••••••••"
-            >
+            <input type="password" id="new-password" [(ngModel)]="newPassword" name="newPassword"
+              placeholder="••••••••">
           </div>
 
           <div class="form-group">
@@ -117,28 +92,17 @@
               <span class="required">*</span>
             </label>
 
-            <input
-              type="password"
-              id="confirm-password"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              placeholder="••••••••"
-            >
+            <input type="password" id="confirm-password" [(ngModel)]="confirmPassword" name="confirmPassword"
+              placeholder="••••••••">
           </div>
 
           <!-- ERROR -->
-          <p
-            *ngIf="passwordError"
-            class="error-text"
-          >
+          <p *ngIf="passwordError" class="error-text">
             {{ passwordError }}
           </p>
 
           <!-- BUTTON -->
-          <button
-            type="submit"
-            class="btn-save"
-          >
+          <button type="submit" class="btn-save">
             LƯU MẬT KHẨU
           </button>
 

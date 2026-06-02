@@ -162,17 +162,29 @@
             </div>
         </div>
 
-        <!-- <div class="form-group cccd-upload-group">
-            <label><span class="required-star">*</span>Ảnh CCCD</label>
-            <label class="upload-box" for="cccd-upload-input">
-                <span class="upload-box__text">+ Upload</span>
-            </label>
-            <input id="cccd-upload-input" type="file" accept="image/*" class="upload-input" (change)="onCccdFileChange($event)" />
-            <small class="upload-file-name" *ngIf="addStaffForm.get('cccdImage')?.value">{{ addStaffForm.get('cccdImage')?.value }}</small>
-            <div class="error-message" *ngIf="addStaffForm.get('cccdImage')?.invalid && addStaffForm.get('cccdImage')?.touched">
-                Trường này là bắt buộc
+        <div class="cccd-upload-row">
+            <div class="form-group cccd-upload-group">
+                <label><span class="required-star">*</span>Ảnh CCCD Mặt trước</label>
+                <label class="upload-box" for="cccd-front-upload-input" [style.background-image]="cccdFrontPreview ? 'url(' + cccdFrontPreview + ')' : ''" [class.has-preview]="cccdFrontPreview">
+                    <span class="upload-box__text" *ngIf="!cccdFrontPreview">+ Upload mặt trước</span>
+                </label>
+                <input id="cccd-front-upload-input" type="file" accept="image/*" class="upload-input" (change)="onCccdFrontChange($event)" />
+                <div class="error-message" *ngIf="addStaffForm.get('cccdFrontImage')?.invalid && addStaffForm.get('cccdFrontImage')?.touched">
+                    Trường này là bắt buộc
+                </div>
             </div>
-        </div> -->
+
+            <div class="form-group cccd-upload-group">
+                <label><span class="required-star">*</span>Ảnh CCCD Mặt sau</label>
+                <label class="upload-box" for="cccd-back-upload-input" [style.background-image]="cccdBackPreview ? 'url(' + cccdBackPreview + ')' : ''" [class.has-preview]="cccdBackPreview">
+                    <span class="upload-box__text" *ngIf="!cccdBackPreview">+ Upload mặt sau</span>
+                </label>
+                <input id="cccd-back-upload-input" type="file" accept="image/*" class="upload-input" (change)="onCccdBackChange($event)" />
+                <div class="error-message" *ngIf="addStaffForm.get('cccdBackImage')?.invalid && addStaffForm.get('cccdBackImage')?.touched">
+                    Trường này là bắt buộc
+                </div>
+            </div>
+        </div>
     </form>
 </ng-template>
 
@@ -292,6 +304,24 @@
                             {{ detailForm.get('Trạng thái')?.value || 'Chưa cập nhật' }}
                         </span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">III. Ảnh CCCD 2 mặt</div>
+        <div class="cccd-view-row">
+            <div class="cccd-view-col">
+                <label class="cccd-view-label">Mặt trước</label>
+                <div class="cccd-image-box">
+                    <img *ngIf="detailForm.get('Ảnh CCCD mặt trước')?.value" [src]="detailForm.get('Ảnh CCCD mặt trước')?.value" alt="CCCD mặt trước" class="cccd-image-preview">
+                    <span *ngIf="!detailForm.get('Ảnh CCCD mặt trước')?.value" class="cccd-empty-text">Chưa cập nhật ảnh mặt trước</span>
+                </div>
+            </div>
+            <div class="cccd-view-col">
+                <label class="cccd-view-label">Mặt sau</label>
+                <div class="cccd-image-box">
+                    <img *ngIf="detailForm.get('Ảnh CCCD mặt sau')?.value" [src]="detailForm.get('Ảnh CCCD mặt sau')?.value" alt="CCCD mặt sau" class="cccd-image-preview">
+                    <span *ngIf="!detailForm.get('Ảnh CCCD mặt sau')?.value" class="cccd-empty-text">Chưa cập nhật ảnh mặt sau</span>
                 </div>
             </div>
         </div>

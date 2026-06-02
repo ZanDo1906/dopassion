@@ -12,7 +12,7 @@ const staffSchema = new Schema({
     chiNhanh: { type: String },
     vaiTro: { type: String },
     maVaiTro: { type: String },
-    anhCccd: { type: String },
+    anhCccd: { type: Schema.Types.Mixed },
     password: { type: String },
     active: { type: Boolean },
 },

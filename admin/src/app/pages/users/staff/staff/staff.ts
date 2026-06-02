@@ -11,6 +11,8 @@ import { RoleService } from '../../../../services/role';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+import { environment } from '../../../../../environments/environments';
+
 type StaffDetailFormGroup = {
   'Mã nhân viên': FormControl<string>;
   'Tên nhân viên': FormControl<string>;
@@ -21,7 +23,8 @@ type StaffDetailFormGroup = {
   'Chi nhánh': FormControl<string>;
   'Vai trò': FormControl<string>;
   'Mã vai trò': FormControl<string>;
-  // 'Ảnh CCCD': FormControl<string>;
+  'Ảnh CCCD mặt trước': FormControl<string>;
+  'Ảnh CCCD mặt sau': FormControl<string>;
   'Trạng thái': FormControl<string>;
 };
 
@@ -114,6 +117,11 @@ export class Staff implements OnInit {
   addStaffForm: FormGroup;
   detailForm: FormGroup<StaffDetailFormGroup>;
 
+  cccdFrontFile: File | null = null;
+  cccdBackFile: File | null = null;
+  cccdFrontPreview: string | null = null;
+  cccdBackPreview: string | null = null;
+
   // Lock/Unlock confirmation dialog
   isConfirmLockDialogOpen = false;
   confirmLockItem: any = null;
@@ -177,7 +185,8 @@ export class Staff implements OnInit {
       branch: ['', [Validators.required]],
       roleName: ['', [Validators.required]],
       roleId: [{ value: '', disabled: true }],
-      // cccdImage: ['', [Validators.required]],
+      cccdFrontImage: ['', [Validators.required]],
+      cccdBackImage: ['', [Validators.required]],
       // TODO: Chốt thêm quy tắc Regex/Độ dài với team sau
     });
     
@@ -197,7 +206,8 @@ export class Staff implements OnInit {
       'Chi nhánh': this.formBuilder.control('', { nonNullable: true }),
       'Vai trò': this.formBuilder.control('', { nonNullable: true }),
       'Mã vai trò': this.formBuilder.control('', { nonNullable: true }),
-      // 'Ảnh CCCD': this.formBuilder.control('', { nonNullable: true }),
+      'Ảnh CCCD mặt trước': this.formBuilder.control('', { nonNullable: true }),
+      'Ảnh CCCD mặt sau': this.formBuilder.control('', { nonNullable: true }),
       'Trạng thái': this.formBuilder.control('', { nonNullable: true })
     });
         this.detailForm.get('Vai trò')?.valueChanges.subscribe((roleName) => {
@@ -238,7 +248,21 @@ export class Staff implements OnInit {
           chiNhanh: staff.chiNhanh || '',
           vaiTro: staff.vaiTro || '',
           maVaiTro: staff.maVaiTro || this.roleCodeMap[staff.vaiTro] || '',
-          // cccdImage: staff.anhCccd || '',
+          cccdFrontImage: (() => {
+            if (Array.isArray(staff.anhCccd)) {
+              const front = staff.anhCccd.find((url: string) => url && url.includes('mattruoc')) || staff.anhCccd[1];
+              return front || '';
+            }
+            if (typeof staff.anhCccd === 'string') return staff.anhCccd;
+            return '';
+          })(),
+          cccdBackImage: (() => {
+            if (Array.isArray(staff.anhCccd)) {
+              const back = staff.anhCccd.find((url: string) => url && url.includes('matsau')) || staff.anhCccd[0];
+              return back || '';
+            }
+            return '';
+          })(),
           trangThai: staff.active === false ? 'Đã khóa' : 'Đang hoạt động',
           _id: staff._id || ''
         }));
@@ -301,6 +325,11 @@ export class Staff implements OnInit {
   openAddStaffDialog(): void {
     this.closeViewStaffDialog();
 
+    this.cccdFrontFile = null;
+    this.cccdBackFile = null;
+    this.cccdFrontPreview = null;
+    this.cccdBackPreview = null;
+
     const nextEmployeeId = this.generateNextEmployeeId();
     this.addStaffForm.reset({
       employeeId: nextEmployeeId,
@@ -312,7 +341,8 @@ export class Staff implements OnInit {
       branch: '',
       roleName: '',
       roleId: '',
-      // cccdImage: ''
+      cccdFrontImage: '',
+      cccdBackImage: ''
     });
     this.isAddStaffDialogOpen = true;
   }
@@ -325,6 +355,9 @@ export class Staff implements OnInit {
     this.isEditMode = false;
     this.closeAddStaffDialog();
 
+    const frontPath = item?.cccdFrontImage ? (item.cccdFrontImage.startsWith('http') ? item.cccdFrontImage : environment.apiUrl + item.cccdFrontImage) : '';
+    const backPath = item?.cccdBackImage ? (item.cccdBackImage.startsWith('http') ? item.cccdBackImage : environment.apiUrl + item.cccdBackImage) : '';
+
     this.detailForm.patchValue({
       'Mã nhân viên': `${item?.maNhanVien ?? ''}`,
       'Tên nhân viên': `${item?.tenNhanVien ?? ''}`,
@@ -335,7 +368,8 @@ export class Staff implements OnInit {
       'Chi nhánh': `${item?.chiNhanh ?? ''}`,
       'Vai trò': `${item?.vaiTro ?? ''}`,
       'Mã vai trò': `${item?.maVaiTro ?? ''}`,
-      // 'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
+      'Ảnh CCCD mặt trước': frontPath,
+      'Ảnh CCCD mặt sau': backPath,
       'Trạng thái': `${item?.trangThai ?? ''}`
     });
 
@@ -349,6 +383,10 @@ export class Staff implements OnInit {
     this.detailForm.get('Mã nhân viên')?.disable();
     this.detailForm.get('Mã vai trò')?.disable();
     this.detailForm.get('Trạng thái')?.disable();
+
+    const frontPath = item?.cccdFrontImage ? (item.cccdFrontImage.startsWith('http') ? item.cccdFrontImage : environment.apiUrl + item.cccdFrontImage) : '';
+    const backPath = item?.cccdBackImage ? (item.cccdBackImage.startsWith('http') ? item.cccdBackImage : environment.apiUrl + item.cccdBackImage) : '';
+
     this.detailForm.patchValue({
       'Mã nhân viên': `${item?.maNhanVien ?? ''}`,
       'Tên nhân viên': `${item?.tenNhanVien ?? ''}`,
@@ -359,7 +397,8 @@ export class Staff implements OnInit {
       'Chi nhánh': `${item?.chiNhanh ?? ''}`,
       'Vai trò': `${item?.vaiTro ?? ''}`,
       'Mã vai trò': `${item?.maVaiTro ?? ''}`,
-      // 'Ảnh CCCD': `${item?.cccdImage ?? ''}`,
+      'Ảnh CCCD mặt trước': frontPath,
+      'Ảnh CCCD mặt sau': backPath,
       'Trạng thái': `${item?.trangThai ?? ''}`
     });
     this.isViewStaffDialogOpen = true;
@@ -378,26 +417,41 @@ export class Staff implements OnInit {
       'Chi nhánh': '',
       'Vai trò': '',
       'Mã vai trò': '',
-      // 'Ảnh CCCD': '',
+      'Ảnh CCCD mặt trước': '',
+      'Ảnh CCCD mặt sau': '',
       'Trạng thái': ''
     });
   }
 
-  // onCccdFileChange(event: Event): void {
-  //   const input =
-  //     event.target as HTMLInputElement;
-  //   const file =
-  //     input.files?.[0];
-  //   if (!file) {
-  //     return;
-  //   }
-  //   const reader = new FileReader();
-  //   reader.onload = () => {
-  //     this.addStaffForm.patchValue({ cccdImage: reader.result as string    });
-  //     this.addStaffForm.get('cccdImage')?.markAsTouched();
-  //   };
-  //   reader.readAsDataURL(file);
-  // }
+  onCccdFrontChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.cccdFrontFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.cccdFrontPreview = reader.result as string;
+      this.addStaffForm.patchValue({ cccdFrontImage: 'selected' });
+      this.addStaffForm.get('cccdFrontImage')?.markAsTouched();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onCccdBackChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.cccdBackFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.cccdBackPreview = reader.result as string;
+      this.addStaffForm.patchValue({ cccdBackImage: 'selected' });
+      this.addStaffForm.get('cccdBackImage')?.markAsTouched();
+    };
+    reader.readAsDataURL(file);
+  }
 
   onSubmitAddStaff(): void {
     if (this.addStaffForm.invalid) {
@@ -405,134 +459,139 @@ export class Staff implements OnInit {
       return;
     }
 
+    if (!this.cccdFrontFile || !this.cccdBackFile) {
+      alert('Vui lòng chọn đầy đủ ảnh CCCD 2 mặt');
+      return;
+    }
+
     const rawValue = this.addStaffForm.getRawValue();
-    const newStaffPayload: iStaff = {
-      maNv: rawValue.employeeId,
-      tenNhanVien: rawValue.fullName,
-      gioiTinh: rawValue.gender,
-      ngaySinh: rawValue.dob,
-      sdt: Number(rawValue.phone) || 0,
-      email: null,
-      chiNhanh: rawValue.branch,
-      vaiTro: rawValue.roleName,
-      maVaiTro: rawValue.roleId,
-      anhCccd: null,
-      password: '123456',
-      active: true
-    };
 
-    const newStaff = {
-      maNhanVien: rawValue.employeeId,
-      tenNhanVien: rawValue.fullName,
-      gioiTinh: rawValue.gender,
-      ngaySinh: rawValue.dob,
-      diaChi: rawValue.address,
-      soDienThoai: rawValue.phone,
-      chiNhanh: rawValue.branch,
-      vaiTro: rawValue.roleName,
-      maVaiTro: rawValue.roleId,
-      // cccdImage: rawValue.cccdImage,
-      trangThai: 'Đang hoạt động'
-    };
+    // Upload 2 mặt CCCD trước
+    this.staffService.uploadCccd(rawValue.fullName, this.cccdFrontFile, this.cccdBackFile).subscribe({
+      next: (res) => {
+        // res trả về { front: '...', back: '...' }
+        // Lưu mảng [matsau, mattruoc] vào DB để khớp định dạng của người dùng
+        const cccdUrls = [res.back, res.front];
 
-    this.staffService.addStaff(newStaffPayload).subscribe({
-      next: (createdStaff: any) => {
+        const newStaffPayload: iStaff = {
+          maNv: rawValue.employeeId,
+          tenNhanVien: rawValue.fullName,
+          gioiTinh: rawValue.gender,
+          ngaySinh: rawValue.dob,
+          sdt: Number(rawValue.phone) || 0,
+          email: null,
+          chiNhanh: rawValue.branch,
+          vaiTro: rawValue.roleName,
+          maVaiTro: rawValue.roleId,
+          anhCccd: cccdUrls,
+          password: '123456',
+          active: true
+        };
 
-      const mappedStaff = {
-        maNhanVien: createdStaff.maNv || '',
-        tenNhanVien: createdStaff.tenNhanVien || '',
-        gioiTinh: createdStaff.gioiTinh || '',
-        ngaySinh: this.normalizeDateForInput(createdStaff.ngaySinh),
-        diaChi: '',
-        soDienThoai: `${createdStaff.sdt || ''}`,
-        chiNhanh: createdStaff.chiNhanh || '',
-        vaiTro: createdStaff.vaiTro || '',
-        maVaiTro: createdStaff.maVaiTro || '',
-        // cccdImage: createdStaff.anhCccd || '',
-        trangThai: createdStaff.active === false
-          ? 'Đã khóa'
-          : 'Đang hoạt động',
-        _id: createdStaff._id || ''
-      };
-      this.allStaffs.unshift(mappedStaff);
-      this.filteredData = [...this.allStaffs];
-      this.currentPage = 1;
-      this.updatePagination();
-      this.closeAddStaffDialog();
-      this.cdr.markForCheck();
-    },
+        const newStaff = {
+          maNhanVien: rawValue.employeeId,
+          tenNhanVien: rawValue.fullName,
+          gioiTinh: rawValue.gender,
+          ngaySinh: rawValue.dob,
+          diaChi: rawValue.address,
+          soDienThoai: rawValue.phone,
+          chiNhanh: rawValue.branch,
+          vaiTro: rawValue.roleName,
+          maVaiTro: rawValue.roleId,
+          cccdFrontImage: res.front,
+          cccdBackImage: res.back,
+          trangThai: 'Đang hoạt động'
+        };
+
+        this.staffService.addStaff(newStaffPayload).subscribe({
+          next: (createdStaff: any) => {
+            const mappedStaff = {
+              maNhanVien: createdStaff.maNv || '',
+              tenNhanVien: createdStaff.tenNhanVien || '',
+              gioiTinh: createdStaff.gioiTinh || '',
+              ngaySinh: this.normalizeDateForInput(createdStaff.ngaySinh),
+              diaChi: '',
+              soDienThoai: `${createdStaff.sdt || ''}`,
+              chiNhanh: createdStaff.chiNhanh || '',
+              vaiTro: createdStaff.vaiTro || '',
+              maVaiTro: createdStaff.maVaiTro || '',
+              cccdFrontImage: (() => {
+                if (Array.isArray(createdStaff.anhCccd)) {
+                  const front = createdStaff.anhCccd.find((url: string) => url && url.includes('mattruoc')) || createdStaff.anhCccd[1];
+                  return front || '';
+                }
+                return '';
+              })(),
+              cccdBackImage: (() => {
+                if (Array.isArray(createdStaff.anhCccd)) {
+                  const back = createdStaff.anhCccd.find((url: string) => url && url.includes('matsau')) || createdStaff.anhCccd[0];
+                  return back || '';
+                }
+                return '';
+              })(),
+              trangThai: createdStaff.active === false ? 'Đã khóa' : 'Đang hoạt động',
+              _id: createdStaff._id || ''
+            };
+            this.allStaffs.unshift(mappedStaff);
+            this.filteredData = [...this.allStaffs];
+            this.currentPage = 1;
+            this.updatePagination();
+            this.closeAddStaffDialog();
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
+            console.error('Không thể thêm nhân viên:', error);
+            alert('Không thể thêm nhân viên');
+          }
+        });
+      },
       error: (error) => {
-        console.error('Không thể thêm nhân viên:', error);
+        console.error('Lỗi upload CCCD:', error);
+        alert(error.error?.message || 'Không thể tải lên ảnh CCCD');
       }
     });
   }
-  onSubmitEditStaff(): void {
 
+  onSubmitEditStaff(): void {
     if (!this.editingStaffId) {
       return;
     }
 
-    const formValue =
-      this.detailForm.getRawValue();
+    const formValue = this.detailForm.getRawValue();
 
     const updatePayload: Partial<iStaff> = {
-      tenNhanVien:
-        formValue['Tên nhân viên'],
-
-      gioiTinh:
-        formValue['Giới tính'],
-
-      ngaySinh:
-        formValue['Ngày sinh'],
-      sdt:
-        Number(formValue['SĐT']) || 0,
-
-      chiNhanh:
-        formValue['Chi nhánh'],
-
-      vaiTro:
-        formValue['Vai trò'],
-
-      maVaiTro:
-        formValue['Mã vai trò'],
-
-      // anhCccd:
-      //   formValue['Ảnh CCCD']
-
+      tenNhanVien: formValue['Tên nhân viên'],
+      gioiTinh: formValue['Giới tính'],
+      ngaySinh: formValue['Ngày sinh'],
+      sdt: Number(formValue['SĐT']) || 0,
+      chiNhanh: formValue['Chi nhánh'],
+      vaiTro: formValue['Vai trò'],
+      maVaiTro: formValue['Mã vai trò'],
+      anhCccd: [
+        formValue['Ảnh CCCD mặt sau'] ? formValue['Ảnh CCCD mặt sau'].replace(environment.apiUrl, '') : '',
+        formValue['Ảnh CCCD mặt trước'] ? formValue['Ảnh CCCD mặt trước'].replace(environment.apiUrl, '') : ''
+      ]
     };
-console.log('editingStaffId:', this.editingStaffId);
-console.log('updatePayload:', updatePayload);
+
+    console.log('editingStaffId:', this.editingStaffId);
+    console.log('updatePayload:', updatePayload);
     this.staffService
-      .updateStaff(
-        this.editingStaffId,
-        updatePayload
-      )
+      .updateStaff(this.editingStaffId, updatePayload)
       .subscribe({
         next: () => {
-          const staff =
-            this.allStaffs.find(
-              s => s._id === this.editingStaffId
-            );
+          const staff = this.allStaffs.find(s => s._id === this.editingStaffId);
           if (staff) {
-            staff.tenNhanVien =
-              formValue['Tên nhân viên'];
-            staff.gioiTinh =
-              formValue['Giới tính'];
-            staff.ngaySinh =
-              formValue['Ngày sinh'];
-            staff.soDienThoai =
-              formValue['SĐT'];
-            staff.chiNhanh =
-              formValue['Chi nhánh'];
-            staff.vaiTro =
-              formValue['Vai trò'];
-            staff.maVaiTro =
-              formValue['Mã vai trò'];
-            // staff.cccdImage =
-            //   formValue['Ảnh CCCD'];
-            this.filteredData = [
-              ...this.allStaffs
-            ];
+            staff.tenNhanVien = formValue['Tên nhân viên'];
+            staff.gioiTinh = formValue['Giới tính'];
+            staff.ngaySinh = formValue['Ngày sinh'];
+            staff.soDienThoai = formValue['SĐT'];
+            staff.chiNhanh = formValue['Chi nhánh'];
+            staff.vaiTro = formValue['Vai trò'];
+            staff.maVaiTro = formValue['Mã vai trò'];
+            staff.cccdFrontImage = formValue['Ảnh CCCD mặt trước'] ? formValue['Ảnh CCCD mặt trước'].replace(environment.apiUrl, '') : '';
+            staff.cccdBackImage = formValue['Ảnh CCCD mặt sau'] ? formValue['Ảnh CCCD mặt sau'].replace(environment.apiUrl, '') : '';
+            
+            this.filteredData = [...this.allStaffs];
             this.updatePagination();
             this.cdr.markForCheck();
           }
@@ -540,6 +599,7 @@ console.log('updatePayload:', updatePayload);
         },
         error: (err) => {
           console.error(err);
+          alert('Không thể cập nhật nhân viên');
         }
       });
   }

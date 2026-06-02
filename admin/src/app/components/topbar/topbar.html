@@ -22,7 +22,8 @@
 
         <a class="user-chip" routerLink="/account" aria-label="Tài khoản">
             <div class="user-chip__avatar" aria-hidden="true">
-                <i class="bi bi-person-fill" aria-hidden="true"></i>
+                <img *ngIf="currentUserAvatar" [src]="currentUserAvatar" alt="Avatar">
+                <i *ngIf="!currentUserAvatar" class="bi bi-person-fill" aria-hidden="true"></i>
             </div>
             <div class="user-chip__info">
                 <div class="user-chip__name">

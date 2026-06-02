@@ -29,4 +29,12 @@ export class Staff {
   getStaff(): Observable<iStaff[]> {
     return this.getStaffs();
   }
+
+  uploadCccd(staffName: string, frontFile: File, backFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('staffName', staffName);
+    formData.append('front', frontFile);
+    formData.append('back', backFile);
+    return this.http.post<any>(`${this.apiUrl}/upload-cccd`, formData);
+  }
 }

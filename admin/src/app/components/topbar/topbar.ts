@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { environment } from '../../../environments/environments';
 
 type Breadcrumb = {
   label: string;
@@ -18,6 +19,7 @@ export class Topbar {
   breadcrumbs: Breadcrumb[] = [];
   currentUserName: string = 'Người dùng';
   currentUserRole: string = 'STAFF';
+  currentUserAvatar: string = environment.apiUrl + '/uploads/avatar-admin/default-avatar.png';
 
   private readonly labelMap: Record<string, string> = {
     account: 'Tài khoản',
@@ -63,6 +65,9 @@ export class Topbar {
       this.currentUserRole =
         user.vaiTro || 'STAFF';
 
+      const defaultAvatar = '/uploads/avatar-admin/default-avatar.png';
+      const rawAvatar = user.anhCccd || defaultAvatar;
+      this.currentUserAvatar = rawAvatar.startsWith('http') ? rawAvatar : environment.apiUrl + rawAvatar;
     }
     this.updateBreadcrumbs(this.router.url);
 

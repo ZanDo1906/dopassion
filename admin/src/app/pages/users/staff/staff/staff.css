@@ -443,3 +443,70 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Custom CSS for 2-Sided CCCD upload and view */
+.cccd-upload-row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.upload-box.has-preview {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-style: solid;
+}
+
+.cccd-view-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.cccd-view-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cccd-view-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #436da5;
+}
+
+.cccd-image-box {
+    width: 100%;
+    aspect-ratio: 1.6;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f8fbff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.cccd-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cccd-empty-text {
+    font-size: 0.8125rem;
+    color: #8fa0be;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .cccd-view-row {
+        grid-template-columns: 1fr;
+    }
+    .cccd-upload-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

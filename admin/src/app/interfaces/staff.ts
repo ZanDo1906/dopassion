@@ -9,7 +9,7 @@ export interface iStaff {
     chiNhanh: string;
     vaiTro: string;
     maVaiTro: string;
-    anhCccd?: string | null;
+    anhCccd?: string[] | string | null;
     password?: string;
     active: boolean;
 
