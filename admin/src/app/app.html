@@ -8,22 +8,18 @@
   </div>
 </div> -->
 
-@if (showSidebar) {
-
-<div class="app-shell">
+<div [class.app-shell]="showSidebar">
+  @if (showSidebar) {
   <app-sidebar class="app-sidebar"></app-sidebar>
+  }
 
-  <div class="app-content">
+  <div [class.app-content]="showSidebar">
+    @if (showSidebar) {
     <app-topbar class="app-topbar"></app-topbar>
+    }
 
-    <main class="app-main">
+    <main [class.app-main]="showSidebar">
       <router-outlet />
     </main>
   </div>
 </div>
-
-} @else {
-
-<router-outlet />
-
-}

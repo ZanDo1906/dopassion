@@ -20,22 +20,14 @@
     <app-footer></app-footer>
 </div> -->
 
-<!-- LOGIN PAGE -->
-<div *ngIf="isLoginPage">
-    <router-outlet></router-outlet>
-</div>
+<div [class.app-wrapper]="!isLoginPage">
+    <app-header *ngIf="!isLoginPage"></app-header>
 
-<!-- OTHER PAGES -->
-<div *ngIf="!isLoginPage" class="app-wrapper">
-
-    <app-header></app-header>
-
-    <main class="app-main">
+    <main [class.app-main]="!isLoginPage">
         <router-outlet></router-outlet>
     </main>
 
-    <app-footer></app-footer>
-
+    <app-footer *ngIf="!isLoginPage"></app-footer>
 </div>
 
 <!-- Global Notification Popup -->
